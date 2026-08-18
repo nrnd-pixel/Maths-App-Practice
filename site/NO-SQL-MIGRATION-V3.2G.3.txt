@@ -1,0 +1,5 @@
+V3.2G.3 requires no SQL migration.
+
+It is a client, validation, pagination and packaged question-bank stabilization release. Keep the V3.2G.2 security migration and helper-permission fix already installed.
+
+Existing question rows are not changed automatically. Verify the 2025 Paper 1 bank through the teacher Questions screen before release: 40 logical questions, 90 marks, and Q29 active as a 2-mark drawing/manual-review response.
