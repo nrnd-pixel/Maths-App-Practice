@@ -1,0 +1,44 @@
+strand_code,strand_name,suggested_topic
+number,Number,Whole Numbers
+number,Number,Place Value
+number,Number,Addition & Subtraction
+number,Number,Multiplication & Division
+number,Number,Fractions
+number,Number,Decimals
+number,Number,Percentages
+number,Number,"Fractions, Decimals & Percentages"
+number,Number,Factors & Multiples
+number,Number,Money
+number,Number,Rates & Ratio
+number,Number,Algebra
+number,Number,Powers & Roots
+number,Number,Number Patterns
+measurement,Measurement,Length
+measurement,Measurement,Mass
+measurement,Measurement,Capacity & Volume
+measurement,Measurement,Time
+measurement,Measurement,Temperature
+measurement,Measurement,Perimeter
+measurement,Measurement,Area
+measurement,Measurement,Unit Conversion
+geometry,Geometry,2D Shapes
+geometry,Geometry,3D Shapes
+geometry,Geometry,Lines
+geometry,Geometry,Angles
+geometry,Geometry,Triangles & Quadrilaterals
+geometry,Geometry,Symmetry
+geometry,Geometry,Position & Direction
+geometry,Geometry,Tessellation
+statistics,Statistics & Data,Tables & Tallies
+statistics,Statistics & Data,Pictograms
+statistics,Statistics & Data,Bar Charts
+statistics,Statistics & Data,Line Graphs
+statistics,Statistics & Data,Data Interpretation
+statistics,Statistics & Data,Averages
+thinking,Mathematical Thinking & Problem Solving,Patterns & Rules
+thinking,Mathematical Thinking & Problem Solving,Estimation
+thinking,Mathematical Thinking & Problem Solving,One-step Problems
+thinking,Mathematical Thinking & Problem Solving,Multi-step Problems
+thinking,Mathematical Thinking & Problem Solving,Reasoning
+thinking,Mathematical Thinking & Problem Solving,Non-routine Problems
+thinking,Mathematical Thinking & Problem Solving,Pictorial Algebra
