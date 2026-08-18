@@ -1,0 +1,8 @@
+Maths Practice V3.2G.2 → V3.2G.3
+
+1. No SQL migration is required.
+2. Preserve your production config.js.
+3. Replace index.html with the V3.2G.3 copy.
+4. Replace the question-import templates and packaged question-bank assets so future imports use the corrected 40-question, 90-mark contract.
+5. Do not import the packaged bank over a working production paper unless you intentionally want to reconstruct or correct that paper.
+6. Follow DEPLOY-AND-TEST-V3.2G.3.md and test the Netlify preview before merging to main.
