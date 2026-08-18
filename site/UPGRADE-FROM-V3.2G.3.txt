@@ -1,0 +1,11 @@
+Maths Practice V3.2G.3 -> V3.3
+
+1. Do not run SQL. V3.3 uses the existing database schema and policies.
+2. Create a release branch from the current production main branch.
+3. Replace the production site files with the contents of the V3.3 upgrade package.
+4. Keep the existing production config.js if it contains your Supabase URL and browser-safe key.
+5. Open the Netlify deploy preview and complete DEPLOY-AND-TEST-V3.3.md.
+6. Merge only after the preview checks pass.
+
+Rollback:
+Replace index.html with the V3.2G.3 production copy. No database rollback is needed.

@@ -1,5 +1,9 @@
 # Migration Manifest
 
+## V3.2G.3 to V3.3
+
+No SQL migration is required. Deploy the V3.3 client and assets while keeping the V3.2G.2 security migration installed. V3.3 reads the existing teacher-authorized `practice_sessions` and `session_answers` fields. See `NO-SQL-MIGRATION-V3.3.txt`.
+
 ## V3.2G.2 to V3.2G.3
 
 No SQL migration is required. Deploy the V3.2G.3 client and assets while keeping the V3.2G.2 security migration installed. See `NO-SQL-MIGRATION-V3.2G.3.txt`.
@@ -36,4 +40,4 @@ Run these files in order:
 13. `migrate-v3.2F.2.1-to-v3.2F.3-student-access.sql`
 14. `database/14-migrate-v3.2G.1-to-v3.2G.2-security.sql`
 
-V3.2D.1, V3.2G.1 and V3.2G.3 are client-only releases and have no database migration. The top-level duplicate C.1/D migration files are convenience copies; do not run them after their numbered `database/` equivalents.
+V3.2D.1, V3.2G.1, V3.2G.3 and V3.3 are client-only releases and have no database migration. The top-level duplicate C.1/D migration files are convenience copies; do not run them after their numbered `database/` equivalents.
