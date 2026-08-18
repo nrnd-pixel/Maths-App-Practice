@@ -1,0 +1,10 @@
+Maths Practice V3.3 requires no SQL migration.
+
+Reason:
+- practice_sessions already stores the completed activity summary and student identity fields;
+- session_answers already stores strand, topic, subtopic, skill, review status, marks possible and marks awarded;
+- the existing teacher authorization policy already permits the Teacher Dashboard to read these records;
+- V3.3 calculates learning insights in the authenticated client and does not change student access.
+
+Keep the V3.2G.2 security migration and its internal-helper permission fix installed.
+Do not run a new query in Supabase for this release.
