@@ -1425,244 +1425,330 @@ boot=async function(){
   wireRegisteredStudentV331();
   renderStudentAccessPolicy();
 };
-  /* V3.4 Student Learning Dashboard */
-async function loadStudentDashboard(studentId) {
-    const fb = $('student-dashboard-feedback');
-    fb.className = 'feedback try';
-    fb.textContent = 'Loading your progress...';
-    fb.classList.remove('hidden');
+/* V3.4.2 Student Learning Dashboard - secure RPC version */
 
-    if (!cloudReady || !studentId) {
-        fb.className = 'feedback incorrect';
-        fb.textContent = 'Please connect to the cloud and enter your Student ID to view your dashboard.';
-        return;
+async function loadStudentDashboard(accessToken) {
+  const fb = $('student-dashboard-feedback');
+
+  if (!fb) return;
+
+  fb.className = 'feedback try';
+  fb.textContent = 'Loading your progress...';
+  fb.classList.remove('hidden');
+
+  if (!cloudReady || !accessToken) {
+    fb.className = 'feedback incorrect';
+    fb.textContent =
+      'Your student access could not be verified. Please return Home and sign in again.';
+    return;
+  }
+
+  try {
+    const { data, error } = await cloud.rpc(
+      'get_student_learning_dashboard',
+      {
+        p_access_token: accessToken
+      }
+    );
+
+    if (error) throw error;
+    if (!data || !data.student) {
+      throw new Error('No student dashboard data was returned.');
     }
 
-    try {
-        // 1. Fetch practice sessions
-        const { data: sessions, error: sessErr } = await cloud
-            .from('practice_sessions')
-            .select('id, topic, strand, mastery_percent, first_try_percent, completed_at, practice_mode')
-            .eq('student_id', studentId)
-            .order('completed_at', { ascending: false });
+    const student = data.student || {};
+    const summary = data.summary || {};
+    const topics = Array.isArray(data.topics) ? data.topics : [];
+    const recent = Array.isArray(data.recent) ? data.recent : [];
 
-        if (sessErr) throw sessErr;
-
-        // 2. Fetch exam attempts
-        const { data: exams, error: examErr } = await cloud
-            .from('exam_attempts')
-            .select('id, exam_year, paper, status, submitted_at')
-            .eq('student_id', studentId)
-            .eq('status', 'submitted')
-            .order('submitted_at', { ascending: false });
-
-        if (examErr) throw examErr;
-
-        // 3. Process the data
-        const totalPractice = sessions ? sessions.length : 0;
-        const totalExams = exams ? exams.length : 0;
-        const uniqueTopics = new Set(sessions ? sessions.map(s => s.topic) : []);
-        const lastActivity = sessions && sessions.length ? new Date(sessions[0].completed_at).toLocaleDateString() : '—';
-
-        const topicStats = {};
-        sessions.forEach(s => {
-            if (!topicStats[s.topic]) topicStats[s.topic] = { total: 0, count: 0, strand: s.strand };
-            topicStats[s.topic].total += Number(s.mastery_percent || 0);
-            topicStats[s.topic].count += 1;
-        });
-
-        const topicAverages = Object.entries(topicStats).map(([topic, data]) => ({
-            topic,
-            strand: data.strand,
-            avg: Math.round(data.total / data.count)
-        })).sort((a, b) => b.avg - a.avg);
-
-        const strengths = topicAverages.filter(t => t.avg >= 80).slice(0, 3);
-        const focusAreas = topicAverages.filter(t => t.avg < 80).slice(0, 3);
-
-        // 4. Update the UI Stats
-        $('student-progress-practice').textContent = totalPractice;
-        $('student-progress-exams').textContent = totalExams;
-        $('student-progress-topics').textContent = uniqueTopics.size;
-        $('student-progress-last').textContent = lastActivity;
-
-        // 5. Update Strengths
-        $('student-progress-strengths').innerHTML = strengths.length ? strengths.map(t => `
-            <article class="insight-card secure">
-                <div class="row" style="justify-content:space-between"><strong>${esc(t.topic)}</strong><span class="tag">Secure</span></div>
-                <div class="insight-bar"><span style="width:${t.avg}%"></span></div>
-                <div><strong>${t.avg}%</strong><span class="help"> Mastery</span></div>
-            </article>
-        `).join('') : '<div class="empty">Complete more practice to see your strengths.</div>';
-
-        // 6. Update Focus Areas
-        $('student-progress-focus').innerHTML = focusAreas.length ? focusAreas.map(t => `
-            <article class="insight-card ${t.avg < 60 ? 'needs-attention' : 'developing'}">
-                <div class="row" style="justify-content:space-between"><strong>${esc(t.topic)}</strong><span class="tag">${t.avg < 60 ? 'Needs attention' : 'Developing'}</span></div>
-                <div class="insight-bar"><span style="width:${t.avg}%"></span></div>
-                <div><strong>${t.avg}%</strong><span class="help"> Mastery</span></div>
-            </article>
-        `).join('') : '<div class="empty">Great job! No major focus areas yet.</div>';
-
-        // 7. Update Recent Activity
-        const recent = [
-            ...(sessions || []).slice(0, 3).map(s => ({ type: 'Practice', title: s.topic, date: s.completed_at })),
-            ...(exams || []).slice(0, 3).map(e => ({ type: 'Exam', title: `${e.exam_year} ${e.paper}`, date: e.submitted_at }))
-        ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
-        $('student-progress-recent').innerHTML = recent.length ? recent.map(r => `
-            <div class="student-insight-activity">
-                <div><strong>${r.type}</strong><div class="help">${esc(r.title)}</div></div>
-                <div><strong>${new Date(r.date).toLocaleDateString()}</strong></div>
-            </div>
-        `).join('') : '<div class="empty">No recent activity.</div>';
-
-        fb.className = 'feedback correct';
-        fb.textContent = 'Dashboard loaded successfully.';
-        setTimeout(() => fb.classList.add('hidden'), 3000);
-
-    } catch (e) {
-        console.error(e);
-        fb.className = 'feedback incorrect';
-        fb.textContent = 'Could not load dashboard data. ' + (e.message || '');
-    }
-}
-/* V3.4.1 Student Learning Dashboard - SECURE VERSION */
-async function loadStudentDashboard(studentId) {
-    const fb = $('student-dashboard-feedback');
-    fb.className = 'feedback try';
-    fb.textContent = 'Loading your progress...';
-    fb.classList.remove('hidden');
-
-    if (!cloudReady || !studentId) {
-        fb.className = 'feedback incorrect';
-        fb.textContent = 'Please connect to the cloud and enter your Student ID to view your dashboard.';
-        return;
-    }
-
-    try {
-        // 1. Fetch practice sessions
-        const { data: sessions, error: sessErr } = await cloud
-            .from('practice_sessions')
-            .select('id, topic, strand, mastery_percent, first_try_percent, completed_at, practice_mode')
-            .eq('student_id', studentId)
-            .order('completed_at', { ascending: false });
-
-        if (sessErr) throw sessErr;
-
-        // 2. Fetch exam attempts
-        const { data: exams, error: examErr } = await cloud
-            .from('exam_attempts')
-            .select('id, exam_year, paper, status, submitted_at')
-            .eq('student_id', studentId)
-            .eq('status', 'submitted')
-            .order('submitted_at', { ascending: false });
-
-        if (examErr) throw examErr;
-
-        // 3. Process the data
-        const totalPractice = sessions ? sessions.length : 0;
-        const totalExams = exams ? exams.length : 0;
-        const uniqueTopics = new Set(sessions ? sessions.map(s => s.topic) : []);
-        const lastActivity = sessions && sessions.length ? new Date(sessions[0].completed_at).toLocaleDateString() : '—';
-
-        const topicStats = {};
-        sessions.forEach(s => {
-            if (!topicStats[s.topic]) topicStats[s.topic] = { total: 0, count: 0, strand: s.strand };
-            topicStats[s.topic].total += Number(s.mastery_percent || 0);
-            topicStats[s.topic].count += 1;
-        });
-
-        const topicAverages = Object.entries(topicStats).map(([topic, data]) => ({
-            topic,
-            strand: data.strand,
-            avg: Math.round(data.total / data.count)
-        })).sort((a, b) => b.avg - a.avg);
-
-        const strengths = topicAverages.filter(t => t.avg >= 80).slice(0, 3);
-        const focusAreas = topicAverages.filter(t => t.avg < 80).slice(0, 3);
-
-        // 4. Update the UI Stats
-        $('student-progress-practice').textContent = totalPractice;
-        $('student-progress-exams').textContent = totalExams;
-        $('student-progress-topics').textContent = uniqueTopics.size;
-        $('student-progress-last').textContent = lastActivity;
-
-        // 5. Update Strengths
-        $('student-progress-strengths').innerHTML = strengths.length ? strengths.map(t => `
-            <article class="insight-card secure">
-                <div class="row" style="justify-content:space-between"><strong>${esc(t.topic)}</strong><span class="tag">Secure</span></div>
-                <div class="insight-bar"><span style="width:${t.avg}%"></span></div>
-                <div><strong>${t.avg}%</strong><span class="help"> Mastery</span></div>
-            </article>
-        `).join('') : '<div class="empty">Complete more practice to see your strengths.</div>';
-
-        // 6. Update Focus Areas
-        $('student-progress-focus').innerHTML = focusAreas.length ? focusAreas.map(t => `
-            <article class="insight-card ${t.avg < 60 ? 'needs-attention' : 'developing'}">
-                <div class="row" style="justify-content:space-between"><strong>${esc(t.topic)}</strong><span class="tag">${t.avg < 60 ? 'Needs attention' : 'Developing'}</span></div>
-                <div class="insight-bar"><span style="width:${t.avg}%"></span></div>
-                <div><strong>${t.avg}%</strong><span class="help"> Mastery</span></div>
-            </article>
-        `).join('') : '<div class="empty">Great job! No major focus areas yet.</div>';
-
-        // 7. Update Recent Activity
-        const recent = [
-            ...(sessions || []).slice(0, 3).map(s => ({ type: 'Practice', title: s.topic, date: s.completed_at })),
-            ...(exams || []).slice(0, 3).map(e => ({ type: 'Exam', title: `${e.exam_year} ${e.paper}`, date: e.submitted_at }))
-        ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
-        $('student-progress-recent').innerHTML = recent.length ? recent.map(r => `
-            <div class="student-insight-activity">
-                <div><strong>${r.type}</strong><div class="help">${esc(r.title)}</div></div>
-                <div><strong>${new Date(r.date).toLocaleDateString()}</strong></div>
-            </div>
-        `).join('') : '<div class="empty">No recent activity.</div>';
-
-        fb.className = 'feedback correct';
-        fb.textContent = 'Dashboard loaded successfully.';
-        setTimeout(() => fb.classList.add('hidden'), 3000);
-
-    } catch (e) {
-        console.error(e);
-        fb.className = 'feedback incorrect';
-        fb.textContent = 'Could not load dashboard data. ' + (e.message || '');
-    }
-}
-
-function wireV34Dashboard() {
-    const updateProgressBtn = () => {
-        const id = $('student-id')?.value.trim();
-        if ($('my-progress-btn')) {
-            if (cloudReady && id) {
-                $('my-progress-btn').classList.remove('hidden');
-            } else {
-                $('my-progress-btn').classList.add('hidden');
-            }
-        }
+    const percentText = value => {
+      const n = Number(value);
+      return Number.isFinite(n) ? `${Math.round(n)}%` : '—';
     };
 
-    if ($('student-id')) $('student-id').addEventListener('input', updateProgressBtn);
-    
-    if ($('my-progress-btn')) {
-        $('my-progress-btn').onclick = async () => {
-            // V3.4.1 SECURITY CHECK: Use the existing school login flow
-            const access = await validateStudentAccess('practice');
-            if (!access) return; // Stop here if verification fails
+    const formatDashboardDate = value => {
+      if (!value) return '—';
 
-            const verifiedId = access.student_id || $('student-id')?.value.trim();
-            if (!verifiedId) {
-                alert('Student ID is required to view the dashboard.');
-                return;
+      const d = new Date(value);
+      return Number.isNaN(d.getTime())
+        ? '—'
+        : d.toLocaleDateString();
+    };
+
+    const classText = formatYearClassV331(
+      student.year_level,
+      student.class_name
+    );
+
+    $('student-dashboard-meta').textContent =
+      `${student.student_name || 'Student'} • ${classText}`;
+
+    $('student-progress-practice').textContent =
+      Number(summary.practice_sessions || 0);
+
+    $('student-progress-exams').textContent =
+      Number(summary.exam_papers || 0);
+
+    $('student-progress-topics').textContent =
+      Number(summary.topics_practised || 0);
+
+    $('student-progress-last').textContent =
+      formatDashboardDate(summary.last_activity);
+
+    /*
+      Secure/strength topics are already calculated by Supabase
+      from marked responses only.
+
+      Pending teacher-marked responses are excluded from the
+      percentage instead of being treated as incorrect.
+    */
+    const strengths = topics
+      .filter(t => t.status === 'secure')
+      .sort((a, b) => Number(b.percent || 0) - Number(a.percent || 0))
+      .slice(0, 3);
+
+    const focusAreas = topics
+      .filter(t => t.status !== 'secure')
+      .sort((a, b) => Number(a.percent || 0) - Number(b.percent || 0))
+      .slice(0, 3);
+
+    $('student-progress-strengths').innerHTML =
+      strengths.length
+        ? strengths.map(t => `
+          <article class="insight-card secure">
+            <div class="row" style="justify-content:space-between">
+              <strong>${esc(t.topic || 'Topic')}</strong>
+              <span class="tag">Secure</span>
+            </div>
+
+            <div class="help">
+              ${esc(STRANDS[t.strand] || t.strand || '')}
+            </div>
+
+            <div class="insight-bar">
+              <span style="width:${Math.max(
+                0,
+                Math.min(100, Number(t.percent || 0))
+              )}%"></span>
+            </div>
+
+            <div>
+              <strong>${percentText(t.percent)}</strong>
+              <span class="help"> scored performance</span>
+            </div>
+
+            <div class="help">
+              ${Number(t.scored_responses || 0)}
+              scored response${Number(t.scored_responses || 0) === 1 ? '' : 's'}
+            </div>
+          </article>
+        `).join('')
+        : '<div class="empty">Complete more marked work to build your strengths profile.</div>';
+
+    $('student-progress-focus').innerHTML =
+      focusAreas.length
+        ? focusAreas.map(t => {
+            const needsAttention =
+              t.status === 'needs_attention';
+
+            const statusLabel =
+              needsAttention
+                ? 'Needs attention'
+                : 'Developing';
+
+            return `
+              <article class="insight-card ${
+                needsAttention
+                  ? 'needs-attention'
+                  : 'developing'
+              }">
+
+                <div class="row" style="justify-content:space-between">
+                  <strong>${esc(t.topic || 'Topic')}</strong>
+                  <span class="tag">${statusLabel}</span>
+                </div>
+
+                <div class="help">
+                  ${esc(STRANDS[t.strand] || t.strand || '')}
+                </div>
+
+                <div class="insight-bar">
+                  <span style="width:${Math.max(
+                    0,
+                    Math.min(100, Number(t.percent || 0))
+                  )}%"></span>
+                </div>
+
+                <div>
+                  <strong>${percentText(t.percent)}</strong>
+                  <span class="help"> scored performance</span>
+                </div>
+
+                <div class="help">
+                  ${Number(t.scored_responses || 0)}
+                  scored response${Number(t.scored_responses || 0) === 1 ? '' : 's'}
+                </div>
+              </article>
+            `;
+          }).join('')
+        : '<div class="empty">No focus areas have been identified yet.</div>';
+
+    $('student-progress-recent').innerHTML =
+      recent.length
+        ? recent.map(r => {
+            const isExam = r.mode === 'exam';
+            const pending =
+              Number(r.pending_review_count || 0);
+
+            let resultText = '';
+
+            if (isExam) {
+              const awarded = Number(r.marks_awarded || 0);
+              const possible = Number(r.marks_possible || 0);
+
+              resultText = possible
+                ? `${awarded}/${possible} marks`
+                : 'Exam submitted';
+
+              if (pending) {
+                resultText +=
+                  ` · ${pending} awaiting review`;
+              }
+            } else {
+              const firstTry =
+                percentText(r.first_try_percent);
+
+              const mastery =
+                percentText(r.mastery_percent);
+
+              resultText =
+                `First try ${firstTry} · Mastery ${mastery}`;
+
+              if (pending) {
+                resultText +=
+                  ` · ${pending} awaiting review`;
+              }
             }
 
-            // If we get here, the student is verified!
-            activeStudentAccess = access;
-            await loadStudentDashboard(verifiedId);
-            show('student-dashboard');
-        };
+            return `
+              <div class="student-insight-activity">
+                <div>
+                  <strong>
+                    ${isExam ? '📝 Exam' : '📘 Practice'}
+                  </strong>
+
+                  <div>
+                    ${esc(r.title || (isExam ? 'Exam' : 'Practice'))}
+                  </div>
+
+                  <div class="help">
+                    ${esc(resultText)}
+                  </div>
+                </div>
+
+                <div>
+                  <strong>
+                    ${formatDashboardDate(r.completed_at)}
+                  </strong>
+                </div>
+              </div>
+            `;
+          }).join('')
+        : '<div class="empty">No completed activity yet.</div>';
+
+    fb.className = 'feedback correct';
+    fb.textContent = 'Dashboard loaded successfully.';
+
+    setTimeout(() => {
+      fb.classList.add('hidden');
+    }, 2500);
+
+  } catch (e) {
+    console.error(e);
+
+    fb.className = 'feedback incorrect';
+
+    if (
+      String(e?.message || '')
+        .toLowerCase()
+        .includes('verified')
+    ) {
+      fb.textContent =
+        'Your student login has expired or could not be verified. Return Home and sign in again.';
+    } else {
+      fb.textContent =
+        `Could not load your progress. ${e?.message || ''}`.trim();
     }
+  }
 }
+
+
+function wireV34Dashboard() {
+
+  const updateProgressBtn = () => {
+    const id =
+      $('student-id')?.value.trim() || '';
+
+    const btn =
+      $('my-progress-btn');
+
+    if (!btn) return;
+
+    btn.classList.toggle(
+      'hidden',
+      !cloudReady || !id
+    );
+  };
+
+
+  $('student-id')?.addEventListener(
+    'input',
+    updateProgressBtn
+  );
+
+
+  if ($('my-progress-btn')) {
+
+    $('my-progress-btn').onclick =
+      async () => {
+
+        /*
+          Authenticate through the same student login
+          system used by Practice Mode.
+        */
+        const access =
+          await validateStudentAccess('practice');
+
+        if (!access?.access_token) {
+          return;
+        }
+
+        /*
+          Keep the verified identity in memory,
+          but never use the typed Student ID to
+          retrieve dashboard records.
+        */
+        activeStudentAccess = access;
+
+        showVerifiedStudentV331(access);
+
+        /*
+          Show the dashboard immediately so the
+          student can see the loading state.
+        */
+        show('student-dashboard');
+
+        /*
+          Supabase derives roster_student_id from
+          the secure temporary access token.
+        */
+        await loadStudentDashboard(
+          access.access_token
+        );
+      };
+  }
+}
+
 
 wireV34Dashboard();
 boot();
