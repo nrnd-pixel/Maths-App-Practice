@@ -1126,7 +1126,239 @@ function wireV32DExtras(){
   $('practice-mode-btn').onclick=()=>setStartMode('practice');$('exam-mode-btn').onclick=()=>setStartMode('exam');$('start-btn').onclick=()=>startMode==='exam'?startExam():startPractice();$('year-level').addEventListener('change',()=>{if(startMode==='exam')loadExamOptions()});$('exam-year').onchange=()=>fillExamPapers();$('exam-paper').onchange=updateExamPaperNote;$('exam-prev-btn').onclick=()=>goExamQuestion(examSession.index-1);$('exam-next-btn').onclick=()=>{if(examSession.index<examSession.questions.length-1)goExamQuestion(examSession.index+1);else{saveExamCurrentResponse();renderExamNavigator();const m=countExamUnanswered();alert(m.parts?`${m.parts} unanswered part${m.parts===1?'':'s'} remain. Use the navigator or Submit Paper when ready.`:'All questions have responses. Review any flagged questions, then submit the paper.') }};$('exam-flag-btn').onclick=toggleExamFlag;$('exam-submit-btn').onclick=()=>submitExamFinal(false);$('exam-exit-btn').onclick=exitExam;$('exam-question-root').addEventListener('input',()=>queueExamAutosave());$('exam-question-root').addEventListener('change',()=>queueExamAutosave());window.addEventListener('beforeunload',()=>{if(examSession){saveExamCurrentResponse(false);persistAttemptLocally()}});$('copy-exam-result-code').onclick=copyExamResultCode;$('exam-check-reviewed').onclick=()=>openStudentReview($('exam-check-reviewed').dataset.code||'');$('refresh-exam-settings').onclick=loadExamSettingsEditor;document.querySelector('[data-panel="exam-settings-panel"]').addEventListener('click',loadExamSettingsEditor);$('refresh-attempts').onclick=loadTeacher;$('attempt-search').oninput=renderExamAttempts;$('attempt-status-filter').onchange=renderExamAttempts;document.querySelector('[data-panel="attempts-panel"]').addEventListener('click',renderExamAttempts);$('refresh-classes').onclick=loadTeacher;$('add-class').onclick=addSchoolClass;$('import-roster').onclick=importClassRoster;$('save-assignment').onclick=saveExamAssignment;$('export-participation').onclick=exportParticipation;document.querySelector('[data-panel="classes-panel"]').addEventListener('click',renderClassAdmin)
 }
 async function boot(){wire();wireV32CExtras();wireV32DExtras();wireV32F3();wireV32G1();await initCloud();await loadStudentAccessPolicy();setStartMode('practice');await loadExamOptions()}
+/* V3.3.1 student login UX */
+let studentClassOptionsV331=[];
 
+function renderStudentClassOptionsV331(preferred=''){
+  const year=Number($('year-level')?.value||6);
+  const cls=$('class-group');
+  if(!cls||!studentClassOptionsV331.length)return;
+
+  const names=[...new Set(
+    studentClassOptionsV331
+      .filter(c=>Number(c.year_level)===year)
+      .map(c=>String(c.class_name||'').trim())
+      .filter(Boolean)
+  )].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+
+  cls.innerHTML='';
+
+  if(!names.length){
+    cls.add(new Option('Other','Other'));
+    cls.value='Other';
+    return;
+  }
+
+  names.forEach(name=>cls.add(new Option(name,name)));
+  cls.value=names.includes(preferred)?preferred:names[0];
+}
+
+async function loadStudentClassOptionsV331(){
+  if(!cloudReady)return;
+
+  try{
+    const {data,error}=await cloud.rpc('get_student_class_options');
+    if(error)throw error;
+
+    studentClassOptionsV331=data||[];
+    renderStudentClassOptionsV331();
+  }catch(e){
+    console.warn('Could not load registered class options.',e);
+  }
+}
+
+function formatYearClassV331(year,className){
+  const cls=String(className||'').trim();
+
+  if(!cls||cls==='Other')return `Year ${year}`;
+  return /^\d/.test(cls)
+    ? `Year ${year} · ${cls}`
+    : `Year ${year}${cls}`;
+}
+
+const applyVerifiedStudentV331Base=applyVerifiedStudent;
+
+applyVerifiedStudent=function(access){
+  if(!access)return;
+
+  const year=$('year-level');
+  const cls=$('class-group');
+
+  if(year&&access.year_level)
+    year.value=String(access.year_level);
+
+  renderStudentClassOptionsV331(access.class_name||'');
+  applyVerifiedStudentV331Base(access);
+
+  const registered=
+    studentAccessPolicy.access_mode!=='open' ||
+    !!access.registered ||
+    !!access.roster_student_id;
+
+  if(year)year.disabled=registered;
+  if(cls)cls.disabled=registered;
+};
+
+function wireV331(){
+  const year=$('year-level');
+  const cls=$('class-group');
+  const studentId=$('student-id');
+
+  year?.addEventListener('change',()=>{
+    renderStudentClassOptionsV331();
+  });
+
+  studentId?.addEventListener('input',()=>{
+    activeStudentAccess=null;
+
+    if(year)year.disabled=false;
+    if(cls)cls.disabled=false;
+
+    renderStudentClassOptionsV331(cls?.value||'');
+  });
+}
+
+const startPracticeV331Base=startPractice;
+
+startPractice=async function(){
+  await startPracticeV331Base();
+
+  if(state?.questions?.length&&$('class-pill')){
+    $('class-pill').textContent=
+      formatYearClassV331(state.year,state.classGroup);
+  }
+};
+
+const startExamV331Base=startExam;
+
+startExam=async function(){
+  await startExamV331Base();
+
+  if(examSession&&$('exam-student-line')){
+    $('exam-student-line').textContent=
+      `${examSession.student}${examSession.studentId
+        ? ` • ${examSession.studentId}`
+        : ''} • ${formatYearClassV331(
+          examSession.year,
+          examSession.classGroup
+        )}`;
+  }
+};
+
+const finishPracticeV331Base=finishPractice;
+
+finishPractice=async function(early){
+  await finishPracticeV331Base(early);
+
+  if($('result-name')){
+    $('result-name').textContent=
+      `${state.student} • ${formatYearClassV331(
+        state.year,
+        state.classGroup
+      )}`;
+  }
+};
+
+const bootV331Base=boot;
+
+boot=async function(){
+  await bootV331Base();
+  wireV331();
+  await loadStudentClassOptionsV331();
+};
+/* V3.3.1 simplified registered-student login */
+const renderStudentAccessPolicyV331SimpleBase=renderStudentAccessPolicy;
+
+renderStudentAccessPolicy=function(){
+  renderStudentAccessPolicyV331SimpleBase();
+
+  const mode=studentAccessPolicy.access_mode||'open';
+  const restricted=mode!=='open';
+
+  const name=$('student-name');
+  const year=$('year-level');
+  const cls=$('class-group');
+  const note=$('student-access-note');
+
+  name?.closest('label')?.classList.toggle('hidden',restricted);
+  year?.closest('label')?.classList.toggle('hidden',restricted);
+  cls?.closest('label')?.classList.toggle('hidden',restricted);
+
+  if(!restricted){
+    if(year)year.disabled=false;
+    if(cls)cls.disabled=false;
+    return;
+  }
+
+  if(note){
+    note.className='info wide';
+    note.innerHTML=mode==='student_pin'
+      ? '<strong>Student login:</strong> Enter your Student ID and PIN. Your name, year and class will be loaded automatically.'
+      : '<strong>Student login:</strong> Enter your Student ID. Your name, year and class will be loaded automatically.';
+  }
+};
+
+function showVerifiedStudentV331(access){
+  const note=$('student-access-note');
+  if(!note||!access)return;
+
+  note.className='feedback correct wide';
+  note.innerHTML=
+    `<strong>✓ Welcome, ${esc(access.student_name||'Student')}</strong><br>`+
+    `${esc(formatYearClassV331(access.year_level,access.class_name))}`;
+}
+
+async function previewRegisteredStudentV331(){
+  if((studentAccessPolicy.access_mode||'open')==='open')return;
+
+  const id=$('student-id')?.value.trim()||'';
+  if(!id)return;
+
+  const access=await validateStudentAccess(
+    startMode==='exam'?'exam':'practice'
+  );
+
+  if(!access)return;
+
+  activeStudentAccess=access;
+  showVerifiedStudentV331(access);
+
+  if(startMode==='exam'){
+    await loadExamOptions();
+  }
+}
+
+function wireRegisteredStudentV331(){
+  const id=$('student-id');
+
+  id?.addEventListener('blur',()=>{
+    previewRegisteredStudentV331();
+  });
+
+  id?.addEventListener('input',()=>{
+    if((studentAccessPolicy.access_mode||'open')==='open')return;
+
+    activeStudentAccess=null;
+
+    const name=$('student-name');
+    const year=$('year-level');
+    const cls=$('class-group');
+
+    if(name)name.value='';
+    if(year)year.disabled=false;
+    if(cls)cls.disabled=false;
+
+    renderStudentAccessPolicy();
+  });
+}
+
+const bootV331SimpleBase=boot;
+
+boot=async function(){
+  await bootV331SimpleBase();
+  wireRegisteredStudentV331();
+  renderStudentAccessPolicy();
+};
 boot();
 </script>
 </body>
