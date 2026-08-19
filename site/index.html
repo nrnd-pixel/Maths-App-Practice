@@ -78,11 +78,229 @@
   display:flex;
   justify-content:flex-end;
 }
+
+/* V3.5 Light / Dark Mode */
+
+:root{
+  --page-top:#eaf3ff;
+  --surface:#fff;
+  --surface-soft:#fbfcfe;
+  --surface-muted:#f8fafc;
+  --surface-control:#eef2f7;
+  --surface-chip:#f2f4f7;
+  --focus-ring:#dbeafe;
+  --bar-bg:#e7ebf0;
+
+  --secure-card:#f5fff8;
+  --develop-card:#fffaf0;
+  --attention-card:#fff8f8;
+}
+
+:root[data-theme="dark"]{
+  --bg:#0b1220;
+  --card:#111827;
+  --text:#e5e7eb;
+  --muted:#a7b0c0;
+  --border:#334155;
+
+  --primary:#60a5fa;
+  --primary2:#3b82f6;
+  --soft:#172554;
+
+  --success:#86efac;
+  --successbg:#052e16;
+
+  --danger:#fca5a5;
+  --dangerbg:#450a0a;
+
+  --warn:#fbbf24;
+  --warnbg:#422006;
+
+  --shadow:0 14px 42px rgba(0,0,0,.32);
+
+  --page-top:#111d35;
+  --surface:#111827;
+  --surface-soft:#0f172a;
+  --surface-muted:#162033;
+  --surface-control:#1e293b;
+  --surface-chip:#243244;
+
+  --focus-ring:#1e3a5f;
+  --bar-bg:#263449;
+
+  --secure-card:#10281b;
+  --develop-card:#2b2110;
+  --attention-card:#2d1719;
+
+  color-scheme:dark;
+}
+
+
+/* Follow device theme until the user chooses one */
+
+@media (prefers-color-scheme:dark){
+
+  :root:not([data-theme]){
+    --bg:#0b1220;
+    --card:#111827;
+    --text:#e5e7eb;
+    --muted:#a7b0c0;
+    --border:#334155;
+
+    --primary:#60a5fa;
+    --primary2:#3b82f6;
+    --soft:#172554;
+
+    --success:#86efac;
+    --successbg:#052e16;
+
+    --danger:#fca5a5;
+    --dangerbg:#450a0a;
+
+    --warn:#fbbf24;
+    --warnbg:#422006;
+
+    --shadow:0 14px 42px rgba(0,0,0,.32);
+
+    --page-top:#111d35;
+    --surface:#111827;
+    --surface-soft:#0f172a;
+    --surface-muted:#162033;
+    --surface-control:#1e293b;
+    --surface-chip:#243244;
+
+    --focus-ring:#1e3a5f;
+    --bar-bg:#263449;
+
+    --secure-card:#10281b;
+    --develop-card:#2b2110;
+    --attention-card:#2d1719;
+
+    color-scheme:dark;
+  }
+}
+
+
+/* Theme-aware existing interface surfaces */
+
+body{
+  background:
+    linear-gradient(
+      180deg,
+      var(--page-top) 0,
+      var(--bg) 340px
+    );
+}
+
+input,
+select,
+textarea,
+.outline,
+.qcard,
+.image-manager,
+.modal-card,
+.choice-option,
+.response-config-box,
+.reviewcard,
+.multipart-part,
+.analytics-section,
+table{
+  background:var(--surface);
+  color:var(--text);
+}
+
+.answerbox,
+.editor,
+.dropzone,
+.student-preview,
+.student-insight-activity,
+.insight-card{
+  background:var(--surface-soft);
+}
+
+.info,
+.stat,
+th,
+.analytics-definition,
+.disabled-note{
+  background:var(--surface-muted);
+}
+
+.secondary,
+.password-toggle{
+  background:var(--surface-control);
+  color:var(--text);
+}
+
+.progress,
+.insight-bar{
+  background:var(--bar-bg);
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline-color:var(--focus-ring);
+}
+
+
+/* Keep learning-status meaning visible in both themes */
+
+.insight-card.secure{
+  background:var(--secure-card);
+}
+
+.insight-card.developing{
+  background:var(--develop-card);
+}
+
+.insight-card.needs-attention{
+  background:var(--attention-card);
+}
+
+
+/* Global theme control */
+
+.app-theme-bar{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:8px;
+}
+
+.theme-toggle{
+  min-height:38px;
+  padding:7px 12px;
+  font-size:13px;
+}
+
+
+/*
+  Diagrams and drawing canvases intentionally remain white
+  so mathematical images and student drawings retain contrast.
+*/
+
+.drawing-stage,
+.review-drawing,
+.editor-image-preview{
+  background:#fff;
+}
   
 </style>
 </head>
 <body>
 <main class="shell">
+
+<div class="app-theme-bar">
+  <button
+    id="theme-toggle"
+    class="outline theme-toggle"
+    type="button"
+    aria-label="Switch colour theme"
+  >
+    🌙 Dark
+  </button>
+</div>
+  
 <section id="start" class="card screen active">
   <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Brunei Primary Mathematics Practice</p><span class="badge local">Version 3.4.2 • Student Learning Dashboard</span></div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
   <div class="mode-switch" role="group" aria-label="Choose activity mode">
