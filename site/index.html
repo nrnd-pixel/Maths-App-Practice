@@ -71,8 +71,13 @@
     <div id="exam-instructions" class="exam-instructions hidden"></div>
     <div id="student-access-note" class="info wide">Loading student access settings…</div>
   </div>
-  <div class="buttons"><button id="start-btn" class="primary">Start Practice</button><button id="check-reviewed-btn" class="secondary">Check Reviewed Work</button><button id="teacher-btn" class="secondary">Teacher Dashboard</button><button id="setup-btn" class="outline">Cloud Setup</button></div>
-  <div class="info"><strong>V3.3:</strong> Teachers can now identify topic and skill strengths, focus areas, and open a learner profile without changing the student exam or marking workflow.</div>
+<div class="buttons">
+  <button id="start-btn" class="primary">Start Practice</button>
+  <button id="my-progress-btn" class="secondary hidden">📊 My Progress</button>
+  <button id="check-reviewed-btn" class="secondary">Check Reviewed Work</button>
+  <button id="teacher-btn" class="secondary">Teacher Dashboard</button>
+  <button id="setup-btn" class="outline">Cloud Setup</button>
+</div>  <div class="info"><strong>V3.3:</strong> Teachers can now identify topic and skill strengths, focus areas, and open a learner profile without changing the student exam or marking workflow.</div>
 </section>
 
 <section id="setup" class="card screen">
@@ -140,7 +145,68 @@
   </div>
   <div id="student-review-content" class="student-review-content"></div>
 </section>
+<section id="student-dashboard" class="card screen">
+  <div class="header">
+    <div>
+      <h1>📊 My Progress</h1>
+      <p id="student-dashboard-meta" class="muted">
+        Your mathematics learning progress.
+      </p>
+    </div>
+    <button class="secondary back-home">Home</button>
+  </div>
 
+  <div id="student-dashboard-feedback" class="feedback hidden"></div>
+
+  <div id="student-dashboard-summary" class="student-insight-summary">
+    <div class="stat">
+      <strong id="student-progress-practice">—</strong>
+      <small>Practice sessions</small>
+    </div>
+    <div class="stat">
+      <strong id="student-progress-exams">—</strong>
+      <small>Exam papers</small>
+    </div>
+    <div class="stat">
+      <strong id="student-progress-topics">—</strong>
+      <small>Topics practised</small>
+    </div>
+    <div class="stat">
+      <strong id="student-progress-last">—</strong>
+      <small>Last activity</small>
+    </div>
+  </div>
+
+  <section class="analytics-section">
+    <div class="analytics-section-head">
+      <div>
+        <h3>🌟 My Strengths</h3>
+        <p class="muted">Topics where you are performing well.</p>
+      </div>
+    </div>
+    <div id="student-progress-strengths" class="insight-grid"></div>
+  </section>
+
+  <section class="analytics-section">
+    <div class="analytics-section-head">
+      <div>
+        <h3>🎯 My Focus Areas</h3>
+        <p class="muted">Topics that would benefit from more practice.</p>
+      </div>
+    </div>
+    <div id="student-progress-focus" class="insight-grid"></div>
+  </section>
+
+  <section class="analytics-section">
+    <div class="analytics-section-head">
+      <div>
+        <h3>Recent Activity</h3>
+        <p class="muted">Your recent Practice and Exam work.</p>
+      </div>
+    </div>
+    <div id="student-progress-recent" class="student-insight-recent"></div>
+  </section>
+</section>
 <section id="login" class="card screen">
   <div class="header"><div><h1>Teacher Login</h1><p class="muted">Sign in for shared results and question management.</p></div><button class="secondary back-home">Back</button></div>
   <div class="authbox"><label>Email<input id="teacher-email" type="email" autocomplete="email"></label><label style="margin-top:12px">Password<div class="password-row"><input id="teacher-password" type="password" autocomplete="current-password"><button id="toggle-login-password" class="password-toggle" type="button">Show</button></div></label><div class="buttons"><button id="login-btn" class="primary">Sign In</button><button id="forgot-btn" class="outline" type="button">Forgot Password?</button></div><div id="login-feedback" class="feedback hidden"></div></div>
