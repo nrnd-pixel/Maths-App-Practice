@@ -1646,7 +1646,7 @@ function wireV34Dashboard() {
     if ($('my-progress-btn')) {
         $('my-progress-btn').onclick = async () => {
             // V3.4.1 SECURITY CHECK: Use the existing school login flow
-            const access = await validateStudentAccess('dashboard');
+            const access = await validateStudentAccess('practice');
             if (!access) return; // Stop here if verification fails
 
             const verifiedId = access.student_id || $('student-id')?.value.trim();
