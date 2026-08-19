@@ -1374,16 +1374,25 @@ function showVerifiedStudentV331(access){
     `${esc(formatYearClassV331(access.year_level,access.class_name))}`;
 }
 
-async function previewRegisteredStudentV331(){
-  if((studentAccessPolicy.access_mode||'open')==='open')return;
+  async function previewRegisteredStudentV331(){
+  const mode=studentAccessPolicy.access_mode||'open';
+
+  if(mode==='open')return;
 
   const id=$('student-id')?.value.trim()||'';
   if(!id)return;
 
+  // In PIN mode, wait until the student has entered a PIN.
+  if(
+    mode==='student_pin' &&
+    !($('student-pin')?.value.trim())
+  ){
+    return;
+  }
+
   const access=await validateStudentAccess(
     startMode==='exam'?'exam':'practice'
   );
-
   if(!access)return;
 
   activeStudentAccess=access;
