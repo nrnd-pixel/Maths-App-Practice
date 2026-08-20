@@ -160,6 +160,124 @@
   }
 }
   
+
+/* V3.6 Teacher Assignment Summary */
+
+.assignment-card-v36{
+  background:var(--surface-soft);
+}
+
+.teacher-assignment-timing{
+  white-space:nowrap;
+}
+
+.teacher-assignment-timing.upcoming{
+  background:var(--soft);
+  color:var(--primary);
+}
+
+.teacher-assignment-timing.active{
+  background:var(--successbg);
+  color:var(--success);
+}
+
+.teacher-assignment-timing.due-passed{
+  background:var(--warnbg);
+  color:var(--warn);
+}
+
+.teacher-assignment-timing.paused{
+  background:var(--surface-control);
+  color:var(--muted);
+}
+
+.teacher-assignment-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;
+  margin-top:14px;
+}
+
+.teacher-assignment-stat{
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:11px;
+  background:var(--surface-muted);
+}
+
+.teacher-assignment-stat strong{
+  display:block;
+  font-size:21px;
+}
+
+.teacher-assignment-stat small{
+  color:var(--muted);
+}
+
+.teacher-assignment-progress{
+  display:grid;
+  gap:9px;
+  margin-top:14px;
+}
+
+.teacher-assignment-progress-row{
+  display:grid;
+  grid-template-columns:minmax(120px,180px) 1fr auto;
+  gap:10px;
+  align-items:center;
+}
+
+.teacher-assignment-progress-bar{
+  height:10px;
+  overflow:hidden;
+  border-radius:999px;
+  background:var(--bar-bg);
+}
+
+.teacher-assignment-progress-bar span{
+  display:block;
+  height:100%;
+  background:var(--primary);
+}
+
+.teacher-assignment-progress-row.complete
+.teacher-assignment-progress-bar span{
+  background:var(--success);
+}
+
+.teacher-assignment-not-started{
+  margin-top:12px;
+}
+
+.teacher-assignment-not-started summary{
+  cursor:pointer;
+  font-weight:800;
+}
+
+.teacher-assignment-attention{
+  margin-top:12px;
+  border:1px solid var(--danger);
+  border-radius:12px;
+  padding:11px 12px;
+  background:var(--attention-card);
+  color:var(--text);
+}
+
+@media(max-width:700px){
+  .teacher-assignment-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .teacher-assignment-progress-row{
+    grid-template-columns:1fr auto;
+  }
+
+  .teacher-assignment-progress-bar{
+    grid-column:1/-1;
+    grid-row:2;
+  }
+}
+
 /* V3.5 Light / Dark Mode */
 
 :root{
@@ -1359,12 +1477,118 @@ function assignmentStudentStatus(assignment,student){const attempts=teacherAttem
 function renderClassAdmin(){
   const classList=$('class-list');if(!classList)return;if(!cloudReady||!teacherUser){classList.innerHTML='<div class="info">Connect to Supabase and sign in as a teacher to manage classes.</div>';$('selected-class-content').classList.add('hidden');$('selected-class-empty').classList.remove('hidden');return}if(selectedClassId&&!teacherClasses.some(c=>String(c.id)===String(selectedClassId)))selectedClassId=null;if(!selectedClassId&&teacherClasses.length)selectedClassId=teacherClasses[0].id;classList.innerHTML=teacherClasses.length?teacherClasses.map(c=>`<button type="button" class="class-select ${String(c.id)===String(selectedClassId)?'active':''}" data-class-id="${esc(c.id)}"><strong>${esc(c.name)}</strong><span class="help">Year ${esc(c.year_level)} · ${teacherStudents.filter(s=>String(s.class_id)===String(c.id)&&s.active!==false).length} active students</span></button>`).join(''):'<div class="empty">No classes yet.</div>';classList.querySelectorAll('[data-class-id]').forEach(b=>b.onclick=()=>{selectedClassId=b.dataset.classId;renderClassAdmin()});const cls=teacherClasses.find(c=>String(c.id)===String(selectedClassId));$('selected-class-empty').classList.toggle('hidden',!!cls);$('selected-class-content').classList.toggle('hidden',!cls);if(!cls)return;$('selected-class-title').textContent=`${cls.name} · Year ${cls.year_level}`;const students=teacherStudents.filter(s=>String(s.class_id)===String(cls.id));$('roster-list').innerHTML=students.length?students.map(s=>`<div class="roster-row"><div><strong>${esc(s.student_name)}</strong><div class="help">${esc(s.student_id)} · ${s.active===false?'Inactive':'Active'}</div></div><button class="outline toggle-student" data-id="${esc(s.id)}" data-active="${s.active===false?'false':'true'}" type="button">${s.active===false?'Reactivate':'Deactivate'}</button></div>`).join(''):'<div class="empty">No students in this class.</div>';document.querySelectorAll('.toggle-student').forEach(b=>b.onclick=()=>toggleRosterStudent(b.dataset.id,b.dataset.active==='true'));const papers=new Map();teacherQuestions.forEach(q=>{if(Number(q.year_level)===Number(cls.year_level)&&q.exam_year&&String(q.paper||'').trim())papers.set(`${q.exam_year}::${String(q.paper).trim()}`,{examYear:q.exam_year,paper:String(q.paper).trim()})});$('assignment-paper').innerHTML='<option value="">Select a paper</option>'+[...papers.entries()].sort((a,b)=>b[1].examYear-a[1].examYear||a[1].paper.localeCompare(b[1].paper,undefined,{numeric:true})).map(([k,p])=>`<option value="${esc(k)}">${esc(`${p.examYear} · ${p.paper}`)}</option>`).join('');const assignments=teacherAssignments.filter(a=>String(a.class_id)===String(cls.id));$('assignment-list').innerHTML=assignments.length?assignments.map(a=>{const roster=students.filter(s=>s.active!==false),statuses=roster.map(s=>assignmentStudentStatus(a,s)),started=statuses.filter(s=>s.attempt).length,submitted=statuses.filter(s=>s.attempt&&['submitted','time_expired','completed','awaiting_review'].includes(s.attempt.status)||['completed','awaiting_review','time_expired'].includes(s.key)).length,complete=statuses.filter(s=>s.key==='completed'||(s.key==='time_expired'&&Number(s.attempt&&teacherResults.find(r=>String(r.id)===String(s.attempt.practice_session_id))?.pending_review_count||0)===0)).length,pct=roster.length?Math.round(started/roster.length*100):0;return `<article class="assignment-card"><div class="header"><div><h3 style="margin:0">${esc(`${a.exam_year} · ${a.paper}`)}</h3><div class="help">${a.opens_at?`Opens ${new Date(a.opens_at).toLocaleString()}`:'Open immediately'} · ${a.closes_at?`Closes ${new Date(a.closes_at).toLocaleString()}`:'No closing date'} · ${a.attempt_limit} attempt${a.attempt_limit===1?'':'s'}</div></div><span class="tag ${a.active?'availability-on':'availability-off'}">${a.active?'Active':'Inactive'}</span></div><div class="pills"><span class="tag">${started}/${roster.length} started</span><span class="tag">${submitted} submitted</span><span class="tag">${complete} fully marked</span><span class="tag">${roster.length-started} not started</span></div><div class="participation-bar"><span style="width:${pct}%"></span></div><details style="margin-top:10px"><summary>Student participation</summary>${roster.map(s=>{const st=assignmentStudentStatus(a,s);return `<div class="roster-row"><span><strong>${esc(s.student_name)}</strong><span class="help">${esc(s.student_id)}</span></span><span class="attempt-status ${st.key==='not_started'?'incomplete':st.key==='in_progress'?'in-progress':st.key==='time_expired'?'time-expired':'completed'}">${esc(st.label)}</span></div>`}).join('')||'<div class="empty">No active students.</div>'}</details><div class="buttons"><button class="outline toggle-assignment" data-id="${esc(a.id)}" data-active="${a.active?'true':'false'}" type="button">${a.active?'Deactivate':'Activate'}</button></div></article>`}).join(''):'<div class="empty">No assignments for this class.</div>';document.querySelectorAll('.toggle-assignment').forEach(b=>b.onclick=()=>toggleAssignment(b.dataset.id,b.dataset.active==='true'))
 }
+
+function assignmentTimingStateV36(assignment){
+  const now=Date.now();
+  const opens=Date.parse(assignment.opens_at);
+  const closes=Date.parse(assignment.closes_at);
+  if(!assignment.active)return{key:'paused',label:'Paused'};
+  if(Number.isFinite(opens)&&opens>now)return{key:'upcoming',label:'Upcoming'};
+  if(Number.isFinite(closes)&&closes<now)return{key:'due-passed',label:'Target Due Passed'};
+  return{key:'active',label:'Active'}
+}
+function assignmentStatusGroupV36(status){
+  const raw=String(status.attempt?.status||'');
+  if(!status.attempt)return'not_started';
+  if(['cancelled','incomplete'].includes(raw)||status.key==='incomplete')return'attention';
+  if(status.key==='in_progress')return'in_progress';
+  if(status.key==='completed')return'completed';
+  if(status.key==='time_expired'){
+    const result=teacherResults.find(r=>String(r.id)===String(status.attempt.practice_session_id));
+    return Number(result?.pending_review_count||0)===0?'completed':'submitted'
+  }
+  if(status.key==='awaiting_review')return'submitted';
+  if(raw==='completed')return'completed';
+  if(['submitted','time_expired','awaiting_review'].includes(raw))return'submitted';
+  return'in_progress'
+}
+function assignmentSummaryV36(assignment,roster){
+  const entries=roster.map(student=>{
+    const status=assignmentStudentStatus(assignment,student);
+    return{student,status,group:assignmentStatusGroupV36(status)}
+  });
+  const pick=group=>entries.filter(entry=>entry.group===group);
+  const started=entries.filter(entry=>entry.status.attempt).length;
+  const completed=pick('completed');
+  return{
+    entries,
+    notStarted:pick('not_started'),
+    inProgress:pick('in_progress'),
+    submitted:pick('submitted'),
+    completed,
+    attention:pick('attention'),
+    participationPercent:roster.length?Math.round(started/roster.length*100):0,
+    completionPercent:roster.length?Math.round(completed.length/roster.length*100):0
+  }
+}
 const renderClassAdminV32F2=renderClassAdmin;
 renderClassAdmin=function(){
   renderClassAdminV32F2();
   if(!cloudReady||!teacherUser)return;
+  const roster=teacherStudents.filter(s=>String(s.class_id)===String(selectedClassId)&&s.active!==false);
   const assignments=teacherAssignments.filter(a=>String(a.class_id)===String(selectedClassId));
-  document.querySelectorAll('#assignment-list .assignment-card').forEach((card,index)=>{const a=assignments[index];if(!a)return;const help=card.querySelector('.help'),badge=card.querySelector('.availability-on,.availability-off'),button=card.querySelector('.toggle-assignment');if(help)help.textContent=`${a.opens_at?`Suggested start ${new Date(a.opens_at).toLocaleString()}`:'No suggested start'} · ${a.closes_at?`Target due ${new Date(a.closes_at).toLocaleString()}`:'No target due date'} · ${a.attempt_limit} target attempt${a.attempt_limit===1?'':'s'} · Guidance only`;if(badge)badge.textContent=a.active?'Tracking':'Paused';if(button)button.textContent=a.active?'Pause tracking':'Start tracking'});
+  document.querySelectorAll('#assignment-list .assignment-card').forEach((card,index)=>{
+    const assignment=assignments[index];
+    if(!assignment)return;
+    const timing=assignmentTimingStateV36(assignment);
+    const summary=assignmentSummaryV36(assignment,roster);
+    const help=card.querySelector('.header .help');
+    const badge=card.querySelector('.availability-on,.availability-off');
+    const toggle=card.querySelector('.toggle-assignment');
+    card.classList.add('assignment-card-v36');
+    if(help)help.textContent=`${assignment.opens_at?`Suggested start ${new Date(assignment.opens_at).toLocaleString()}`:'No suggested start'} · ${assignment.closes_at?`Target due ${new Date(assignment.closes_at).toLocaleString()}`:'No target due date'} · ${assignment.attempt_limit} target attempt${assignment.attempt_limit===1?'':'s'} · Guidance only`;
+    if(badge){
+      badge.className=`tag teacher-assignment-timing ${timing.key}`;
+      badge.textContent=timing.label
+    }
+    if(toggle)toggle.textContent=assignment.active?'Pause tracking':'Start tracking';
+    const counts=card.querySelector('.pills');
+    if(counts){
+      counts.className='teacher-assignment-summary';
+      counts.innerHTML=`
+        <div class="teacher-assignment-stat"><strong>${summary.notStarted.length}</strong><small>Not Started</small></div>
+        <div class="teacher-assignment-stat"><strong>${summary.inProgress.length}</strong><small>In Progress</small></div>
+        <div class="teacher-assignment-stat"><strong>${summary.submitted.length}</strong><small>Submitted</small></div>
+        <div class="teacher-assignment-stat"><strong>${summary.completed.length}</strong><small>Completed</small></div>`
+    }
+    const progress=`
+      <div class="teacher-assignment-progress">
+        <div class="teacher-assignment-progress-row">
+          <span>Participation</span>
+          <div class="teacher-assignment-progress-bar" role="progressbar" aria-label="Participation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${summary.participationPercent}">
+            <span style="width:${summary.participationPercent}%"></span>
+          </div>
+          <strong>${summary.participationPercent}%</strong>
+        </div>
+        <div class="teacher-assignment-progress-row complete">
+          <span>Completion</span>
+          <div class="teacher-assignment-progress-bar" role="progressbar" aria-label="Completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${summary.completionPercent}">
+            <span style="width:${summary.completionPercent}%"></span>
+          </div>
+          <strong>${summary.completionPercent}%</strong>
+        </div>
+      </div>`;
+    const oldBar=card.querySelector('.participation-bar');
+    if(oldBar){
+      oldBar.insertAdjacentHTML('afterend',progress);
+      oldBar.remove()
+    }
+    const participation=card.querySelector('details');
+    if(participation){
+      const notStarted=`
+        <details class="teacher-assignment-not-started">
+          <summary>Students not started (${summary.notStarted.length})</summary>
+          ${summary.notStarted.length?summary.notStarted.map(entry=>`<div class="roster-row"><span><strong>${esc(entry.student.student_name)}</strong><span class="help">${esc(entry.student.student_id)}</span></span></div>`).join(''):roster.length?'<div class="empty">Everyone has started.</div>':'<div class="empty">No active students.</div>'}
+        </details>`;
+      const attention=summary.attention.length?`
+        <div class="teacher-assignment-attention">
+          <strong>Needs attention:</strong>
+          ${summary.attention.length} student${summary.attention.length===1?' has':'s have'} an incomplete or cancelled attempt and ${summary.attention.length===1?'is':'are'} not counted as Submitted or Completed.
+          <div class="help">${summary.attention.map(entry=>esc(entry.student.student_name)).join(', ')}</div>
+        </div>`:'';
+      participation.insertAdjacentHTML('beforebegin',attention+notStarted)
+    }
+  })
 }
 async function addSchoolClass(){const name=$('class-name').value.trim(),year=Number($('class-year').value);if(!name){classFeedback('try','Enter a class name.');return}const {data,error}=await cloud.from('school_classes').insert({name,year_level:year}).select('id').single();if(error){classFeedback('incorrect',error.message);return}selectedClassId=data.id;$('class-name').value='';classFeedback('correct','Class created.');await loadTeacher()}
 async function importClassRoster(){const cls=teacherClasses.find(c=>String(c.id)===String(selectedClassId)),lines=$('roster-import').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!cls||!lines.length){classFeedback('try','Enter at least one Student ID, Student name line.');return}let changed=0;for(const line of lines){const comma=line.indexOf(','),studentId=(comma>=0?line.slice(0,comma):'').trim(),studentName=(comma>=0?line.slice(comma+1):'').trim();if(!studentId||!studentName)continue;const existing=teacherStudents.find(s=>String(s.class_id)===String(cls.id)&&normalize(s.student_id)===normalize(studentId));const query=existing?cloud.from('class_students').update({student_id:studentId,student_name:studentName,active:true}).eq('id',existing.id):cloud.from('class_students').insert({class_id:cls.id,student_id:studentId,student_name:studentName});const {error}=await query;if(error){classFeedback('incorrect',`Stopped at ${studentId}: ${error.message}`);return}changed++}$('roster-import').value='';classFeedback('correct',`${changed} roster record${changed===1?'':'s'} imported or updated.`);await loadTeacher()}
