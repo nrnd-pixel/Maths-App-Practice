@@ -2646,6 +2646,320 @@ async function loadStudentDashboard(accessToken) {
   }
 }
 
+/* V3.7 Student Motivation - secure loading and rendering */
+
+function motivationDateV37(value){
+  if(!value){
+    return '';
+  }
+
+  const date = new Date(
+    `${value}T00:00:00`
+  );
+
+  if(Number.isNaN(date.getTime())){
+    return '';
+  }
+
+  return date.toLocaleDateString(
+    undefined,
+    {
+      day:'numeric',
+      month:'short',
+      year:'numeric'
+    }
+  );
+}
+
+
+function renderStudentMotivationV37(data){
+
+  const streak =
+    data?.streak || {};
+
+  const weekly =
+    data?.weekly_goal || {};
+
+  const achievements =
+    Array.isArray(data?.achievements)
+      ? data.achievements
+      : [];
+
+
+  const currentDays =
+    Math.max(
+      0,
+      Number(streak.current_days || 0)
+    );
+
+  const bestDays =
+    Math.max(
+      0,
+      Number(streak.best_days || 0)
+    );
+
+
+  if($('student-motivation-streak')){
+
+    $('student-motivation-streak').textContent =
+      currentDays > 0
+        ? `${currentDays}-day streak`
+        : 'No active streak';
+  }
+
+
+  if($('student-motivation-streak-note')){
+
+    let note =
+      'Complete meaningful Maths work to start your learning streak.';
+
+    if(streak.status === 'active_today'){
+
+      note =
+        'Great work — today’s Maths activity is keeping your streak going.';
+
+    }
+    else if(streak.status === 'at_risk_today'){
+
+      note =
+        'Keep learning today to continue your streak.';
+
+    }
+    else if(bestDays > 0){
+
+      note =
+        `Your best streak so far is ${bestDays} day${bestDays === 1 ? '' : 's'}. Start a new one today.`;
+    }
+
+    $('student-motivation-streak-note').textContent =
+      note;
+  }
+
+
+  const goalDays =
+    Math.max(
+      1,
+      Number(weekly.goal_days || 3)
+    );
+
+  const completedDays =
+    Math.max(
+      0,
+      Number(weekly.completed_days || 0)
+    );
+
+  const weeklyPercent =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          completedDays /
+          goalDays *
+          100
+        )
+      )
+    );
+
+
+  if($('student-motivation-weekly')){
+
+    $('student-motivation-weekly').textContent =
+      `${completedDays} / ${goalDays} days`;
+  }
+
+
+  if($('student-motivation-weekly-bar')){
+
+    $('student-motivation-weekly-bar').style.width =
+      `${weeklyPercent}%`;
+  }
+
+
+  if($('student-motivation-weekly-note')){
+
+    if(weekly.goal_reached){
+
+      $('student-motivation-weekly-note').textContent =
+        'Weekly goal reached! Keep up the great learning habit. 🎉';
+
+    }
+    else{
+
+      const remaining =
+        Math.max(
+          0,
+          goalDays - completedDays
+        );
+
+      $('student-motivation-weekly-note').textContent =
+        `${remaining} more meaningful learning day${remaining === 1 ? '' : 's'} to reach this week’s goal.`;
+    }
+  }
+
+
+  const root =
+    $('student-motivation-achievements');
+
+  if(!root){
+    return;
+  }
+
+
+  root.innerHTML =
+    achievements.length
+      ? achievements.map(
+          achievement => {
+
+            const earned =
+              !!achievement.earned;
+
+            const earnedDate =
+              earned
+                ? motivationDateV37(
+                    achievement.earned_at
+                  )
+                : '';
+
+            return `
+              <article class="student-achievement-card ${
+                earned
+                  ? 'earned'
+                  : 'locked'
+              }">
+
+                <span class="student-achievement-icon">
+                  ${esc(achievement.icon || '🏅')}
+                </span>
+
+                <div>
+
+                  <strong>
+                    ${esc(
+                      achievement.title ||
+                      'Achievement'
+                    )}
+                  </strong>
+
+                  <div class="help">
+                    ${esc(
+                      achievement.description ||
+                      ''
+                    )}
+                  </div>
+
+                  ${
+                    earned
+                      ? `
+                        <div
+                          class="help"
+                          style="margin-top:5px;font-weight:750"
+                        >
+                          ✓ Earned${
+                            earnedDate
+                              ? ` ${esc(earnedDate)}`
+                              : ''
+                          }
+                        </div>
+                      `
+                      : `
+                        <div
+                          class="help"
+                          style="margin-top:5px"
+                        >
+                          🔒 Not earned yet
+                        </div>
+                      `
+                  }
+
+                </div>
+
+              </article>
+            `;
+          }
+        ).join('')
+      : `
+          <div class="empty">
+            Complete meaningful Maths work to start earning achievements.
+          </div>
+        `;
+}
+
+
+async function loadStudentMotivationV37(
+  accessToken
+){
+
+  if($('student-motivation-streak')){
+    $('student-motivation-streak').textContent =
+      'Loading...';
+  }
+
+  if($('student-motivation-weekly')){
+    $('student-motivation-weekly').textContent =
+      'Loading...';
+  }
+
+
+  if(
+    !cloudReady ||
+    !accessToken
+  ){
+    return;
+  }
+
+
+  try{
+
+    const {data,error} =
+      await cloud.rpc(
+        'get_student_motivation',
+        {
+          p_access_token:
+            accessToken
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    renderStudentMotivationV37(
+      data || {}
+    );
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not load student motivation.',
+      e
+    );
+
+
+    if($('student-motivation-streak')){
+      $('student-motivation-streak').textContent =
+        'Unavailable';
+    }
+
+    if($('student-motivation-weekly')){
+      $('student-motivation-weekly').textContent =
+        'Unavailable';
+    }
+
+    if($('student-motivation-achievements')){
+      $('student-motivation-achievements').innerHTML =
+        `
+          <div class="empty">
+            Your achievements could not be loaded right now.
+          </div>
+        `;
+    }
+  }
+}
+  
 /* Smart Recommended Practice */
 
 let studentPracticeRecommendationV35 = null;
@@ -3855,12 +4169,16 @@ function wireV34Dashboard() {
           Supabase derives roster_student_id from
           the secure temporary access token.
         */
-      await Promise.all([
+await Promise.all([
   loadStudentDashboard(
     access.access_token
   ),
 
   loadStudentPracticeRecommendationV35(
+    access.access_token
+  ),
+
+  loadStudentMotivationV37(
     access.access_token
   )
 ]);
