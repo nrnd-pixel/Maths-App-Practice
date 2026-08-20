@@ -162,6 +162,19 @@
     grid-template-columns:1fr;
   }
 }
+
+  .student-milestone{
+  margin-top:16px;
+  border:1px solid var(--success);
+  border-radius:14px;
+  padding:14px 16px;
+  background:var(--successbg);
+}
+
+.student-milestone strong{
+  display:block;
+  margin-bottom:4px;
+}
   
   /* Smart Recommended Practice */
 
@@ -1004,6 +1017,11 @@ input[type="file"]::file-selector-button:hover{
     </article>
   </div>
 
+  <div
+  id="student-motivation-milestone"
+  class="student-milestone hidden"
+></div>
+  
   <div class="student-achievement-heading">
     <div>
       <h3>🏅 Achievements</h3>
@@ -2680,6 +2698,68 @@ function renderStudentMotivationV37(data){
   const weekly =
     data?.weekly_goal || {};
 
+const milestone =
+  data?.recent_milestone || null;
+
+const milestoneRoot =
+  $('student-motivation-milestone');
+
+if(milestoneRoot){
+
+  if(
+    milestone &&
+    milestone.type === 'topic_improvement'
+  ){
+
+    const previous =
+      Number(milestone.previous_percent || 0);
+
+    const recent =
+      Number(milestone.recent_percent || 0);
+
+    const improvement =
+      Number(milestone.improvement_points || 0);
+
+    const earnedDate =
+      motivationDateV37(
+        milestone.earned_at
+      );
+
+    milestoneRoot.innerHTML = `
+      <strong>📈 Improvement Milestone</strong>
+
+      <div>
+        You improved in
+        <strong style="display:inline">
+          ${esc(milestone.topic || 'this topic')}
+        </strong>
+        from ${previous}% to ${recent}%.
+      </div>
+
+      <div class="help" style="margin-top:5px">
+        +${improvement} percentage points${
+          earnedDate
+            ? ` · ${esc(earnedDate)}`
+            : ''
+        }
+      </div>
+    `;
+
+    milestoneRoot.classList.remove(
+      'hidden'
+    );
+
+  }
+  else{
+
+    milestoneRoot.classList.add(
+      'hidden'
+    );
+
+    milestoneRoot.innerHTML = '';
+  }
+}
+  
   const achievements =
     Array.isArray(data?.achievements)
       ? data.achievements
