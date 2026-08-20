@@ -301,6 +301,88 @@ textarea:focus{
   so mathematical images and student drawings retain contrast.
 */
 
+  /* V3.5 compatibility for older interface components */
+
+.tag,
+.local{
+  background:var(--surface-chip);
+  color:var(--text);
+}
+
+.hint{
+  color:var(--warn);
+}
+
+.preview-answer,
+.preview-response input,
+.preview-response select,
+.admin-box,
+.access-option{
+  background:var(--surface);
+  color:var(--text);
+}
+
+.class-select{
+  background:var(--surface-muted);
+  color:var(--text);
+}
+
+.participation-bar{
+  background:var(--bar-bg);
+}
+
+.multipart-part.correct-part{
+  border-color:var(--success);
+  background:var(--secure-card);
+}
+
+.pending-chip{
+  background:var(--warnbg);
+  color:var(--warn);
+}
+
+.review-status.pending,
+.pin-missing{
+  color:var(--warn);
+}
+
+.review-status.reviewed,
+.pin-ready{
+  color:var(--success);
+}
+
+.image-chip,
+.multipart-badge{
+  background:var(--soft);
+  color:var(--primary);
+}
+
+.response-type-chip{
+  background:var(--successbg);
+  color:var(--success);
+}
+
+.danger-outline{
+  background:var(--surface);
+}
+
+.result-code-box{
+  background:var(--soft);
+  border-color:var(--primary);
+  color:var(--text);
+}
+
+.save-state.saving,
+.attempt-status.in-progress{
+  background:var(--soft);
+  color:var(--primary);
+}
+
+.attempt-status.incomplete{
+  background:var(--surface-control);
+  color:var(--muted);
+}
+  
 .drawing-stage,
 .review-drawing,
 .editor-image-preview{
