@@ -2576,6 +2576,369 @@ async function startRecommendedPracticeV35(){
   }
 }
 
+/* V3.6 My Assignments - secure loading and rendering */
+
+let studentAssignmentsV36 = [];
+
+
+function assignmentStatusV36(status){
+
+  const statuses = {
+
+    not_started:'Not started',
+
+    in_progress:'In progress',
+
+    submitted:'Submitted',
+
+    awaiting_review:'Awaiting review',
+
+    completed:'Completed'
+
+  };
+
+  return statuses[status] || 'Assignment';
+}
+
+
+function assignmentDateV36(value){
+
+  if(!value){
+    return '';
+  }
+
+  const date =
+    new Date(value);
+
+  if(Number.isNaN(date.getTime())){
+    return '';
+  }
+
+  return date.toLocaleString();
+}
+
+
+function assignmentTimingTextV36(assignment){
+
+  if(
+    assignment.timing_status ===
+    'upcoming'
+  ){
+
+    const start =
+      assignmentDateV36(
+        assignment.opens_at
+      );
+
+    return start
+      ? `Suggested start: ${start}`
+      : 'Upcoming';
+  }
+
+
+  if(
+    assignment.timing_status ===
+    'due_passed'
+  ){
+
+    const due =
+      assignmentDateV36(
+        assignment.closes_at
+      );
+
+    return due
+      ? `Target due passed: ${due}`
+      : 'Target due date passed';
+  }
+
+
+  const due =
+    assignmentDateV36(
+      assignment.closes_at
+    );
+
+  return due
+    ? `Target due: ${due}`
+    : 'No target due date';
+}
+
+
+function renderStudentAssignmentsV36(data){
+
+  const root =
+    $('student-assignments-list');
+
+  const meta =
+    $('student-assignments-meta');
+
+
+  if(!root){
+    return;
+  }
+
+
+  const student =
+    data?.student || {};
+
+  const assignments =
+    Array.isArray(data?.assignments)
+      ? data.assignments
+      : [];
+
+
+  studentAssignmentsV36 =
+    assignments;
+
+
+  if(meta){
+
+    meta.textContent =
+      `${student.student_name || 'Student'} • ${
+        formatYearClassV331(
+          student.year_level,
+          student.class_name
+        )
+      }`;
+  }
+
+
+  if(!assignments.length){
+
+    root.innerHTML = `
+      <div class="empty">
+        You do not currently have any active assignments.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  root.innerHTML =
+    assignments.map(
+      assignment => {
+
+        const latest =
+          assignment.latest_attempt || {};
+
+        const answered =
+          Number(
+            latest.answered_questions || 0
+          );
+
+        const total =
+          Number(
+            latest.question_count || 0
+          );
+
+        const progress =
+          total > 0
+            ? Math.max(
+                0,
+                Math.min(
+                  100,
+                  Math.round(
+                    answered / total * 100
+                  )
+                )
+              )
+            : 0;
+
+        const attemptsUsed =
+          Number(
+            assignment.attempts_used || 0
+          );
+
+        const attemptTarget =
+          Number(
+            assignment.attempt_target || 1
+          );
+
+        const status =
+          assignmentStatusV36(
+            assignment.status
+          );
+
+        const showProgress =
+          assignment.status ===
+          'in_progress';
+
+        const mastery =
+          latest.mastery_percent;
+
+
+        return `
+          <article class="student-assignment-card">
+
+            <div class="student-assignment-head">
+
+              <div>
+
+                <div class="student-assignment-title">
+                  ${esc(
+                    `${assignment.exam_year} · ${assignment.paper}`
+                  )}
+                </div>
+
+                <div class="help">
+                  ${esc(
+                    `Class ${assignment.class_name || '—'} · Year ${assignment.year_level || '—'}`
+                  )}
+                </div>
+
+              </div>
+
+              <span class="tag">
+                ${esc(status)}
+              </span>
+
+            </div>
+
+
+            <div class="student-assignment-meta">
+
+              <span class="tag">
+                ${esc(
+                  assignmentTimingTextV36(
+                    assignment
+                  )
+                )}
+              </span>
+
+              <span class="tag">
+                Attempts ${attemptsUsed}/${attemptTarget}
+              </span>
+
+            </div>
+
+
+            ${
+              showProgress
+                ? `
+                  <div class="student-assignment-progress">
+                    <span style="width:${progress}%"></span>
+                  </div>
+
+                  <div
+                    class="help"
+                    style="margin-top:7px"
+                  >
+                    ${answered}/${total || '—'} questions answered
+                  </div>
+                `
+                : ''
+            }
+
+
+            ${
+              assignment.status === 'completed' &&
+              mastery != null
+                ? `
+                  <div style="margin-top:12px">
+                    <strong>
+                      ${Math.round(
+                        Number(mastery)
+                      )}% result
+                    </strong>
+                  </div>
+                `
+                : ''
+            }
+
+          </article>
+        `;
+      }
+    ).join('');
+}
+
+
+async function loadStudentAssignmentsV36(
+  accessToken
+){
+
+  const root =
+    $('student-assignments-list');
+
+  const feedback =
+    $('student-assignments-feedback');
+
+
+  if(!root){
+    return;
+  }
+
+
+  root.innerHTML =
+    '<div class="empty">Loading your assignments...</div>';
+
+
+  if(feedback){
+
+    feedback.className =
+      'feedback hidden';
+
+    feedback.textContent =
+      '';
+  }
+
+
+  if(
+    !cloudReady ||
+    !accessToken
+  ){
+
+    root.innerHTML =
+      '<div class="empty">Your student access could not be verified.</div>';
+
+    return;
+  }
+
+
+  try{
+
+    const {data,error} =
+      await cloud.rpc(
+        'get_student_assignments',
+        {
+          p_access_token:
+            accessToken
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    renderStudentAssignmentsV36(
+      data || {}
+    );
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not load V3.6 assignments.',
+      e
+    );
+
+
+    root.innerHTML =
+      '<div class="empty">Your assignments could not be loaded right now.</div>';
+
+
+    if(feedback){
+
+      feedback.className =
+        'feedback incorrect';
+
+      feedback.textContent =
+        `Could not load assignments. ${e?.message || ''}`.trim();
+    }
+  }
+}
+  
   /* V3.5 Light / Dark Mode */
 
 const THEME_KEY_V35 =
