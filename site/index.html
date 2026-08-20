@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#2563eb" />
 
-  <title>Math Practice V3.4.2</title>
-
+<title>Math Practice V3.5</title>
+  
 <script>
 (() => {
   try {
@@ -406,7 +406,11 @@ textarea:focus{
 </div>
   
 <section id="start" class="card screen active">
-  <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Brunei Primary Mathematics Practice</p><span class="badge local">Version 3.4.2 • Student Learning Dashboard</span></div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
+  <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Brunei Primary Mathematics Practice</p>
+<span class="badge local">
+  Version 3.5 • Smart Practice & Themes
+</span>
+  </div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
   <div class="mode-switch" role="group" aria-label="Choose activity mode">
     <button id="practice-mode-btn" class="mode-btn active" type="button"><strong>📘 Practice Mode</strong><span>Hints, second attempts and instant feedback.</span></button>
     <button id="exam-mode-btn" class="mode-btn" type="button"><strong>📝 Exam Mode</strong><span>Complete a full past paper with no hints or feedback until submission.</span></button>
@@ -434,7 +438,13 @@ textarea:focus{
   <button id="check-reviewed-btn" class="secondary">Check Reviewed Work</button>
   <button id="teacher-btn" class="secondary">Teacher Dashboard</button>
   <button id="setup-btn" class="outline">Cloud Setup</button>
-</div>  <div class="info"><strong>V3.4.2:</strong> Students can securely view their own learning progress, strengths, focus areas and recent Practice or Exam activity.</div>
+</div>  
+<div class="info">
+  <strong>V3.5:</strong>
+  Students can securely view their learning progress and receive
+  recommended practice based on their scored performance.
+  Light and Dark Mode are also available throughout the app.
+</div>
 </section>
 
 <section id="setup" class="card screen">
@@ -1806,7 +1816,8 @@ boot=async function(){
   wireRegisteredStudentV331();
   renderStudentAccessPolicy();
 };
-/* V3.4.2 Student Learning Dashboard - secure RPC version */
+
+/* Student Learning Dashboard - secure RPC version */
 
 async function loadStudentDashboard(accessToken) {
   const fb = $('student-dashboard-feedback');
