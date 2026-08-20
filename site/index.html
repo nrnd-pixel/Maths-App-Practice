@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#2563eb" />
 
-<title>Math Practice V3.5</title>
+<title>Math Practice V3.6</title>
   
 <script>
 (() => {
@@ -64,7 +64,7 @@
 .analytics-filters{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px;margin:16px 0}.analytics-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:14px 0}.analytics-overview .stat{min-height:92px;display:grid;align-content:center}.analytics-overview .stat strong{font-size:25px}.analytics-section{border:1px solid var(--border);border-radius:17px;padding:16px;background:#fff;margin-top:14px}.analytics-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.analytics-section h3{margin-bottom:5px}.analytics-participation{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:13px}.analytics-definition-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.analytics-definition{border-left:4px solid #94a3b8;background:#f8fafc;border-radius:10px;padding:11px 12px;font-size:12px;color:var(--muted);line-height:1.45}.analytics-definition strong{display:block;color:var(--text);margin-bottom:3px}.analytics-student-table td{vertical-align:top}.analytics-student-name{white-space:normal;min-width:175px}.analytics-score-final{color:var(--success)}.analytics-score-pending{color:var(--warn)}.analytics-no-activity{color:var(--muted)}@media(max-width:900px){.analytics-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-participation{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-definition-grid{grid-template-columns:1fr}}@media(max-width:560px){.analytics-filters,.analytics-overview,.analytics-participation{grid-template-columns:1fr}}
 .insight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:14px}.insight-card{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fbfcfe}.insight-card strong{display:block;font-size:17px}.insight-bar{height:9px;background:#e7ebf0;border-radius:999px;overflow:hidden;margin:9px 0 6px}.insight-bar>span{display:block;height:100%;background:var(--primary);border-radius:999px}.insight-card.needs-attention{border-color:#f1b7b7;background:#fff8f8}.insight-card.needs-attention .insight-bar>span{background:var(--danger)}.insight-card.developing{border-color:#f0cf98;background:#fffaf0}.insight-card.developing .insight-bar>span{background:#d97706}.insight-card.secure{border-color:#a6dfbb;background:#f5fff8}.insight-card.secure .insight-bar>span{background:var(--success)}.analytics-open-student{min-height:36px;padding:7px 10px}.student-insight-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.student-insight-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.student-insight-recent{display:grid;gap:8px;margin-top:12px}.student-insight-activity{border:1px solid var(--border);border-radius:12px;padding:11px 12px;background:#fbfcfe;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.student-insight-activity>div:last-child{text-align:right}@media(max-width:900px){.insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-insight-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.insight-grid,.student-insight-summary{grid-template-columns:1fr}.student-insight-activity{display:block}.student-insight-activity>div:last-child{text-align:left;margin-top:7px}}
 
-  /* V3.5 Smart Recommended Practice */
+  /* Smart Recommended Practice */
 
 .practice-recommendation-card{
   border:1px solid var(--border);
@@ -99,7 +99,186 @@
   justify-content:flex-end;
 }
 
-/* V3.5 Light / Dark Mode */
+  /* V3.6 My Assignments */
+
+.student-assignment-list{
+  display:grid;
+  gap:14px;
+  margin-top:18px;
+}
+
+.student-assignment-card{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  background:var(--surface-soft);
+}
+
+.student-assignment-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+
+.student-assignment-title{
+  font-size:20px;
+  font-weight:850;
+}
+
+.student-assignment-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:12px;
+}
+
+.student-assignment-progress{
+  height:10px;
+  overflow:hidden;
+  border-radius:999px;
+  background:var(--surface-control);
+  margin-top:14px;
+}
+
+.student-assignment-progress span{
+  display:block;
+  height:100%;
+  background:var(--primary);
+}
+
+.student-assignment-action{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:16px;
+}
+
+@media(max-width:700px){
+  .student-assignment-action button{
+    width:100%;
+  }
+}
+  
+
+/* V3.6 Teacher Assignment Summary */
+
+.assignment-card-v36{
+  background:var(--surface-soft);
+}
+
+.teacher-assignment-timing{
+  white-space:nowrap;
+}
+
+.teacher-assignment-timing.upcoming{
+  background:var(--soft);
+  color:var(--primary);
+}
+
+.teacher-assignment-timing.active{
+  background:var(--successbg);
+  color:var(--success);
+}
+
+.teacher-assignment-timing.due-passed{
+  background:var(--warnbg);
+  color:var(--warn);
+}
+
+.teacher-assignment-timing.paused{
+  background:var(--surface-control);
+  color:var(--muted);
+}
+
+.teacher-assignment-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;
+  margin-top:14px;
+}
+
+.teacher-assignment-stat{
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:11px;
+  background:var(--surface-muted);
+}
+
+.teacher-assignment-stat strong{
+  display:block;
+  font-size:21px;
+}
+
+.teacher-assignment-stat small{
+  color:var(--muted);
+}
+
+.teacher-assignment-progress{
+  display:grid;
+  gap:9px;
+  margin-top:14px;
+}
+
+.teacher-assignment-progress-row{
+  display:grid;
+  grid-template-columns:minmax(120px,180px) 1fr auto;
+  gap:10px;
+  align-items:center;
+}
+
+.teacher-assignment-progress-bar{
+  height:10px;
+  overflow:hidden;
+  border-radius:999px;
+  background:var(--bar-bg);
+}
+
+.teacher-assignment-progress-bar span{
+  display:block;
+  height:100%;
+  background:var(--primary);
+}
+
+.teacher-assignment-progress-row.complete
+.teacher-assignment-progress-bar span{
+  background:var(--success);
+}
+
+.teacher-assignment-not-started{
+  margin-top:12px;
+}
+
+.teacher-assignment-not-started summary{
+  cursor:pointer;
+  font-weight:800;
+}
+
+.teacher-assignment-attention{
+  margin-top:12px;
+  border:1px solid var(--danger);
+  border-radius:12px;
+  padding:11px 12px;
+  background:var(--attention-card);
+  color:var(--text);
+}
+
+@media(max-width:700px){
+  .teacher-assignment-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .teacher-assignment-progress-row{
+    grid-template-columns:1fr auto;
+  }
+
+  .teacher-assignment-progress-bar{
+    grid-column:1/-1;
+    grid-row:2;
+  }
+}
+
+/* Light / Dark Mode */
 
 :root{
   --page-top:#eaf3ff;
@@ -301,7 +480,7 @@ textarea:focus{
   so mathematical images and student drawings retain contrast.
 */
 
-  /* V3.5 dark-mode polish for Practice / Exam screens */
+  /* Dark-mode polish for Practice / Exam screens */
 
 .mode-btn{
   background:var(--surface);
@@ -373,7 +552,7 @@ textarea:focus{
   color:var(--warn);
 }
 
-  /* V3.5 file input theme */
+  /* File input theme */
 
 input[type="file"]{
   background:var(--surface);
@@ -398,7 +577,7 @@ input[type="file"]::file-selector-button:hover{
   border-color:var(--primary);
 }
   
-  /* V3.5 compatibility for older interface components */
+  /* Theme compatibility for older interface components */
 
 .tag,
 .local{
@@ -505,7 +684,7 @@ input[type="file"]::file-selector-button:hover{
 <section id="start" class="card screen active">
   <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Brunei Primary Mathematics Practice</p>
 <span class="badge local">
-  Version 3.5 • Smart Practice & Themes
+  Version 3.6 • Improved Assignments
 </span>
   </div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
   <div class="mode-switch" role="group" aria-label="Choose activity mode">
@@ -532,15 +711,18 @@ input[type="file"]::file-selector-button:hover{
 <div class="buttons">
   <button id="start-btn" class="primary">Start Practice</button>
   <button id="my-progress-btn" class="secondary hidden">📊 My Progress</button>
+  <button id="my-assignments-btn" class="secondary hidden">
+  📚 My Assignments
+</button>
   <button id="check-reviewed-btn" class="secondary">Check Reviewed Work</button>
   <button id="teacher-btn" class="secondary">Teacher Dashboard</button>
   <button id="setup-btn" class="outline">Cloud Setup</button>
 </div>  
 <div class="info">
-  <strong>V3.5:</strong>
-  Students can securely view their learning progress and receive
-  recommended practice based on their scored performance.
-  Light and Dark Mode are also available throughout the app.
+  <strong>V3.6:</strong>
+  Students can securely view, start and resume assigned exam papers
+  from My Assignments. Teachers now have clearer assignment tracking,
+  participation and completion summaries.
 </div>
 </section>
 
@@ -608,6 +790,36 @@ input[type="file"]::file-selector-button:hover{
     <div id="recent-results-wrap" class="recent-results"><h3>Recent work on this device</h3><div id="recent-results-list"></div></div>
   </div>
   <div id="student-review-content" class="student-review-content"></div>
+</section>
+  <section id="student-assignments" class="card screen">
+
+  <div class="header">
+    <div>
+      <h1>📚 My Assignments</h1>
+      <p id="student-assignments-meta" class="muted">
+        Your assigned mathematics work.
+      </p>
+    </div>
+
+    <button class="secondary back-home">
+      Home
+    </button>
+  </div>
+
+  <div
+    id="student-assignments-feedback"
+    class="feedback hidden"
+  ></div>
+
+  <div
+    id="student-assignments-list"
+    class="student-assignment-list"
+  >
+    <div class="empty">
+      Sign in to see your assignments.
+    </div>
+  </div>
+
 </section>
 <section id="student-dashboard" class="card screen">
   <div class="header">
@@ -1263,14 +1475,120 @@ async function closeExamAttempt(id){if(!cloudReady||!teacherUser)return;if(!conf
 function classFeedback(kind,text){const fb=$('classes-feedback');fb.className=`feedback ${kind}`;fb.textContent=text}
 function assignmentStudentStatus(assignment,student){const attempts=teacherAttempts.filter(a=>String(a.assignment_id)===String(assignment.id)&&String(a.roster_student_id)===String(student.id)).sort((a,b)=>Date.parse(b.started_at)-Date.parse(a.started_at));if(!attempts.length)return{key:'not_started',label:'Not started',attempt:null};const attempt=attempts[0],view=attemptViewStatus(attempt);return{key:view.key,label:view.label,attempt}}
 function renderClassAdmin(){
-  const classList=$('class-list');if(!classList)return;if(!cloudReady||!teacherUser){classList.innerHTML='<div class="info">Connect to Supabase and sign in as a teacher to manage classes.</div>';$('selected-class-content').classList.add('hidden');$('selected-class-empty').classList.remove('hidden');return}if(selectedClassId&&!teacherClasses.some(c=>String(c.id)===String(selectedClassId)))selectedClassId=null;if(!selectedClassId&&teacherClasses.length)selectedClassId=teacherClasses[0].id;classList.innerHTML=teacherClasses.length?teacherClasses.map(c=>`<button type="button" class="class-select ${String(c.id)===String(selectedClassId)?'active':''}" data-class-id="${esc(c.id)}"><strong>${esc(c.name)}</strong><span class="help">Year ${esc(c.year_level)} · ${teacherStudents.filter(s=>String(s.class_id)===String(c.id)&&s.active!==false).length} active students</span></button>`).join(''):'<div class="empty">No classes yet.</div>';classList.querySelectorAll('[data-class-id]').forEach(b=>b.onclick=()=>{selectedClassId=b.dataset.classId;renderClassAdmin()});const cls=teacherClasses.find(c=>String(c.id)===String(selectedClassId));$('selected-class-empty').classList.toggle('hidden',!!cls);$('selected-class-content').classList.toggle('hidden',!cls);if(!cls)return;$('selected-class-title').textContent=`${cls.name} · Year ${cls.year_level}`;const students=teacherStudents.filter(s=>String(s.class_id)===String(cls.id));$('roster-list').innerHTML=students.length?students.map(s=>`<div class="roster-row"><div><strong>${esc(s.student_name)}</strong><div class="help">${esc(s.student_id)} · ${s.active===false?'Inactive':'Active'}</div></div><button class="outline toggle-student" data-id="${esc(s.id)}" data-active="${s.active===false?'false':'true'}" type="button">${s.active===false?'Reactivate':'Deactivate'}</button></div>`).join(''):'<div class="empty">No students in this class.</div>';document.querySelectorAll('.toggle-student').forEach(b=>b.onclick=()=>toggleRosterStudent(b.dataset.id,b.dataset.active==='true'));const papers=new Map();teacherQuestions.forEach(q=>{if(Number(q.year_level)===Number(cls.year_level)&&q.exam_year&&String(q.paper||'').trim())papers.set(`${q.exam_year}::${String(q.paper).trim()}`,{examYear:q.exam_year,paper:String(q.paper).trim()})});$('assignment-paper').innerHTML='<option value="">Select a paper</option>'+[...papers.entries()].sort((a,b)=>b[1].examYear-a[1].examYear||a[1].paper.localeCompare(b[1].paper,undefined,{numeric:true})).map(([k,p])=>`<option value="${esc(k)}">${esc(`${p.examYear} · ${p.paper}`)}</option>`).join('');const assignments=teacherAssignments.filter(a=>String(a.class_id)===String(cls.id));$('assignment-list').innerHTML=assignments.length?assignments.map(a=>{const roster=students.filter(s=>s.active!==false),statuses=roster.map(s=>assignmentStudentStatus(a,s)),started=statuses.filter(s=>s.attempt).length,submitted=statuses.filter(s=>s.attempt&&['submitted','time_expired','completed','awaiting_review'].includes(s.attempt.status)||['completed','awaiting_review','time_expired'].includes(s.key)).length,complete=statuses.filter(s=>s.key==='completed'||(s.key==='time_expired'&&Number(s.attempt&&teacherResults.find(r=>String(r.id)===String(s.attempt.practice_session_id))?.pending_review_count||0)===0)).length,pct=roster.length?Math.round(started/roster.length*100):0;return `<article class="assignment-card"><div class="header"><div><h3 style="margin:0">${esc(`${a.exam_year} · ${a.paper}`)}</h3><div class="help">${a.opens_at?`Opens ${new Date(a.opens_at).toLocaleString()}`:'Open immediately'} · ${a.closes_at?`Closes ${new Date(a.closes_at).toLocaleString()}`:'No closing date'} · ${a.attempt_limit} attempt${a.attempt_limit===1?'':'s'}</div></div><span class="tag ${a.active?'availability-on':'availability-off'}">${a.active?'Active':'Inactive'}</span></div><div class="pills"><span class="tag">${started}/${roster.length} started</span><span class="tag">${submitted} submitted</span><span class="tag">${complete} fully marked</span><span class="tag">${roster.length-started} not started</span></div><div class="participation-bar"><span style="width:${pct}%"></span></div><details style="margin-top:10px"><summary>Student participation</summary>${roster.map(s=>{const st=assignmentStudentStatus(a,s);return `<div class="roster-row"><span><strong>${esc(s.student_name)}</strong><span class="help">${esc(s.student_id)}</span></span><span class="attempt-status ${st.key==='not_started'?'incomplete':st.key==='in_progress'?'in-progress':st.key==='time_expired'?'time-expired':'completed'}">${esc(st.label)}</span></div>`}).join('')||'<div class="empty">No active students.</div>'}</details><div class="buttons"><button class="outline toggle-assignment" data-id="${esc(a.id)}" data-active="${a.active?'true':'false'}" type="button">${a.active?'Deactivate':'Activate'}</button></div></article>`}).join(''):'<div class="empty">No assignments for this class.</div>';document.querySelectorAll('.toggle-assignment').forEach(b=>b.onclick=()=>toggleAssignment(b.dataset.id,b.dataset.active==='true'))
+  const classList=$('class-list');if(!classList)return;if(!cloudReady||!teacherUser){classList.innerHTML='<div class="info">Connect to Supabase and sign in as a teacher to manage classes.</div>';$('selected-class-content').classList.add('hidden');$('selected-class-empty').classList.remove('hidden');return}if(selectedClassId&&!teacherClasses.some(c=>String(c.id)===String(selectedClassId)))selectedClassId=null;if(!selectedClassId&&teacherClasses.length)selectedClassId=teacherClasses[0].id;classList.innerHTML=teacherClasses.length?teacherClasses.map(c=>`<button type="button" class="class-select ${String(c.id)===String(selectedClassId)?'active':''}" data-class-id="${esc(c.id)}"><strong>${esc(c.name)}</strong><span class="help">Year ${esc(c.year_level)} · ${teacherStudents.filter(s=>String(s.class_id)===String(c.id)&&s.active!==false).length} active students</span></button>`).join(''):'<div class="empty">No classes yet.</div>';classList.querySelectorAll('[data-class-id]').forEach(b=>b.onclick=()=>{selectedClassId=b.dataset.classId;renderClassAdmin()});const cls=teacherClasses.find(c=>String(c.id)===String(selectedClassId));$('selected-class-empty').classList.toggle('hidden',!!cls);$('selected-class-content').classList.toggle('hidden',!cls);if(!cls)return;$('selected-class-title').textContent=`${cls.name} · Year ${cls.year_level}`;const students=teacherStudents.filter(s=>String(s.class_id)===String(cls.id));$('roster-list').innerHTML=students.length?students.map(s=>`<div class="roster-row"><div><strong>${esc(s.student_name)}</strong><div class="help">${esc(s.student_id)} · ${s.active===false?'Inactive':'Active'}</div></div><button class="outline toggle-student" data-id="${esc(s.id)}" data-active="${s.active===false?'false':'true'}" type="button">${s.active===false?'Reactivate':'Deactivate'}</button></div>`).join(''):'<div class="empty">No students in this class.</div>';document.querySelectorAll('.toggle-student').forEach(b=>b.onclick=()=>toggleRosterStudent(b.dataset.id,b.dataset.active==='true'));const papers=new Map();teacherQuestions.forEach(q=>{if(Number(q.year_level)===Number(cls.year_level)&&q.exam_year&&String(q.paper||'').trim())papers.set(`${q.exam_year}::${String(q.paper).trim()}`,{examYear:q.exam_year,paper:String(q.paper).trim()})});$('assignment-paper').innerHTML='<option value="">Select a paper</option>'+[...papers.entries()].sort((a,b)=>b[1].examYear-a[1].examYear||a[1].paper.localeCompare(b[1].paper,undefined,{numeric:true})).map(([k,p])=>`<option value="${esc(k)}">${esc(`${p.examYear} · ${p.paper}`)}</option>`).join('');const assignments=teacherAssignments.filter(a=>String(a.class_id)===String(cls.id));$('assignment-list').innerHTML=assignments.length?assignments.map(a=>{const roster=students.filter(s=>s.active!==false),statuses=roster.map(s=>assignmentStudentStatus(a,s)),started=statuses.filter(s=>s.attempt).length,submitted=statuses.filter(s=>s.attempt&&['submitted','time_expired','completed','awaiting_review'].includes(s.attempt.status)||['completed','awaiting_review','time_expired'].includes(s.key)).length,complete=statuses.filter(s=>s.key==='completed'||(s.key==='time_expired'&&Number(s.attempt&&teacherResults.find(r=>String(r.id)===String(s.attempt.practice_session_id))?.pending_review_count||0)===0)).length,pct=roster.length?Math.round(started/roster.length*100):0;return `<article class="assignment-card"><div class="header"><div><h3 style="margin:0">${esc(`${a.exam_year} · ${a.paper}`)}</h3><div class="help">${a.opens_at?`Opens ${new Date(a.opens_at).toLocaleString()}`:'Open immediately'} · ${a.closes_at?`Closes ${new Date(a.closes_at).toLocaleString()}`:'No closing date'} · ${a.attempt_limit} attempt${a.attempt_limit===1?'':'s'}</div></div><span class="tag ${a.active?'availability-on':'availability-off'}">${a.active?'Active':'Inactive'}</span></div><div class="pills"><span class="tag">${started}/${roster.length} started</span><span class="tag">${submitted} submitted</span><span class="tag">${complete} fully marked</span><span class="tag">${roster.length-started} not started</span></div><div class="participation-bar"><span style="width:${pct}%"></span></div><details style="margin-top:10px"><summary>Student participation</summary>${roster.map(s=>{const st=assignmentStudentStatus(a,s);return `<div class="roster-row"><div>   <strong style="display:block">     ${esc(s.student_name)}   </strong>   <span class="help" style="display:block">     ${esc(s.student_id)}   </span> </div><span class="attempt-status ${st.key==='not_started'?'incomplete':st.key==='in_progress'?'in-progress':st.key==='time_expired'?'time-expired':'completed'}">${esc(st.label)}</span></div>`}).join('')||'<div class="empty">No active students.</div>'}</details><div class="buttons"><button class="outline toggle-assignment" data-id="${esc(a.id)}" data-active="${a.active?'true':'false'}" type="button">${a.active?'Deactivate':'Activate'}</button></div></article>`}).join(''):'<div class="empty">No assignments for this class.</div>';document.querySelectorAll('.toggle-assignment').forEach(b=>b.onclick=()=>toggleAssignment(b.dataset.id,b.dataset.active==='true'))
+}
+
+function assignmentTimingStateV36(assignment){
+  const now=Date.now();
+  const opens=Date.parse(assignment.opens_at);
+  const closes=Date.parse(assignment.closes_at);
+  if(!assignment.active)return{key:'paused',label:'Paused'};
+  if(Number.isFinite(opens)&&opens>now)return{key:'upcoming',label:'Upcoming'};
+  if(Number.isFinite(closes)&&closes<now)return{key:'due-passed',label:'Target Due Passed'};
+  return{key:'active',label:'Active'}
+}
+function assignmentStatusGroupV36(status){
+  const raw=String(status.attempt?.status||'');
+  if(!status.attempt)return'not_started';
+  if(['cancelled','incomplete'].includes(raw)||status.key==='incomplete')return'attention';
+  if(status.key==='in_progress')return'in_progress';
+  if(status.key==='completed')return'completed';
+  if(status.key==='time_expired'){
+    const result=teacherResults.find(r=>String(r.id)===String(status.attempt.practice_session_id));
+    return Number(result?.pending_review_count||0)===0?'completed':'submitted'
+  }
+  if(status.key==='awaiting_review')return'submitted';
+  if(raw==='completed')return'completed';
+  if(['submitted','time_expired','awaiting_review'].includes(raw))return'submitted';
+  return'in_progress'
+}
+function assignmentSummaryV36(assignment,roster){
+  const entries=roster.map(student=>{
+    const status=assignmentStudentStatus(assignment,student);
+    return{student,status,group:assignmentStatusGroupV36(status)}
+  });
+  const pick=group=>entries.filter(entry=>entry.group===group);
+  const started=entries.filter(entry=>entry.status.attempt).length;
+  const completed=pick('completed');
+  return{
+    entries,
+    notStarted:pick('not_started'),
+    inProgress:pick('in_progress'),
+    submitted:pick('submitted'),
+    completed,
+    attention:pick('attention'),
+    participationPercent:roster.length?Math.round(started/roster.length*100):0,
+    completionPercent:roster.length?Math.round(completed.length/roster.length*100):0
+  }
 }
 const renderClassAdminV32F2=renderClassAdmin;
 renderClassAdmin=function(){
   renderClassAdminV32F2();
   if(!cloudReady||!teacherUser)return;
+  const roster=teacherStudents.filter(s=>String(s.class_id)===String(selectedClassId)&&s.active!==false);
   const assignments=teacherAssignments.filter(a=>String(a.class_id)===String(selectedClassId));
-  document.querySelectorAll('#assignment-list .assignment-card').forEach((card,index)=>{const a=assignments[index];if(!a)return;const help=card.querySelector('.help'),badge=card.querySelector('.availability-on,.availability-off'),button=card.querySelector('.toggle-assignment');if(help)help.textContent=`${a.opens_at?`Suggested start ${new Date(a.opens_at).toLocaleString()}`:'No suggested start'} · ${a.closes_at?`Target due ${new Date(a.closes_at).toLocaleString()}`:'No target due date'} · ${a.attempt_limit} target attempt${a.attempt_limit===1?'':'s'} · Guidance only`;if(badge)badge.textContent=a.active?'Tracking':'Paused';if(button)button.textContent=a.active?'Pause tracking':'Start tracking'});
+  document.querySelectorAll('#assignment-list .assignment-card').forEach((card,index)=>{
+    const assignment=assignments[index];
+    if(!assignment)return;
+    const timing=assignmentTimingStateV36(assignment);
+    const summary=assignmentSummaryV36(assignment,roster);
+    const help=card.querySelector('.header .help');
+    const badge=card.querySelector('.availability-on,.availability-off');
+    const toggle=card.querySelector('.toggle-assignment');
+    card.classList.add('assignment-card-v36');
+    if(help)help.textContent=`${assignment.opens_at?`Suggested start ${new Date(assignment.opens_at).toLocaleString()}`:'No suggested start'} · ${assignment.closes_at?`Target due ${new Date(assignment.closes_at).toLocaleString()}`:'No target due date'} · ${assignment.attempt_limit} target attempt${assignment.attempt_limit===1?'':'s'} · Guidance only`;
+    if(badge){
+      badge.className=`tag teacher-assignment-timing ${timing.key}`;
+      badge.textContent=timing.label
+    }
+    if(toggle)toggle.textContent=assignment.active?'Pause tracking':'Start tracking';
+    const counts=card.querySelector('.pills');
+    if(counts){
+      counts.className='teacher-assignment-summary';
+      counts.innerHTML=`
+        <div class="teacher-assignment-stat"><strong>${summary.notStarted.length}</strong><small>Not Started</small></div>
+        <div class="teacher-assignment-stat"><strong>${summary.inProgress.length}</strong><small>In Progress</small></div>
+        <div class="teacher-assignment-stat"><strong>${summary.submitted.length}</strong><small>Submitted</small></div>
+        <div class="teacher-assignment-stat"><strong>${summary.completed.length}</strong><small>Completed</small></div>`
+    }
+    const progress=`
+      <div class="teacher-assignment-progress">
+        <div class="teacher-assignment-progress-row">
+          <span>Participation</span>
+          <div class="teacher-assignment-progress-bar" role="progressbar" aria-label="Participation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${summary.participationPercent}">
+            <span style="width:${summary.participationPercent}%"></span>
+          </div>
+          <strong>${summary.participationPercent}%</strong>
+        </div>
+        <div class="teacher-assignment-progress-row complete">
+          <span>Completion</span>
+          <div class="teacher-assignment-progress-bar" role="progressbar" aria-label="Completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${summary.completionPercent}">
+            <span style="width:${summary.completionPercent}%"></span>
+          </div>
+          <strong>${summary.completionPercent}%</strong>
+        </div>
+      </div>`;
+    const oldBar=card.querySelector('.participation-bar');
+    if(oldBar){
+      oldBar.insertAdjacentHTML('afterend',progress);
+      oldBar.remove()
+    }
+    const participation=card.querySelector('details');
+    if(participation){
+      const notStarted=`
+        <details class="teacher-assignment-not-started">
+          <summary>Students not started (${summary.notStarted.length})</summary>
+          ${summary.notStarted.length?summary.notStarted.map(entry=>`<div class="roster-row"><div>   <strong style="display:block">     ${esc(entry.student.student_name)}   </strong>   <span class="help" style="display:block">     ${esc(entry.student.student_id)}   </span> </div></div>`).join(''):roster.length?'<div class="empty">Everyone has started.</div>':'<div class="empty">No active students.</div>'}
+        </details>`;
+      const attention=summary.attention.length?`
+        <div class="teacher-assignment-attention">
+          <strong>Needs attention:</strong>
+          ${summary.attention.length} student${summary.attention.length===1?' has':'s have'} an incomplete or cancelled attempt and ${summary.attention.length===1?'is':'are'} not counted as Submitted or Completed.
+          <div class="help">${summary.attention.map(entry=>esc(entry.student.student_name)).join(', ')}</div>
+        </div>`:'';
+      participation.insertAdjacentHTML('beforebegin',attention+notStarted)
+    }
+  })
 }
 async function addSchoolClass(){const name=$('class-name').value.trim(),year=Number($('class-year').value);if(!name){classFeedback('try','Enter a class name.');return}const {data,error}=await cloud.from('school_classes').insert({name,year_level:year}).select('id').single();if(error){classFeedback('incorrect',error.message);return}selectedClassId=data.id;$('class-name').value='';classFeedback('correct','Class created.');await loadTeacher()}
 async function importClassRoster(){const cls=teacherClasses.find(c=>String(c.id)===String(selectedClassId)),lines=$('roster-import').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!cls||!lines.length){classFeedback('try','Enter at least one Student ID, Student name line.');return}let changed=0;for(const line of lines){const comma=line.indexOf(','),studentId=(comma>=0?line.slice(0,comma):'').trim(),studentName=(comma>=0?line.slice(comma+1):'').trim();if(!studentId||!studentName)continue;const existing=teacherStudents.find(s=>String(s.class_id)===String(cls.id)&&normalize(s.student_id)===normalize(studentId));const query=existing?cloud.from('class_students').update({student_id:studentId,student_name:studentName,active:true}).eq('id',existing.id):cloud.from('class_students').insert({class_id:cls.id,student_id:studentId,student_name:studentName});const {error}=await query;if(error){classFeedback('incorrect',`Stopped at ${studentId}: ${error.message}`);return}changed++}$('roster-import').value='';classFeedback('correct',`${changed} roster record${changed===1?'':'s'} imported or updated.`);await loadTeacher()}
@@ -2171,7 +2489,7 @@ async function loadStudentDashboard(accessToken) {
   }
 }
 
-/* V3.5 Smart Recommended Practice */
+/* Smart Recommended Practice */
 
 let studentPracticeRecommendationV35 = null;
 
@@ -2348,7 +2666,7 @@ async function loadStudentPracticeRecommendationV35(accessToken){
   catch(e){
 
     console.warn(
-      'Could not load V3.5 recommendation.',
+      'Could not load recommended practice.',
       e
     );
 
@@ -2482,7 +2800,611 @@ async function startRecommendedPracticeV35(){
   }
 }
 
-  /* V3.5 Light / Dark Mode */
+/* V3.6 My Assignments - secure loading and rendering */
+
+let studentAssignmentsV36 = [];
+
+
+function assignmentStatusV36(status){
+
+  const statuses = {
+
+    not_started:'Not started',
+
+    in_progress:'In progress',
+
+    submitted:'Submitted',
+
+    awaiting_review:'Awaiting review',
+
+    completed:'Completed'
+
+  };
+
+  return statuses[status] || 'Assignment';
+}
+
+
+function assignmentDateV36(value){
+
+  if(!value){
+    return '';
+  }
+
+  const date =
+    new Date(value);
+
+  if(Number.isNaN(date.getTime())){
+    return '';
+  }
+
+  return date.toLocaleString();
+}
+
+
+function assignmentTimingTextV36(assignment){
+
+  if(
+    assignment.timing_status ===
+    'upcoming'
+  ){
+
+    const start =
+      assignmentDateV36(
+        assignment.opens_at
+      );
+
+    return start
+      ? `Suggested start: ${start}`
+      : 'Upcoming';
+  }
+
+
+  if(
+    assignment.timing_status ===
+    'due_passed'
+  ){
+
+    const due =
+      assignmentDateV36(
+        assignment.closes_at
+      );
+
+    return due
+      ? `Target due passed: ${due}`
+      : 'Target due date passed';
+  }
+
+
+  const due =
+    assignmentDateV36(
+      assignment.closes_at
+    );
+
+  return due
+    ? `Target due: ${due}`
+    : 'No target due date';
+}
+
+
+function renderStudentAssignmentsV36(data){
+
+  const root =
+    $('student-assignments-list');
+
+  const meta =
+    $('student-assignments-meta');
+
+
+  if(!root){
+    return;
+  }
+
+
+  const student =
+    data?.student || {};
+
+  const assignments =
+    Array.isArray(data?.assignments)
+      ? data.assignments
+      : [];
+
+
+  studentAssignmentsV36 =
+    assignments;
+
+
+  if(meta){
+
+    meta.textContent =
+      `${student.student_name || 'Student'} • ${
+        formatYearClassV331(
+          student.year_level,
+          student.class_name
+        )
+      }`;
+  }
+
+
+  if(!assignments.length){
+
+    root.innerHTML = `
+      <div class="empty">
+        You do not currently have any active assignments.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  root.innerHTML =
+    assignments.map(
+      assignment => {
+
+        const latest =
+          assignment.latest_attempt || {};
+
+        const answered =
+          Number(
+            latest.answered_questions || 0
+          );
+
+        const total =
+          Number(
+            latest.question_count || 0
+          );
+
+        const progress =
+          total > 0
+            ? Math.max(
+                0,
+                Math.min(
+                  100,
+                  Math.round(
+                    answered / total * 100
+                  )
+                )
+              )
+            : 0;
+
+        const attemptsUsed =
+          Number(
+            assignment.attempts_used || 0
+          );
+
+        const attemptTarget =
+          Number(
+            assignment.attempt_target || 1
+          );
+
+        const status =
+          assignmentStatusV36(
+            assignment.status
+          );
+
+        const showProgress =
+          assignment.status ===
+          'in_progress';
+
+        const mastery =
+          latest.mastery_percent;
+
+
+        return `
+          <article class="student-assignment-card">
+
+            <div class="student-assignment-head">
+
+              <div>
+
+                <div class="student-assignment-title">
+                  ${esc(
+                    `${assignment.exam_year} · ${assignment.paper}`
+                  )}
+                </div>
+
+                <div class="help">
+                  ${esc(
+                    `Class ${assignment.class_name || '—'} · Year ${assignment.year_level || '—'}`
+                  )}
+                </div>
+
+              </div>
+
+              <span class="tag">
+                ${esc(status)}
+              </span>
+
+            </div>
+
+
+            <div class="student-assignment-meta">
+
+              <span class="tag">
+                ${esc(
+                  assignmentTimingTextV36(
+                    assignment
+                  )
+                )}
+              </span>
+
+              <span class="tag">
+                Attempts ${attemptsUsed}/${attemptTarget}
+              </span>
+
+            </div>
+
+
+            ${
+              showProgress
+                ? `
+                  <div class="student-assignment-progress">
+                    <span style="width:${progress}%"></span>
+                  </div>
+
+                  <div
+                    class="help"
+                    style="margin-top:7px"
+                  >
+                    ${answered}/${total || '—'} questions answered
+                  </div>
+                `
+                : ''
+            }
+
+
+                     ${
+              assignment.status === 'completed' &&
+              mastery != null
+                ? `
+                  <div style="margin-top:12px">
+                    <strong>
+                      ${Math.round(
+                        Number(mastery)
+                      )}% result
+                    </strong>
+                  </div>
+                `
+                : ''
+            }
+
+
+            <div class="student-assignment-action">
+
+              <button
+                type="button"
+                class="primary student-assignment-open"
+                data-assignment-id="${esc(
+                  assignment.assignment_id
+                )}"
+              >
+                ${
+                  assignment.primary_action === 'resume'
+                    ? 'Resume Assignment'
+                    : assignment.primary_action === 'view_result'
+                      ? 'View Result'
+                      : 'Start Assignment'
+                }
+              </button>
+
+            </div>
+
+          </article>
+        `;
+      }
+    ).join('');
+
+  
+  root
+    .querySelectorAll(
+      '.student-assignment-open'
+    )
+    .forEach(button => {
+
+      button.onclick =
+        () => launchStudentAssignmentV36(
+          button.dataset.assignmentId
+        );
+
+    });
+}
+
+
+async function loadStudentAssignmentsV36(
+  accessToken
+){
+
+  const root =
+    $('student-assignments-list');
+
+  const feedback =
+    $('student-assignments-feedback');
+
+
+  if(!root){
+    return;
+  }
+
+
+  root.innerHTML =
+    '<div class="empty">Loading your assignments...</div>';
+
+
+  if(feedback){
+
+    feedback.className =
+      'feedback hidden';
+
+    feedback.textContent =
+      '';
+  }
+
+
+  if(
+    !cloudReady ||
+    !accessToken
+  ){
+
+    root.innerHTML =
+      '<div class="empty">Your student access could not be verified.</div>';
+
+    return;
+  }
+
+
+  try{
+
+    const {data,error} =
+      await cloud.rpc(
+        'get_student_assignments',
+        {
+          p_access_token:
+            accessToken
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    renderStudentAssignmentsV36(
+      data || {}
+    );
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not load V3.6 assignments.',
+      e
+    );
+
+
+    root.innerHTML =
+      '<div class="empty">Your assignments could not be loaded right now.</div>';
+
+
+    if(feedback){
+
+      feedback.className =
+        'feedback incorrect';
+
+      feedback.textContent =
+        `Could not load assignments. ${e?.message || ''}`.trim();
+    }
+  }
+}
+async function openStudentAssignmentsV36(){
+
+  /*
+    My Assignments currently contains Exam
+    assignments, so verify the student using
+    an exam-purpose temporary access ticket.
+  */
+  const access =
+    await validateStudentAccess(
+      'exam'
+    );
+
+
+  if(!access?.access_token){
+    return;
+  }
+
+
+  activeStudentAccess =
+    access;
+
+
+  showVerifiedStudentV331(
+    access
+  );
+
+
+  show(
+    'student-assignments'
+  );
+
+
+  await loadStudentAssignmentsV36(
+    access.access_token
+  );
+}
+
+
+async function launchStudentAssignmentV36(
+  assignmentId
+){
+
+  const assignment =
+    studentAssignmentsV36.find(
+      row =>
+        String(row.assignment_id) ===
+        String(assignmentId)
+    );
+
+
+  if(!assignment){
+
+    alert(
+      'This assignment could not be found. Open My Assignments again and retry.'
+    );
+
+    return;
+  }
+
+
+  /*
+    Completed work reuses the existing
+    student result/review screen.
+  */
+  if(
+    assignment.primary_action ===
+    'view_result'
+  ){
+
+    const resultCode =
+      assignment.latest_attempt
+        ?.result_code || '';
+
+
+    if(resultCode){
+
+      openStudentReview(
+        resultCode
+      );
+
+    }
+    else{
+
+      alert(
+        'The result is not available yet.'
+      );
+    }
+
+    return;
+  }
+
+
+  const access =
+    activeStudentAccess;
+
+
+  if(!access?.access_token){
+
+    alert(
+      'Your student login has expired. Return Home and sign in again.'
+    );
+
+    show('start');
+
+    return;
+  }
+
+
+  /*
+    Use the already verified student identity.
+    V3.6 Supabase resume support securely
+    reconnects a registered student to an
+    existing in-progress attempt.
+  */
+  applyVerifiedStudent(
+    access
+  );
+
+  showVerifiedStudentV331(
+    access
+  );
+
+
+  setStartMode(
+    'exam'
+  );
+
+
+  $('year-level').value =
+    String(
+      assignment.year_level
+    );
+
+
+  await loadExamOptions();
+
+
+  const yearSelect =
+    $('exam-year');
+
+
+  if(
+    [...yearSelect.options].some(
+      option =>
+        Number(option.value) ===
+        Number(assignment.exam_year)
+    )
+  ){
+
+    yearSelect.value =
+      String(
+        assignment.exam_year
+      );
+  }
+
+
+  fillExamPapers(
+    assignment.paper
+  );
+
+
+  const paperSelect =
+    $('exam-paper');
+
+
+  if(
+    [...paperSelect.options].some(
+      option =>
+        option.value ===
+        assignment.paper
+    )
+  ){
+
+    paperSelect.value =
+      assignment.paper;
+  }
+
+
+  updateExamPaperNote();
+
+
+  try{
+
+    /*
+      Call the underlying existing Exam engine
+      directly because the student has already
+      authenticated when opening My Assignments.
+    */
+    await startExamV32F21();
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not launch V3.6 assignment.',
+      e
+    );
+
+    alert(
+      `Assignment could not start. ${e?.message || ''}`.trim()
+    );
+
+    show(
+      'student-assignments'
+    );
+  }
+}
+  /* Light / Dark Mode */
 
 const THEME_KEY_V35 =
   'mathThemeV35';
@@ -2705,18 +3627,33 @@ function initThemeV35(){
 function wireV34Dashboard() {
 
   const updateProgressBtn = () => {
+
     const id =
       $('student-id')?.value.trim() || '';
 
-    const btn =
+    const progressBtn =
       $('my-progress-btn');
 
-    if (!btn) return;
+    const assignmentsBtn =
+      $('my-assignments-btn');
 
-    btn.classList.toggle(
-      'hidden',
-      !cloudReady || !id
-    );
+
+    if(progressBtn){
+
+      progressBtn.classList.toggle(
+        'hidden',
+        !cloudReady || !id
+      );
+    }
+
+
+    if(assignmentsBtn){
+
+      assignmentsBtn.classList.toggle(
+        'hidden',
+        !cloudReady || !id
+      );
+    }
   };
 
 
@@ -2771,6 +3708,15 @@ function wireV34Dashboard() {
   )
 ]);
       };
+  }
+
+
+  if(
+    $('my-assignments-btn')
+  ){
+
+    $('my-assignments-btn').onclick =
+      openStudentAssignmentsV36;
   }
 }
 
