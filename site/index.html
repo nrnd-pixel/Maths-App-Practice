@@ -2830,7 +2830,7 @@ function renderStudentAssignmentsV36(data){
             }
 
 
-            ${
+                     ${
               assignment.status === 'completed' &&
               mastery != null
                 ? `
@@ -2845,10 +2845,45 @@ function renderStudentAssignmentsV36(data){
                 : ''
             }
 
+
+            <div class="student-assignment-action">
+
+              <button
+                type="button"
+                class="primary student-assignment-open"
+                data-assignment-id="${esc(
+                  assignment.assignment_id
+                )}"
+              >
+                ${
+                  assignment.primary_action === 'resume'
+                    ? 'Resume Assignment'
+                    : assignment.primary_action === 'view_result'
+                      ? 'View Result'
+                      : 'Start Assignment'
+                }
+              </button>
+
+            </div>
+
           </article>
         `;
       }
     ).join('');
+
+  
+  root
+    .querySelectorAll(
+      '.student-assignment-open'
+    )
+    .forEach(button => {
+
+      button.onclick =
+        () => launchStudentAssignmentV36(
+          button.dataset.assignmentId
+        );
+
+    });
 }
 
 
@@ -2938,7 +2973,213 @@ async function loadStudentAssignmentsV36(
     }
   }
 }
-  
+async function openStudentAssignmentsV36(){
+
+  /*
+    My Assignments currently contains Exam
+    assignments, so verify the student using
+    an exam-purpose temporary access ticket.
+  */
+  const access =
+    await validateStudentAccess(
+      'exam'
+    );
+
+
+  if(!access?.access_token){
+    return;
+  }
+
+
+  activeStudentAccess =
+    access;
+
+
+  showVerifiedStudentV331(
+    access
+  );
+
+
+  show(
+    'student-assignments'
+  );
+
+
+  await loadStudentAssignmentsV36(
+    access.access_token
+  );
+}
+
+
+async function launchStudentAssignmentV36(
+  assignmentId
+){
+
+  const assignment =
+    studentAssignmentsV36.find(
+      row =>
+        String(row.assignment_id) ===
+        String(assignmentId)
+    );
+
+
+  if(!assignment){
+
+    alert(
+      'This assignment could not be found. Open My Assignments again and retry.'
+    );
+
+    return;
+  }
+
+
+  /*
+    Completed work reuses the existing
+    student result/review screen.
+  */
+  if(
+    assignment.primary_action ===
+    'view_result'
+  ){
+
+    const resultCode =
+      assignment.latest_attempt
+        ?.result_code || '';
+
+
+    if(resultCode){
+
+      openStudentReview(
+        resultCode
+      );
+
+    }
+    else{
+
+      alert(
+        'The result is not available yet.'
+      );
+    }
+
+    return;
+  }
+
+
+  const access =
+    activeStudentAccess;
+
+
+  if(!access?.access_token){
+
+    alert(
+      'Your student login has expired. Return Home and sign in again.'
+    );
+
+    show('start');
+
+    return;
+  }
+
+
+  /*
+    Use the already verified student identity.
+    V3.6 Supabase resume support securely
+    reconnects a registered student to an
+    existing in-progress attempt.
+  */
+  applyVerifiedStudent(
+    access
+  );
+
+  showVerifiedStudentV331(
+    access
+  );
+
+
+  setStartMode(
+    'exam'
+  );
+
+
+  $('year-level').value =
+    String(
+      assignment.year_level
+    );
+
+
+  await loadExamOptions();
+
+
+  const yearSelect =
+    $('exam-year');
+
+
+  if(
+    [...yearSelect.options].some(
+      option =>
+        Number(option.value) ===
+        Number(assignment.exam_year)
+    )
+  ){
+
+    yearSelect.value =
+      String(
+        assignment.exam_year
+      );
+  }
+
+
+  fillExamPapers(
+    assignment.paper
+  );
+
+
+  const paperSelect =
+    $('exam-paper');
+
+
+  if(
+    [...paperSelect.options].some(
+      option =>
+        option.value ===
+        assignment.paper
+    )
+  ){
+
+    paperSelect.value =
+      assignment.paper;
+  }
+
+
+  updateExamPaperNote();
+
+
+  try{
+
+    /*
+      Call the underlying existing Exam engine
+      directly because the student has already
+      authenticated when opening My Assignments.
+    */
+    await startExamV32F21();
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not launch V3.6 assignment.',
+      e
+    );
+
+    alert(
+      `Assignment could not start. ${e?.message || ''}`.trim()
+    );
+
+    show(
+      'student-assignments'
+    );
+  }
+}
   /* V3.5 Light / Dark Mode */
 
 const THEME_KEY_V35 =
@@ -3162,18 +3403,33 @@ function initThemeV35(){
 function wireV34Dashboard() {
 
   const updateProgressBtn = () => {
+
     const id =
       $('student-id')?.value.trim() || '';
 
-    const btn =
+    const progressBtn =
       $('my-progress-btn');
 
-    if (!btn) return;
+    const assignmentsBtn =
+      $('my-assignments-btn');
 
-    btn.classList.toggle(
-      'hidden',
-      !cloudReady || !id
-    );
+
+    if(progressBtn){
+
+      progressBtn.classList.toggle(
+        'hidden',
+        !cloudReady || !id
+      );
+    }
+
+
+    if(assignmentsBtn){
+
+      assignmentsBtn.classList.toggle(
+        'hidden',
+        !cloudReady || !id
+      );
+    }
   };
 
 
@@ -3228,6 +3484,15 @@ function wireV34Dashboard() {
   )
 ]);
       };
+  }
+
+
+  if(
+    $('my-assignments-btn')
+  ){
+
+    $('my-assignments-btn').onclick =
+      openStudentAssignmentsV36;
   }
 }
 
