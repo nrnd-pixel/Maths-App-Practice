@@ -175,6 +175,98 @@
   display:block;
   margin-bottom:4px;
 }
+
+/* V3.7 Teacher Motivation & Engagement */
+
+.teacher-engagement-v37{
+  margin-top:4px;
+}
+
+.teacher-engagement-head-v37{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.teacher-engagement-head-v37 h3{
+  margin-bottom:5px;
+}
+
+.teacher-engagement-summary-v37{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-top:16px;
+}
+
+.teacher-engagement-stat-v37{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  background:var(--surface-soft);
+}
+
+.teacher-engagement-stat-v37 strong{
+  display:block;
+  font-size:24px;
+  margin-bottom:4px;
+}
+
+.teacher-engagement-stat-v37 span{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+.teacher-engagement-columns-v37{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+
+.teacher-engagement-panel-v37{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  background:var(--surface-muted);
+}
+
+.teacher-engagement-panel-v37 h4{
+  margin:0 0 10px;
+}
+
+.teacher-engagement-details-v37{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px 14px;
+  margin-top:12px;
+  background:var(--surface-soft);
+}
+
+.teacher-engagement-details-v37 summary{
+  cursor:pointer;
+  font-weight:800;
+}
+
+.teacher-engagement-list-v37{
+  margin-top:12px;
+}
+
+@media(max-width:900px){
+  .teacher-engagement-summary-v37{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:700px){
+  .teacher-engagement-summary-v37,
+  .teacher-engagement-columns-v37{
+    grid-template-columns:1fr;
+  }
+}
   
   /* Smart Recommended Practice */
 
@@ -1173,6 +1265,100 @@ input[type="file"]::file-selector-button:hover{
           </div>
           <button id="save-assignment" class="primary" type="button">Save Assignment</button>
           <div id="assignment-list"></div>
+          <hr style="border:0;border-top:1px solid var(--border);margin:24px 0">
+
+<section class="teacher-engagement-v37">
+
+  <div class="teacher-engagement-head-v37">
+    <div>
+      <h3>🌱 Motivation & Engagement</h3>
+      <p class="muted">
+        See learning consistency, weekly goals and students who may benefit from encouragement.
+      </p>
+    </div>
+
+    <span class="tag">This week</span>
+  </div>
+
+  <div class="teacher-engagement-summary-v37">
+
+    <article class="teacher-engagement-stat-v37">
+      <strong id="teacher-engagement-active">—</strong>
+      <span>Active this week</span>
+    </article>
+
+    <article class="teacher-engagement-stat-v37">
+      <strong id="teacher-engagement-goals">—</strong>
+      <span>Weekly goal reached</span>
+    </article>
+
+    <article class="teacher-engagement-stat-v37">
+      <strong id="teacher-engagement-encourage">—</strong>
+      <span>Students to encourage</span>
+    </article>
+
+    <article class="teacher-engagement-stat-v37">
+      <strong id="teacher-engagement-participation">—</strong>
+      <span>Participation</span>
+    </article>
+
+  </div>
+
+  <div class="teacher-engagement-columns-v37">
+
+    <section class="teacher-engagement-panel-v37">
+      <h4>🏅 Recent achievements</h4>
+
+      <div id="teacher-engagement-achievements">
+        <div class="empty">
+          Engagement data will appear here.
+        </div>
+      </div>
+    </section>
+
+    <section class="teacher-engagement-panel-v37">
+      <h4>📈 Recent improvements</h4>
+
+      <div id="teacher-engagement-improvements">
+        <div class="empty">
+          Improvement milestones will appear here.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <details class="teacher-engagement-details-v37">
+    <summary>
+      💬 Students to encourage
+    </summary>
+
+    <div
+      id="teacher-engagement-encourage-list"
+      class="teacher-engagement-list-v37"
+    >
+      <div class="empty">
+        Student engagement data will appear here.
+      </div>
+    </div>
+  </details>
+
+  <details class="teacher-engagement-details-v37">
+    <summary>
+      👥 All student engagement
+    </summary>
+
+    <div
+      id="teacher-engagement-students"
+      class="teacher-engagement-list-v37"
+    >
+      <div class="empty">
+        Student engagement data will appear here.
+      </div>
+    </div>
+  </details>
+
+</section>
         </div>
       </div>
     </div>
