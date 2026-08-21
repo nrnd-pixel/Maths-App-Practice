@@ -9,36 +9,35 @@ window.MATH_APP_CONFIG = {
 /*
  * V3.8.1 AI Help connectivity hotfix.
  *
- * This file loads before supabase-js and before the app creates its Supabase
- * client. Keep the existing Supabase client for every normal request, but for
- * the student AI Edge Function strip optional client headers that can cause a
- * browser CORS preflight mismatch. The Edge Function uses the temporary
- * student token from the JSON body for authorization, so an Authorization
- * header is intentionally unnecessary here.
+ * Keep the normal Supabase client unchanged for the rest of the app. AI Help
+ * requests are routed through a small compatibility Edge Function whose only
+ * job is to handle browser CORS robustly, then forward the unchanged JSON body
+ * to the protected V3.8 AI Help function. Student authorization remains the
+ * temporary practice token inside the request body; no protected content or
+ * service-role credential is exposed to the browser.
  */
 (() => {
   const nativeFetch = window.fetch.bind(window);
-  const aiFunctionPath = '/functions/v1/student-ai-help-v38';
+  const oldPath = '/functions/v1/student-ai-help-v38';
+  const compatibilityPath = '/functions/v1/student-ai-help-v381';
 
   window.fetch = (input, init = {}) => {
-    const url = typeof input === 'string' ? input : String(input?.url || '');
-    if (!url.includes(aiFunctionPath)) {
+    const url = typeof input === 'string'
+      ? input
+      : (input instanceof Request ? input.url : String(input?.url || input || ''));
+
+    if (!url.includes(oldPath)) {
       return nativeFetch(input, init);
     }
 
-    const sourceHeaders = new Headers(
-      init?.headers || (input instanceof Request ? input.headers : undefined)
-    );
-    const headers = new Headers();
-    const apiKey = sourceHeaders.get('apikey') || window.MATH_APP_CONFIG.supabasePublishableKey;
+    const redirectedUrl = url.replace(oldPath, compatibilityPath);
 
-    if (apiKey) headers.set('apikey', apiKey);
-    headers.set('content-type', 'application/json');
+    if (input instanceof Request) {
+      const redirectedRequest = new Request(redirectedUrl, input);
+      return nativeFetch(redirectedRequest, init);
+    }
 
-    return nativeFetch(input, {
-      ...init,
-      headers
-    });
+    return nativeFetch(redirectedUrl, init);
   };
 })();
 
