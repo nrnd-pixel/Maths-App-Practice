@@ -176,6 +176,64 @@
   margin-bottom:4px;
 }
 
+/* V3.7 Private Student Messages */
+
+.student-messages-v37{
+  margin-top:20px;
+}
+
+.student-messages-head-v37{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.student-messages-head-v37 h3{
+  margin-bottom:4px;
+}
+
+.student-messages-list-v37{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+
+.student-message-card-v37{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  background:var(--surface-muted);
+}
+
+.student-message-card-v37.unread{
+  border-color:var(--primary);
+  background:var(--soft);
+}
+
+.student-message-card-v37 .message-text-v37{
+  line-height:1.5;
+  margin-top:5px;
+}
+
+.student-message-card-v37 button{
+  flex:0 0 auto;
+  min-height:36px;
+  padding:7px 10px;
+  font-size:12px;
+}
+
+@media(max-width:700px){
+  .student-message-card-v37{
+    flex-direction:column;
+  }
+}
+  
 /* V3.7 Teacher Motivation & Engagement */
 
 .teacher-engagement-v37{
@@ -1113,6 +1171,37 @@ input[type="file"]::file-selector-button:hover{
   id="student-motivation-milestone"
   class="student-milestone hidden"
 ></div>
+
+  <section class="student-messages-v37">
+
+  <div class="student-messages-head-v37">
+
+    <div>
+      <h3>💌 Messages from your teacher</h3>
+      <p class="muted">
+        Private encouragement and congratulations from your teacher.
+      </p>
+    </div>
+
+    <span
+      id="student-messages-unread-v37"
+      class="tag hidden"
+    >
+      0 unread
+    </span>
+
+  </div>
+
+  <div
+    id="student-messages-list-v37"
+    class="student-messages-list-v37"
+  >
+    <div class="empty">
+      Messages will appear here.
+    </div>
+  </div>
+
+</section>
   
   <div class="student-achievement-heading">
     <div>
@@ -3225,6 +3314,322 @@ async function loadStudentMotivationV37(
     }
   }
 }
+
+  /* V3.7 Private Student Messages */
+
+let studentMessageAccessTokenV37 = '';
+
+
+function studentMessageDateV37(value){
+
+  if(!value){
+    return '';
+  }
+
+  const date =
+    new Date(value);
+
+  if(Number.isNaN(date.getTime())){
+    return '';
+  }
+
+  return date.toLocaleString(
+    undefined,
+    {
+      day:'numeric',
+      month:'short',
+      year:'numeric',
+      hour:'numeric',
+      minute:'2-digit'
+    }
+  );
+}
+
+
+function renderStudentMessagesV37(data){
+
+  const messages =
+    Array.isArray(data?.messages)
+      ? data.messages
+      : [];
+
+  const unreadCount =
+    Math.max(
+      0,
+      Number(data?.unread_count || 0)
+    );
+
+
+  const badge =
+    $('student-messages-unread-v37');
+
+  if(badge){
+
+    badge.textContent =
+      `${unreadCount} unread`;
+
+    badge.classList.toggle(
+      'hidden',
+      unreadCount === 0
+    );
+  }
+
+
+  const root =
+    $('student-messages-list-v37');
+
+  if(!root){
+    return;
+  }
+
+
+  root.innerHTML =
+    messages.length
+      ? messages.map(message => {
+
+          const unread =
+            !!message.unread;
+
+          const typeIcon =
+            message.message_type ===
+              'congratulation'
+              ? '🎉'
+              : '💬';
+
+          return `
+
+            <article
+              class="student-message-card-v37 ${
+                unread
+                  ? 'unread'
+                  : ''
+              }"
+            >
+
+              <div>
+
+                <strong>
+                  ${typeIcon}
+                  ${esc(
+                    message.teacher_name ||
+                    'Your teacher'
+                  )}
+                </strong>
+
+                <div class="message-text-v37">
+                  ${esc(
+                    message.message_text ||
+                    ''
+                  )}
+                </div>
+
+                <div
+                  class="help"
+                  style="margin-top:6px"
+                >
+                  ${esc(
+                    studentMessageDateV37(
+                      message.created_at
+                    )
+                  )}
+                  ${
+                    unread
+                      ? ' · New'
+                      : ' · Read'
+                  }
+                </div>
+
+              </div>
+
+              ${
+                unread
+                  ? `
+                    <button
+                      type="button"
+                      class="outline mark-message-read-v37"
+                      data-message-id="${esc(
+                        message.id || ''
+                      )}"
+                    >
+                      Mark as read
+                    </button>
+                  `
+                  : ''
+              }
+
+            </article>
+
+          `;
+        }).join('')
+      : `
+          <div class="empty">
+            No messages from your teacher yet.
+          </div>
+        `;
+
+
+  root
+    .querySelectorAll(
+      '.mark-message-read-v37'
+    )
+    .forEach(button => {
+
+      button.onclick =
+        () =>
+          markStudentMessageReadV37(
+            button.dataset.messageId,
+            button
+          );
+    });
+}
+
+
+async function loadStudentMessagesV37(
+  accessToken
+){
+
+  studentMessageAccessTokenV37 =
+    accessToken || '';
+
+
+  const root =
+    $('student-messages-list-v37');
+
+  if(root){
+
+    root.innerHTML =
+      `
+        <div class="empty">
+          Loading teacher messages...
+        </div>
+      `;
+  }
+
+
+  if(
+    !cloudReady ||
+    !accessToken
+  ){
+    return;
+  }
+
+
+  try{
+
+    const {data,error} =
+      await cloud.rpc(
+        'get_student_motivation_messages',
+        {
+          p_access_token:
+            accessToken
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    renderStudentMessagesV37(
+      data || {}
+    );
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not load teacher messages.',
+      e
+    );
+
+
+    if(root){
+
+      root.innerHTML =
+        `
+          <div class="empty">
+            Teacher messages could not be loaded right now.
+          </div>
+        `;
+    }
+  }
+}
+
+
+async function markStudentMessageReadV37(
+  messageId,
+  button
+){
+
+  if(
+    !cloudReady ||
+    !studentMessageAccessTokenV37 ||
+    !messageId
+  ){
+    return;
+  }
+
+
+  if(button){
+
+    button.disabled = true;
+    button.textContent =
+      'Saving...';
+  }
+
+
+  try{
+
+    const {error} =
+      await cloud.rpc(
+        'mark_student_motivation_message_read',
+        {
+          p_access_token:
+            studentMessageAccessTokenV37,
+
+          p_message_id:
+            messageId
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    /*
+      Reload through the secure RPC so the
+      unread count and message state remain
+      authoritative.
+    */
+    await loadStudentMessagesV37(
+      studentMessageAccessTokenV37
+    );
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not mark teacher message as read.',
+      e
+    );
+
+
+    if(button){
+
+      button.disabled = false;
+      button.textContent =
+        'Mark as read';
+    }
+
+
+    alert(
+      'The message could not be updated right now.'
+    );
+  }
+}
   
 /* Smart Recommended Practice */
 
@@ -5177,6 +5582,10 @@ await Promise.all([
   ),
 
   loadStudentMotivationV37(
+    access.access_token
+  ),
+
+  loadStudentMessagesV37(
     access.access_token
   )
 ]);
