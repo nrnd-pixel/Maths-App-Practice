@@ -6,10 +6,12 @@ window.MATH_APP_CONFIG = {
   authRedirectUrl: ''
 };
 
-/* Optional feature modules load after the main app is ready. */
+/* Optional V3.8 feature modules load after the main app is ready. */
 window.addEventListener('load', () => {
-  const script = document.createElement('script');
-  script.src = './v38-ai-help.js';
-  script.async = false;
-  document.body.appendChild(script);
+  ['./v38-ai-help.js', './v38-ai-admin.js'].forEach(src => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    document.body.appendChild(script);
+  });
 }, { once: true });
