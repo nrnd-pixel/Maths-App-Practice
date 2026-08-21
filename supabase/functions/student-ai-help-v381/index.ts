@@ -7,9 +7,23 @@ const TARGET_FUNCTION_URL = SUPABASE_URL
 
 const allowedOrigin = (origin: string | null) => {
   if (!origin) return "";
-  if (origin === "https://magical-pixie-a61111.netlify.app") return origin;
-  if (/^https:\/\/deploy-preview-\d+--magical-pixie-a61111\.netlify\.app$/.test(origin)) return origin;
-  if (origin === "http://localhost:8888" || origin === "http://127.0.0.1:8888") return origin;
+
+  if (origin === "http://localhost:8888" || origin === "http://127.0.0.1:8888") {
+    return origin;
+  }
+
+  try {
+    const parsed = new URL(origin);
+    const hostname = parsed.hostname.toLowerCase();
+    const isKnownNetlifySite = parsed.protocol === "https:" && (
+      hostname === "magical-pixie-a61111.netlify.app" ||
+      hostname.endsWith("--magical-pixie-a61111.netlify.app")
+    );
+    if (isKnownNetlifySite) return origin;
+  } catch {
+    return "";
+  }
+
   return "";
 };
 
@@ -40,10 +54,12 @@ const jsonResponse = (req: Request, body: unknown, status = 200) =>
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (origin && !allowedOrigin(origin)) {
+    console.warn("student-ai-help-v381 rejected origin", origin);
     return jsonResponse(req, { error: "Origin not allowed" }, 403);
   }
 
   if (req.method === "OPTIONS") {
+    console.info("student-ai-help-v381 preflight accepted", origin || "no-origin");
     return new Response(null, { status: 204, headers: corsHeaders(req) });
   }
 
@@ -65,6 +81,8 @@ Deno.serve(async (req: Request) => {
   if (!raw || raw.length > 20000) {
     return jsonResponse(req, { error: "Invalid request body" }, 400);
   }
+
+  console.info("student-ai-help-v381 forwarding POST", origin || "no-origin");
 
   let upstream: Response;
   try {
