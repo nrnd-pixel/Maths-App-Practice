@@ -5,3 +5,11 @@ window.MATH_APP_CONFIG = {
   // Example: 'https://your-site.netlify.app/'
   authRedirectUrl: ''
 };
+
+/* Optional feature modules load after the main app is ready. */
+window.addEventListener('load', () => {
+  const script = document.createElement('script');
+  script.src = './v38-ai-help.js';
+  script.async = false;
+  document.body.appendChild(script);
+}, { once: true });
