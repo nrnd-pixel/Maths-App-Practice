@@ -4457,7 +4457,145 @@ function resetTeacherEngagementV37(
   }
 }
 
+function teacherMotivationTemplateV37(
+  type,
+  studentName
+){
 
+  const name =
+    String(studentName || 'there').trim();
+
+  if(type === 'congratulation'){
+
+    return `Great work, ${name}! Your recent Maths progress is worth celebrating. Keep it up!`;
+  }
+
+  return `Keep going, ${name}! A little meaningful Maths practice this week can make a big difference. I’m cheering you on.`;
+}
+
+
+async function sendTeacherMotivationMessageV37(
+  button
+){
+
+  if(
+    !cloudReady ||
+    !teacherUser ||
+    !button
+  ){
+    return;
+  }
+
+
+  const rosterStudentId =
+    button.dataset.studentId || '';
+
+  const studentName =
+    button.dataset.studentName || 'Student';
+
+  const messageType =
+    button.dataset.messageType || 'encouragement';
+
+
+  const suggested =
+    teacherMotivationTemplateV37(
+      messageType,
+      studentName
+    );
+
+
+  const typed =
+    prompt(
+      `${
+        messageType === 'congratulation'
+          ? 'Congratulate'
+          : 'Encourage'
+      } ${studentName}`,
+      suggested
+    );
+
+
+  if(typed === null){
+    return;
+  }
+
+
+  const message =
+    typed.trim();
+
+
+  if(
+    !message ||
+    message.length > 280
+  ){
+
+    alert(
+      'Please enter a message between 1 and 280 characters.'
+    );
+
+    return;
+  }
+
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent = 'Sending...';
+
+
+  try{
+
+    const {error} =
+      await cloud.rpc(
+        'send_student_motivation_message',
+        {
+          p_roster_student_id:
+            rosterStudentId,
+
+          p_message_type:
+            messageType,
+
+          p_message:
+            message
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    button.textContent =
+      'Sent ✓';
+
+
+    alert(
+      `Private message sent to ${studentName}.`
+    );
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not send motivation message.',
+      e
+    );
+
+
+    alert(
+      e?.message ||
+      'The message could not be sent.'
+    );
+
+
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
+}
+  
 function renderTeacherEngagementV37(data){
 
   const summary =
@@ -4527,34 +4665,44 @@ function renderTeacherEngagementV37(data){
 
   if(achievementRoot){
 
-    achievementRoot.innerHTML =
-      achievements.length
-        ? achievements.map(item => `
+ achievementRoot.innerHTML =
+  achievements.length
+    ? achievements.map(item => `
 
-            <div class="roster-row">
+        <div class="roster-row">
 
-              <div>
+          <div>
 
-                <strong style="display:block">
-                  ${esc(item.icon || '🏅')}
-                  ${esc(item.student_name || 'Student')}
-                </strong>
+            <strong style="display:block">
+              ${esc(item.icon || '🏅')}
+              ${esc(item.student_name || 'Student')}
+            </strong>
 
-                <div class="help">
-                  ${esc(item.title || 'Achievement')}
-                  ·
-                  ${esc(
-                    teacherEngagementDateV37(
-                      item.earned_at
-                    )
-                  )}
-                </div>
-
-              </div>
-
+            <div class="help">
+              ${esc(item.title || 'Achievement')}
+              ·
+              ${esc(
+                teacherEngagementDateV37(
+                  item.earned_at
+                )
+              )}
             </div>
 
-          `).join('')
+          </div>
+
+          <button
+            class="outline send-motivation-v37"
+            type="button"
+            data-student-id="${esc(item.roster_student_id || '')}"
+            data-student-name="${esc(item.student_name || 'Student')}"
+            data-message-type="congratulation"
+          >
+            Congratulate
+          </button>
+
+        </div>
+
+      `).join('')
         : `
             <div class="empty">
               No recent achievements yet.
@@ -4587,36 +4735,46 @@ function renderTeacherEngagementV37(data){
                 item.improvement_points || 0
               );
 
-            return `
+       return `
 
-              <div class="roster-row">
+  <div class="roster-row">
 
-                <div>
+    <div>
 
-                  <strong style="display:block">
-                    📈 ${esc(
-                      item.student_name ||
-                      'Student'
-                    )}
-                  </strong>
+      <strong style="display:block">
+        📈 ${esc(
+          item.student_name ||
+          'Student'
+        )}
+      </strong>
 
-                  <div>
-                    ${esc(
-                      item.topic ||
-                      'Topic'
-                    )}
-                  </div>
+      <div>
+        ${esc(
+          item.topic ||
+          'Topic'
+        )}
+      </div>
 
-                  <div class="help">
-                    ${previous}% → ${recent}%
-                    · +${gain} percentage points
-                  </div>
+      <div class="help">
+        ${previous}% → ${recent}%
+        · +${gain} percentage points
+      </div>
 
-                </div>
+    </div>
 
-              </div>
+    <button
+      class="outline send-motivation-v37"
+      type="button"
+      data-student-id="${esc(item.roster_student_id || '')}"
+      data-student-name="${esc(item.student_name || 'Student')}"
+      data-message-type="congratulation"
+    >
+      Congratulate
+    </button>
 
-            `;
+  </div>
+
+`;
           }).join('')
         : `
             <div class="empty">
@@ -4635,52 +4793,62 @@ function renderTeacherEngagementV37(data){
       encourage.length
         ? encourage.map(student => `
 
-            <div class="roster-row">
+           <div class="roster-row">
 
-              <div>
+  <div>
 
-                <strong style="display:block">
-                  ${esc(
-                    student.student_name ||
-                    'Student'
-                  )}
-                </strong>
+    <strong style="display:block">
+      ${esc(
+        student.student_name ||
+        'Student'
+      )}
+    </strong>
 
-                <span
-                  class="help"
-                  style="display:block"
-                >
-                  ${esc(
-                    student.student_id || ''
-                  )}
-                </span>
+    <span
+      class="help"
+      style="display:block"
+    >
+      ${esc(
+        student.student_id || ''
+      )}
+    </span>
 
-                <div class="help">
-                  ${esc(
-                    teacherEncouragementReasonV37(
-                      student.reason
-                    )
-                  )}
-                </div>
+    <div class="help">
+      ${esc(
+        teacherEncouragementReasonV37(
+          student.reason
+        )
+      )}
+    </div>
 
-                ${
+    ${
+      student.last_activity
+        ? `
+            <div class="help">
+              Last activity:
+              ${esc(
+                teacherEngagementDateV37(
                   student.last_activity
-                    ? `
-                        <div class="help">
-                          Last activity:
-                          ${esc(
-                            teacherEngagementDateV37(
-                              student.last_activity
-                            )
-                          )}
-                        </div>
-                      `
-                    : ''
-                }
-
-              </div>
-
+                )
+              )}
             </div>
+          `
+        : ''
+    }
+
+  </div>
+
+  <button
+    class="outline send-motivation-v37"
+    type="button"
+    data-student-id="${esc(student.roster_student_id || '')}"
+    data-student-name="${esc(student.student_name || 'Student')}"
+    data-message-type="encouragement"
+  >
+    Send encouragement
+  </button>
+
+</div>
 
           `).join('')
         : `
@@ -4787,6 +4955,18 @@ function renderTeacherEngagementV37(data){
             </div>
           `;
   }
+  document
+    .querySelectorAll(
+      '.send-motivation-v37'
+    )
+    .forEach(button => {
+
+      button.onclick =
+        () =>
+          sendTeacherMotivationMessageV37(
+            button
+          );
+    });
 }
 
 
