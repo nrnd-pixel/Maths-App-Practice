@@ -16,7 +16,7 @@
         <strong>V3.9:</strong>
         The student experience is now clearer and easier to use, with a student-first home screen,
         a more guided Practice flow, improved AI Learning Help placement, clearer Progress and
-        Assignments screens, and better mobile, loading and empty-state presentation.
+        Assignments screens, and better mobile presentation and touch-friendly controls.
         Exam Mode and Exam Assignments continue to keep AI Help switched off.
       `;
     }
