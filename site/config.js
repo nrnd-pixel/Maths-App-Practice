@@ -44,7 +44,7 @@ window.MATH_APP_CONFIG = {
 /* V3.8.1 remains visible while V3.9 modules are isolated in preview. */
 document.title = 'Math Practice V3.8.1';
 
-/* V3.8/V3.8.1 foundation plus V3.9A only while V3.9B is repaired. */
+/* V3.8/V3.8.1 foundation plus V3.9A and repaired V3.9B. */
 window.addEventListener('load', () => {
   [
     './v38-release.js',
@@ -52,7 +52,8 @@ window.addEventListener('load', () => {
     './v38-ai-help.js',
     './v38-ai-admin.js',
     './v38-ai-polish.js',
-    './v39-student-polish.js'
+    './v39-student-polish.js',
+    './v39-practice-polish.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
