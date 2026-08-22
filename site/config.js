@@ -44,7 +44,7 @@ window.MATH_APP_CONFIG = {
 /* V3.8.1 remains the visible production version while V3.9 is in preview. */
 document.title = 'Math Practice V3.8.1';
 
-/* Optional V3.8/V3.8.1/V3.9 preview feature modules load after the main app is ready. */
+/* V3.8/V3.8.1 feature modules plus V3.9 preview polish. */
 window.addEventListener('load', () => {
   [
     './v38-release.js',
