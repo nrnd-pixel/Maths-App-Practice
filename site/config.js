@@ -41,10 +41,10 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* V3.9 visible release version. */
-document.title = 'Math Practice V3.9';
+/* V3.8.1 remains the visible production version while V3.9 is in preview. */
+document.title = 'Math Practice V3.8.1';
 
-/* V3.8/V3.8.1 foundation plus V3.9 student experience modules. */
+/* V3.8/V3.8.1 feature modules plus V3.9 preview polish. */
 window.addEventListener('load', () => {
   [
     './v38-release.js',
@@ -54,8 +54,7 @@ window.addEventListener('load', () => {
     './v38-ai-polish.js',
     './v39-student-polish.js',
     './v39-practice-polish.js',
-    './v39-dashboard-polish.js',
-    './v39-release.js'
+    './v39-dashboard-polish.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
