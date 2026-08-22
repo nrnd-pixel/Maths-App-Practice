@@ -157,45 +157,55 @@
   function moveAiAfterFeedback() {
     const panel = byId('ai-help-v38');
     const feedback = byId('feedback');
-    if (!panel || !feedback) return;
+    if (!panel || !feedback) return false;
     if (feedback.nextElementSibling !== panel) {
       feedback.insertAdjacentElement('afterend', panel);
     }
+    return true;
   }
 
   function enhanceAiCopy() {
     const panel = byId('ai-help-v38');
-    if (!panel) return;
+    if (!panel) return false;
     const head = panel.querySelector('.ai-help-head-v38 > div');
-    if (!head || head.querySelector('.v39-ai-guide')) return;
+    if (!head) return false;
 
     const original = head.querySelector('.muted');
-    if (original) original.textContent = 'Choose the smallest amount of help you need.';
+    const intro = 'Choose the smallest amount of help you need.';
+    if (original && original.textContent !== intro) original.textContent = intro;
 
-    const guide = document.createElement('div');
-    guide.className = 'v39-ai-guide';
-    guide.textContent = 'Try a nudge first. More detailed help becomes available as you work through the question.';
-    head.appendChild(guide);
+    let guide = head.querySelector('.v39-ai-guide');
+    if (!guide) {
+      guide = document.createElement('div');
+      guide.className = 'v39-ai-guide';
+      guide.textContent = 'Try the question yourself first. If you get stuck, start with a small nudge.';
+      head.appendChild(guide);
+    }
+    return true;
+  }
+
+  function setGuideText(text) {
+    const guide = byId('ai-help-v38')?.querySelector('.v39-ai-guide');
+    if (guide && guide.textContent !== text) guide.textContent = text;
   }
 
   function updateAiStageMessage() {
     const panel = byId('ai-help-v38');
-    const guide = panel?.querySelector('.v39-ai-guide');
-    if (!panel || !guide || panel.classList.contains('hidden')) return;
+    if (!panel || panel.classList.contains('hidden')) return;
 
     const mistake = panel.querySelector('[data-ai-help-level="explain_mistake"]');
     const method = panel.querySelector('[data-ai-help-level="explain_method"]');
 
     if (method && !method.disabled) {
-      guide.textContent = 'Question complete. You can now review the method step by step.';
+      setGuideText('Question complete. You can now review the method step by step.');
     } else if (mistake && !mistake.disabled) {
-      guide.textContent = 'You have made an attempt. You can ask for a nudge, one guided step, or an explanation of the mistake.';
+      setGuideText('You have made an attempt. You can ask for a nudge, one guided step, or an explanation of the mistake.');
     } else {
-      guide.textContent = 'Try the question yourself first. If you get stuck, start with a small nudge.';
+      setGuideText('Try the question yourself first. If you get stuck, start with a small nudge.');
     }
   }
 
-  function applyPracticePolish() {
+  function applyStaticPracticePolish() {
     const quiz = byId('quiz');
     if (!quiz) return;
     quiz.classList.add('v39-practice-polished');
@@ -210,32 +220,49 @@
     ensureStepLabel(hintButton, 'learn', '3 · Check and learn');
 
     if (footer) footer.classList.add('v39-practice-footer');
-
-    moveAiAfterFeedback();
-    enhanceAiCopy();
-    updateAiStageMessage();
   }
 
-  function watchPractice() {
-    applyPracticePolish();
+  function bindAiPanel(panel) {
+    if (!panel || panel.dataset.v39PracticeObserver === 'true') return;
+    panel.dataset.v39PracticeObserver = 'true';
 
     const observer = new MutationObserver(() => {
-      applyPracticePolish();
       updateAiStageMessage();
     });
 
-    observer.observe(document.body, {
+    observer.observe(panel, {
       subtree: true,
-      childList: true,
       attributes: true,
       attributeFilter: ['class', 'disabled']
     });
+
+    updateAiStageMessage();
+  }
+
+  function initializeAiPolish(attempt = 0) {
+    const panel = byId('ai-help-v38');
+    if (panel) {
+      moveAiAfterFeedback();
+      enhanceAiCopy();
+      bindAiPanel(panel);
+      updateAiStageMessage();
+      return;
+    }
+
+    if (attempt < 30) {
+      window.setTimeout(() => initializeAiPolish(attempt + 1), 100);
+    }
+  }
+
+  function startPracticePolish() {
+    applyStaticPracticePolish();
+    initializeAiPolish();
   }
 
   injectStyles();
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', watchPractice, { once: true });
+    document.addEventListener('DOMContentLoaded', startPracticePolish, { once: true });
   } else {
-    watchPractice();
+    startPracticePolish();
   }
 })();
