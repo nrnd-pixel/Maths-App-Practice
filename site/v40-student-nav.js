@@ -106,8 +106,18 @@
   }
 
   function focusLearnCard(){
-    const card = document.querySelector('#start [data-action-for="start-btn"]');
+    const setup = document.querySelector('#start .v40c-learn-setup');
     const button = document.getElementById('start-btn');
+
+    if (setup) {
+      setup.scrollIntoView({ behavior:'smooth', block:'start' });
+      window.setTimeout(() => {
+        document.getElementById('practice-mode-btn')?.focus({ preventScroll:true });
+      }, 250);
+      return;
+    }
+
+    const card = document.querySelector('#start [data-action-for="start-btn"]');
     if (!card || !button || button.classList.contains('hidden')) return;
 
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
