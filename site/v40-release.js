@@ -14,10 +14,8 @@
     if (releaseNote){
       releaseNote.innerHTML = `
         <strong>V4.0:</strong>
-        Students can now sign in once and use a unified Learning Hub with persistent navigation
-        across Learn, Assignments, Progress and Reviewed Work. Home highlights the most useful
-        next step, Learn provides a cleaner Practice/Exam setup, and the student experience is
-        more consistent across desktop and mobile. Exam Mode and Exam Assignments remain AI-free.
+        Sign in once, then use Home, Learn, Assignments, Progress and Reviewed Work from one student platform.
+        Exam Mode and Exam Assignments remain AI-free.
       `;
     }
   }
