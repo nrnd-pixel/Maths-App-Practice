@@ -53,7 +53,8 @@ window.addEventListener('load', () => {
     './v38-ai-admin.js',
     './v38-ai-polish.js',
     './v39-student-polish.js',
-    './v39-practice-polish.js'
+    './v39-practice-polish.js',
+    './v39-dashboard-polish.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
