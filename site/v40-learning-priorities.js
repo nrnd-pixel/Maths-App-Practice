@@ -334,7 +334,10 @@
     document.querySelector('#start .v40c-learn-setup')?.scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
-  function startRecommendation(rec){
+  async function startRecommendation(rec){
+    const practiceAccess = await validateStudentAccess('practice');
+    if (!practiceAccess?.access_token) return;
+
     if (
       rec &&
       typeof startRecommendedPracticeV35 === 'function' &&
