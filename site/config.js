@@ -41,10 +41,10 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* V3.9 remains the visible release version while V4.0 is preview-tested. */
-document.title = 'Math Practice V3.9';
+/* V4.0 visible release version. */
+document.title = 'Math Practice V4.0';
 
-/* Stable V3.9 foundation plus isolated V4.0 student platform modules. */
+/* Stable V3.9 foundation plus completed V4.0 student platform modules. */
 window.addEventListener('load', () => {
   [
     './v38-release.js',
@@ -61,7 +61,9 @@ window.addEventListener('load', () => {
     './v40-student-nav.js',
     './v40-student-session.js',
     './v40-learn-setup.js',
-    './v40-learning-priorities.js'
+    './v40-learning-priorities.js',
+    './v40-platform-polish.js',
+    './v40-release.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
