@@ -60,7 +60,8 @@ window.addEventListener('load', () => {
     './v40-student-platform.js',
     './v40-student-nav.js',
     './v40-student-session.js',
-    './v40-learn-setup.js'
+    './v40-learn-setup.js',
+    './v40-learning-priorities.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
