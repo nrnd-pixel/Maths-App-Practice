@@ -24,15 +24,15 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      ${STUDENT_ROOTS} button:focus-visible,
-      ${STUDENT_ROOTS} input:focus-visible,
-      ${STUDENT_ROOTS} select:focus-visible,
-      ${STUDENT_ROOTS} textarea:focus-visible{
+      :is(${STUDENT_ROOTS}) button:focus-visible,
+      :is(${STUDENT_ROOTS}) input:focus-visible,
+      :is(${STUDENT_ROOTS}) select:focus-visible,
+      :is(${STUDENT_ROOTS}) textarea:focus-visible{
         outline:3px solid color-mix(in srgb,var(--primary) 35%,transparent);
         outline-offset:2px;
       }
 
-      ${STUDENT_ROOTS} button:disabled{
+      :is(${STUDENT_ROOTS}) button:disabled{
         cursor:not-allowed;
       }
 
@@ -219,25 +219,17 @@
     if (!el) return;
 
     const text = String(el.textContent || '').trim().toLowerCase();
-    el.classList.remove('v39-loading-state','v39-state-error','v39-state-empty');
-
-    if (!text || el.classList.contains('hidden')) return;
-
-    if (/^(loading|checking|refreshing|getting|preparing)|loading…|loading\.\.\./i.test(text)){
-      el.classList.add('v39-loading-state');
-      return;
-    }
-
-    if (/could not|couldn't|failed|unable|unavailable|connection|try again|error/i.test(text)){
-      el.classList.add('v39-state-error');
-    }
-
-    if (
+    const visible = Boolean(text) && !el.classList.contains('hidden');
+    const isLoading = visible && /^(loading|checking|refreshing|getting|preparing)|loading…|loading\.\.\./i.test(text);
+    const isError = visible && !isLoading && /could not|couldn't|failed|unable|unavailable|connection|try again|error/i.test(text);
+    const isEmpty = visible && !isLoading && (
       el.classList.contains('empty') ||
       /no assignments|no practice|no progress|nothing to show|sign in to see|no reviewed|no recent/i.test(text)
-    ){
-      el.classList.add('v39-state-empty');
-    }
+    );
+
+    el.classList.toggle('v39-loading-state', isLoading);
+    el.classList.toggle('v39-state-error', isError);
+    el.classList.toggle('v39-state-empty', isEmpty);
   }
 
   function refreshStates(){
