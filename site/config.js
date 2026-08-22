@@ -55,7 +55,6 @@ window.addEventListener('load', () => {
     './v39-student-polish.js',
     './v39-practice-polish.js',
     './v39-dashboard-polish.js',
-    './v39-state-polish.js',
     './v39-release.js'
   ].forEach(src => {
     const script = document.createElement('script');
