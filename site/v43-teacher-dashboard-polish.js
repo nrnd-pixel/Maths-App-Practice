@@ -234,11 +234,6 @@
       control.addEventListener('change', () => markDirty(card));
     });
 
-    const save = card.querySelector('.save-exam-setting');
-    save?.addEventListener('click', () => {
-      card.classList.remove('v43c-dirty');
-    });
-
     updateExamCardSummary(card);
     const shouldExpand = !narrowCards.matches || expandedExamCards.has(examCardKey(card));
     setExamCardExpanded(card, shouldExpand, false);
