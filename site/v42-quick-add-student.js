@@ -27,15 +27,21 @@
       #${FORM_ID} .v42d-note{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.45}
       #${FORM_ID} .v42d-fields{
         display:grid;
-        grid-template-columns:minmax(150px,1fr) minmax(180px,1.3fr) minmax(130px,.8fr) auto;
+        grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(110px,.8fr);
         gap:10px;
         align-items:end;
       }
       #${FORM_ID} label{min-width:0}
-      #${FORM_ID} button{white-space:nowrap}
-      @media(max-width:820px){
+      #${FORM_ID} input{min-width:0}
+      #${FORM_ID} .v42d-add-button{
+        grid-column:1/-1;
+        justify-self:start;
+        min-width:130px;
+        white-space:nowrap;
+      }
+      @media(max-width:720px){
         #${FORM_ID} .v42d-fields{grid-template-columns:1fr 1fr}
-        #${FORM_ID} .v42d-add-button{width:100%}
+        #${FORM_ID} .v42d-add-button{grid-column:1/-1;width:100%}
       }
       @media(max-width:560px){
         #${FORM_ID} .v42d-fields{grid-template-columns:1fr}
