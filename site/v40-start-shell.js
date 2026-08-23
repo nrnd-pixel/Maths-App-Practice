@@ -1,6 +1,9 @@
 /* V4.0D — Final start-page shell.
    Presentation-only: separates logged-out sign-in, logged-in Home Learning Hub,
-   and the Learn setup while preserving all existing secure controls and handlers. */
+   and the Learn setup while preserving all existing secure controls and handlers.
+
+   V4.1B keeps an explicit fresh student sign-in on Home even if another legacy
+   start handler resumes after authentication. */
 (() => {
   'use strict';
 
@@ -281,6 +284,20 @@
     setStartView(resetView ? 'home' : preferredView(), { scroll:false });
   }
 
+  function keepFreshSignInOnHome(){
+    /*
+      The sign-in button is authentication only. If a legacy caller finishes an
+      awaited Practice start after the session class flips to authenticated, let
+      that microtask finish first, then restore the intended Learning Hub Home.
+    */
+    window.setTimeout(() => {
+      if (!isSignedIn()) return;
+      if (typeof show === 'function') show('start');
+      applyShellState({ resetView:true });
+      setStartView('home', { scroll:false });
+    }, 0);
+  }
+
   function watchSessionPanel(){
     const panel = sessionPanel();
     if (!panel || panel.dataset.v40ShellWatch === 'true') return;
@@ -293,6 +310,7 @@
       const justSignedIn = signedIn && !previousSignedIn;
       previousSignedIn = signedIn;
       applyShellState({ resetView: justSignedIn });
+      if (justSignedIn) keepFreshSignInOnHome();
     }).observe(panel, {
       attributes:true,
       attributeFilter:['class']
