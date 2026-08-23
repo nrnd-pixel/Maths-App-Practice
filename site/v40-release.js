@@ -3,12 +3,12 @@
 (() => {
   'use strict';
 
-  function loadV41MasteryProgress(){
-    if (document.querySelector('script[data-v41c-mastery-progress="1"]')) return;
+  function loadScriptOnce(src, dataKey){
+    if (document.querySelector(`script[${dataKey}="1"]`)) return;
 
     const script = document.createElement('script');
-    script.src = 'v41-mastery-progress.js';
-    script.dataset.v41cMasteryProgress = '1';
+    script.src = src;
+    script.setAttribute(dataKey, '1');
     document.head.appendChild(script);
   }
 
@@ -29,7 +29,8 @@
       `;
     }
 
-    loadV41MasteryProgress();
+    loadScriptOnce('v41-signin-guard.js', 'data-v41-signin-guard');
+    loadScriptOnce('v41-mastery-progress.js', 'data-v41c-mastery-progress');
   }
 
   if (document.readyState === 'loading'){
