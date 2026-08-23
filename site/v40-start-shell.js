@@ -285,6 +285,11 @@
   }
 
   function keepFreshSignInOnHome(){
+    /*
+      The sign-in button is authentication only. If a legacy caller finishes an
+      awaited Practice start after the session class flips to authenticated, let
+      that microtask finish first, then restore the intended Learning Hub Home.
+    */
     window.setTimeout(() => {
       if (!isSignedIn()) return;
       if (typeof show === 'function') show('start');
