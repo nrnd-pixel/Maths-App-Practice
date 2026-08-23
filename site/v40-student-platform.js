@@ -1,6 +1,10 @@
 /* V4.0A — Full Student Learning Platform: learning hub foundation.
    Presentation-only: builds on the stable V3.9 home cards and preserves their
-   existing button IDs, event handlers, access rules and backend flows. */
+   existing button IDs, event handlers, access rules and backend flows.
+
+   V4.1A adds Actionable Focus Areas to the existing secure My Progress view.
+   It reuses the verified Practice access ticket and the existing Practice engine;
+   no PIN, answer key, grading authority or new question-selection path is added. */
 (() => {
   'use strict';
 
@@ -102,6 +106,18 @@
         line-height:1.45;
       }
 
+      #student-progress-focus .v41-focus-action{
+        display:flex;
+        justify-content:flex-end;
+        margin-top:12px;
+      }
+
+      #student-progress-focus .v41-focus-practice{
+        min-height:40px;
+        padding:8px 12px;
+        font-size:12px;
+      }
+
       html[data-theme="dark"] #start .v40-learning-hub-hero{
         background:linear-gradient(135deg,
           color-mix(in srgb,var(--soft) 28%,var(--card)),
@@ -116,6 +132,10 @@
 
         #start .v40-learning-cycle{
           justify-content:flex-start;
+        }
+
+        #student-progress-focus .v41-focus-practice{
+          width:100%;
         }
       }
 
@@ -224,9 +244,109 @@
     hub.classList.add('v40-platform-ready');
   }
 
+  function normaliseLabel(value){
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  function strandKeyFromLabel(label){
+    if (typeof STRANDS !== 'object' || !STRANDS) return '';
+
+    const wanted = normaliseLabel(label);
+    const match = Object.entries(STRANDS).find(([key, display]) =>
+      normaliseLabel(key) === wanted || normaliseLabel(display) === wanted
+    );
+
+    return match?.[0] || '';
+  }
+
+  async function startFocusPractice(topic, strand, button){
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Starting…';
+
+    try {
+      if (typeof startRecommendedPracticeV35 !== 'function') {
+        throw new Error('Practice is not available yet.');
+      }
+
+      if (
+        typeof activeStudentAccess === 'undefined' ||
+        !activeStudentAccess?.access_token
+      ) {
+        alert('Your student login has expired. Return Home and sign in again.');
+        if (typeof show === 'function') show('start');
+        return;
+      }
+
+      studentPracticeRecommendationV35 = {
+        practice_scope: 'topic',
+        practice_strand: strand,
+        practice_topic: topic,
+        focus_strand: strand,
+        focus_topic: topic,
+        recommended_count: 5,
+        reason: 'focus_area'
+      };
+
+      await startRecommendedPracticeV35();
+    } catch (error) {
+      console.warn('Could not start focus-area practice.', error);
+      alert(`Focus practice could not start. ${error?.message || ''}`.trim());
+    } finally {
+      if (document.contains(button)) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+  }
+
+  function decorateFocusAreas(){
+    const root = document.getElementById('student-progress-focus');
+    if (!root) return;
+
+    root.querySelectorAll('.insight-card').forEach(card => {
+      if (card.querySelector('.v41-focus-practice')) return;
+
+      const topic = card.querySelector('.row strong')?.textContent?.trim() || '';
+      const strandLabel = card.querySelector('.help')?.textContent?.trim() || '';
+      const strand = strandKeyFromLabel(strandLabel);
+
+      if (!topic || !strand) return;
+
+      const action = document.createElement('div');
+      action.className = 'v41-focus-action';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'outline v41-focus-practice';
+      button.textContent = 'Practice this topic';
+      button.setAttribute('aria-label', `Practice ${topic}`);
+      button.addEventListener('click', () => startFocusPractice(topic, strand, button));
+
+      action.appendChild(button);
+      card.appendChild(action);
+    });
+  }
+
+  function wireActionableFocusAreas(){
+    const root = document.getElementById('student-progress-focus');
+    if (!root || root.dataset.v41FocusReady === '1') return;
+
+    root.dataset.v41FocusReady = '1';
+
+    const observer = new MutationObserver(() => decorateFocusAreas());
+    observer.observe(root, { childList:true, subtree:true });
+
+    decorateFocusAreas();
+  }
+
   function applyV40A(){
     injectStyles();
     buildLearningHub();
+    wireActionableFocusAreas();
   }
 
   if (document.readyState === 'loading') {
