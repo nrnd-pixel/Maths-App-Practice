@@ -15,11 +15,12 @@ V4.1 requires **no new SQL migration**.
 
 ## Baselines
 
+- Stable V4.1 application merge baseline: `c03a294c65e46693b90e55cf12216a1b643c5902`
 - V4.1C tested baseline before the final V4.1D slice: `ab3b7df0dde6e1e2aee6e7769566cf45b1725339`
 - Frozen V4.0 production/docs baseline: `408386a068cf10e923cd0400796be87d13486143`
 - V4.0 application merge baseline: `c95020073c66d1a87784c669ec8091a219891dbe`
 
-Record the final V4.1 merge commit in `README.md` after the V4.1D preview passes and the release PR is merged.
+The stable V4.1 application merge has been recorded in `README.md`.
 
 ## Before deployment
 
@@ -132,17 +133,13 @@ For the available test student:
 - [ ] Practice response controls remain usable.
 - [ ] Persistent student navigation remains usable without covering required controls.
 
-## Merge gate
+## V4.1 release result
 
-Merge the V4.1 release PR only after the Deploy Preview checks above pass for the available test data.
+The V4.1D Deploy Preview and regression checks passed before merge. The stable application merge is:
 
-After merge:
+`c03a294c65e46693b90e55cf12216a1b643c5902`
 
-1. verify `main` points to the V4.1 merge commit;
-2. fast-forward the V4.1 feature branch if it will be retained temporarily;
-3. update `site/README.md` with the final V4.1 stable merge SHA;
-4. treat V4.1 as the new frozen production baseline;
-5. begin V4.2 from that clean `main` state.
+Treat V4.1 as the frozen production baseline after final documentation housekeeping is merged. Begin V4.2 from that clean `main` state.
 
 ## Rollback
 
