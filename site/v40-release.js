@@ -37,6 +37,7 @@
     loadScriptOnce('v42-quick-add-student.js', 'data-v42d-quick-add-student');
     loadScriptOnce('v43-individual-practice-assignments.js', 'data-v43a-individual-practice-assignments');
     loadScriptOnce('v43-multi-recipient-practice-assignments.js', 'data-v43b-multi-recipient-practice-assignments');
+    loadScriptOnce('v43-teacher-dashboard-polish.js', 'data-v43c-teacher-dashboard-polish');
   }
 
   if (document.readyState === 'loading'){
