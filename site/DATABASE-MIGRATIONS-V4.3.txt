@@ -1,8 +1,11 @@
 Maths Practice V4.3 — Database Migration Statement
 
+Stable V4.3 application release merge:
+7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46
+
 V4.3 DOES include additive Supabase database changes.
 
-These migrations were already applied and tested during the staged V4.3A/V4.3B rollout before the final V4.3 Release Candidate:
+These migrations were already applied and tested during the staged V4.3A/V4.3B rollout before the final V4.3 release freeze:
 
 1. 20260823125429 v43a_individual_practice_assignments
    Repository file: supabase/v43a_individual_practice_assignments.sql
@@ -33,10 +36,11 @@ These migrations were already applied and tested during the staged V4.3A/V4.3B r
 V4.3C Teacher Dashboard Responsive & Dark Mode Polish: no SQL migration.
 V4.3D Combined Teacher Improvements: no SQL migration.
 V4.3 Release Candidate presentation/docs: no SQL migration.
+V4.3 release-housekeeping documentation: no SQL migration.
 
 Release instruction:
 - Do NOT re-run the four V4.3 migrations solely because V4.3 is deployed or because release documentation is updated.
-- The V4.3 Release Candidate assumes the production database already contains the tested migrations listed above.
+- The frozen V4.3 release assumes the production database already contains the tested migrations listed above.
 - Preserve existing V4.2 Practice Assignment tables and all established RLS, student-access, grading, Exam, answer-release and AI-security boundaries.
 
 Rollback instruction:
