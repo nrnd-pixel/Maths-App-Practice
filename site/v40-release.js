@@ -38,6 +38,7 @@
     loadScriptOnce('v43-individual-practice-assignments.js', 'data-v43a-individual-practice-assignments');
     loadScriptOnce('v43-multi-recipient-practice-assignments.js', 'data-v43b-multi-recipient-practice-assignments');
     loadScriptOnce('v43-teacher-dashboard-polish.js', 'data-v43c-teacher-dashboard-polish');
+    loadScriptOnce('v43-combined-teacher-improvements.js', 'data-v43d-combined-teacher-improvements');
   }
 
   if (document.readyState === 'loading'){
