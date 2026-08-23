@@ -1,0 +1,45 @@
+Maths Practice V4.3 — Database Migration Statement
+
+V4.3 DOES include additive Supabase database changes.
+
+These migrations were already applied and tested during the staged V4.3A/V4.3B rollout before the final V4.3 Release Candidate:
+
+1. 20260823125429 v43a_individual_practice_assignments
+   Repository file: supabase/v43a_individual_practice_assignments.sql
+   - creates public.practice_assignment_recipients;
+   - keeps zero recipient rows compatible with existing whole-class Practice assignments;
+   - restricts individual/selected-student assignment list/start/complete access to recipients;
+   - adds the teacher single-target assignment creation RPC.
+
+2. 20260823125445 v43a_individual_practice_delete_guard
+   Repository file: supabase/v43a_individual_practice_delete_guard.sql
+   - changes recipient → roster-student deletion behavior to RESTRICT;
+   - extends safe roster deletion so assigned work counts as linked history;
+   - prevents deleting an assigned student in a way that could change assignment audience meaning.
+
+3. 20260823125602 v43a_teacher_rpc_anon_revoke
+   Repository file: supabase/v43a_teacher_rpc_anon_revoke.sql
+   - explicitly revokes anonymous/public execution of the V4.3 teacher assignment RPC;
+   - grants execution only to authenticated sessions;
+   - the RPC still enforces public.is_teacher() internally.
+
+4. 20260823134448 v43b_multi_recipient_practice_assignments
+   Repository file: supabase/v43b_multi_recipient_practice_assignments.sql
+   - adds the validated teacher batch Practice assignment creation RPC;
+   - supports selected-student recipient sets;
+   - supports atomic creation of one class-owned assignment per selected same-year-level class;
+   - validates all selected classes/students before creation so invalid targets do not leave partial assignment sets.
+
+V4.3C Teacher Dashboard Responsive & Dark Mode Polish: no SQL migration.
+V4.3D Combined Teacher Improvements: no SQL migration.
+V4.3 Release Candidate presentation/docs: no SQL migration.
+
+Release instruction:
+- Do NOT re-run the four V4.3 migrations solely because V4.3 is deployed or because release documentation is updated.
+- The V4.3 Release Candidate assumes the production database already contains the tested migrations listed above.
+- Preserve existing V4.2 Practice Assignment tables and all established RLS, student-access, grading, Exam, answer-release and AI-security boundaries.
+
+Rollback instruction:
+- A routine application rollback to V4.3D or V4.2 does NOT require dropping the additive V4.3 recipient table/functions.
+- Do not drop public.practice_assignment_recipients or V4.3 assignment functions as part of an app rollback; doing so could destroy assignment-audience data or alter deletion safeguards.
+- Any future database removal must be a separate, explicit migration with backup/data-preservation planning.
