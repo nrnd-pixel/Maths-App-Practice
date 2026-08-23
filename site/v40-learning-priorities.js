@@ -1,6 +1,8 @@
-/* V4.0C3 — Home learning priorities and continuity.
+/* V4.0C3 / V4.1D — Home learning priorities and continuity.
    Uses the existing secure student RPCs and purpose-specific access tickets.
-   No new authentication, grading, question-selection or assignment-state logic. */
+   V4.1D promotes existing server-classified Focus Areas ahead of generic
+   Recommended Practice. No new authentication, grading, question-selection or
+   assignment-state logic is introduced. */
 (() => {
   'use strict';
 
@@ -198,7 +200,7 @@
 
     if (signedIn() && studentName) {
       if (heading) heading.textContent = `Welcome back, ${studentName}.`;
-      if (paragraph) paragraph.textContent = 'Here is the most useful next step from your current assignments, practice recommendations and learning progress.';
+      if (paragraph) paragraph.textContent = 'Here is the most useful next step from your assignments, mastery focus areas and learning progress.';
     } else {
       if (heading) heading.textContent = 'Learn, check your progress, and keep improving.';
       if (paragraph) paragraph.textContent = 'Everything you need for Maths is organised here — start learning, complete teacher assignments, follow recommended practice, and review feedback.';
@@ -252,7 +254,39 @@
     }
   }
 
-  function choosePriority(assignments, recommendation){
+  function focusPracticeFromProgress(progress){
+    const topics = Array.isArray(progress?.topics) ? progress.topics : [];
+    const rank = status => status === 'needs_attention' ? 0 : 1;
+
+    const target = topics
+      .filter(topic =>
+        (topic?.status === 'needs_attention' || topic?.status === 'developing') &&
+        String(topic?.strand || '').trim() &&
+        String(topic?.topic || '').trim()
+      )
+      .sort((a, b) =>
+        rank(a.status) - rank(b.status) ||
+        Number(a.percent || 0) - Number(b.percent || 0) ||
+        Number(b.scored_responses || 0) - Number(a.scored_responses || 0)
+      )[0];
+
+    if (!target) return null;
+
+    const percent = Number(target.percent);
+    return {
+      practice_scope: 'topic',
+      practice_strand: target.strand,
+      practice_topic: target.topic,
+      focus_strand: target.strand,
+      focus_topic: target.topic,
+      recommended_count: 5,
+      reason: 'focus_area',
+      mastery_status: target.status,
+      performance_percent: Number.isFinite(percent) ? Math.round(percent) : null
+    };
+  }
+
+  function choosePriority(assignments, recommendation, focusPractice){
     const rows = Array.isArray(assignments) ? assignments : [];
     const active = rows.filter(row => row?.timing_status === 'active');
 
@@ -287,6 +321,25 @@
         meta: [
           'Teacher assignment',
           dueText(start.closes_at)
+        ].filter(Boolean)
+      };
+    }
+
+    if (focusPractice) {
+      const pct = Number(focusPractice.performance_percent);
+      const needsAttention = focusPractice.mastery_status === 'needs_attention';
+      return {
+        kind: 'focus',
+        icon: '🌱',
+        title: `Strengthen ${focusPractice.focus_topic}`,
+        text: needsAttention
+          ? `This is your clearest current focus area. A short targeted set will help you rebuild confidence and mastery.`
+          : `You are developing this topic. A short targeted set will help you make it more secure.`,
+        action: 'Practice this Focus',
+        meta: [
+          '5 questions',
+          Number.isFinite(pct) ? `${pct}% current mastery` : '',
+          needsAttention ? 'Needs attention' : 'Developing'
         ].filter(Boolean)
       };
     }
@@ -362,7 +415,8 @@
     const motivation = data.motivation || {};
     const messages = data.messages || {};
     const student = progress.student || data.assignments?.student || {};
-    const priority = choosePriority(assignments, recommendation);
+    const focusPractice = focusPracticeFromProgress(progress);
+    const priority = choosePriority(assignments, recommendation, focusPractice);
 
     const streak = Math.max(0, Number(motivation.streak?.current_days || 0));
     const weeklyDone = Math.max(0, Number(motivation.weekly_goal?.completed_days || 0));
@@ -393,7 +447,7 @@
       </div>
 
       <div class="v40c3-secondary-row">
-        <button type="button" class="outline v40c3-view-progress">View Progress & Achievements</button>
+        <button type="button" class="outline v40c3-view-progress">View Mastery Progress</button>
         ${unread > 0 ? '<button type="button" class="outline v40c3-view-messages">Read Teacher Messages</button>' : ''}
       </div>
     `;
@@ -401,6 +455,7 @@
     const priorityButton = dashboard.querySelector('.v40c3-priority-action');
     priorityButton?.addEventListener('click', () => {
       if (priority.kind === 'assignment') openAssignments();
+      else if (priority.kind === 'focus') startRecommendation(focusPractice);
       else if (priority.kind === 'recommendation') startRecommendation(recommendation);
       else openLearn();
     });
@@ -474,7 +529,7 @@
       lastIdentityKey = identity;
       renderDashboard(data);
     } catch (error) {
-      console.warn('Could not load V4.0 learning priorities.', error);
+      console.warn('Could not load V4.1 learning priorities.', error);
       if (currentRequest === requestId) renderLoadProblem();
     }
   }
