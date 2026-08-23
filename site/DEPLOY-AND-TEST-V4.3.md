@@ -34,6 +34,7 @@ V4.3C, V4.3D and the final Release Candidate add no SQL.
 
 ## Baselines
 
+- Stable V4.3 application release merge: `7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
 - V4.3D tested merge / RC base: `966851f119c440ece3bdac54a60697e662e28198`
 - V4.3C tested merge: `e09dfe8fa2547ef58e3c18a247f5cecdf304fad4`
 - V4.3B tested merge: `48e9f7b89b78efac6ccddf6590a398c9250c8227`
@@ -43,7 +44,7 @@ V4.3C, V4.3D and the final Release Candidate add no SQL.
 
 ## Before testing
 
-- [ ] Use only the V4.3 Release Candidate Deploy Preview.
+- [ ] Use only the current V4.3 production build or a V4.3 verification Deploy Preview.
 - [ ] Confirm `config.js` remains unchanged and retains the production Supabase URL/browser-safe key.
 - [ ] Do not regenerate `config.js`.
 - [ ] Do not re-run V4.3 migrations.
@@ -51,7 +52,7 @@ V4.3C, V4.3D and the final Release Candidate add no SQL.
 - [ ] Confirm Practice and Exam still use separate temporary access tickets.
 - [ ] Confirm Exam Mode / Exam Assignments remain AI-free.
 
-## Full V4.3 Release Candidate regression
+## Full V4.3 regression
 
 ### 1. Version / start shell
 
@@ -188,13 +189,21 @@ Teacher → **Exam Settings**:
 - [ ] Exam Settings filters/bulk tools do not overflow.
 - [ ] Roster destructive controls do not overlap other actions.
 
-## Release decision
+## V4.3 release result
 
-Merge/freeze V4.3 only after all critical checks above pass. Minor cosmetic observations may be recorded for a future release if they do not affect correctness, security, accessibility or task completion.
+The final V4.3 Release Candidate Deploy Preview passed the comprehensive regression before merge.
+
+Stable V4.3 application release merge:
+
+`7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
+
+Validated release areas include V4.3 presentation, both student sign-in paths, individual/selected-student/multi-class Practice assignment visibility and completion, early-end safeguards, safe roster deletion, Teacher Action Center, Exam Settings Dark Mode/mobile and bulk workflow, V4.1 mastery/mistake recovery, secure repeated Practice, Practice AI Help, AI-free Exam boundaries, Review Queue/Reviewed Work, teacher/question-bank smoke checks, and mobile/narrow layouts.
+
+Treat V4.3 as frozen after the documentation-only release housekeeping is complete.
 
 ## Rollback
 
-### V4.3 presentation/release-candidate rollback
+### V4.3 presentation rollback
 
 Restore the tested V4.3D application baseline:
 
