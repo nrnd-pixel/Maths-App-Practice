@@ -20,12 +20,13 @@ V4.2 uses three additive SQL files that were already applied and tested during s
 - `supabase/v42b_practice_assignment_target_snapshot.sql`
 - `supabase/v42c_safe_roster_student_delete.sql`
 
-**Do not re-run these migrations solely for the V4.2E release candidate.**
+**Do not re-run these migrations solely for the V4.2 release.**
 
-The V4.2E release slice itself adds no SQL.
+The V4.2E release slice itself added no SQL.
 
 ## Baselines
 
+- Stable V4.2 application release merge: `3a9a4cb90e8b3dd0b26ed27766508e9037d3e347`
 - V4.2D tested pre-release baseline: `3503441acc995b864942319372d2c65055d004ab`
 - V4.2C tested baseline: `be79c3e08673a9c3ec8b6f03716a11516b741afd`
 - V4.2B tested baseline: `1729becde3bc0d79eee34826fcf328310fad24ec`
@@ -33,11 +34,9 @@ The V4.2E release slice itself adds no SQL.
 - Frozen V4.1 application baseline: `c03a294c65e46693b90e55cf12216a1b643c5902`
 - Frozen V4.1 repository/docs baseline before V4.2: `2b2cbd6613f16a64c6e69905047e4b13338aa819`
 
-Record the final stable V4.2 application merge SHA after this checklist passes.
-
 ## Before deployment
 
-- [ ] Work from the V4.2E release-candidate pull request only.
+- [ ] Work from the V4.2 release candidate / current stable source only.
 - [ ] Confirm `config.js` remains unchanged and contains the existing production Supabase URL/browser-safe key.
 - [ ] Do not regenerate production `config.js`.
 - [ ] Confirm the three V4.2 SQL files above are already present in production; do not re-run them unnecessarily.
@@ -182,14 +181,15 @@ Teacher → **Classes & Assignments**:
 
 ## V4.2 release result
 
-After all checks pass:
+The V4.2E Deploy Preview and full regression checklist passed before merge.
 
-1. merge the V4.2E release-candidate PR;
-2. verify production `main` points to the new stable V4.2 application merge;
-3. fast-forward the retained `feature-v4.2` integration branch if it is still needed;
-4. create a documentation-only housekeeping branch;
-5. record the exact stable V4.2 application merge SHA in README and this file;
-6. merge the docs-only housekeeping PR.
+Stable V4.2 application release merge:
+
+`3a9a4cb90e8b3dd0b26ed27766508e9037d3e347`
+
+Validated release areas included student sign-in/Home, targeted Practice Assignment completion and early-end safeguards, Teacher Action Center, safe roster deletion, Quick Add Student, bulk roster/PIN/deactivation regression, V4.1 mastery/mistake-recovery flows, Practice AI Help, AI-free Exam boundaries, and mobile/narrow layouts.
+
+Treat V4.2 as frozen after the documentation-only release housekeeping is merged.
 
 ## Rollback
 
