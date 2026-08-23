@@ -34,6 +34,7 @@
     loadScriptOnce('v42-teacher-action-center.js', 'data-v42a-teacher-action-center');
     loadScriptOnce('v42-practice-assignments.js', 'data-v42b-practice-assignments');
     loadScriptOnce('v42-roster-cleanup.js', 'data-v42c-roster-cleanup');
+    loadScriptOnce('v42-quick-add-student.js', 'data-v42d-quick-add-student');
   }
 
   if (document.readyState === 'loading'){
