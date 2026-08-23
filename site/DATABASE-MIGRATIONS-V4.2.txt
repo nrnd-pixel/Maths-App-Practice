@@ -1,8 +1,11 @@
 Maths Practice V4.2 — Database Migration Statement
 
+Stable V4.2 application release merge:
+3a9a4cb90e8b3dd0b26ed27766508e9037d3e347
+
 V4.2 DOES include additive Supabase database changes.
 
-These migrations were already applied and tested during the staged V4.2B/V4.2C rollout:
+These migrations were already applied and tested during the staged V4.2B/V4.2C rollout before the final V4.2 release freeze:
 
 1. supabase/v42b_practice_assignments.sql
    - creates the dedicated targeted Practice Assignment model;
@@ -24,8 +27,8 @@ V4.2D Quick Add Student: no SQL migration.
 V4.2E Release Polish: no SQL migration.
 
 Release instruction:
-- Do NOT re-run the three migrations solely because V4.2E is being deployed.
-- Confirm the production database already contains the tested V4.2B/V4.2C changes.
+- Do NOT re-run the three migrations solely because V4.2 is deployed or because release documentation is updated.
+- The frozen V4.2 release assumes the production database already contains the tested V4.2B/V4.2C changes.
 - Preserve existing RLS, student-access, grading, Exam, answer-release and AI-security boundaries.
 
 Rollback instruction:
