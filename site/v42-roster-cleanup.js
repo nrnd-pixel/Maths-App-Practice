@@ -41,8 +41,8 @@
   }
 
   function studentForId(id){
-    if (!Array.isArray(window.teacherStudents)) return null;
-    return window.teacherStudents.find(student => String(student?.id) === String(id)) || null;
+    if (typeof teacherStudents === 'undefined' || !Array.isArray(teacherStudents)) return null;
+    return teacherStudents.find(student => String(student?.id) === String(id)) || null;
   }
 
   function historySummary(history){
@@ -65,11 +65,15 @@
   }
 
   async function callDeleteRpc(id, confirmed){
-    if (!window.cloudReady || !window.teacherUser || !window.cloud) {
+    if (
+      typeof cloudReady === 'undefined' || !cloudReady ||
+      typeof teacherUser === 'undefined' || !teacherUser ||
+      typeof cloud === 'undefined' || !cloud
+    ) {
       throw new Error('Teacher cloud access is not ready.');
     }
 
-    const { data, error } = await window.cloud.rpc('delete_unused_roster_student', {
+    const { data, error } = await cloud.rpc('delete_unused_roster_student', {
       p_roster_student_id: id,
       p_confirm: !!confirmed
     });
@@ -117,12 +121,12 @@
         return;
       }
 
-      if (typeof window.classFeedback === 'function') {
-        window.classFeedback('correct', `${name} was permanently deleted from the roster.`);
+      if (typeof classFeedback === 'function') {
+        classFeedback('correct', `${name} was permanently deleted from the roster.`);
       }
 
-      if (typeof window.loadTeacher === 'function') {
-        await window.loadTeacher();
+      if (typeof loadTeacher === 'function') {
+        await loadTeacher();
       } else {
         button.closest('.roster-row')?.remove();
       }
