@@ -1,6 +1,16 @@
-/* V4.0 release housekeeping — Full Student Learning Platform. */
+/* V4.0 release housekeeping — Full Student Learning Platform.
+   V4.1 feature slices stay additive until the final V4.1 release pass. */
 (() => {
   'use strict';
+
+  function loadScriptOnce(src, dataKey){
+    if (document.querySelector(`script[${dataKey}="1"]`)) return;
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.setAttribute(dataKey, '1');
+    document.head.appendChild(script);
+  }
 
   function applyV40Release(){
     document.title = 'Math Practice V4.0';
@@ -18,6 +28,9 @@
         Exam Mode and Exam Assignments remain AI-free.
       `;
     }
+
+    loadScriptOnce('v41-signin-guard.js', 'data-v41-signin-guard');
+    loadScriptOnce('v41-mastery-progress.js', 'data-v41c-mastery-progress');
   }
 
   if (document.readyState === 'loading'){
