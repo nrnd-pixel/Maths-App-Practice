@@ -1,38 +1,89 @@
-# Maths Practice V3.2G.3
+# Maths Practice V4.0
 
-V3.2G.3 is the operational stabilization release for the complete Maths Practice platform. It preserves the V3.2G.2 server-authoritative security model and all student, teacher, analytics, class, assignment, review and result-code workflows.
+V4.0 is the Full Student Learning Platform release for Maths Practice. It builds on the secure V3.9 production baseline and reorganises the student experience into a persistent Learning Hub while preserving the existing server-authoritative assessment, assignment, review and AI Help security boundaries.
 
-## What changed
+## Student experience
 
-- All teacher datasets load in complete, deterministic pages beyond the previous 500-row ceiling.
-- CSV preview performs strict schema, response-type and multipart validation before import.
-- Batch import failures report the failed CSV range and any earlier rows already saved.
-- The packaged 2025 Paper 1 bank contains 40 active logical questions and 90 marks, including active 2-mark teacher-reviewed drawing question Q29.
-- Q9 and Q31 include explicit multipart metadata.
-- Import templates now include all supported response and multipart fields.
-- V3.2G.2 server-authoritative grading, deadline enforcement and answer-release protections remain unchanged.
+- Persistent student navigation: `Home`, `Learn`, `Assignments`, `Progress` and `Reviewed`.
+- Clean logged-out Student ID/PIN sign-in page.
+- Sign-in-once browser session with an 8-hour V4.0 cap.
+- Student PIN is never stored in browser session storage.
+- Separate temporary Practice and Exam access tickets are retained.
+- Signed-in Home prioritises the student's most useful next step:
+  1. in-progress assignment;
+  2. active assignment;
+  3. Recommended Practice;
+  4. general Learn entry.
+- Home surfaces streak, weekly goal, Practice sessions and teacher-message information.
+- Learn provides dedicated Practice and Exam setup.
+- Strand, Topic, question count and Difficulty remain available through `Change settings`.
+- Explicit student Log out is available.
 
-## Deployment
+## Existing workflows preserved
 
-V3.2G.3 requires no SQL migration. Follow `DEPLOY-AND-TEST-V3.2G.3.md` and keep the installed V3.2G.2 database security functions unchanged.
+- Practice Mode grading and question selection.
+- Exam Mode save/resume/exit safeguards.
+- Exam Assignments.
+- Assignments, Progress and Reviewed Work.
+- Teacher Dashboard, analytics, classes, assignments, Student Access and Review Queue.
+- Existing secure Supabase RPC and RLS flows.
+- V3.8.1 AI Help connectivity and provider-security behaviour.
+- Exam Mode and Exam Assignments remain AI-free.
 
-## Compatibility
+## Security and session boundaries
 
-- Existing sessions, result codes, classes, assignments, exam attempts and questions are preserved.
-- Teacher access and review continue under the existing RLS policies and RPCs.
-- No historical result is recalculated and no production question row is modified automatically.
-- The updated bank assets align fresh imports with the intended 40-question, 90-mark paper.
+V4.0 does not move assessment authority into the browser. Existing secure server-side grading, answer-release, deadline and assignment-state behaviour remains in place.
 
-## Local Demo security boundary
+The V4.0 student session stores only temporary session information required to restore the signed-in student within the same browser session. It does not store the student's PIN. Practice and Exam continue to use separate temporary access tickets.
 
-Local Demo intentionally keeps its small built-in question bank and browser-side marking so the file can be demonstrated without Supabase. It is not an assessment-security mode: a user controlling the browser can inspect local questions, alter local storage and change local scores. Use Cloud Connected mode with the V3.2G.2 migration for real student records or assessments.
+## Database compatibility
 
-## Files
+V4.0 requires **no new SQL migration**.
 
-- `index.html` — V3.2G.3 client
-- `DEPLOY-AND-TEST-V3.2G.3.md` — release, verification and rollback guide
-- `NO-SQL-MIGRATION-V3.2G.3.txt` — database-change statement
-- `README-V3.2G.3-STABILIZATION.md` — stabilization design and compatibility notes
-- `tests/verify-v3.2G.3.cjs` — automated regression and package checks
-- `MIGRATION-MANIFEST.md` — fresh and incremental migration order
-- `README-V3.2G.2-SECURITY.md` — retained security design and threat model
+Keep the existing production schema, RLS policies, helper functions and RPCs already installed for the V3.x platform. Do not run a new Supabase query solely for the V4.0 release.
+
+See `NO-SQL-MIGRATION-V4.0.txt` for the release statement.
+
+## Production baseline
+
+The stable V4.0 production merge commit is:
+
+`c95020073c66d1a87784c669ec8091a219891dbe`
+
+V3.9 is the regression and rollback baseline immediately before V4.0. The pre-V4.0 `main` commit used by the V4.0 pull request was:
+
+`fa94046f9954c9d2594ec0e062bff52280d66a1c`
+
+## Validation status
+
+The V4.0 release passed the recorded release checks before merge, including:
+
+- V4.0A Learning Hub smoke test;
+- V4.0B persistent navigation smoke test;
+- sign-in-once, refresh restore and logout checks;
+- Learn Practice/Exam setup checks;
+- Home learning-priority checks;
+- runtime regression across Home, Learn, Practice, Exam, Assignments, Progress, Reviewed Work, Motivation, Messages and AI Help;
+- final start-page shell review;
+- static V3.9 to V4.0 source-version audit;
+- Netlify Deploy Preview validation.
+
+For future production verification, follow `DEPLOY-AND-TEST-V4.0.md`.
+
+## Release discipline
+
+Treat V4.0 as a frozen production baseline. New product features should be developed on a new version branch (for example V4.1) rather than added directly to the V4.0 baseline. Limit V4.0 changes to documented critical fixes and release housekeeping.
+
+## Key V4.0 files
+
+- `index.html` — main V4.0 client and retained application workflows.
+- `v40-student-platform.js` — V4.0 student Learning Hub foundation.
+- `v40-student-nav.js` — persistent student navigation.
+- `v40-student-session.js` — sign-in-once session continuity.
+- `v40-learn-setup.js` — Learn Practice/Exam setup presentation.
+- `v40-learning-priorities.js` — personalised Home priorities.
+- `v40-start-shell.js` — logged-out / Home / Learn start-page shell behaviour.
+- `v40-platform-polish.js` — final platform and mobile presentation polish.
+- `v40-release.js` — V4.0 release presentation housekeeping.
+- `DEPLOY-AND-TEST-V4.0.md` — production deployment and smoke-test checklist.
+- `NO-SQL-MIGRATION-V4.0.txt` — V4.0 database-change statement.
