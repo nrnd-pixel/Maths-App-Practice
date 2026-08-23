@@ -1,5 +1,5 @@
 /* V4.2 release presentation — Teacher Action & Practice Assignments.
-   Loads the additive V4.1 and V4.2 modules from the established release entry point. */
+   Loads the additive V4.1, V4.2 and staged V4.3 modules from the established release entry point. */
 (() => {
   'use strict';
 
@@ -35,6 +35,7 @@
     loadScriptOnce('v42-practice-assignments.js', 'data-v42b-practice-assignments');
     loadScriptOnce('v42-roster-cleanup.js', 'data-v42c-roster-cleanup');
     loadScriptOnce('v42-quick-add-student.js', 'data-v42d-quick-add-student');
+    loadScriptOnce('v43-individual-practice-assignments.js', 'data-v43a-individual-practice-assignments');
   }
 
   if (document.readyState === 'loading'){
