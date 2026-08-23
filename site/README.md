@@ -123,36 +123,45 @@ Unlike V4.1, V4.2 includes **three additive SQL files**, all already applied and
 2. `supabase/v42b_practice_assignment_target_snapshot.sql`
 3. `supabase/v42c_safe_roster_student_delete.sql`
 
-Do **not** re-run these solely because the V4.2 release label is being deployed. The release candidate assumes the current production database already contains the tested V4.2B/V4.2C schema and RPC changes.
+Do **not** re-run these solely because V4.2 is deployed. The frozen V4.2 release assumes the current production database already contains the tested V4.2B/V4.2C schema and RPC changes.
 
 See `DATABASE-MIGRATIONS-V4.2.txt` for the release database statement.
 
-## Tested V4.2 baselines
+## Production and tested baselines
 
-- V4.2A Teacher Action Center merge: `1ecb3f6c49461317765336b92059f4e1caee5730`
-- V4.2B Targeted Practice Assignments merge: `1729becde3bc0d79eee34826fcf328310fad24ec`
+- Stable V4.2 application release merge: `3a9a4cb90e8b3dd0b26ed27766508e9037d3e347`
+- V4.2D tested pre-release baseline: `3503441acc995b864942319372d2c65055d004ab`
 - V4.2C Roster Management & Cleanup merge: `be79c3e08673a9c3ec8b6f03716a11516b741afd`
-- V4.2D Quick Add Student tested pre-release baseline: `3503441acc995b864942319372d2c65055d004ab`
+- V4.2B Targeted Practice Assignments merge: `1729becde3bc0d79eee34826fcf328310fad24ec`
+- V4.2A Teacher Action Center merge: `1ecb3f6c49461317765336b92059f4e1caee5730`
 - Frozen V4.1 application release baseline: `c03a294c65e46693b90e55cf12216a1b643c5902`
 - Frozen V4.1 repository/docs baseline before V4.2 work: `2b2cbd6613f16a64c6e69905047e4b13338aa819`
 
-The final V4.2 application merge SHA will be recorded after the V4.2E release-candidate preview passes.
-
 ## Validation status
 
-V4.2A–D were individually tested in Netlify Deploy Previews before merge, including:
+V4.2A–D were individually tested in Netlify Deploy Previews before merge. The final V4.2E release candidate then passed the full recorded regression before the stable application merge.
 
+Validated V4.2 release behaviour includes:
+
+- V4.2 title, badge and release presentation;
+- both student sign-in paths landing on Home only;
 - Teacher Action Center counts and navigation;
 - targeted Practice Assignment teacher → student → completion flow;
+- early-ended targeted Practice remaining In progress rather than Completed;
 - safe individual roster deletion;
 - protected refusal for students with learning history;
 - Quick Add Student with and without PIN;
 - duplicate Student ID protection;
 - existing Deactivate/Reactivate and Set/Reset PIN flows;
 - bulk Roster import regression;
-- student Home, Practice, Assignments and Progress regression.
+- V4.1 Mastery Progress, Focus Practice and mistake-recovery regression;
+- secure multi-session Practice grading;
+- Practice AI Help regression;
+- Exam Mode and Exam Assignments remaining AI-free;
+- Reviewed Work and teacher workflow regression;
+- mobile/narrow viewport checks, including the Quick Add Student layout.
 
-The final full release regression is recorded in `DEPLOY-AND-TEST-V4.2.md`.
+For future production verification, follow `DEPLOY-AND-TEST-V4.2.md`.
 
 ## Key V4.2 files
 
@@ -169,4 +178,6 @@ The final full release regression is recorded in `DEPLOY-AND-TEST-V4.2.md`.
 
 ## Release discipline
 
-Do not merge the V4.2E release candidate until the full preview checklist passes. After the application merge, record the exact stable V4.2 merge SHA in the release documents on a documentation-only housekeeping branch.
+Treat V4.2 as the frozen production baseline. New product features should begin from the current clean `main` state on a new V4.3 branch. Limit V4.2 changes to documented critical fixes and release housekeeping.
+
+For a routine application rollback, leave the additive V4.2 database objects in place unless a separate, deliberate database migration with backup/data-preservation planning is approved.
