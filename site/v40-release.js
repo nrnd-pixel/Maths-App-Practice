@@ -1,5 +1,5 @@
-/* V4.1 release presentation — Mastery & Mistake Recovery.
-   V4.2 feature slices remain additive until the final V4.2 release pass. */
+/* V4.2 release presentation — Teacher Action & Practice Assignments.
+   Loads the additive V4.1 and V4.2 modules from the established release entry point. */
 (() => {
   'use strict';
 
@@ -12,20 +12,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV41Release(){
-    document.title = 'Math Practice V4.1';
+  function applyV42Release(){
+    document.title = 'Math Practice V4.2';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.1 • Mastery & Mistake Recovery';
+      versionBadge.textContent = 'Version 4.2 • Teacher Action & Practice Assignments';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.1:</strong>
-        Focus Areas, mistake recovery and Mastery Progress now connect directly to your next Practice step.
-        Exam Mode and Exam Assignments remain AI-free.
+        <strong>V4.2:</strong>
+        Teacher Action Center, targeted Practice Assignments and safer roster tools help teachers turn learning insight into action.
+        Student mastery and mistake recovery remain connected, and Exam Mode stays AI-free.
       `;
     }
 
@@ -38,8 +38,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV41Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV42Release, { once:true });
   } else {
-    applyV41Release();
+    applyV42Release();
   }
 })();
