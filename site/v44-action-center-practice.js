@@ -154,11 +154,25 @@
     else section.prepend(note);
   }
 
-  function waitForAssignmentBuilder(callback,attempt=0){
+  function assignmentBuilderReady(section,rosterId,classId){
+    if (!section) return false;
+    const options = section.querySelector('#v43b-student-options');
+    if (!options || String(options.dataset.classId || '') !== String(classId)) return false;
+    return [...options.querySelectorAll('input[type="checkbox"]')]
+      .some(input => String(input.value) === String(rosterId));
+  }
+
+  function waitForAssignmentBuilder(rosterId,classId,callback,attempt=0){
     const section = document.getElementById('v43b-practice-assignment-admin');
-    if (section){ callback(section); return; }
-    if (attempt >= 24) return;
-    window.setTimeout(() => waitForAssignmentBuilder(callback,attempt+1),100);
+    if (assignmentBuilderReady(section,rosterId,classId)){
+      callback(section);
+      return;
+    }
+    if (attempt >= 30){
+      console.warn('V4.4A could not verify the target learner in the selected class assignment picker.');
+      return;
+    }
+    window.setTimeout(() => waitForAssignmentBuilder(rosterId,classId,callback,attempt+1),100);
   }
 
   function prefillAssignment(section,row,roster,focus){
@@ -208,7 +222,7 @@
       console.warn('V4.4A could not refresh class admin before intervention prefill.',error);
     }
 
-    waitForAssignmentBuilder(section => prefillAssignment(section,row,roster,focus));
+    waitForAssignmentBuilder(roster.id,cls.id,section => prefillAssignment(section,row,roster,focus));
   }
 
   function decoratePriorityRows(){
