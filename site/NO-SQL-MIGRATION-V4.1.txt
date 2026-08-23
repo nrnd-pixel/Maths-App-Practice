@@ -32,6 +32,9 @@ Security boundaries to preserve:
 
 Do not run a new Supabase SQL migration solely for the V4.1 release.
 
+Stable V4.1 application merge baseline:
+c03a294c65e46693b90e55cf12216a1b643c5902
+
 V4.1C tested baseline before the final release slice:
 ab3b7df0dde6e1e2aee6e7769566cf45b1725339
 
