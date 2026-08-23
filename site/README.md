@@ -105,12 +105,13 @@ Production migration records:
 
 V4.3C and V4.3D added no SQL.
 
-**Do not re-run the V4.3 migrations solely for release deployment.** The V4.3 Release Candidate assumes the current production database already contains these tested migrations.
+**Do not re-run the V4.3 migrations solely for release deployment.** The frozen V4.3 release assumes the current production database already contains these tested migrations.
 
 See `DATABASE-MIGRATIONS-V4.3.txt` for the release database statement.
 
-## Tested development baselines
+## Production and tested baselines
 
+- Stable V4.3 application release merge: `7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
 - V4.3D Combined Teacher Improvements merge: `966851f119c440ece3bdac54a60697e662e28198`
 - V4.3C Teacher Dashboard Responsive & Dark Mode Polish merge: `e09dfe8fa2547ef58e3c18a247f5cecdf304fad4`
 - V4.3B Multi-Student & Multi-Class Practice Assignments merge: `48e9f7b89b78efac6ccddf6590a398c9250c8227`
@@ -120,10 +121,12 @@ See `DATABASE-MIGRATIONS-V4.3.txt` for the release database statement.
 
 ## Validation status
 
-V4.3A–D were individually tested in Netlify Deploy Previews before merge.
+V4.3A–D were individually tested in Netlify Deploy Previews before merge. The final V4.3 Release Candidate then passed the comprehensive release regression before the stable application merge.
 
-Validated staged behaviour includes:
+Validated V4.3 release behaviour includes:
 
+- V4.3 title, badge and release presentation;
+- both student sign-in paths landing on Home;
 - individual assignment visible only to the selected student;
 - selected-student assignment visible only to selected recipients;
 - completion tracking independently reflects each selected learner;
@@ -131,13 +134,18 @@ Validated staged behaviour includes:
 - whole-class remains limited to the currently selected class;
 - early-ended targeted Practice remains In progress;
 - assigned students are protected from unsafe roster deletion;
+- Teacher Action Center and roster tools remain functional;
 - teacher Dark Mode / narrow-screen Exam Settings presentation;
 - compact Exam Settings expand/collapse and Unsaved state;
 - Exam Settings filtering, selection, bulk apply and bulk save;
 - original single-paper Save Settings remains functional;
-- Classes & Assignments and V4.3 assignment controls remain available after teacher UI changes.
+- V4.1 mastery, Focus Practice and mistake recovery remain functional;
+- secure repeated Practice sessions continue to grade correctly;
+- Practice AI Help remains available while Exam Mode and Exam Assignments remain AI-free;
+- Review Queue, Reviewed Work, Question Bank and teacher workflow smoke checks pass;
+- mobile/narrow viewport checks pass.
 
-The final V4.3 Release Candidate must pass `DEPLOY-AND-TEST-V4.3.md` before merge/freeze.
+For future production verification, follow `DEPLOY-AND-TEST-V4.3.md`.
 
 ## Key V4.3 files
 
@@ -150,11 +158,11 @@ The final V4.3 Release Candidate must pass `DEPLOY-AND-TEST-V4.3.md` before merg
 - `supabase/v43a_individual_practice_delete_guard.sql` — delete protection for assigned recipients.
 - `supabase/v43a_teacher_rpc_anon_revoke.sql` — explicit anonymous execute revocation.
 - `supabase/v43b_multi_recipient_practice_assignments.sql` — validated teacher batch creation RPC.
-- `DEPLOY-AND-TEST-V4.3.md` — V4.3 Release Candidate regression checklist.
+- `DEPLOY-AND-TEST-V4.3.md` — V4.3 release/regression checklist.
 - `DATABASE-MIGRATIONS-V4.3.txt` — V4.3 database-change statement.
 
 ## Release discipline
 
-Treat V4.2 as the previous frozen production baseline until the V4.3 Release Candidate passes the full regression and is merged.
+Treat V4.3 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.3 changes to documented critical fixes and release housekeeping.
 
-After V4.3 is frozen, new product features should begin from the resulting clean `main` on a new version branch. For routine application rollback, leave the additive V4.3 recipient/functions in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
+For a routine application rollback, leave the additive V4.3 recipient/functions in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
