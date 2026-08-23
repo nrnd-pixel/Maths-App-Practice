@@ -33,6 +33,7 @@
     loadScriptOnce('v41-mastery-progress.js', 'data-v41c-mastery-progress');
     loadScriptOnce('v42-teacher-action-center.js', 'data-v42a-teacher-action-center');
     loadScriptOnce('v42-practice-assignments.js', 'data-v42b-practice-assignments');
+    loadScriptOnce('v42-roster-cleanup.js', 'data-v42c-roster-cleanup');
   }
 
   if (document.readyState === 'loading'){
