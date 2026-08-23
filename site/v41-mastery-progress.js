@@ -193,8 +193,9 @@
     card.dataset.v41MasteryState = stateKey;
 
     if (tag) {
+      const label = `${state.icon} ${state.label}`;
       tag.classList.add('v41-mastery-state');
-      tag.textContent = `${state.icon} ${state.label}`;
+      if (tag.textContent !== label) tag.textContent = label;
       tag.title = state.description;
     }
 
