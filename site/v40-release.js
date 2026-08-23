@@ -1,4 +1,5 @@
-/* V4.1 release presentation — Mastery & Mistake Recovery. */
+/* V4.1 release presentation — Mastery & Mistake Recovery.
+   V4.2 feature slices remain additive until the final V4.2 release pass. */
 (() => {
   'use strict';
 
@@ -30,6 +31,7 @@
 
     loadScriptOnce('v41-signin-guard.js', 'data-v41-signin-guard');
     loadScriptOnce('v41-mastery-progress.js', 'data-v41c-mastery-progress');
+    loadScriptOnce('v42-teacher-action-center.js', 'data-v42a-teacher-action-center');
   }
 
   if (document.readyState === 'loading'){
