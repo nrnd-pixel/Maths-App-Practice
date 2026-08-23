@@ -36,6 +36,7 @@
     loadScriptOnce('v42-roster-cleanup.js', 'data-v42c-roster-cleanup');
     loadScriptOnce('v42-quick-add-student.js', 'data-v42d-quick-add-student');
     loadScriptOnce('v43-individual-practice-assignments.js', 'data-v43a-individual-practice-assignments');
+    loadScriptOnce('v43-multi-recipient-practice-assignments.js', 'data-v43b-multi-recipient-practice-assignments');
   }
 
   if (document.readyState === 'loading'){
