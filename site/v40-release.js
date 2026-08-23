@@ -1,5 +1,5 @@
-/* V4.2 release presentation — Teacher Action & Practice Assignments.
-   Loads the additive V4.1, V4.2 and staged V4.3 modules from the established release entry point. */
+/* V4.3 release presentation — Flexible Practice Assignment Delivery.
+   Loads the established V4.1/V4.2 foundation plus completed V4.3 modules. */
 (() => {
   'use strict';
 
@@ -13,20 +13,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV42Release(){
-    document.title = 'Math Practice V4.2';
+  function applyV43Release(){
+    document.title = 'Math Practice V4.3';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.2 • Teacher Action & Practice Assignments';
+      versionBadge.textContent = 'Version 4.3 • Flexible Practice Assignments';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.2:</strong>
-        Teacher Action Center, targeted Practice Assignments and safer roster tools help teachers turn learning insight into action.
-        Student mastery and mistake recovery remain connected, and Exam Mode stays AI-free.
+        <strong>V4.3:</strong>
+        Teachers can assign targeted Practice to one student, selected students, one class or multiple classes, with faster Exam Settings management and improved teacher mobile/Dark Mode usability.
+        Secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
       `;
     }
 
@@ -43,8 +43,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV42Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV43Release, { once:true });
   } else {
-    applyV42Release();
+    applyV43Release();
   }
 })();
