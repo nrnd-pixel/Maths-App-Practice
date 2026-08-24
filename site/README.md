@@ -86,18 +86,18 @@ See `DATABASE-MIGRATIONS-V4.5.txt` for the release database statement.
 
 ## Tested V4.5 baselines
 
+- Stable V4.5 application release merge: `83cac64b08649b0b4d968cfe938508edbfd97eed`
+- Final V4.5 Release Candidate tested commit: `1447200c41a01f97a8c5c9e40a6554e21b928866`
 - V4.5B Completed Intervention Outcomes tested merge / RC base: `8eb300875295f4af7a9245083b5a6a9b77d605c8`
 - V4.5A Intervention Queue Filters & Show All tested merge: `0ca7a369a5f65eb594c1125b780f777cb9742fa9`
 - Frozen V4.4 stable application release: `3a41e5b4634151a4a9da0684428c46c76d1e475a`
 - Frozen V4.4 repository/docs baseline: `beb7bec2f9a57c627593e64e3c190e6f6452c2be`
 
-The final V4.5 Release Candidate and stable release SHAs are recorded after the release regression passes.
-
 ## Validation status
 
-V4.5A and V4.5B were individually tested in Netlify Deploy Previews before merge.
+V4.5A and V4.5B were individually tested in Netlify Deploy Previews before merge. The final V4.5 Release Candidate then passed the one-pass release regression before the stable application merge.
 
-Validated slice behaviour includes:
+Validated V4.5 release behaviour includes:
 
 - intervention queue counts and All / Needs assignment / Outstanding / Completed filters;
 - Show all / Show top-priority behaviour;
@@ -105,9 +105,13 @@ Validated slice behaviour includes:
 - completed intervention outcome details;
 - Open Results navigation to the intended learner/session;
 - existing V4.4 Assign Practice, Review Practice and Shared focus groups;
+- selected-students Practice creation, grading, early-end safeguards and completion;
+- Practice AI Learning Help and secure repeated Practice;
+- teacher Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank smoke checks;
+- Exam Mode and Exam Assignments remain AI-free;
 - narrow/mobile and Dark Mode checks.
 
-For final release verification, follow `DEPLOY-AND-TEST-V4.5.md`.
+For future production verification, follow `DEPLOY-AND-TEST-V4.5.md`.
 
 ## Key V4.5 files
 
@@ -119,6 +123,6 @@ For final release verification, follow `DEPLOY-AND-TEST-V4.5.md`.
 
 ## Release discipline
 
-Treat V4.4 as the production baseline until the V4.5 Release Candidate passes its final regression and is merged. After release housekeeping, V4.5 becomes the frozen production baseline.
+Treat V4.5 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.5 changes to documented critical fixes and release housekeeping.
 
 For a routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
