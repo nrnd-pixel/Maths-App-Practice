@@ -2,45 +2,17 @@
 
 V4.6 is the **Intervention Records** release for Maths Practice. It builds on frozen V4.5 and adds a practical export of the Teacher Action Center intervention queue for teacher records and follow-up.
 
-The established student learning and security model remains intact:
-
-- Home learning priorities;
-- Focus Area Practice and mistake recovery;
-- Mastery Progress;
-- secure multi-session Practice;
-- Practice-only AI Learning Help;
-- Exam Mode and Exam Assignments remain AI-free;
-- student PIN values are never stored.
-
 ## V4.6 release scope
 
 ### V4.6A — Intervention Queue Export
 
-Teacher Action Center now includes **Export queue CSV**.
+Teacher Action Center includes **Export queue CSV**. The export respects the current Analytics scope and intervention-queue filter: All, Needs assignment, Outstanding, or Completed.
 
-The export respects the current Analytics scope and current intervention-queue filter:
-
-- All;
-- Needs assignment;
-- Outstanding;
-- Completed.
-
-It exports all matching priority learners, including learners beyond the visible top six when the queue is collapsed.
-
-The CSV records:
-
-- export timestamp and Analytics scope;
-- queue filter and priority rank;
-- learner name and Student ID;
-- class and year;
-- safely resolved focus strand/topic;
-- current focus band, percentage and evidence counts;
-- current intervention status;
-- completed Practice mastery %, first-try %, question count, hints and completion time where available.
+It exports all matching priority learners, including learners beyond the visible top six when the queue is collapsed. Exported fields include learner identity, class/year, resolved focus strand/topic, current focus band/percentage/evidence, intervention status, and completed Practice outcome fields where available.
 
 PINs and private result codes are deliberately excluded.
 
-## V4.6 intervention workflow
+## Intervention workflow
 
 The tested teacher workflow is now:
 
@@ -48,13 +20,13 @@ The tested teacher workflow is now:
 2. V4.4 can prefill individual or shared-focus targeted Practice.
 3. V4.4 follow-through shows outstanding/completed matching Practice.
 4. V4.5 manages priority learners as an intervention queue and exposes completed outcomes.
-5. V4.6 can export that current queue as a practical intervention record.
+5. V4.6 exports that current queue as a practical intervention record.
 
 No separate intervention database or reporting engine was introduced.
 
 ## Security and assessment boundaries
 
-V4.6 preserves these boundaries:
+V4.6 preserves the established production boundaries:
 
 - student PIN is never stored or exported;
 - Practice and Exam use separate temporary access tickets;
@@ -68,11 +40,9 @@ V4.6 preserves these boundaries:
 - V4.6 adds no database migration;
 - the V4.6 export is browser-side and teacher-only.
 
-## V4.6 database changes
+## Database status
 
-**V4.6 adds no database migration.**
-
-Production remains on the tested V4.3 assignment database baseline. Current migration tail:
+**V4.6 adds no database migration.** Production remains on the tested V4.3 assignment database baseline. Current migration tail:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
@@ -81,43 +51,40 @@ Production remains on the tested V4.3 assignment database baseline. Current migr
 
 Do not run SQL solely for V4.6 deployment.
 
-See `DATABASE-MIGRATIONS-V4.6.txt` for the release database statement.
+## Frozen V4.6 baselines
 
-## Tested V4.6 baselines
-
-- V4.6A Intervention Queue Export tested merge / RC base: `68d96d518466afd8bd2e2afeb494049f077a0df9`
-- Frozen V4.5 stable application release: `83cac64b08649b0b4d968cfe938508edbfd97eed`
+- V4.6A tested merge / RC base: `68d96d518466afd8bd2e2afeb494049f077a0df9`
+- Final V4.6 Release Candidate tested commit: `b111bcb2fd43238ada7d4bedb74fd7353b98869b`
+- Stable V4.6 application release merge: `5260945f240fc4425d42b650e5707d0b0c1c3c6f`
 - Frozen V4.5 repository/docs baseline: `ec827bd717eb6c99847124cf1906d42e6ffc1db8`
-
-The final V4.6 Release Candidate and stable release SHAs are recorded after the release regression passes.
 
 ## Validation status
 
-V4.6A was tested in a Netlify Deploy Preview before merge.
+V4.6A passed its focused Netlify Deploy Preview test. The final V4.6 Release Candidate then passed the one-pass release regression before merge.
 
-Validated slice behaviour includes:
+Validated release behaviour includes:
 
-- Export queue CSV appears in Teacher Action Center;
-- All / Needs assignment / Outstanding / Completed exports respect the current queue state;
-- exports include all matching priority learners, including beyond the collapsed top-six UI;
-- learner/class/focus/intervention fields match Action Center;
-- completed outcome fields match recorded completed Practice;
-- Analytics filter changes are reflected in new exports;
-- no PIN or private result-code columns are exported;
-- existing Assign Practice, Review Practice, Shared focus groups and Open Results remain functional;
-- narrow/mobile and Dark Mode smoke checks pass.
-
-For final release verification, follow `DEPLOY-AND-TEST-V4.6.md`.
+- queue CSV export for All / Needs assignment / Outstanding / Completed;
+- Analytics-scope-aware exports;
+- all matching priority learners included beyond the collapsed top-six view;
+- learner, class, focus, intervention status and completed outcome fields verified;
+- no PIN/private result-code export;
+- existing queue filters, Show all, completed outcomes and Open Results;
+- Assign Practice, Shared focus groups and Review Practice;
+- selected-students Practice creation, grading, early-end safeguards, completion and Practice AI Help;
+- teacher Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank smoke checks;
+- Exam Mode and Exam Assignments remain AI-free;
+- mobile/narrow-width and Dark Mode checks.
 
 ## Key V4.6 files
 
 - `v46-intervention-export.js` — Action Center intervention queue CSV export.
 - `v40-release.js` — visible V4.6 release presentation and ordered module loader.
-- `DEPLOY-AND-TEST-V4.6.md` — V4.6 release/regression checklist.
+- `DEPLOY-AND-TEST-V4.6.md` — V4.6 release/regression record.
 - `DATABASE-MIGRATIONS-V4.6.txt` — V4.6 database-change statement.
 
 ## Release discipline
 
-Treat V4.5 as the production baseline until the V4.6 Release Candidate passes final regression and is merged. After release housekeeping, V4.6 becomes the frozen production baseline.
+Treat V4.6 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.6 changes to documented critical fixes and release housekeeping.
 
 For a routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
