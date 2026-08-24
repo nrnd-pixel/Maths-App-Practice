@@ -18,5 +18,7 @@ Release instruction:
 - Preserve the existing production Supabase configuration.
 - V4.6 does not change grading, mastery thresholds, assignment state enforcement, authentication, answer release or AI security.
 
-V4.6 RC database status: VERIFIED — no V4.6 migration required.
+V4.6 final database status: VERIFIED — no V4.6 migration required.
+Final tested V4.6 RC: b111bcb2fd43238ada7d4bedb74fd7353b98869b
+Stable V4.6 application release merge: 5260945f240fc4425d42b650e5707d0b0c1c3c6f
 V4.6A tested merge / RC base: 68d96d518466afd8bd2e2afeb494049f077a0df9
