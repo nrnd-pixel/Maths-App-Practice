@@ -46,6 +46,7 @@
     loadScriptOnce('v44-intervention-follow-through.js?v=44c-1', 'data-v44c-intervention-follow-through');
     loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');
     loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
+    loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
   }
 
   if (document.readyState === 'loading'){
