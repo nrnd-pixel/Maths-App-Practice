@@ -1,16 +1,12 @@
 /* V4.8B — Student Deadline Experience.
-   Adds student-facing deadline urgency around the existing secure Practice
-   assignment cards. Reuses existing assignment timing data and start actions. */
+   Adds student-facing deadline urgency around the already-rendered secure
+   Practice assignment cards. Does not make a second assignment-data request. */
 (() => {
   'use strict';
 
   const STYLE_ID = 'v48b-student-deadline-style';
   const SUMMARY_ID = 'v48b-student-deadline-summary';
-  let cachedAssignments = [];
   let lastSignature = '';
-  let hasFetched = false;
-  let refreshBusy = false;
-  let refreshQueued = false;
 
   function text(value){ return String(value ?? '').trim(); }
 
@@ -48,50 +44,44 @@
     return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
   }
 
-  function deadlineState(row, nowMs=Date.now()){
-    if (!row || row.status === 'completed') return {key:'completed',label:'Completed',rank:9};
-    if (!row.closes_at) return {key:'none',label:'No due date',rank:5};
-    const dueMs = Date.parse(row.closes_at);
-    if (!Number.isFinite(dueMs)) return {key:'none',label:'No due date',rank:5};
-    const diff = dueMs - nowMs;
-    if (diff < 0) return {key:'overdue',label:'Overdue',rank:0};
-    if (localDayKey(dueMs) === localDayKey(nowMs)) return {key:'today',label:'Due today',rank:1};
-    if (diff <= 48 * 60 * 60 * 1000) return {key:'soon',label:'Due soon',rank:2};
-    return {key:'later',label:'Due later',rank:4};
+  function dueTextFromCard(card){
+    const helpText = [...card.querySelectorAll('.help')].map(node => text(node.textContent)).join(' · ');
+    const matches = [...helpText.matchAll(/Target due\s+(?!passed\b)([^·\n]+)/gi)];
+    return matches.length ? text(matches[matches.length-1][1]) : '';
   }
 
-  function dueLabel(value){
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
-    return date.toLocaleString([],{
-      weekday:'short',
-      day:'numeric',
-      month:'short',
-      hour:'numeric',
-      minute:'2-digit'
-    });
+  function deadlineState(card, nowMs=Date.now()){
+    const cardText = text(card?.textContent);
+    const dueText = dueTextFromCard(card);
+    const dueMs = dueText ? Date.parse(dueText) : NaN;
+
+    if (/Target due passed/i.test(cardText)){
+      return {key:'overdue',label:'Overdue',dueText,dueMs:Number.isFinite(dueMs)?dueMs:null};
+    }
+    if (!dueText || !Number.isFinite(dueMs)){
+      return {key:'none',label:'No due date',dueText:'',dueMs:null};
+    }
+
+    const diff = dueMs - nowMs;
+    if (diff < 0) return {key:'overdue',label:'Overdue',dueText,dueMs};
+    if (localDayKey(dueMs) === localDayKey(nowMs)) return {key:'today',label:'Due today',dueText,dueMs};
+    if (diff <= 48 * 60 * 60 * 1000) return {key:'soon',label:'Due soon',dueText,dueMs};
+    return {key:'later',label:'Due later',dueText,dueMs};
   }
 
   function cardSignature(){
     const section = document.getElementById('v42b-student-practice-assignments');
     if (!section) return '';
-    const startIds = [...section.querySelectorAll('.v42b-start-practice-assignment[data-id]')]
-      .map(button => text(button.dataset.id)).filter(Boolean).sort();
-    const results = section.querySelectorAll('.v42b-view-practice-result').length;
-    return `${startIds.join('|')}::${results}`;
+    const cards = [...section.querySelectorAll('.v42b-student-card')];
+    return cards.map(card => {
+      const button = card.querySelector('.v42b-start-practice-assignment[data-id]');
+      const result = card.querySelector('.v42b-view-practice-result');
+      const help = [...card.querySelectorAll('.help')].map(node => text(node.textContent)).join('|');
+      return `${button?.dataset.id || ''}:${result?'done':'open'}:${help}`;
+    }).join('||');
   }
 
-  async function fetchAssignments(){
-    if (typeof cloud === 'undefined' || !cloud || typeof validateStudentAccess !== 'function') return [];
-    const access = await validateStudentAccess('practice');
-    if (!access?.access_token) return [];
-    const {data,error} = await cloud.rpc('get_student_practice_assignments',{p_access_token:access.access_token});
-    if (error) throw error;
-    return Array.isArray(data?.assignments) ? data.assignments : [];
-  }
-
-  function renderSummary(rows){
+  function renderSummary(states){
     const section = document.getElementById('v42b-student-practice-assignments');
     const grid = section?.querySelector('.v42b-assignment-grid');
     if (!section || !grid) return;
@@ -103,8 +93,6 @@
       grid.insertAdjacentElement('beforebegin',root);
     }
 
-    const outstanding = rows.filter(row => row?.status !== 'completed');
-    const states = outstanding.map(row => deadlineState(row));
     const overdue = states.filter(state => state.key === 'overdue').length;
     const today = states.filter(state => state.key === 'today').length;
     const soon = states.filter(state => state.key === 'soon').length;
@@ -116,7 +104,7 @@
           <h3>⏱️ Your Practice deadlines</h3>
           <div class="help">Target dates help you decide what to finish first.</div>
         </div>
-        <span class="tag">${outstanding.length} outstanding</span>
+        <span class="tag">${states.length} outstanding</span>
       </div>
       <div class="v48b-summary-chips">
         <span class="tag">${overdue} overdue</span>
@@ -128,25 +116,26 @@
     `;
   }
 
-  function decorateCards(rows){
+  function decorate(){
     const section = document.getElementById('v42b-student-practice-assignments');
     if (!section) return;
-    const byId = new Map(rows.map(row => [String(row?.assignment_id ?? row?.id ?? ''),row]));
 
-    section.querySelectorAll('.v42b-student-card').forEach(card => {
+    const openCards = [...section.querySelectorAll('.v42b-student-card')]
+      .filter(card => card.querySelector('.v42b-start-practice-assignment[data-id]'));
+
+    const states = [];
+    openCards.forEach(card => {
       card.querySelector('.v48b-deadline-chip')?.remove();
       card.classList.remove('v48b-deadline-overdue','v48b-deadline-today','v48b-deadline-soon');
 
-      const button = card.querySelector('.v42b-start-practice-assignment[data-id]');
-      if (!button) return;
-      const row = byId.get(String(button.dataset.id));
-      if (!row) return;
+      const state = deadlineState(card);
+      states.push(state);
 
-      const state = deadlineState(row);
       const chip = document.createElement('span');
       chip.className = 'tag v48b-deadline-chip';
-      const due = dueLabel(row.closes_at);
-      chip.textContent = state.key === 'none' ? 'No due date' : `${state.label}${due ? ` · ${due}` : ''}`;
+      chip.textContent = state.key === 'none'
+        ? 'No due date'
+        : `${state.label}${state.dueText ? ` · ${state.dueText}` : ''}`;
 
       if (state.key === 'overdue'){
         chip.classList.add('availability-off');
@@ -157,61 +146,44 @@
         card.classList.add('v48b-deadline-soon');
       }
 
-      const head = card.querySelector('.v42b-student-card-head');
-      if (head) head.appendChild(chip);
+      card.querySelector('.v42b-student-card-head')?.appendChild(chip);
     });
+
+    renderSummary(states);
   }
 
-  function applyDecorations(){
-    if (!document.getElementById('v42b-student-practice-assignments')) return;
-    renderSummary(cachedAssignments);
-    decorateCards(cachedAssignments);
-  }
-
-  async function refresh(){
-    const section = document.getElementById('v42b-student-practice-assignments');
-    if (!section) return;
-    if (refreshBusy){ refreshQueued = true; return; }
-
+  function refreshIfChanged(force=false){
     const signature = cardSignature();
-    if (signature === lastSignature && hasFetched) return;
-
-    refreshBusy = true;
-    try {
-      cachedAssignments = await fetchAssignments();
-      hasFetched = true;
-      lastSignature = cardSignature();
-      applyDecorations();
-    } catch (error){
-      console.warn('Could not refresh V4.8B Practice deadlines.',error);
-    } finally {
-      refreshBusy = false;
-      if (refreshQueued){
-        refreshQueued = false;
-        setTimeout(refresh,80);
-      }
-    }
+    if (!signature) return;
+    if (!force && signature === lastSignature) return;
+    lastSignature = signature;
+    decorate();
   }
 
-  function watchForStudentAssignments(){
+  function watch(){
+    injectStyles();
+
     let tries = 0;
-    const timer = setInterval(() => {
+    const finder = setInterval(() => {
       tries += 1;
       const section = document.getElementById('v42b-student-practice-assignments');
-      if (section){
-        clearInterval(timer);
-        refresh();
-        const observer = new MutationObserver(() => setTimeout(refresh,80));
-        observer.observe(section,{childList:true,subtree:true});
-      } else if (tries >= 120){
-        clearInterval(timer);
+      if (!section){
+        if (tries >= 120) clearInterval(finder);
+        return;
       }
+
+      clearInterval(finder);
+      refreshIfChanged(true);
+
+      const grid = section.querySelector('.v42b-assignment-grid');
+      if (grid){
+        const observer = new MutationObserver(() => setTimeout(() => refreshIfChanged(),60));
+        observer.observe(grid,{childList:true});
+      }
+
+      setInterval(() => refreshIfChanged(true),60 * 1000);
     },250);
   }
 
-  injectStyles();
-  watchForStudentAssignments();
-  setInterval(() => {
-    if (hasFetched) applyDecorations();
-  },60 * 1000);
+  watch();
 })();
