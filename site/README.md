@@ -1,16 +1,44 @@
-# Maths Practice V4.6
+# Maths Practice V4.7
 
-V4.6 is the **Intervention Records** release for Maths Practice. It builds on frozen V4.5 and adds a practical export of the Teacher Action Center intervention queue for teacher records and follow-up.
+V4.7 is the **Intervention History & Follow-Up** release for Maths Practice. It builds on frozen V4.6 and extends the Teacher Action Center from a current intervention queue into a longitudinal follow-up workflow for individual learners and classes.
 
-## V4.6 release scope
+## V4.7 release scope
 
-### V4.6A — Intervention Queue Export
+### V4.7A — Learner Intervention History
 
-Teacher Action Center includes **Export queue CSV**. The export respects the current Analytics scope and intervention-queue filter: All, Needs assignment, Outstanding, or Completed.
+Registered learners now have a **History** action in Teacher Action Center. The learner Analytics profile includes **Practice intervention history**, showing targeted Practice assignments that applied to that learner across time.
 
-It exports all matching priority learners, including learners beyond the visible top six when the queue is collapsed. Exported fields include learner identity, class/year, resolved focus strand/topic, current focus band/percentage/evidence, intervention status, and completed Practice outcome fields where available.
+History can show:
 
-PINs and private result codes are deliberately excluded.
+- strand/topic;
+- assignment date;
+- question target;
+- audience type;
+- Not started / In progress / Completed / Inactive status;
+- start/completion dates where available;
+- recorded mastery %, first-try %, question count and hints for completed Practice.
+
+History is intentionally not restricted by the current Analytics period filter, so older intervention records remain visible when reviewing a learner.
+
+### V4.7B — Follow-Up From History
+
+Completed intervention-history entries include **Assign again**. This opens the existing Classes & Assignments builder for the same learner and prefills the historical strand/topic and question target where those options are still available.
+
+The teacher must still review the setup and click the established **Assign Practice** button. V4.7B does not auto-create assignments and does not introduce a second assignment path.
+
+Outstanding history entries continue to use **Review Practice**. Completed entries continue to support **Open Results**.
+
+### V4.7C — Class Intervention Overview
+
+Teacher Action Center includes **Class intervention overview** for the current Analytics scope. It summarizes:
+
+- total priority learners;
+- Needs assignment / Outstanding / Completed counts;
+- per-class priority and intervention-state counts;
+- each class's leading current focus topic;
+- common priority focus topics across the current Analytics scope.
+
+The overview reuses the already-rendered V4.5 intervention queue state. It does not create a separate intervention status model or change intervention thresholds.
 
 ## Intervention workflow
 
@@ -18,73 +46,82 @@ The tested teacher workflow is now:
 
 1. Analytics identifies priority learners and focus areas.
 2. V4.4 can prefill individual or shared-focus targeted Practice.
-3. V4.4 follow-through shows outstanding/completed matching Practice.
-4. V4.5 manages priority learners as an intervention queue and exposes completed outcomes.
-5. V4.6 exports that current queue as a practical intervention record.
+3. V4.4/V4.5 show matching Practice status and completed outcomes.
+4. V4.5 manages priority learners as an intervention queue.
+5. V4.6 exports the current queue as a teacher intervention record.
+6. V4.7A provides longitudinal learner intervention history.
+7. V4.7B allows deliberate follow-up Practice from a completed intervention.
+8. V4.7C summarizes intervention need and focus at class level.
 
 No separate intervention database or reporting engine was introduced.
 
 ## Security and assessment boundaries
 
-V4.6 preserves the established production boundaries:
+V4.7 preserves the established production boundaries:
 
-- student PIN is never stored or exported;
+- student PIN is never stored or exposed by V4.7;
 - Practice and Exam use separate temporary access tickets;
 - Practice grading remains server-authoritative;
 - assignment visibility/start/completion remains server-validated;
 - answer-release authority remains server-side;
 - Practice AI Help continues through the established secure route;
 - AI Help remains unavailable in Exam Mode and Exam Assignments;
-- V4.6 does not create, update or delete assignments;
-- V4.6 does not change mastery thresholds, matching rules or grading logic;
-- V4.6 adds no database migration;
-- the V4.6 export is browser-side and teacher-only.
+- V4.7 does not change grading logic, mastery thresholds or intervention matching thresholds;
+- V4.7 adds no database migration;
+- V4.7A and V4.7C are teacher-side read-only workflow layers;
+- V4.7B reuses the established assignment builder and does not auto-create assignments.
 
 ## Database status
 
-**V4.6 adds no database migration.** Production remains on the tested V4.3 assignment database baseline. Current migration tail:
+**V4.7 adds no database migration.** Production migration history was re-checked before the V4.7 Release Candidate and still ends at the tested V4.3 assignment baseline:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
 - `20260823125602 v43a_teacher_rpc_anon_revoke`
 - `20260823134448 v43b_multi_recipient_practice_assignments`
 
-Do not run SQL solely for V4.6 deployment.
+Do not run SQL solely for V4.7 deployment.
 
-## Frozen V4.6 baselines
+## V4.7 tested feature baselines
 
-- V4.6A tested merge / RC base: `68d96d518466afd8bd2e2afeb494049f077a0df9`
-- Final V4.6 Release Candidate tested commit: `b111bcb2fd43238ada7d4bedb74fd7353b98869b`
-- Stable V4.6 application release merge: `5260945f240fc4425d42b650e5707d0b0c1c3c6f`
-- Frozen V4.5 repository/docs baseline: `ec827bd717eb6c99847124cf1906d42e6ffc1db8`
+- Frozen V4.6 repository/docs baseline: `b1f38a842b3d1762de403673f43ea78d8d1d51fa`
+- V4.7A tested merge: `1ac29709aaf0a4e29418ebf086f8f1a8b3860ecf`
+- V4.7B tested merge: `f7f6723db6cea1a20fc6618a5009ad745ea66c1b`
+- V4.7C tested merge / RC base: `2d13e9e6b80776fdfc9655779bb64d9a7f3da4e4`
+
+The final V4.7 RC SHA and stable release merge are recorded after the final one-pass regression succeeds.
 
 ## Validation status
 
-V4.6A passed its focused Netlify Deploy Preview test. The final V4.6 Release Candidate then passed the one-pass release regression before merge.
+V4.7A, V4.7B and V4.7C each passed focused Netlify Deploy Preview testing before merge.
 
-Validated release behaviour includes:
+Validated feature behaviour includes:
 
-- queue CSV export for All / Needs assignment / Outstanding / Completed;
-- Analytics-scope-aware exports;
-- all matching priority learners included beyond the collapsed top-six view;
-- learner, class, focus, intervention status and completed outcome fields verified;
-- no PIN/private result-code export;
-- existing queue filters, Show all, completed outcomes and Open Results;
-- Assign Practice, Shared focus groups and Review Practice;
-- selected-students Practice creation, grading, early-end safeguards, completion and Practice AI Help;
-- teacher Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank smoke checks;
-- Exam Mode and Exam Assignments remain AI-free;
-- mobile/narrow-width and Dark Mode checks.
+- History opens the correct learner profile and longitudinal Practice history;
+- older intervention history remains visible outside the current Analytics period filter;
+- completed history outcomes match existing Practice results;
+- Open Results and Review Practice reach the intended record/assignment;
+- Assign again preselects the intended learner and historical Practice setup while still requiring normal teacher confirmation;
+- a newly created follow-up assignment remains separate from the original completed history entry;
+- class intervention counts match the existing queue state;
+- leading/common focus topics follow the current Analytics scope;
+- class overview is not limited by queue visibility filters or the collapsed top-six view;
+- existing queue filters, Export queue CSV and guided intervention actions remain intact;
+- narrow/mobile and Dark Mode focused checks passed.
 
-## Key V4.6 files
+A final one-pass V4.7 Release Candidate regression is required before release.
 
-- `v46-intervention-export.js` — Action Center intervention queue CSV export.
-- `v40-release.js` — visible V4.6 release presentation and ordered module loader.
-- `DEPLOY-AND-TEST-V4.6.md` — V4.6 release/regression record.
-- `DATABASE-MIGRATIONS-V4.6.txt` — V4.6 database-change statement.
+## Key V4.7 files
+
+- `v47-intervention-history.js` — longitudinal learner Practice intervention history.
+- `v47-follow-up-from-history.js` — deliberate Assign again workflow using the existing assignment builder.
+- `v47-class-intervention-overview.js` — class-level priority/intervention summary.
+- `v40-release.js` — visible V4.7 release presentation and ordered module loader.
+- `DEPLOY-AND-TEST-V4.7.md` — V4.7 release/regression record.
+- `DATABASE-MIGRATIONS-V4.7.txt` — V4.7 database-change statement.
 
 ## Release discipline
 
-Treat V4.6 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.6 changes to documented critical fixes and release housekeeping.
+The V4.7 Release Candidate must pass the final regression before merge. After release, the tested merge and documentation-only freeze commit become the V4.7 production baseline.
 
-For a routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
+For routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved. Preserve the production `config.js`.
