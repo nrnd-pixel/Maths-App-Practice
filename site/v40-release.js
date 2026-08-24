@@ -41,6 +41,7 @@
     loadScriptOnce('v43-teacher-dashboard-polish.js', 'data-v43c-teacher-dashboard-polish');
     loadScriptOnce('v43-combined-teacher-improvements.js?v=43d-1', 'data-v43d-combined-teacher-improvements');
     loadScriptOnce('v44-action-center-practice.js?v=44a-1', 'data-v44a-action-center-practice');
+    loadScriptOnce('v44-shared-focus-groups.js?v=44b-1', 'data-v44b-shared-focus-groups');
   }
 
   if (document.readyState === 'loading'){
