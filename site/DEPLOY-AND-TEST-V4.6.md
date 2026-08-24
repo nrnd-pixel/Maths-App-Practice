@@ -2,18 +2,11 @@
 
 ## Release scope
 
-V4.6 is the **Intervention Records** release. It builds on frozen V4.5 and includes:
-
-- V4.6A Intervention Queue Export;
-- final V4.6 release presentation and regression.
-
-The established V4.5 intervention queue/outcomes workflow, V4.4 guided interventions, V4.3 flexible assignment engine, secure Practice grading, mastery/mistake recovery, teacher administration and AI-free Exam boundaries remain in place.
+V4.6 is the **Intervention Records** release. It builds on frozen V4.5 and includes V4.6A Intervention Queue Export plus the final V4.6 release presentation.
 
 ## Database state
 
-**V4.6 adds no SQL migration.**
-
-Production migration history was re-checked before the RC. Current tail remains:
+**V4.6 adds no SQL migration.** Production migration history was re-checked before the RC and still ends at:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
@@ -22,108 +15,57 @@ Production migration history was re-checked before the RC. Current tail remains:
 
 Do not run SQL solely for V4.6 deployment.
 
-## Baselines
+## Frozen baselines
 
 - V4.6A tested merge / RC base: `68d96d518466afd8bd2e2afeb494049f077a0df9`
-- Frozen V4.5 stable application release: `83cac64b08649b0b4d968cfe938508edbfd97eed`
+- Final tested V4.6 RC: `b111bcb2fd43238ada7d4bedb74fd7353b98869b`
+- Stable V4.6 application release merge: `5260945f240fc4425d42b650e5707d0b0c1c3c6f`
 - Frozen V4.5 repository/docs baseline: `ec827bd717eb6c99847124cf1906d42e6ffc1db8`
 
-## Before testing
+## Final V4.6 regression — PASSED
 
-- [ ] Use the V4.6 Release Candidate Deploy Preview.
-- [ ] Confirm `config.js` is unchanged.
-- [ ] Do not run SQL.
-- [ ] Confirm Exam Mode / Exam Assignments remain AI-free.
+The final Netlify Deploy Preview regression passed on the exact RC commit above.
 
-## Final V4.6 regression
+Validated checks:
 
-### 1. Release presentation
-
-- [ ] Browser title shows `Math Practice V4.6`.
-- [ ] Start badge shows `Version 4.6 • Intervention Records`.
-- [ ] Release note mentions exporting the Action Center intervention queue.
-- [ ] Logged-out shell remains clean.
-
-### 2. Student sign-in / Home smoke
-
-One normal student sign-in is sufficient because V4.6 does not modify sign-in/auth.
-
-- [ ] Student signs in normally and lands on Home.
-- [ ] Existing assignments continue to appear correctly.
-
-### 3. V4.6A intervention queue export
-
-Teacher → Analytics → Teacher Action Center:
-
-- [ ] Export queue CSV appears in the intervention queue toolbar.
-- [ ] All export includes all priority learners in the current Analytics scope, including beyond the visible top six.
-- [ ] Learner name/ID, class/year, focus strand/topic, band/% and intervention status match Action Center.
-- [ ] Completed rows include recorded mastery %, first-try %, question count, hints and completion time.
-- [ ] Needs assignment export contains only that queue state.
-- [ ] Outstanding export contains only Not started / In progress matching Practice.
-- [ ] Completed export contains only completed matching Practice.
-- [ ] Analytics filter changes are reflected in a new export.
-- [ ] No PIN or private result-code column is present.
-
-### 4. V4.5/V4.4 intervention regression
-
-- [ ] All / Needs assignment / Outstanding / Completed queue filters still work.
-- [ ] Show all / Show top 6 still works.
-- [ ] Completed outcome details and Open Results still work.
-- [ ] Individual Assign Practice still opens the correct learner/class/focus.
-- [ ] Shared focus groups still group only appropriate same-class learners.
-- [ ] Review Practice still navigates to the existing matching assignment.
-
-### 5. V4.3 assignment / Practice smoke
-
-- [ ] Manual selected-students assignment still creates normally.
-- [ ] Targeted Practice starts and grades normally.
-- [ ] Ending assigned Practice early remains In progress.
-- [ ] Completing the target marks the assignment Completed.
-- [ ] Practice AI Learning Help remains available.
-
-### 6. Teacher / Exam smoke
-
-- [ ] Results loads normally.
-- [ ] Classes & Assignments controls remain usable.
-- [ ] Exam Settings remains usable.
-- [ ] Review Queue and Question Bank load.
-- [ ] Exam Mode / Exam Assignments remain AI-free.
-- [ ] Existing answer-release behavior is unchanged.
-
-### 7. Mobile / theme
-
-- [ ] Export button remains usable on narrow screens.
-- [ ] Intervention queue/outcome controls wrap cleanly.
-- [ ] Teacher dashboard remains readable in Dark Mode.
-- [ ] Student Home/Practice navigation remains usable.
+- [x] Browser title shows `Math Practice V4.6`.
+- [x] Start badge shows `Version 4.6 • Intervention Records`.
+- [x] One normal student sign-in lands on Home.
+- [x] Export queue CSV works for All / Needs assignment / Outstanding / Completed.
+- [x] Analytics filter changes are reflected in new exports.
+- [x] All matching priority learners are exported, including beyond the visible top six.
+- [x] Learner/class/focus/intervention fields match Action Center.
+- [x] Completed rows include recorded mastery %, first-try %, question count, hints and completion time.
+- [x] No PIN or private result-code column is exported.
+- [x] Queue filters, Show all, completed outcome details and Open Results still work.
+- [x] Individual Assign Practice, Shared focus groups and Review Practice still work.
+- [x] Manual selected-students Practice assignment still creates normally.
+- [x] Targeted Practice starts and grades normally.
+- [x] Ending assigned Practice early remains In progress.
+- [x] Completing the target marks the assignment Completed.
+- [x] Practice AI Learning Help remains available.
+- [x] Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank load normally.
+- [x] Exam Mode / Exam Assignments remain AI-free.
+- [x] Mobile/narrow-width and Dark Mode smoke checks pass.
 
 ## Release result
 
-Status before final RC test: **PENDING**.
+**PASSED — V4.6 released.**
 
-After the Release Candidate passes, record:
+Final tested RC commit: `b111bcb2fd43238ada7d4bedb74fd7353b98869b`
 
-- final tested RC commit;
-- stable V4.6 application release merge;
-- final frozen repository/docs commit.
+Stable V4.6 application release merge: `5260945f240fc4425d42b650e5707d0b0c1c3c6f`
+
+The final frozen repository/docs commit is the `main` head after V4.6 release housekeeping is complete.
 
 ## Rollback
 
-### V4.6 presentation rollback
-
-Restore the tested V4.6A application baseline:
+For presentation-only rollback, restore the tested V4.6A baseline:
 
 `68d96d518466afd8bd2e2afeb494049f077a0df9`
 
-This removes only the final V4.6 presentation/docs while retaining the tested queue export.
-
-### Full V4.6 feature rollback
-
-If V4.6 must be rolled back to frozen V4.5, restore:
+For full V4.6 feature rollback to frozen V4.5, restore:
 
 `83cac64b08649b0b4d968cfe938508edbfd97eed`
 
-V4.6 adds no database migration. Existing V4.3 assignment database objects should remain in place during routine application rollback.
-
-Preserve production `config.js` during rollback.
+V4.6 adds no database migration. Existing V4.3 assignment database objects should remain in place during routine application rollback. Preserve production `config.js`.
