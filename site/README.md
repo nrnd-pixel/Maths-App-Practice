@@ -1,6 +1,6 @@
-# Maths Practice V4.4
+# Maths Practice V4.5
 
-V4.4 is the **Guided Practice Interventions** release for Maths Practice. It builds on frozen V4.3 and closes the loop between teacher analytics, targeted Practice assignment and intervention follow-through.
+V4.5 is the **Intervention Queue & Outcomes** release for Maths Practice. It builds on frozen V4.4 and improves teacher follow-through after Action Center identifies learners who need support.
 
 The established student learning and security model remains intact:
 
@@ -12,58 +12,50 @@ The established student learning and security model remains intact:
 - Exam Mode and Exam Assignments remain AI-free;
 - student PIN values are never stored.
 
-## V4.4 release scope
+## V4.5 release scope
 
-### V4.4A — Action Center → Prefilled Practice Intervention
+### V4.5A — Intervention Queue Filters & Show All
 
-Priority learner rows in Teacher Action Center now include **Assign Practice**.
+Teacher Action Center can now be used as a practical intervention queue. Priority learners can be filtered by:
 
-The workflow safely resolves the analytics learner back to the real roster record, opens the correct class, selects only that learner, prefills the resolved weak strand/topic where possible and defaults the question target to 5.
+- **All**;
+- **Needs assignment**;
+- **Outstanding** — matching Practice is Not started or In progress;
+- **Completed**.
 
-Nothing is auto-created: the teacher still reviews the form and presses the existing **Assign Practice** button.
+The normal top-priority view remains compact, while **Show all** exposes the rest of the current priority learners with the existing V4.4 View profile / Assign Practice / Review Practice actions.
 
-### V4.4B — Shared Focus Group Intervention
+V4.5A reuses the intervention state already calculated by V4.4. It does not introduce a new matching rule, mastery threshold or grading rule.
 
-Teacher Action Center now identifies **Shared focus groups** when two or more priority learners:
+### V4.5B — Completed Intervention Outcomes
 
-- are active registered learners;
-- are in the same class;
-- share the same safely resolved strand/topic; and
-- have active questions available for that focus area.
+Completed matching targeted Practice now shows the recorded assignment outcome directly in Teacher Action Center, including:
 
-The teacher can open one prefilled selected-students assignment for the group instead of repeating the individual workflow learner by learner.
+- mastery percentage;
+- first-try percentage;
+- question count;
+- hints used;
+- completion time.
 
-Cross-class learners are never mixed into one selected-students group.
+**Open Results** stays inside Teacher Dashboard, opens the existing Results tab, filters to the intended learner and highlights the matching completed Practice session.
 
-### V4.4C — Intervention Follow-Through
+V4.5B deliberately shows recorded evidence only. It does not label a learner as “improved” or “not improved” and does not alter mastery calculations.
 
-Priority learner rows now show whether matching active targeted Practice already exists:
+## V4.5 intervention workflow
 
-- **Practice: Not started**;
-- **Practice: In progress**; or
-- **Practice: Completed**.
+The tested teacher workflow is now:
 
-For outstanding matching work, **Review Practice** replaces the immediate repeat-assignment action. It opens the correct class and scrolls to the existing assignment section so the teacher can review current work before creating another assignment.
+1. Analytics identifies current priority learners and focus areas.
+2. V4.4 can prefill individual or shared-focus targeted Practice.
+3. V4.4 follow-through shows whether matching Practice is outstanding or completed.
+4. V4.5A lets the teacher manage those learners as a status-filtered intervention queue.
+5. V4.5B surfaces the recorded result of completed assigned Practice and links back to the existing Results view.
 
-Completed matching work remains visible while still allowing the teacher to assign another intervention when appropriate.
-
-The matching logic respects assignment recipient restrictions and does not create a hard duplicate rule.
-
-## V4.4 intervention model
-
-V4.4 deliberately remains a teacher workflow layer on top of the tested V4.3 assignment model:
-
-- analytics identifies the learner/focus area;
-- V4.4A/B prefill the existing V4.3 assignment builder;
-- the teacher reviews the audience and settings;
-- the established V4.3 teacher-authorized assignment RPC creates the work;
-- V4.4C reads existing assignment/recipient/attempt state for follow-through.
-
-No separate V4.4 assignment engine was introduced.
+No separate intervention database or assessment engine was introduced.
 
 ## Security and assessment boundaries
 
-V4.4 preserves these boundaries:
+V4.5 preserves these boundaries:
 
 - student PIN is never stored;
 - Practice and Exam use separate temporary access tickets;
@@ -72,70 +64,61 @@ V4.4 preserves these boundaries:
 - answer-release authority remains server-side;
 - Practice AI Help continues through the established secure route;
 - AI Help remains unavailable in Exam Mode and Exam Assignments;
-- teacher assignment creation still uses the tested V4.3 authenticated teacher path;
-- V4.4 does not auto-create assignments;
-- no V4.4 SQL or schema change is introduced;
+- V4.5 does not auto-create assignments;
+- V4.5 does not change mastery thresholds or grading logic;
+- V4.5 adds no database migration;
 - no page-wide recursive `MutationObserver` is introduced.
 
-## V4.4 database changes
+## V4.5 database changes
 
-**V4.4 adds no database migration.**
+**V4.5 adds no database migration.**
 
-Production remains on the tested V4.3 assignment database baseline:
+Production remains on the tested V4.3 assignment database baseline. The current migration tail is:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
 - `20260823125602 v43a_teacher_rpc_anon_revoke`
 - `20260823134448 v43b_multi_recipient_practice_assignments`
 
-Do not run SQL solely for the V4.4 release.
+Do not run SQL solely for the V4.5 release.
 
-See `DATABASE-MIGRATIONS-V4.4.txt` for the release database statement.
+See `DATABASE-MIGRATIONS-V4.5.txt` for the release database statement.
 
-## Tested V4.4 baselines
+## Tested V4.5 baselines
 
-- Stable V4.4 application release merge: `3a41e5b4634151a4a9da0684428c46c76d1e475a`
-- V4.4 Release Candidate tested commit: `6cde7b1f46104d3593f49e2b8e6d5626e32cb383`
-- V4.4C Intervention Follow-Through tested merge / RC base: `34a5fdcec6c604f730c2d995df958fbbdc947514`
-- V4.4B Shared Focus Group Intervention tested merge: `fcca45f94294ecbed4b4513d583671e5af3be650`
-- V4.4A Action Center → Prefilled Practice Intervention tested merge: `9a663a2bf2c569c8d8e43e6a38f31e9617b46cc3`
-- Frozen V4.3 application release merge: `7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
-- Frozen V4.3 repository/docs baseline: `79279dc6bd8b25362375e2be90b3c7860b1b5cc6`
+- V4.5B Completed Intervention Outcomes tested merge / RC base: `8eb300875295f4af7a9245083b5a6a9b77d605c8`
+- V4.5A Intervention Queue Filters & Show All tested merge: `0ca7a369a5f65eb594c1125b780f777cb9742fa9`
+- Frozen V4.4 stable application release: `3a41e5b4634151a4a9da0684428c46c76d1e475a`
+- Frozen V4.4 repository/docs baseline: `beb7bec2f9a57c627593e64e3c190e6f6452c2be`
+
+The final V4.5 Release Candidate and stable release SHAs are recorded after the release regression passes.
 
 ## Validation status
 
-V4.4A–C were individually tested in Netlify Deploy Previews before merge. The final V4.4 Release Candidate then passed the one-pass release regression before the stable application merge.
+V4.5A and V4.5B were individually tested in Netlify Deploy Previews before merge.
 
-Validated V4.4 release behaviour includes:
+Validated slice behaviour includes:
 
-- Action Center **Assign Practice** opens the correct class and learner;
-- resolved focus strand/topic and 5-question target are prefilled where available;
-- teacher review/confirmation is still required before assignment creation;
-- shared focus groups only combine same-class learners with the same safely resolved focus;
-- selected-students group assignments target only the intended learners;
-- intervention status shows Not started / In progress / Completed for matching work;
-- outstanding matching work offers **Review Practice** instead of encouraging an immediate duplicate;
-- Review Practice navigates to the correct class and scrolls to the intended existing assignment section;
-- V4.3 manual whole-class, selected-students and multi-class assignment paths remain functional;
-- targeted Practice grading, early-end safeguards and Practice AI Help remain functional;
-- teacher roster, Exam Settings, Review Queue and Question Bank smoke checks pass;
-- Exam Mode and Exam Assignments remain AI-free;
-- narrow/mobile and Dark Mode smoke checks pass.
+- intervention queue counts and All / Needs assignment / Outstanding / Completed filters;
+- Show all / Show top-priority behaviour;
+- queue refresh after Analytics filter changes;
+- completed intervention outcome details;
+- Open Results navigation to the intended learner/session;
+- existing V4.4 Assign Practice, Review Practice and Shared focus groups;
+- narrow/mobile and Dark Mode checks.
 
-For future production verification, follow `DEPLOY-AND-TEST-V4.4.md`.
+For final release verification, follow `DEPLOY-AND-TEST-V4.5.md`.
 
-## Key V4.4 files
+## Key V4.5 files
 
-- `v44-action-center-practice.js` — individual Action Center intervention handoff.
-- `v44-shared-focus-groups.js` — same-class shared-focus grouping and prefill.
-- `v44-intervention-follow-through.js` — matching assignment status and Review Practice workflow.
-- `v44-intervention-highlight-clarity.js` — visual clarity for the reviewed matching assignment.
-- `v40-release.js` — visible V4.4 release presentation and ordered module loader.
-- `DEPLOY-AND-TEST-V4.4.md` — V4.4 release/regression checklist.
-- `DATABASE-MIGRATIONS-V4.4.txt` — V4.4 database-change statement.
+- `v45-intervention-queue.js` — priority learner intervention queue filters and Show all workflow.
+- `v45-intervention-outcomes.js` — recorded completed Practice outcomes and Open Results workflow.
+- `v40-release.js` — visible V4.5 release presentation and ordered module loader.
+- `DEPLOY-AND-TEST-V4.5.md` — V4.5 release/regression checklist.
+- `DATABASE-MIGRATIONS-V4.5.txt` — V4.5 database-change statement.
 
 ## Release discipline
 
-Treat V4.4 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.4 changes to documented critical fixes and release housekeeping.
+Treat V4.4 as the production baseline until the V4.5 Release Candidate passes its final regression and is merged. After release housekeeping, V4.5 becomes the frozen production baseline.
 
 For a routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
