@@ -17,4 +17,5 @@ Release instruction:
 - Do not re-run the V4.3 migrations.
 - Preserve the existing production Supabase configuration.
 
-V4.4 release-candidate database status: VERIFIED — no V4.4 migration required.
+V4.4 final database status: VERIFIED — no V4.4 migration required.
+Stable V4.4 application release merge: 3a41e5b4634151a4a9da0684428c46c76d1e475a
