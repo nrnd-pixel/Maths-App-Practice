@@ -1,5 +1,5 @@
-/* V4.6 release presentation — Intervention Records.
-   Loads the established V4.1–V4.6 foundation plus staged V4.7 teacher workflow improvements. */
+/* V4.7 release presentation — Intervention History & Follow-Up.
+   Loads the established V4.1–V4.6 foundation plus the completed V4.7 intervention workflow. */
 (() => {
   'use strict';
 
@@ -13,20 +13,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV46Release(){
-    document.title = 'Math Practice V4.6';
+  function applyV47Release(){
+    document.title = 'Math Practice V4.7';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.6 • Intervention Records';
+      versionBadge.textContent = 'Version 4.7 • Intervention History & Follow-Up';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.6:</strong>
-        Teachers can export the current Action Center intervention queue as a practical record of learner priorities, intervention state and completed Practice outcomes while preserving the established guided-intervention workflow.
-        Secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
+        <strong>V4.7:</strong>
+        Teachers can review longitudinal Practice intervention history, deliberately assign follow-up Practice from completed interventions, and use a class-level intervention overview for planning.
+        The established Action Center queue/export workflow, secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
       `;
     }
 
@@ -53,8 +53,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV46Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV47Release, { once:true });
   } else {
-    applyV46Release();
+    applyV47Release();
   }
 })();
