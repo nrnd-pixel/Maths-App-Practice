@@ -51,6 +51,7 @@
     loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
     loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
     loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-1', 'data-v48a-teacher-deadline-monitoring');
+    loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
   }
 
   if (document.readyState === 'loading'){
