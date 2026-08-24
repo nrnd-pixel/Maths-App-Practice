@@ -48,6 +48,7 @@
     loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
     loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
     loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
+    loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
   }
 
   if (document.readyState === 'loading'){
