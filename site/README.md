@@ -1,6 +1,6 @@
-# Maths Practice V4.3
+# Maths Practice V4.4
 
-V4.3 is the **Flexible Practice Assignments** release for Maths Practice. It builds on the frozen V4.2 Teacher Action & Practice Assignments platform and makes targeted Practice delivery more flexible while improving day-to-day teacher administration.
+V4.4 is the **Guided Practice Interventions** release for Maths Practice. It builds on frozen V4.3 and closes the loop between teacher analytics, targeted Practice assignment and intervention follow-through.
 
 The established student learning and security model remains intact:
 
@@ -12,157 +12,127 @@ The established student learning and security model remains intact:
 - Exam Mode and Exam Assignments remain AI-free;
 - student PIN values are never stored.
 
-## V4.3 release scope
+## V4.4 release scope
 
-### V4.3A — Individual Practice Assignments
+### V4.4A — Action Center → Prefilled Practice Intervention
 
-Teachers can assign targeted Practice to either:
+Priority learner rows in Teacher Action Center now include **Assign Practice**.
 
-- the whole selected class; or
-- one specific active student in that class.
+The workflow safely resolves the analytics learner back to the real roster record, opens the correct class, selects only that learner, prefills the resolved weak strand/topic where possible and defaults the question target to 5.
 
-Individual assignments are enforced server-side through `practice_assignment_recipients`. A student who is not a recipient cannot list, start or complete the assignment.
+Nothing is auto-created: the teacher still reviews the form and presses the existing **Assign Practice** button.
 
-Existing V4.2 whole-class assignments remain compatible: an assignment with no recipient rows continues to mean the whole class.
+### V4.4B — Shared Focus Group Intervention
 
-The safe roster-delete workflow was also extended so a student with assigned individual Practice cannot be permanently deleted before starting the work.
+Teacher Action Center now identifies **Shared focus groups** when two or more priority learners:
 
-### V4.3B — Multi-Student & Multi-Class Practice Assignments
+- are active registered learners;
+- are in the same class;
+- share the same safely resolved strand/topic; and
+- have active questions available for that focus area.
 
-Teachers can now assign the same targeted Practice to:
+The teacher can open one prefilled selected-students assignment for the group instead of repeating the individual workflow learner by learner.
 
-- selected students within one class; or
-- multiple active classes in the same year level.
+Cross-class learners are never mixed into one selected-students group.
 
-Selected-student assignments use one assignment with multiple recipient rows. Multi-class creation creates one class-owned assignment per selected class in a single validated teacher action, preserving separate participation/completion tracking for each class.
+### V4.4C — Intervention Follow-Through
 
-The batch teacher RPC validates all selected classes/students before creation so an invalid target cannot leave a partially-created assignment set.
+Priority learner rows now show whether matching active targeted Practice already exists:
 
-### V4.3C — Teacher Dashboard Responsive & Dark Mode Polish
+- **Practice: Not started**;
+- **Practice: In progress**; or
+- **Practice: Completed**.
 
-Teacher Dashboard presentation was improved without changing assessment logic:
+For outstanding matching work, **Review Practice** replaces the immediate repeat-assignment action. It opens the correct class and scrolls to the existing assignment section so the teacher can review current work before creating another assignment.
 
-- Exam Settings cards follow the active theme;
-- Dark Mode labels/controls remain readable;
-- teacher tabs scroll reliably on narrow screens;
-- compact mobile Exam Settings cards show a short summary;
-- paper settings expand/collapse on demand;
-- changed controls show an Unsaved state until successful rerender.
+Completed matching work remains visible while still allowing the teacher to assign another intervention when appropriate.
 
-### V4.3D — Combined Teacher Improvements
+The matching logic respects assignment recipient restrictions and does not create a hard duplicate rule.
 
-Exam Settings now includes **Manage papers faster** for routine administration:
+## V4.4 intervention model
 
-- filter by exam year, paper and availability;
-- select visible papers;
-- bulk-apply duration, answer-release and availability changes;
-- review unsaved changes before committing;
-- save multiple selected papers through the existing teacher-authorized `exam_paper_settings` path.
+V4.4 deliberately remains a teacher workflow layer on top of the tested V4.3 assignment model:
 
-Existing per-card **Save Settings** remains available.
+- analytics identifies the learner/focus area;
+- V4.4A/B prefill the existing V4.3 assignment builder;
+- the teacher reviews the audience and settings;
+- the established V4.3 teacher-authorized assignment RPC creates the work;
+- V4.4C reads existing assignment/recipient/attempt state for follow-through.
 
-## Practice assignment audience model
-
-V4.3 keeps assignment ownership class-based while adding recipient restrictions:
-
-- **Whole selected class** — no recipient rows; all eligible students in the selected class can see the assignment.
-- **One / selected students** — recipient rows restrict visibility to those students only.
-- **Multiple classes** — one class-owned assignment is created for each selected class.
-
-This design preserves V4.2 compatibility and keeps class participation reporting clear.
+No separate V4.4 assignment engine was introduced.
 
 ## Security and assessment boundaries
 
-V4.3 preserves these boundaries:
+V4.4 preserves these boundaries:
 
 - student PIN is never stored;
 - Practice and Exam use separate temporary access tickets;
 - Practice grading remains server-authoritative;
-- targeted assignment visibility/start/completion is server-validated;
+- assignment visibility/start/completion remains server-validated;
 - answer-release authority remains server-side;
 - Practice AI Help continues through the established secure route;
 - AI Help remains unavailable in Exam Mode and Exam Assignments;
-- teacher assignment-creation RPCs require authenticated teacher access;
-- anonymous clients cannot execute the V4.3 teacher-create RPCs;
-- safe roster deletion blocks students with learning history or assigned work;
+- teacher assignment creation still uses the tested V4.3 authenticated teacher path;
+- V4.4 does not auto-create assignments;
+- no V4.4 SQL or schema change is introduced;
 - no page-wide recursive `MutationObserver` is introduced.
 
-## V4.3 database changes
+## V4.4 database changes
 
-V4.3 includes **four additive production migrations**, all already applied and tested during staged V4.3A/B development:
+**V4.4 adds no database migration.**
 
-1. `supabase/v43a_individual_practice_assignments.sql`
-2. `supabase/v43a_individual_practice_delete_guard.sql`
-3. `supabase/v43a_teacher_rpc_anon_revoke.sql`
-4. `supabase/v43b_multi_recipient_practice_assignments.sql`
-
-Production migration records:
+Production remains on the tested V4.3 assignment database baseline:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
 - `20260823125602 v43a_teacher_rpc_anon_revoke`
 - `20260823134448 v43b_multi_recipient_practice_assignments`
 
-V4.3C and V4.3D added no SQL.
+Do not run SQL solely for the V4.4 release.
 
-**Do not re-run the V4.3 migrations solely for release deployment.** The frozen V4.3 release assumes the current production database already contains these tested migrations.
+See `DATABASE-MIGRATIONS-V4.4.txt` for the release database statement.
 
-See `DATABASE-MIGRATIONS-V4.3.txt` for the release database statement.
+## Tested V4.4 baselines
 
-## Production and tested baselines
+- V4.4C Intervention Follow-Through tested merge / RC base: `34a5fdcec6c604f730c2d995df958fbbdc947514`
+- V4.4B Shared Focus Group Intervention tested merge: `fcca45f94294ecbed4b4513d583671e5af3be650`
+- V4.4A Action Center → Prefilled Practice Intervention tested merge: `9a663a2bf2c569c8d8e43e6a38f31e9617b46cc3`
+- Frozen V4.3 application release merge: `7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
+- Frozen V4.3 repository/docs baseline: `79279dc6bd8b25362375e2be90b3c7860b1b5cc6`
 
-- Stable V4.3 application release merge: `7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
-- V4.3D Combined Teacher Improvements merge: `966851f119c440ece3bdac54a60697e662e28198`
-- V4.3C Teacher Dashboard Responsive & Dark Mode Polish merge: `e09dfe8fa2547ef58e3c18a247f5cecdf304fad4`
-- V4.3B Multi-Student & Multi-Class Practice Assignments merge: `48e9f7b89b78efac6ccddf6590a398c9250c8227`
-- V4.3A Individual Practice Assignments merge: `224fe11886c399de954072694c58b6d04ef66263`
-- Frozen V4.2 application release merge: `3a9a4cb90e8b3dd0b26ed27766508e9037d3e347`
-- Frozen V4.2 repository/docs baseline: `ee2cb5544744eb6ce589f3546bdb115e576b77e9`
+The stable V4.4 application release SHA will be recorded after the final Release Candidate regression passes and is merged.
 
 ## Validation status
 
-V4.3A–D were individually tested in Netlify Deploy Previews before merge. The final V4.3 Release Candidate then passed the comprehensive release regression before the stable application merge.
+V4.4A–C were individually tested in Netlify Deploy Previews before merge.
 
-Validated V4.3 release behaviour includes:
+Validated staged behaviour includes:
 
-- V4.3 title, badge and release presentation;
-- both student sign-in paths landing on Home;
-- individual assignment visible only to the selected student;
-- selected-student assignment visible only to selected recipients;
-- completion tracking independently reflects each selected learner;
-- multi-class assignment creates separate class-owned assignments;
-- whole-class remains limited to the currently selected class;
-- early-ended targeted Practice remains In progress;
-- assigned students are protected from unsafe roster deletion;
-- Teacher Action Center and roster tools remain functional;
-- teacher Dark Mode / narrow-screen Exam Settings presentation;
-- compact Exam Settings expand/collapse and Unsaved state;
-- Exam Settings filtering, selection, bulk apply and bulk save;
-- original single-paper Save Settings remains functional;
-- V4.1 mastery, Focus Practice and mistake recovery remain functional;
-- secure repeated Practice sessions continue to grade correctly;
-- Practice AI Help remains available while Exam Mode and Exam Assignments remain AI-free;
-- Review Queue, Reviewed Work, Question Bank and teacher workflow smoke checks pass;
-- mobile/narrow viewport checks pass.
+- Action Center **Assign Practice** opens the correct class and learner;
+- resolved focus strand/topic and 5-question target are prefilled where available;
+- teacher review/confirmation is still required before assignment creation;
+- shared focus groups only combine same-class learners with the same safely resolved focus;
+- selected-students group assignments target only the intended learners;
+- intervention status shows Not started / In progress / Completed for matching work;
+- outstanding matching work offers **Review Practice** instead of encouraging an immediate duplicate;
+- Review Practice navigates to the correct class and scrolls to the intended existing assignment section;
+- V4.3 manual assignment creation remains unchanged;
+- narrow/mobile workflow checks pass.
 
-For future production verification, follow `DEPLOY-AND-TEST-V4.3.md`.
+The final V4.4 Release Candidate uses `DEPLOY-AND-TEST-V4.4.md` for the one-pass release regression.
 
-## Key V4.3 files
+## Key V4.4 files
 
-- `v43-individual-practice-assignments.js` — individual Practice assignment teacher UI.
-- `v43-multi-recipient-practice-assignments.js` — selected-student and multi-class teacher UI.
-- `v43-teacher-dashboard-polish.js` — Dark Mode / responsive teacher polish.
-- `v43-combined-teacher-improvements.js` — Exam Settings filtering/bulk workflow.
-- `v40-release.js` — visible V4.3 release presentation and ordered additive module loader.
-- `supabase/v43a_individual_practice_assignments.sql` — recipient model and secure student enforcement.
-- `supabase/v43a_individual_practice_delete_guard.sql` — delete protection for assigned recipients.
-- `supabase/v43a_teacher_rpc_anon_revoke.sql` — explicit anonymous execute revocation.
-- `supabase/v43b_multi_recipient_practice_assignments.sql` — validated teacher batch creation RPC.
-- `DEPLOY-AND-TEST-V4.3.md` — V4.3 release/regression checklist.
-- `DATABASE-MIGRATIONS-V4.3.txt` — V4.3 database-change statement.
+- `v44-action-center-practice.js` — individual Action Center intervention handoff.
+- `v44-shared-focus-groups.js` — same-class shared-focus grouping and prefill.
+- `v44-intervention-follow-through.js` — matching assignment status and Review Practice workflow.
+- `v44-intervention-highlight-clarity.js` — visual clarity for the reviewed matching assignment.
+- `v40-release.js` — visible V4.4 release presentation and ordered module loader.
+- `DEPLOY-AND-TEST-V4.4.md` — V4.4 release/regression checklist.
+- `DATABASE-MIGRATIONS-V4.4.txt` — V4.4 database-change statement.
 
 ## Release discipline
 
-Treat V4.3 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.3 changes to documented critical fixes and release housekeeping.
+After the final Release Candidate passes and the freeze documentation is complete, treat V4.4 as the production baseline. New product features should then begin from the resulting clean `main` state on the next version branch.
 
-For a routine application rollback, leave the additive V4.3 recipient/functions in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
+For a routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
