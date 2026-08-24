@@ -1,5 +1,5 @@
 /* V4.6 release presentation — Intervention Records.
-   Loads the established V4.1–V4.5 foundation plus the completed V4.6 export workflow. */
+   Loads the established V4.1–V4.6 foundation plus staged V4.7 teacher workflow improvements. */
 (() => {
   'use strict';
 
@@ -47,6 +47,7 @@
     loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
     loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
     loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
+    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
   }
 
   if (document.readyState === 'loading'){
