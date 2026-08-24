@@ -94,19 +94,19 @@ See `DATABASE-MIGRATIONS-V4.4.txt` for the release database statement.
 
 ## Tested V4.4 baselines
 
+- Stable V4.4 application release merge: `3a41e5b4634151a4a9da0684428c46c76d1e475a`
+- V4.4 Release Candidate tested commit: `6cde7b1f46104d3593f49e2b8e6d5626e32cb383`
 - V4.4C Intervention Follow-Through tested merge / RC base: `34a5fdcec6c604f730c2d995df958fbbdc947514`
 - V4.4B Shared Focus Group Intervention tested merge: `fcca45f94294ecbed4b4513d583671e5af3be650`
 - V4.4A Action Center → Prefilled Practice Intervention tested merge: `9a663a2bf2c569c8d8e43e6a38f31e9617b46cc3`
 - Frozen V4.3 application release merge: `7c3520f16ca5faf7e0f62feee7e09f7f10a1bd46`
 - Frozen V4.3 repository/docs baseline: `79279dc6bd8b25362375e2be90b3c7860b1b5cc6`
 
-The stable V4.4 application release SHA will be recorded after the final Release Candidate regression passes and is merged.
-
 ## Validation status
 
-V4.4A–C were individually tested in Netlify Deploy Previews before merge.
+V4.4A–C were individually tested in Netlify Deploy Previews before merge. The final V4.4 Release Candidate then passed the one-pass release regression before the stable application merge.
 
-Validated staged behaviour includes:
+Validated V4.4 release behaviour includes:
 
 - Action Center **Assign Practice** opens the correct class and learner;
 - resolved focus strand/topic and 5-question target are prefilled where available;
@@ -116,10 +116,13 @@ Validated staged behaviour includes:
 - intervention status shows Not started / In progress / Completed for matching work;
 - outstanding matching work offers **Review Practice** instead of encouraging an immediate duplicate;
 - Review Practice navigates to the correct class and scrolls to the intended existing assignment section;
-- V4.3 manual assignment creation remains unchanged;
-- narrow/mobile workflow checks pass.
+- V4.3 manual whole-class, selected-students and multi-class assignment paths remain functional;
+- targeted Practice grading, early-end safeguards and Practice AI Help remain functional;
+- teacher roster, Exam Settings, Review Queue and Question Bank smoke checks pass;
+- Exam Mode and Exam Assignments remain AI-free;
+- narrow/mobile and Dark Mode smoke checks pass.
 
-The final V4.4 Release Candidate uses `DEPLOY-AND-TEST-V4.4.md` for the one-pass release regression.
+For future production verification, follow `DEPLOY-AND-TEST-V4.4.md`.
 
 ## Key V4.4 files
 
@@ -133,6 +136,6 @@ The final V4.4 Release Candidate uses `DEPLOY-AND-TEST-V4.4.md` for the one-pass
 
 ## Release discipline
 
-After the final Release Candidate passes and the freeze documentation is complete, treat V4.4 as the production baseline. New product features should then begin from the resulting clean `main` state on the next version branch.
+Treat V4.4 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.4 changes to documented critical fixes and release housekeeping.
 
 For a routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved.
