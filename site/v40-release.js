@@ -1,6 +1,5 @@
-/* V4.5 release presentation — Intervention Queue & Outcomes.
-   Loads the established V4.1–V4.4 foundation plus completed V4.5 modules
-   and staged V4.6 teacher workflow improvements. */
+/* V4.6 release presentation — Intervention Records.
+   Loads the established V4.1–V4.5 foundation plus the completed V4.6 export workflow. */
 (() => {
   'use strict';
 
@@ -14,19 +13,19 @@
     document.head.appendChild(script);
   }
 
-  function applyV45Release(){
-    document.title = 'Math Practice V4.5';
+  function applyV46Release(){
+    document.title = 'Math Practice V4.6';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.5 • Intervention Queue & Outcomes';
+      versionBadge.textContent = 'Version 4.6 • Intervention Records';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.5:</strong>
-        Teachers can manage priority learners as an intervention queue, filter by Practice follow-through state, and inspect recorded outcomes from completed targeted Practice without changing mastery or grading rules.
+        <strong>V4.6:</strong>
+        Teachers can export the current Action Center intervention queue as a practical record of learner priorities, intervention state and completed Practice outcomes while preserving the established guided-intervention workflow.
         Secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
       `;
     }
@@ -51,8 +50,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV45Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV46Release, { once:true });
   } else {
-    applyV45Release();
+    applyV46Release();
   }
 })();
