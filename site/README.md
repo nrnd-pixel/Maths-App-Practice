@@ -82,20 +82,20 @@ V4.7 preserves the established production boundaries:
 
 Do not run SQL solely for V4.7 deployment.
 
-## V4.7 tested feature baselines
+## Frozen V4.7 baselines
 
 - Frozen V4.6 repository/docs baseline: `b1f38a842b3d1762de403673f43ea78d8d1d51fa`
 - V4.7A tested merge: `1ac29709aaf0a4e29418ebf086f8f1a8b3860ecf`
 - V4.7B tested merge: `f7f6723db6cea1a20fc6618a5009ad745ea66c1b`
 - V4.7C tested merge / RC base: `2d13e9e6b80776fdfc9655779bb64d9a7f3da4e4`
-
-The final V4.7 RC SHA and stable release merge are recorded after the final one-pass regression succeeds.
+- Final V4.7 Release Candidate tested commit: `ebed7de47a9633ccd72aac1e0dd9988764e596fb`
+- Stable V4.7 application release merge: `d62fb0892c69fda69cb76520ad90339fbbb65df2`
 
 ## Validation status
 
-V4.7A, V4.7B and V4.7C each passed focused Netlify Deploy Preview testing before merge.
+V4.7A, V4.7B and V4.7C each passed focused Netlify Deploy Preview testing before merge. The final V4.7 Release Candidate then passed the one-pass release regression before merge.
 
-Validated feature behaviour includes:
+Validated release behaviour includes:
 
 - History opens the correct learner profile and longitudinal Practice history;
 - older intervention history remains visible outside the current Analytics period filter;
@@ -107,9 +107,10 @@ Validated feature behaviour includes:
 - leading/common focus topics follow the current Analytics scope;
 - class overview is not limited by queue visibility filters or the collapsed top-six view;
 - existing queue filters, Export queue CSV and guided intervention actions remain intact;
-- narrow/mobile and Dark Mode focused checks passed.
-
-A final one-pass V4.7 Release Candidate regression is required before release.
+- selected-students Practice creation, grading, early-end safeguards, completion and Practice AI Help remain intact;
+- Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank smoke checks passed;
+- Exam Mode and Exam Assignments remain AI-free;
+- narrow/mobile and Dark Mode checks passed.
 
 ## Key V4.7 files
 
@@ -122,6 +123,6 @@ A final one-pass V4.7 Release Candidate regression is required before release.
 
 ## Release discipline
 
-The V4.7 Release Candidate must pass the final regression before merge. After release, the tested merge and documentation-only freeze commit become the V4.7 production baseline.
+Treat V4.7 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.7 changes to documented critical fixes and release housekeeping.
 
 For routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved. Preserve the production `config.js`.
