@@ -1,5 +1,5 @@
 /* V4.7 release presentation — Intervention History & Follow-Up.
-   Loads the established V4.1–V4.7 foundation plus staged V4.8 teacher workflow improvements. */
+   Loads the established V4.1–V4.7 foundation plus staged V4.8 deadline workflow improvements. */
 (() => {
   'use strict';
 
@@ -52,6 +52,7 @@
     loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
     loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-1', 'data-v48a-teacher-deadline-monitoring');
     loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
+    loadScriptOnce('v48-deadline-follow-up.js?v=48c-1', 'data-v48c-deadline-follow-up');
   }
 
   if (document.readyState === 'loading'){
