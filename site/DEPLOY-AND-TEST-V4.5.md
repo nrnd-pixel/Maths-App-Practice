@@ -25,6 +25,8 @@ Do not run SQL solely for V4.5 deployment.
 
 ## Baselines
 
+- Stable V4.5 application release merge: `83cac64b08649b0b4d968cfe938508edbfd97eed`
+- Final V4.5 Release Candidate tested commit: `1447200c41a01f97a8c5c9e40a6554e21b928866`
 - V4.5B tested merge / RC base: `8eb300875295f4af7a9245083b5a6a9b77d605c8`
 - V4.5A tested merge: `0ca7a369a5f65eb594c1125b780f777cb9742fa9`
 - Frozen V4.4 stable application release: `3a41e5b4634151a4a9da0684428c46c76d1e475a`
@@ -32,7 +34,7 @@ Do not run SQL solely for V4.5 deployment.
 
 ## Before testing
 
-- [ ] Use the V4.5 Release Candidate Deploy Preview.
+- [ ] Use the V4.5 Release Candidate Deploy Preview or current V4.5 production build.
 - [ ] Confirm `config.js` is unchanged.
 - [ ] Do not run SQL.
 - [ ] Confirm Exam Mode / Exam Assignments remain AI-free.
@@ -111,13 +113,21 @@ Teacher → Analytics → Teacher Action Center:
 
 ## Release result
 
-Status before final RC test: **PENDING**.
+Status: **PASSED — 2026-08-24**.
 
-After the Release Candidate passes, record:
+The final V4.5 Release Candidate Deploy Preview passed the one-pass release regression before merge.
 
-- final tested RC commit;
-- stable V4.5 application release merge;
-- final frozen repository/docs commit.
+Validated release areas include V4.5 presentation, student sign-in/Home smoke, intervention queue filters/Show all, completed outcome details and Open Results, V4.4 Assign Practice / Shared focus groups / Review Practice, selected-students Practice creation and grading, early-end/completion safeguards, Practice AI Help, teacher Results/Classes/Exam Settings/Review Queue/Question Bank smoke checks, AI-free Exam boundaries, and mobile/Dark Mode checks.
+
+Final tested RC commit:
+
+`1447200c41a01f97a8c5c9e40a6554e21b928866`
+
+Stable V4.5 application release merge:
+
+`83cac64b08649b0b4d968cfe938508edbfd97eed`
+
+Treat V4.5 as frozen after the documentation-only release housekeeping is complete.
 
 ## Rollback
 
