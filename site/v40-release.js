@@ -1,5 +1,5 @@
-/* V4.3 release presentation — Flexible Practice Assignment Delivery.
-   Loads the established V4.1/V4.2 foundation plus completed V4.3 modules and staged V4.4 workflow improvements. */
+/* V4.4 release presentation — Guided Practice Interventions.
+   Loads the established V4.1–V4.3 foundation plus completed V4.4 intervention workflow modules. */
 (() => {
   'use strict';
 
@@ -13,19 +13,19 @@
     document.head.appendChild(script);
   }
 
-  function applyV43Release(){
-    document.title = 'Math Practice V4.3';
+  function applyV44Release(){
+    document.title = 'Math Practice V4.4';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.3 • Flexible Practice Assignments';
+      versionBadge.textContent = 'Version 4.4 • Guided Practice Interventions';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.3:</strong>
-        Teachers can assign targeted Practice to one student, selected students, one class or multiple classes, with faster Exam Settings management and improved teacher mobile/Dark Mode usability.
+        <strong>V4.4:</strong>
+        Teachers can turn Action Center insights into reviewed targeted Practice for individual learners or shared-focus groups, while seeing existing intervention status before assigning duplicate work.
         Secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
       `;
     }
@@ -47,8 +47,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV43Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV44Release, { once:true });
   } else {
-    applyV43Release();
+    applyV44Release();
   }
 })();
