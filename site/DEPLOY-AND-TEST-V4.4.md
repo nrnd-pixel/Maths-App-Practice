@@ -26,6 +26,8 @@ Do not run SQL solely for V4.4 deployment.
 
 ## Baselines
 
+- Stable V4.4 application release merge: `3a41e5b4634151a4a9da0684428c46c76d1e475a`
+- Final V4.4 Release Candidate tested commit: `6cde7b1f46104d3593f49e2b8e6d5626e32cb383`
 - V4.4C tested merge / RC base: `34a5fdcec6c604f730c2d995df958fbbdc947514`
 - V4.4B tested merge: `fcca45f94294ecbed4b4513d583671e5af3be650`
 - V4.4A tested merge: `9a663a2bf2c569c8d8e43e6a38f31e9617b46cc3`
@@ -34,7 +36,7 @@ Do not run SQL solely for V4.4 deployment.
 
 ## Before testing
 
-- [ ] Use the current V4.4 Release Candidate Deploy Preview.
+- [ ] Use the current V4.4 production build or a V4.4 verification Deploy Preview.
 - [ ] Confirm `config.js` is unchanged.
 - [ ] Do not run SQL.
 - [ ] Confirm Exam Mode / Exam Assignments remain AI-free.
@@ -116,11 +118,17 @@ Teacher → Analytics → Teacher Action Center:
 - [ ] Exam Settings remains readable in Dark Mode and narrow layout.
 - [ ] Student Home/Practice navigation remains usable.
 
-## Release decision
+## V4.4 release result
 
-Merge only after the final V4.4 Release Candidate regression passes.
+The final V4.4 Release Candidate Deploy Preview passed the release regression before merge.
 
-After merge, record the stable V4.4 application release SHA and complete documentation-only freeze housekeeping.
+Stable V4.4 application release merge:
+
+`3a41e5b4634151a4a9da0684428c46c76d1e475a`
+
+Validated release areas include V4.4 presentation, student sign-in/Home smoke, individual Action Center intervention, same-class shared-focus groups, intervention status and Review Practice navigation, manual V4.3 assignment paths, targeted Practice grading and early-end safeguards, Practice AI Help, teacher roster/Exam Settings/Review Queue/Question Bank smoke checks, AI-free Exam boundaries, and mobile/Dark Mode checks.
+
+Treat V4.4 as frozen after the documentation-only release housekeeping is complete.
 
 ## Rollback
 
