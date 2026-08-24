@@ -1,0 +1,20 @@
+Maths Practice V4.4 — Database Migration Statement
+================================================
+
+V4.4 adds NO new database migration.
+
+The V4.4A, V4.4B and V4.4C changes are teacher workflow/presentation layers that reuse the existing tested V4.3 Practice assignment schema, recipient model, attempt tracking and teacher-authorized assignment RPCs.
+
+Current production migration tail remains:
+
+20260823125429  v43a_individual_practice_assignments
+20260823125445  v43a_individual_practice_delete_guard
+20260823125602  v43a_teacher_rpc_anon_revoke
+20260823134448  v43b_multi_recipient_practice_assignments
+
+Release instruction:
+- Do not run SQL solely for V4.4 deployment.
+- Do not re-run the V4.3 migrations.
+- Preserve the existing production Supabase configuration.
+
+V4.4 release-candidate database status: VERIFIED — no V4.4 migration required.
