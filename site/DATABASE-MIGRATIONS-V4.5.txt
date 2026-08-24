@@ -18,5 +18,6 @@ Release instruction:
 - Preserve the existing production Supabase configuration.
 - V4.5 does not change grading, mastery thresholds, assignment state enforcement, authentication, answer release or AI security.
 
-V4.5 RC database status: VERIFIED — no V4.5 migration required.
-V4.5B tested merge / RC base: 8eb300875295f4af7a9245083b5a6a9b77d605c8
+V4.5 final database status: VERIFIED — no V4.5 migration required.
+Final tested RC commit: 1447200c41a01f97a8c5c9e40a6554e21b928866
+Stable V4.5 application release merge: 83cac64b08649b0b4d968cfe938508edbfd97eed
