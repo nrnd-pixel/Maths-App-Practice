@@ -1,5 +1,6 @@
 /* V4.5 release presentation — Intervention Queue & Outcomes.
-   Loads the established V4.1–V4.4 foundation plus completed V4.5 intervention workflow modules. */
+   Loads the established V4.1–V4.4 foundation plus completed V4.5 modules
+   and staged V4.6 teacher workflow improvements. */
 (() => {
   'use strict';
 
@@ -46,6 +47,7 @@
     loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');
     loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
     loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
+    loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
   }
 
   if (document.readyState === 'loading'){
