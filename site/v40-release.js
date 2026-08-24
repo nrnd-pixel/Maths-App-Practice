@@ -1,6 +1,5 @@
-/* V4.4 release presentation — Guided Practice Interventions.
-   Loads the established V4.1–V4.3 foundation, completed V4.4 intervention workflow modules,
-   and staged V4.5 teacher workflow improvements. */
+/* V4.5 release presentation — Intervention Queue & Outcomes.
+   Loads the established V4.1–V4.4 foundation plus completed V4.5 intervention workflow modules. */
 (() => {
   'use strict';
 
@@ -14,19 +13,19 @@
     document.head.appendChild(script);
   }
 
-  function applyV44Release(){
-    document.title = 'Math Practice V4.4';
+  function applyV45Release(){
+    document.title = 'Math Practice V4.5';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.4 • Guided Practice Interventions';
+      versionBadge.textContent = 'Version 4.5 • Intervention Queue & Outcomes';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.4:</strong>
-        Teachers can turn Action Center insights into reviewed targeted Practice for individual learners or shared-focus groups, while seeing existing intervention status before assigning duplicate work.
+        <strong>V4.5:</strong>
+        Teachers can manage priority learners as an intervention queue, filter by Practice follow-through state, and inspect recorded outcomes from completed targeted Practice without changing mastery or grading rules.
         Secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
       `;
     }
@@ -50,8 +49,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV44Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV45Release, { once:true });
   } else {
-    applyV44Release();
+    applyV45Release();
   }
 })();
