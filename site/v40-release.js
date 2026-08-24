@@ -43,6 +43,7 @@
     loadScriptOnce('v44-action-center-practice.js?v=44a-1', 'data-v44a-action-center-practice');
     loadScriptOnce('v44-shared-focus-groups.js?v=44b-1', 'data-v44b-shared-focus-groups');
     loadScriptOnce('v44-intervention-follow-through.js?v=44c-1', 'data-v44c-intervention-follow-through');
+    loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');
   }
 
   if (document.readyState === 'loading'){
