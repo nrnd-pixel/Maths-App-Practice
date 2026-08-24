@@ -8,6 +8,7 @@
   const SUMMARY_ID = 'v48b-student-deadline-summary';
   let cachedAssignments = [];
   let lastSignature = '';
+  let hasFetched = false;
   let refreshBusy = false;
   let refreshQueued = false;
 
@@ -143,7 +144,7 @@
 
       const state = deadlineState(row);
       const chip = document.createElement('span');
-      chip.className = `tag v48b-deadline-chip`;
+      chip.className = 'tag v48b-deadline-chip';
       const due = dueLabel(row.closes_at);
       chip.textContent = state.key === 'none' ? 'No due date' : `${state.label}${due ? ` · ${due}` : ''}`;
 
@@ -162,7 +163,7 @@
   }
 
   function applyDecorations(){
-    if (!cachedAssignments.length && !document.getElementById('v42b-student-practice-assignments')) return;
+    if (!document.getElementById('v42b-student-practice-assignments')) return;
     renderSummary(cachedAssignments);
     decorateCards(cachedAssignments);
   }
@@ -173,14 +174,12 @@
     if (refreshBusy){ refreshQueued = true; return; }
 
     const signature = cardSignature();
-    if (signature && signature === lastSignature && cachedAssignments.length){
-      applyDecorations();
-      return;
-    }
+    if (signature === lastSignature && hasFetched) return;
 
     refreshBusy = true;
     try {
       cachedAssignments = await fetchAssignments();
+      hasFetched = true;
       lastSignature = cardSignature();
       applyDecorations();
     } catch (error){
@@ -213,6 +212,6 @@
   injectStyles();
   watchForStudentAssignments();
   setInterval(() => {
-    if (cachedAssignments.length) applyDecorations();
+    if (hasFetched) applyDecorations();
   },60 * 1000);
 })();
