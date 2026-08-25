@@ -44,11 +44,11 @@ window.MATH_APP_CONFIG = {
 /* V4.0 visible release version. */
 document.title = 'Math Practice V4.0';
 
-/* Stable V3.9 foundation plus completed V4.0 student platform modules. */
+/* Stable V3.9 foundation plus completed V4.0 student platform modules.
+   Legacy V3.8/V3.8.1/V3.9 release-label-only scripts remain archived in the repository
+   but are no longer executed; current release presentation is handled by v40-release.js. */
 window.addEventListener('load', () => {
   [
-    './v38-release.js',
-    './v381-release.js',
     './v38-ai-help.js',
     './v38-ai-admin.js',
     './v38-ai-polish.js',
@@ -56,7 +56,6 @@ window.addEventListener('load', () => {
     './v39-practice-polish.js',
     './v39-dashboard-polish.js',
     './v39-state-polish.js',
-    './v39-release.js',
     './v40-student-platform.js',
     './v40-student-nav.js',
     './v40-student-session.js',
