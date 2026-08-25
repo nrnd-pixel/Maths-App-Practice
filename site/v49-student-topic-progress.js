@@ -29,7 +29,7 @@
     style.textContent = `
       .v49b-topic-actions{margin-top:10px;display:flex;justify-content:flex-start}
       .v49b-topic-open{min-height:36px;padding:7px 11px;font-size:12px}
-      #${PANEL_ID}{margin:0 0 18px;padding:15px;border:1px solid var(--border);border-radius:18px;background:var(--card)}
+      #${PANEL_ID}{margin:0 0 18px;padding:15px;border:1px solid var(--border);border-radius:18px;background:var(--card);scroll-margin-top:78px}
       #${PANEL_ID}.hidden{display:none!important}
       #${PANEL_ID} .v49b-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
       #${PANEL_ID} h2{margin:0 0 4px;font-size:20px}
@@ -46,7 +46,7 @@
       #${PANEL_ID} .v49b-recent-item .help{margin-top:2px}
       #${PANEL_ID} .v49b-empty{color:var(--muted);font-size:12px;line-height:1.45}
       #${PANEL_ID} .v49b-note{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.45}
-      @media(max-width:700px){#${PANEL_ID} .v49b-summary{grid-template-columns:1fr}#${PANEL_ID} .v49b-recent-item{display:block}}
+      @media(max-width:700px){#${PANEL_ID}{scroll-margin-top:70px}#${PANEL_ID} .v49b-summary{grid-template-columns:1fr}#${PANEL_ID} .v49b-recent-item{display:block}}
     `;
     document.head.appendChild(style);
   }
