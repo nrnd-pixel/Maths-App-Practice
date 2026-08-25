@@ -127,6 +127,12 @@
     catch { return null; }
   }
 
+  function displayPercent(value){
+    if (value === null || value === undefined || value === '') return '—';
+    const number = Number(value);
+    return Number.isFinite(number) ? `${Math.round(number)}%` : '—';
+  }
+
   function evidenceFor(row){
     const sessions = (analyticsContext?.sessions || []).filter(session=>analyticsKey(session)===row.key);
     const ids = new Set(sessions.map(session=>String(session.id)));
@@ -151,7 +157,7 @@
     if (!topics.length) return '<tr><td colspan="7">No topic-level evidence for this learner in the selected Analytics scope.</td></tr>';
     return topics.map(topic=>{
       const band = topicBand(topic);
-      const score = Number.isFinite(Number(topic.percent)) ? `${Math.round(Number(topic.percent))}%` : '—';
+      const score = displayPercent(topic.percent);
       const skills = Array.isArray(topic.skills) && topic.skills.length ? topic.skills.join(' · ') : '—';
       return `<tr><td><strong>${safe(topic.topic||'Unclassified')}</strong></td><td class="v50c2-nowrap">${safe(band.label||'Learning evidence')}</td><td class="v50c2-nowrap">${safe(score)}</td><td class="v50c2-nowrap">${safe(`${Number(topic.awarded||0)}/${Number(topic.possible||0)}`)}</td><td class="v50c2-nowrap">${Number(topic.scored||0)}</td><td class="v50c2-nowrap">${Number(topic.pending||0)}</td><td>${safe(skills)}</td></tr>`;
     }).join('');
@@ -174,7 +180,7 @@
   function callout(topic, kind, emptyText){
     if (!topic) return `<div class="v50c2-callout"><strong>${safe(emptyText)}</strong><div class="help">More scored evidence is needed in the current Analytics scope.</div></div>`;
     const band = topicBand(topic);
-    const score = Number.isFinite(Number(topic.percent)) ? `${Math.round(Number(topic.percent))}%` : '—';
+    const score = displayPercent(topic.percent);
     return `<div class="v50c2-callout ${kind==='secure'?'v50c2-secure':'v50c2-focus'}"><strong>${safe(topic.topic||'Unclassified')}</strong><div class="help">${safe(band.label||'Learning evidence')} · ${safe(score)} · ${safe(`${Number(topic.scored||0)} scored response${Number(topic.scored||0)===1?'':'s'}`)}</div></div>`;
   }
 
@@ -196,8 +202,11 @@
     const generated = new Date();
     const focus = evidence.topics.find(topic=>['needs-attention','developing'].includes(topicBand(topic).key));
     const strength = evidence.topics.filter(topic=>topicBand(topic).key==='secure').slice().sort((a,b)=>(Number(b.percent)||0)-(Number(a.percent)||0))[0];
-    const latestExam = evidence.exams.slice().sort((a,b)=>Date.parse(b.completed_at)-Date.parse(a.completed_at))[0] || null;
-    const latestExamPercent = latestExam && Number(latestExam.pending_review_count||0)===0 ? finalExamPercent(latestExam) : null;
+    const latestFullyMarkedExam = evidence.exams
+      .filter(session=>Number(session.pending_review_count||0)===0 && Number.isFinite(finalExamPercent(session)))
+      .slice()
+      .sort((a,b)=>Date.parse(b.completed_at)-Date.parse(a.completed_at))[0] || null;
+    const latestExamPercent = latestFullyMarkedExam ? finalExamPercent(latestFullyMarkedExam) : null;
     const scopeParts = [scope.period,scope.className,scope.year,scope.mode].filter(Boolean);
     if (scope.search) scopeParts.push(`Search: ${scope.search}`);
 
