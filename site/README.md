@@ -77,7 +77,7 @@ V4.9 preserves the established production boundaries:
 
 ## Database status
 
-**V4.9 adds no database migration.** Production migration history was re-checked before the V4.9 Release Candidate and still ends at the tested V4.3 assignment baseline:
+**V4.9 adds no database migration.** Production migration history was re-checked before release and still ends at the tested V4.3 assignment baseline:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
@@ -95,22 +95,28 @@ The secure student progress/dashboard data and targeted Practice assignment data
 - V4.9B tested merge: `6a04d00472f737498123c83d70e2450b18054c48`
 - V4.9C tested preview head: `a7ff89ed5cb26aa18d1273214ba87c988d08b16c`
 - V4.9C tested merge / RC base: `ae3f4bbf4fc3ca559b76ce1b1b0a39808f81f653`
+- Final tested V4.9 RC: `09a8cb3257667be81b6272b81c70a006384ac624`
+- Stable V4.9 application release merge: `54d2cf4853251588ed9d6d5616a98662164c482d`
 
 ## Validation status
 
-V4.9A, V4.9B and V4.9C each passed focused Netlify Deploy Preview testing before merge. The final V4.9 Release Candidate requires one-pass release regression before V4.9 is frozen.
+V4.9A, V4.9B and V4.9C each passed focused Netlify Deploy Preview testing before merge. The final V4.9 Release Candidate then passed the one-pass release regression before merge.
 
-Focused validation already confirms:
+Validated release behaviour includes:
 
 - Progress snapshot matches the existing Focus, Strength, Practice count and Recent Activity evidence;
 - Topic Progress matches the source topic card state, percentage and scored-response count;
-- the Topic Progress title remains visible below sticky student navigation;
+- Topic Progress title remains visible below sticky student navigation;
 - topic improvement is shown only when the existing milestone names that topic;
 - recent topic Practice is limited to matching visible Practice activity;
 - What to work on next falls back safely to Focus Area before assignment urgency is loaded;
 - after Assignments is securely loaded, overdue / due-today / due-soon / outstanding Practice is prioritised correctly;
 - Next Steps actions route to existing screens and never auto-start Practice;
-- V4.8 Practice deadlines and established Practice/Exam boundaries remain intact in focused smoke checks.
+- V4.8 Practice deadlines and teacher deadline follow-up remain intact;
+- Practice creation, grading, early-exit status, completion and AI Learning Help remain intact;
+- teacher Action Center, History, Assign again, Class intervention overview and admin smoke checks remain intact;
+- Exam Mode and Exam Assignments remain AI-free;
+- narrow/mobile and Dark Mode checks passed.
 
 ## Key V4.9 files
 
@@ -123,6 +129,6 @@ Focused validation already confirms:
 
 ## Release discipline
 
-V4.8 remains the frozen production baseline until the final V4.9 Release Candidate passes. After V4.9 is released, treat the resulting clean `main` state as the new frozen baseline and begin V5.0 work from that point.
+Treat V4.9 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. V5.0 should focus on production hardening and reporting rather than duplicating the student progress experience.
 
 For routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved. Preserve the production `config.js`.
