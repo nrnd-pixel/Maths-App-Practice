@@ -65,13 +65,19 @@ for (const name of browserJs) {
 // 2) Loader integrity: every staged local module referenced by config/release exists.
 const configRefs = [...config.matchAll(/['"]\.\/([^'"]+\.js)['"]/g)].map(match => match[1]);
 const releaseRefs = [...release.matchAll(/loadScriptOnce\('([^'?]+\.js)(?:\?[^']*)?'/g)].map(match => match[1]);
-assert.ok(configRefs.length >= 18, 'The established V3.8–V4.0 loader set is incomplete.');
+assert.ok(configRefs.length >= 15, 'The active V3.8–V4.0 functional loader set is incomplete.');
 assert.ok(releaseRefs.length >= 25, 'The established V4.1+ loader set is incomplete.');
 for (const ref of [...configRefs, ...releaseRefs]) {
   assert.ok(fs.existsSync(path.join(siteRoot, ref)), `Missing staged browser module: ${ref}`);
 }
 const releaseKeys = [...release.matchAll(/loadScriptOnce\([^,]+,\s*'([^']+)'\)/g)].map(match => match[1]);
 assert.equal(new Set(releaseKeys).size, releaseKeys.length, 'Release loader contains duplicate data keys.');
+
+// 2B) V5.0B4B legacy presentation cleanup: old release-label scripts stay archived but are not executed.
+for (const retired of ['v38-release.js', 'v381-release.js', 'v39-release.js']) {
+  assert.ok(fs.existsSync(path.join(siteRoot, retired)), `${retired} must remain recoverable in repository history/source.`);
+  assert.ok(!configRefs.includes(retired), `${retired} must not be loaded by the active config bootstrap.`);
+}
 
 // 3) Current release identity remains V4.9 until the V5 release-candidate stamp.
 assert.match(release, /Math Practice V4\.9/);
@@ -169,6 +175,7 @@ console.log(`- ${inlineScripts.length} inline application script block(s) compil
 console.log(`- ${browserJs.length} browser JS files compiled`);
 console.log(`- ${configRefs.length + releaseRefs.length} staged loader references resolved`);
 console.log('- V4.9 visible release identity preserved while V5.0B3 consolidates the active progress UI');
+console.log('- Legacy V3.8/V3.8.1/V3.9 release-label scripts remain archived but are no longer actively loaded');
 console.log('- Browser-secret, student-session and Practice/Exam boundaries verified');
 console.log('- AI Help remains Practice-only at the server boundary');
 console.log('- Multi-recipient assignment double-submit guard verified');
