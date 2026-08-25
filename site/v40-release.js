@@ -1,5 +1,5 @@
-/* V4.7 release presentation — Intervention History & Follow-Up.
-   Loads the established V4.1–V4.7 foundation plus staged V4.8 deadline workflow improvements. */
+/* V4.8 release presentation — Practice Deadlines & Follow-Up.
+   Loads the established V4.1–V4.7 foundation plus the tested V4.8 deadline workflow. */
 (() => {
   'use strict';
 
@@ -13,20 +13,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV47Release(){
-    document.title = 'Math Practice V4.7';
+  function applyV48Release(){
+    document.title = 'Math Practice V4.8';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.7 • Intervention History & Follow-Up';
+      versionBadge.textContent = 'Version 4.8 • Practice Deadlines & Follow-Up';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.7:</strong>
-        Teachers can review longitudinal Practice intervention history, deliberately assign follow-up Practice from completed interventions, and use a class-level intervention overview for planning.
-        The established Action Center queue/export workflow, secure Practice, mastery recovery and AI-free Exam boundaries remain unchanged.
+        <strong>V4.8:</strong>
+        Teachers can monitor Practice deadlines, adjust follow-up target dates, and see overdue or due-soon work by class. Students receive clear Practice deadline priorities while overdue Practice remains available to complete.
+        Secure Practice grading, intervention history, authentication and AI-free Exam boundaries remain unchanged.
       `;
     }
 
@@ -56,8 +56,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV47Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV48Release, { once:true });
   } else {
-    applyV47Release();
+    applyV48Release();
   }
 })();
