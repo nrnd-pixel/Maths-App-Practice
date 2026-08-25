@@ -6,6 +6,7 @@
 
   const STYLE_ID = 'v48c-deadline-follow-up-style';
   const PANEL_ID = 'v48a-deadline-monitoring';
+  const DIALOG_ID = 'v48c-target-dialog';
   let panelObserver = null;
   let decorateQueued = false;
 
@@ -26,31 +27,33 @@
     style.id = STYLE_ID;
     style.textContent = `
       #${PANEL_ID} .v48c-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
-      #${PANEL_ID} .v48c-editor{
-        grid-column:1/-1;
-        width:100%;
-        box-sizing:border-box;
-        margin-top:2px;
+      #${DIALOG_ID}{
+        width:min(620px,calc(100vw - 28px));
+        max-width:620px;
         border:1px solid var(--border);
-        border-radius:11px;
-        padding:11px;
-        background:var(--surface-soft,var(--card));
+        border-radius:16px;
+        padding:0;
+        background:var(--card);
+        color:inherit;
+        box-shadow:0 18px 60px rgba(0,0,0,.24);
       }
-      #${PANEL_ID} .v48c-editor-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px}
-      #${PANEL_ID} .v48c-editor-head strong{display:block}
-      #${PANEL_ID} .v48c-editor-grid{display:grid;grid-template-columns:minmax(230px,1fr) auto;gap:10px;align-items:end}
-      #${PANEL_ID} .v48c-editor label{margin:0}
-      #${PANEL_ID} .v48c-editor-buttons{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-      #${PANEL_ID} .v48c-editor-feedback{margin-top:7px;font-size:12px}
-      #${PANEL_ID} .v48c-editor-feedback.error{color:var(--danger,#b42318)}
-      #${PANEL_ID} .v48c-editor-feedback.ok{color:var(--success,#1f7a45)}
+      #${DIALOG_ID}::backdrop{background:rgba(0,0,0,.38)}
+      #${DIALOG_ID} .v48c-dialog-inner{padding:18px}
+      #${DIALOG_ID} .v48c-editor-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+      #${DIALOG_ID} .v48c-editor-head h3{margin:0 0 4px}
+      #${DIALOG_ID} .v48c-editor-grid{display:grid;gap:12px}
+      #${DIALOG_ID} label{margin:0}
+      #${DIALOG_ID} .v48c-target-input{width:100%;box-sizing:border-box}
+      #${DIALOG_ID} .v48c-editor-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+      #${DIALOG_ID} .v48c-editor-feedback{margin-top:9px;font-size:12px;min-height:18px}
+      #${DIALOG_ID} .v48c-editor-feedback.error{color:var(--danger,#b42318)}
+      #${DIALOG_ID} .v48c-editor-feedback.ok{color:var(--success,#1f7a45)}
       @media(max-width:700px){
         #${PANEL_ID} .v48c-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
         #${PANEL_ID} .v48c-actions button{width:100%}
-        #${PANEL_ID} .v48c-editor-grid{grid-template-columns:1fr}
-        #${PANEL_ID} .v48c-editor-buttons{display:grid;grid-template-columns:1fr 1fr}
-        #${PANEL_ID} .v48c-editor-buttons .v48c-cancel{grid-column:1/-1}
-        #${PANEL_ID} .v48c-editor-buttons button{width:100%}
+        #${DIALOG_ID} .v48c-editor-buttons{display:grid;grid-template-columns:1fr 1fr}
+        #${DIALOG_ID} .v48c-editor-buttons .v48c-cancel{grid-column:1/-1}
+        #${DIALOG_ID} .v48c-editor-buttons button{width:100%}
       }
     `;
     document.head.appendChild(style);
@@ -70,11 +73,17 @@
     return Number.isNaN(date.getTime()) ? 'No due date' : date.toLocaleString();
   }
 
-  function setFeedback(editor,message,kind=''){
-    const root = editor?.querySelector('.v48c-editor-feedback');
+  function setFeedback(dialog,message,kind=''){
+    const root = dialog?.querySelector('.v48c-editor-feedback');
     if (!root) return;
     root.className = `v48c-editor-feedback ${kind}`.trim();
     root.textContent = message || '';
+  }
+
+  function closeDialog(dialog){
+    if (!dialog) return;
+    try { if (dialog.open) dialog.close(); } catch (_) {}
+    dialog.remove();
   }
 
   async function fetchAssignment(id){
@@ -99,12 +108,12 @@
     queueDecorate(550);
   }
 
-  async function saveTarget(editor,assignment,value){
-    const save = editor.querySelector('.v48c-save');
-    const clear = editor.querySelector('.v48c-clear');
-    const cancel = editor.querySelector('.v48c-cancel');
+  async function saveTarget(dialog,assignment,value){
+    const save = dialog.querySelector('.v48c-save');
+    const clear = dialog.querySelector('.v48c-clear');
+    const cancel = dialog.querySelector('.v48c-cancel');
     [save,clear,cancel].forEach(button => { if (button) button.disabled = true; });
-    setFeedback(editor,value ? 'Saving target date…' : 'Clearing target date…');
+    setFeedback(dialog,value ? 'Saving target date…' : 'Clearing target date…');
 
     try {
       const payload = {
@@ -115,17 +124,17 @@
         .update(payload)
         .eq('id',assignment.id);
       if (error) throw error;
-      setFeedback(editor,value ? 'Target due date updated.' : 'Target due date cleared.','ok');
+      setFeedback(dialog,value ? 'Target due date updated.' : 'Target due date cleared.','ok');
       await refreshExistingAssignmentUI();
+      window.setTimeout(() => closeDialog(dialog),650);
     } catch (error){
-      setFeedback(editor,error?.message || String(error),'error');
+      setFeedback(dialog,error?.message || String(error),'error');
       [save,clear,cancel].forEach(button => { if (button) button.disabled = false; });
     }
   }
 
-  async function openEditor(row,button){
-    const panel = document.getElementById(PANEL_ID);
-    panel?.querySelectorAll('.v48c-editor').forEach(editor => editor.remove());
+  async function openEditor(button){
+    document.getElementById(DIALOG_ID)?.remove();
 
     button.disabled = true;
     const previousLabel = button.textContent;
@@ -133,60 +142,64 @@
 
     try {
       const assignment = await fetchAssignment(button.dataset.id || '');
-      const editor = document.createElement('div');
-      editor.className = 'v48c-editor';
-      editor.innerHTML = `
-        <div class="v48c-editor-head">
-          <div>
-            <strong>Adjust Practice target</strong>
-            <div class="help">Current target: ${html(displayDate(assignment.closes_at))}</div>
+      const dialog = document.createElement('dialog');
+      dialog.id = DIALOG_ID;
+      dialog.innerHTML = `
+        <div class="v48c-dialog-inner">
+          <div class="v48c-editor-head">
+            <div>
+              <h3>Adjust Practice target</h3>
+              <div class="help">Current target: ${html(displayDate(assignment.closes_at))}</div>
+            </div>
+            <span class="tag">Target only — access stays open</span>
           </div>
-          <span class="tag">Target only — access stays open</span>
-        </div>
-        <div class="v48c-editor-grid">
-          <label>New target due date
-            <input class="v48c-target-input" type="datetime-local" value="${html(localInputValue(assignment.closes_at))}">
-            <span class="help">Choose a revised target, or clear it completely. Students can still complete Practice after a target passes.</span>
-          </label>
+          <div class="v48c-editor-grid">
+            <label>New target due date
+              <input class="v48c-target-input" type="datetime-local" value="${html(localInputValue(assignment.closes_at))}">
+              <span class="help">Choose a revised target, or clear it completely. Students can still complete Practice after a target passes.</span>
+            </label>
+          </div>
           <div class="v48c-editor-buttons">
             <button type="button" class="primary v48c-save">Save target</button>
             <button type="button" class="outline v48c-clear">Clear due date</button>
             <button type="button" class="outline v48c-cancel">Cancel</button>
           </div>
-        </div>
-        <div class="v48c-editor-feedback" aria-live="polite"></div>`;
+          <div class="v48c-editor-feedback" aria-live="polite"></div>
+        </div>`;
 
-      row.appendChild(editor);
-      editor.querySelector('.v48c-target-input')?.focus();
-
-      editor.querySelector('.v48c-cancel')?.addEventListener('click',() => editor.remove());
-      editor.querySelector('.v48c-clear')?.addEventListener('click',() => saveTarget(editor,assignment,null));
-      editor.querySelector('.v48c-save')?.addEventListener('click',() => {
-        const raw = text(editor.querySelector('.v48c-target-input')?.value);
+      document.body.appendChild(dialog);
+      dialog.addEventListener('cancel',event => {
+        event.preventDefault();
+        closeDialog(dialog);
+      });
+      dialog.querySelector('.v48c-cancel')?.addEventListener('click',() => closeDialog(dialog));
+      dialog.querySelector('.v48c-clear')?.addEventListener('click',() => saveTarget(dialog,assignment,null));
+      dialog.querySelector('.v48c-save')?.addEventListener('click',() => {
+        const raw = text(dialog.querySelector('.v48c-target-input')?.value);
         if (!raw){
-          setFeedback(editor,'Choose a target date and time, or use Clear due date.','error');
+          setFeedback(dialog,'Choose a target date and time, or use Clear due date.','error');
           return;
         }
         const due = new Date(raw);
         if (Number.isNaN(due.getTime())){
-          setFeedback(editor,'Choose a valid target date and time.','error');
+          setFeedback(dialog,'Choose a valid target date and time.','error');
           return;
         }
         if (assignment.opens_at){
           const opens = new Date(assignment.opens_at);
           if (!Number.isNaN(opens.getTime()) && due.getTime() <= opens.getTime()){
-            setFeedback(editor,'Target due date must be after the suggested start.','error');
+            setFeedback(dialog,'Target due date must be after the suggested start.','error');
             return;
           }
         }
-        saveTarget(editor,assignment,due.toISOString());
+        saveTarget(dialog,assignment,due.toISOString());
       });
+
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open','');
+      dialog.querySelector('.v48c-target-input')?.focus();
     } catch (error){
-      const message = document.createElement('div');
-      message.className = 'help';
-      message.textContent = `Could not open target editor: ${error?.message || error}`;
-      row.appendChild(message);
-      setTimeout(() => message.remove(),3500);
+      window.alert?.(`Could not open target editor: ${error?.message || error}`);
     } finally {
       if (document.contains(button)){
         button.disabled = false;
@@ -215,7 +228,7 @@
       adjust.className = 'outline v48c-adjust';
       adjust.dataset.id = review.dataset.id || row.dataset.assignmentId || '';
       adjust.textContent = 'Adjust target';
-      adjust.addEventListener('click',() => openEditor(row,adjust));
+      adjust.addEventListener('click',() => openEditor(adjust));
       actions.appendChild(adjust);
     });
   }
