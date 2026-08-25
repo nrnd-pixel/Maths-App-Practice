@@ -44,6 +44,7 @@ const session = read('site/v40-student-session.js');
 const assignments = read('site/v43-multi-recipient-practice-assignments.js');
 const deadlineMonitor = read('site/v48-teacher-deadline-monitoring.js');
 const deadlineFollowUp = read('site/v48-deadline-follow-up.js');
+const progressOverview = read('site/v50-student-progress-overview.js');
 const aiUi = read('site/v38-ai-help.js');
 const aiEdge = read('supabase/functions/student-ai-help-v38/index.ts');
 const aiCompat = read('supabase/functions/student-ai-help-v381/index.ts');
@@ -65,19 +66,22 @@ for (const name of browserJs) {
 const configRefs = [...config.matchAll(/['"]\.\/([^'"]+\.js)['"]/g)].map(match => match[1]);
 const releaseRefs = [...release.matchAll(/loadScriptOnce\('([^'?]+\.js)(?:\?[^']*)?'/g)].map(match => match[1]);
 assert.ok(configRefs.length >= 18, 'The established V3.8–V4.0 loader set is incomplete.');
-assert.ok(releaseRefs.length >= 26, 'The established V4.1–V4.9 loader set is incomplete.');
+assert.ok(releaseRefs.length >= 25, 'The established V4.1+ loader set is incomplete.');
 for (const ref of [...configRefs, ...releaseRefs]) {
   assert.ok(fs.existsSync(path.join(siteRoot, ref)), `Missing staged browser module: ${ref}`);
 }
 const releaseKeys = [...release.matchAll(/loadScriptOnce\([^,]+,\s*'([^']+)'\)/g)].map(match => match[1]);
-assert.equal(new Set(releaseKeys).size, releaseKeys.length, 'V4.9 release loader contains duplicate data keys.');
+assert.equal(new Set(releaseKeys).size, releaseKeys.length, 'Release loader contains duplicate data keys.');
 
 // 3) Current release identity remains V4.9 until the V5 release-candidate stamp.
 assert.match(release, /Math Practice V4\.9/);
 assert.match(release, /Version 4\.9 • Student Progress Experience/);
-assert.match(release, /v49-student-progress-snapshot\.js/);
 assert.match(release, /v49-student-topic-progress\.js/);
-assert.match(release, /v49-student-next-steps\.js/);
+assert.match(release, /v50-student-progress-overview\.js/);
+assert.doesNotMatch(release, /loadScriptOnce\('v49-student-progress-snapshot\.js/, 'The superseded V4.9A panel must not be loaded after B3 consolidation.');
+assert.doesNotMatch(release, /loadScriptOnce\('v49-student-next-steps\.js/, 'The superseded V4.9C panel must not be loaded after B3 consolidation.');
+assert.ok(fs.existsSync(path.join(siteRoot, 'v49-student-progress-snapshot.js')), 'Archived V4.9A source must remain recoverable in the repository.');
+assert.ok(fs.existsSync(path.join(siteRoot, 'v49-student-next-steps.js')), 'Archived V4.9C source must remain recoverable in the repository.');
 
 // 4) Browser-secret boundary: only the publishable browser key belongs in site code.
 for (const name of ['index.html', 'config.js', ...browserJs]) {
@@ -123,17 +127,28 @@ assert.doesNotMatch(deadlineFollowUp, /getElementById\('teacher'\)\?\.addEventLi
 assert.match(release, /v48-teacher-deadline-monitoring\.js\?v=48a-2/);
 assert.match(release, /v48-deadline-follow-up\.js\?v=48c-4/);
 
-// 9) V4.9 presentation modules must remain read-only overlays on existing secure evidence.
+// 9) V5.0B3 progress consolidation: one active overview replaces duplicate V4.9A/V4.9C panels.
+assert.match(progressOverview, /OVERVIEW_ID = 'v50-student-progress-overview'/);
+assert.match(progressOverview, /What to work on next/);
+assert.match(progressOverview, /Current focus/);
+assert.match(progressOverview, /Strongest topic/);
+assert.match(progressOverview, /Practice sessions/);
+assert.match(progressOverview, /Topics practised/);
+assert.match(progressOverview, /v50-retired-progress-source/);
+assert.doesNotMatch(progressOverview, /V4\.9A|V4\.9C/, 'Internal feature labels must not reappear in the consolidated student UI.');
+
+// 10) Student progress presentation modules must remain read-only overlays on existing secure evidence.
 for (const file of [
   'site/v49-student-progress-snapshot.js',
   'site/v49-student-topic-progress.js',
-  'site/v49-student-next-steps.js'
+  'site/v49-student-next-steps.js',
+  'site/v50-student-progress-overview.js'
 ]) {
   const source = read(file);
   assert.doesNotMatch(source, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/, `${file} must remain presentation-only.`);
 }
 
-// 10) Question-bank/import contract remains stable.
+// 11) Question-bank/import contract remains stable.
 const bank = recordsFromCsv(path.join(siteRoot, 'question-bank', 'PSR_2025_Mathematics_Paper1_Q1-Q40.csv'));
 const template = recordsFromCsv(path.join(siteRoot, 'question-import-template.csv'));
 assert.deepEqual(template.headers, bank.headers, 'Template and bank headers must stay aligned.');
@@ -153,9 +168,10 @@ console.log('V5 regression safety verification passed.');
 console.log(`- ${inlineScripts.length} inline application script block(s) compiled`);
 console.log(`- ${browserJs.length} browser JS files compiled`);
 console.log(`- ${configRefs.length + releaseRefs.length} staged loader references resolved`);
-console.log('- V4.9 release identity and student progress modules verified');
+console.log('- V4.9 visible release identity preserved while V5.0B3 consolidates the active progress UI');
 console.log('- Browser-secret, student-session and Practice/Exam boundaries verified');
 console.log('- AI Help remains Practice-only at the server boundary');
 console.log('- Multi-recipient assignment double-submit guard verified');
-console.log('- V5.0B2 deadline reads are selected-class scoped and event-driven');
+console.log('- V5.0B2 deadline reads remain selected-class scoped and event-driven');
+console.log('- V5.0B3 uses one active student progress overview while archived V4.9A/V4.9C source remains recoverable');
 console.log(`- ${active.length} active reference rows, ${logicalQuestions.size} logical questions, ${marks} marks`);
