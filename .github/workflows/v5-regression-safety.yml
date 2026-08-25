@@ -1,0 +1,29 @@
+name: V5 Regression Safety
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature-v5.0
+  push:
+    branches:
+      - feature-v5.0
+      - feature-v5.0b1-regression-safety
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    name: V5 regression safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify current app invariants
+        run: node site/tests/verify-v5.0.cjs
