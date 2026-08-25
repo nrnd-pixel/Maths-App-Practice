@@ -17,7 +17,7 @@ assert.match(release, /v47-intervention-history\.js\?v=47a-1', 'data-v47a-interv
   'Existing V4.7 history loader key must remain stable.');
 assert.match(release, /v50-teacher-class-report\.js\?v=50c1-2/);
 assert.match(release, /data-v50-teacher-class-report/);
-assert.match(release, /v50-teacher-student-report\.js\?v=50c2-1/);
+assert.match(release, /v50-teacher-student-report\.js\?v=50c2-2/);
 assert.match(release, /data-v50-teacher-student-report/);
 assert.match(release, /v50-reporting-export\.js\?v=50c3a-1/);
 assert.match(release, /data-v50-reporting-export/);
@@ -69,6 +69,13 @@ assert.match(studentReport, /Practice mastery and final Exam percentages remain 
   'V5.0C2 must preserve the Practice/Exam evidence boundary.');
 assert.match(studentReport, /pending \? `\$\{Number\(session\.auto_marks_awarded\|\|0\)\} marks so far`/,
   'Pending Exam review must not be presented as a final percentage.');
+assert.match(studentReport, /function displayPercent\(value\)/,
+  'V5.0C2 must explicitly preserve missing topic percentages as no evidence.');
+assert.match(studentReport, /value === null \|\| value === undefined \|\| value === ''/,
+  'Null topic accuracy must not be coerced into 0%.');
+assert.match(studentReport, /const latestFullyMarkedExam = evidence\.exams/);
+assert.match(studentReport, /pending_review_count\|\|0\)===0 && Number\.isFinite\(finalExamPercent\(session\)\)/,
+  'Latest fully marked Exam must ignore newer papers that are still pending review.');
 
 assert.match(studentReport, /Student report/);
 assert.match(studentReport, /Print \/ Save PDF/);
@@ -133,8 +140,8 @@ assert.doesNotMatch(exporter, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za
 console.log('V5.0 reporting verification passed.');
 console.log('- established V4.7 loader key remains stable');
 console.log('- V5.0C1 class report pagination and filename safeguards remain active');
-console.log('- V5.0C2 student report evidence boundaries remain active');
-console.log('- V5.0C3A adds structured Class and Student CSV exports from loaded Analytics evidence');
+console.log('- V5.0C2 preserves no-evidence topic percentages and latest fully marked Exam semantics');
+console.log('- V5.0C3A structured Class and Student CSV exports remain active');
 console.log('- CSV files are Excel-friendly, formula-injection guarded and consistently named');
-console.log('- Practice mastery, final Exam results and pending review remain separate in export data');
+console.log('- Practice mastery, final Exam results and pending review remain separate in report/export data');
 console.log('- no new data request, persistence, mastery threshold, AI score or server-side secret is introduced');
