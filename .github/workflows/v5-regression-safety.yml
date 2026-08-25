@@ -27,3 +27,5 @@ jobs:
           node-version: '20'
       - name: Verify current app invariants
         run: node site/tests/verify-v5.0.cjs
+      - name: Verify accessibility invariants
+        run: node site/tests/verify-v5.0-accessibility.cjs
