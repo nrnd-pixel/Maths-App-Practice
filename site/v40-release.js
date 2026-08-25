@@ -1,5 +1,5 @@
-/* V4.8 release presentation — Practice Deadlines & Follow-Up.
-   Loads the established V4.1–V4.8 foundation plus staged V4.9 student progress improvements. */
+/* V4.9 release presentation — Student Progress Experience.
+   Loads the established V4.1–V4.8 foundation plus the tested V4.9 student progress improvements. */
 (() => {
   'use strict';
 
@@ -13,20 +13,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV48Release(){
-    document.title = 'Math Practice V4.8';
+  function applyV49Release(){
+    document.title = 'Math Practice V4.9';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.8 • Practice Deadlines & Follow-Up';
+      versionBadge.textContent = 'Version 4.9 • Student Progress Experience';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.8:</strong>
-        Teachers can monitor Practice deadlines, adjust follow-up target dates, and see overdue or due-soon work by class. Students receive clear Practice deadline priorities while overdue Practice remains available to complete.
-        Secure Practice grading, intervention history, authentication and AI-free Exam boundaries remain unchanged.
+        <strong>V4.9:</strong>
+        Students get a clearer progress snapshot, topic-level progress drill-downs, and practical next-step guidance that reuses the app's existing secure learning evidence and Practice assignment workflow.
+        Secure Practice grading, teacher intervention tools, authentication and AI-free Exam boundaries remain unchanged.
       `;
     }
 
@@ -59,8 +59,8 @@
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV48Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV49Release, { once:true });
   } else {
-    applyV48Release();
+    applyV49Release();
   }
 })();
