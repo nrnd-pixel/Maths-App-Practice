@@ -68,9 +68,17 @@
         body.v50c1-printing #${OVERLAY_ID} table{background:#fff!important;color:#111!important}
         body.v50c1-printing #${OVERLAY_ID} .v50c1-summary{grid-template-columns:repeat(6,1fr)!important}
         body.v50c1-printing #${OVERLAY_ID} .v50c1-topic-grid{grid-template-columns:repeat(2,1fr)!important}
-        body.v50c1-printing #${OVERLAY_ID} .v50c1-tablewrap{overflow:visible!important}
+        body.v50c1-printing #${OVERLAY_ID} .v50c1-tablewrap{overflow:visible!important;border-radius:0!important}
         body.v50c1-printing #${OVERLAY_ID} th,body.v50c1-printing #${OVERLAY_ID} td{font-size:9px!important;padding:5px 6px!important;color:#111!important}
-        body.v50c1-printing #${OVERLAY_ID} .v50c1-section{break-inside:avoid}
+        body.v50c1-printing #${OVERLAY_ID} .v50c1-section{break-inside:avoid;page-break-inside:avoid}
+        body.v50c1-printing #${OVERLAY_ID} .v50c1-student-section{break-inside:auto;page-break-inside:auto}
+        body.v50c1-printing #${OVERLAY_ID} .v50c1-student-section h3,
+        body.v50c1-printing #${OVERLAY_ID} .v50c1-student-section .v50c1-section-note{break-after:avoid-page;page-break-after:avoid}
+        body.v50c1-printing #${OVERLAY_ID} table{break-inside:auto;page-break-inside:auto}
+        body.v50c1-printing #${OVERLAY_ID} thead{display:table-header-group}
+        body.v50c1-printing #${OVERLAY_ID} tbody{display:table-row-group}
+        body.v50c1-printing #${OVERLAY_ID} tr{break-inside:avoid;page-break-inside:avoid}
+        body.v50c1-printing #${OVERLAY_ID} .v50c1-footer{break-inside:avoid;page-break-inside:avoid}
       }
     `;
     document.head.appendChild(style);
@@ -157,6 +165,19 @@
     return allClass ? 'Performance report' : `${scope.className} performance report`;
   }
 
+  function localDateStamp(date = new Date()){
+    const year = date.getFullYear();
+    const month = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function reportDocumentTitle(scope){
+    const rawClass = /all/i.test(scope.className || '') ? 'All Classes' : (scope.className || 'Class');
+    const className = String(rawClass).replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim() || 'Class';
+    return `Class Performance Report - ${className} - ${localDateStamp()}`;
+  }
+
   function buildReport(){
     const rows = Array.isArray(analyticsVisibleRows) ? analyticsVisibleRows : [];
     const topics = Array.isArray(analyticsLearningRows) ? analyticsLearningRows : [];
@@ -183,7 +204,7 @@
       </div>
       <section class="v50c1-section"><h3>Topics to work on</h3><p class="v50c1-section-note">Uses the same existing Needs attention / Developing bands already shown in Teacher Analytics.</p>${topicCards(focusTopics,'focus')}</section>
       <section class="v50c1-section"><h3>Strongest current topics</h3><p class="v50c1-section-note">Secure topics are ranked by current scored accuracy in this Analytics scope.</p>${topicCards(secureTopics,'secure')}</section>
-      <section class="v50c1-section"><h3>Student summary</h3><p class="v50c1-section-note">Participation, activity, marking status and topic focus mirror the current Analytics filters.</p><div class="v50c1-tablewrap"><table><thead><tr><th>Student</th><th>Class</th><th>Participation</th><th>Practice</th><th>Exam</th><th>Avg final exam</th><th>Current focus</th><th>Marking</th></tr></thead><tbody>${studentRows(rows)}</tbody></table></div></section>
+      <section class="v50c1-section v50c1-student-section"><h3>Student summary</h3><p class="v50c1-section-note">Participation, activity, marking status and topic focus mirror the current Analytics filters.</p><div class="v50c1-tablewrap"><table><thead><tr><th>Student</th><th>Class</th><th>Participation</th><th>Practice</th><th>Exam</th><th>Avg final exam</th><th>Current focus</th><th>Marking</th></tr></thead><tbody>${studentRows(rows)}</tbody></table></div></section>
       <div class="v50c1-footer">This report is a presentation of existing teacher-authorized Analytics evidence. It does not create a new grade, mastery score or intervention threshold. Topic bands use the same rules already displayed in Teacher Analytics.</div>
     `;
   }
@@ -204,8 +225,16 @@
   }
 
   function printReport(){
+    const previousTitle = document.title;
     document.body.classList.add('v50c1-printing');
-    const clear = ()=>document.body.classList.remove('v50c1-printing');
+    document.title = reportDocumentTitle(filterScope());
+    let cleared = false;
+    const clear = ()=>{
+      if (cleared) return;
+      cleared = true;
+      document.body.classList.remove('v50c1-printing');
+      document.title = previousTitle;
+    };
     window.addEventListener('afterprint',clear,{once:true});
     window.print();
     setTimeout(clear,1500);
