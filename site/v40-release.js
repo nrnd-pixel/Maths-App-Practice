@@ -1,5 +1,6 @@
 /* V4.9 release presentation — Student Progress Experience.
-   Loads the established V4.1–V4.8 foundation plus the tested V4.9 student progress improvements. */
+   Loads the established V4.1–V4.8 foundation plus the tested student progress experience.
+   V5.0B3 consolidates the former V4.9A/V4.9C top-level panels into one active overview. */
 (() => {
   'use strict';
 
@@ -53,9 +54,8 @@
     loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');
     loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
     loadScriptOnce('v48-deadline-follow-up.js?v=48c-4', 'data-v48c-deadline-follow-up');
-    loadScriptOnce('v49-student-progress-snapshot.js?v=49a-1', 'data-v49a-student-progress-snapshot');
     loadScriptOnce('v49-student-topic-progress.js?v=49b-2', 'data-v49b-student-topic-progress');
-    loadScriptOnce('v49-student-next-steps.js?v=49c-1', 'data-v49c-student-next-steps');
+    loadScriptOnce('v50-student-progress-overview.js?v=50b3-1', 'data-v50-student-progress-overview');
   }
 
   if (document.readyState === 'loading'){
