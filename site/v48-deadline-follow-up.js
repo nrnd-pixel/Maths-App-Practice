@@ -27,15 +27,20 @@
     style.textContent = `
       #${PANEL_ID} .v48c-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
       #${PANEL_ID} .v48c-editor{
-        margin-top:9px;
+        grid-column:1/-1;
+        width:100%;
+        box-sizing:border-box;
+        margin-top:2px;
         border:1px solid var(--border);
         border-radius:11px;
-        padding:10px;
+        padding:11px;
         background:var(--surface-soft,var(--card));
       }
-      #${PANEL_ID} .v48c-editor-grid{display:grid;grid-template-columns:minmax(210px,1fr) auto;gap:8px;align-items:end}
+      #${PANEL_ID} .v48c-editor-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px}
+      #${PANEL_ID} .v48c-editor-head strong{display:block}
+      #${PANEL_ID} .v48c-editor-grid{display:grid;grid-template-columns:minmax(230px,1fr) auto;gap:10px;align-items:end}
       #${PANEL_ID} .v48c-editor label{margin:0}
-      #${PANEL_ID} .v48c-editor-buttons{display:flex;gap:7px;flex-wrap:wrap}
+      #${PANEL_ID} .v48c-editor-buttons{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
       #${PANEL_ID} .v48c-editor-feedback{margin-top:7px;font-size:12px}
       #${PANEL_ID} .v48c-editor-feedback.error{color:var(--danger,#b42318)}
       #${PANEL_ID} .v48c-editor-feedback.ok{color:var(--success,#1f7a45)}
@@ -44,6 +49,7 @@
         #${PANEL_ID} .v48c-actions button{width:100%}
         #${PANEL_ID} .v48c-editor-grid{grid-template-columns:1fr}
         #${PANEL_ID} .v48c-editor-buttons{display:grid;grid-template-columns:1fr 1fr}
+        #${PANEL_ID} .v48c-editor-buttons .v48c-cancel{grid-column:1/-1}
         #${PANEL_ID} .v48c-editor-buttons button{width:100%}
       }
     `;
@@ -56,6 +62,12 @@
     if (Number.isNaN(date.getTime())) return '';
     const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     return local.toISOString().slice(0,16);
+  }
+
+  function displayDate(value){
+    if (!value) return 'No due date';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? 'No due date' : date.toLocaleString();
   }
 
   function setFeedback(editor,message,kind=''){
@@ -112,7 +124,9 @@
   }
 
   async function openEditor(row,button){
-    row.querySelector('.v48c-editor')?.remove();
+    const panel = document.getElementById(PANEL_ID);
+    panel?.querySelectorAll('.v48c-editor').forEach(editor => editor.remove());
+
     button.disabled = true;
     const previousLabel = button.textContent;
     button.textContent = 'Loading…';
@@ -122,10 +136,17 @@
       const editor = document.createElement('div');
       editor.className = 'v48c-editor';
       editor.innerHTML = `
+        <div class="v48c-editor-head">
+          <div>
+            <strong>Adjust Practice target</strong>
+            <div class="help">Current target: ${html(displayDate(assignment.closes_at))}</div>
+          </div>
+          <span class="tag">Target only — access stays open</span>
+        </div>
         <div class="v48c-editor-grid">
-          <label>Target due date
+          <label>New target due date
             <input class="v48c-target-input" type="datetime-local" value="${html(localInputValue(assignment.closes_at))}">
-            <span class="help">This is a follow-up target only. Students can still complete Practice after it passes.</span>
+            <span class="help">Choose a revised target, or clear it completely. Students can still complete Practice after a target passes.</span>
           </label>
           <div class="v48c-editor-buttons">
             <button type="button" class="primary v48c-save">Save target</button>
@@ -135,8 +156,8 @@
         </div>
         <div class="v48c-editor-feedback" aria-live="polite"></div>`;
 
-      const main = row.querySelector('.v48a-row-main') || row;
-      main.appendChild(editor);
+      row.appendChild(editor);
+      editor.querySelector('.v48c-target-input')?.focus();
 
       editor.querySelector('.v48c-cancel')?.addEventListener('click',() => editor.remove());
       editor.querySelector('.v48c-clear')?.addEventListener('click',() => saveTarget(editor,assignment,null));
@@ -161,11 +182,10 @@
         saveTarget(editor,assignment,due.toISOString());
       });
     } catch (error){
-      const main = row.querySelector('.v48a-row-main') || row;
       const message = document.createElement('div');
       message.className = 'help';
       message.textContent = `Could not open target editor: ${error?.message || error}`;
-      main.appendChild(message);
+      row.appendChild(message);
       setTimeout(() => message.remove(),3500);
     } finally {
       if (document.contains(button)){
