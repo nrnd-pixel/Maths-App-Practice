@@ -55,6 +55,7 @@
     loadScriptOnce('v48-deadline-follow-up.js?v=48c-3', 'data-v48c-deadline-follow-up');
     loadScriptOnce('v49-student-progress-snapshot.js?v=49a-1', 'data-v49a-student-progress-snapshot');
     loadScriptOnce('v49-student-topic-progress.js?v=49b-2', 'data-v49b-student-topic-progress');
+    loadScriptOnce('v49-student-next-steps.js?v=49c-1', 'data-v49c-student-next-steps');
   }
 
   if (document.readyState === 'loading'){
