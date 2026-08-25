@@ -29,3 +29,5 @@ jobs:
         run: node site/tests/verify-v5.0.cjs
       - name: Verify accessibility invariants
         run: node site/tests/verify-v5.0-accessibility.cjs
+      - name: Verify reporting invariants
+        run: node site/tests/verify-v5.0-reporting.cjs

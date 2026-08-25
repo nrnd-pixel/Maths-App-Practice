@@ -57,6 +57,7 @@
     loadScriptOnce('v49-student-topic-progress.js?v=49b-2', 'data-v49b-student-topic-progress');
     loadScriptOnce('v50-student-progress-overview.js?v=50b3-1', 'data-v50-student-progress-overview');
     loadScriptOnce('v50-accessibility-polish.js?v=50b4a-1', 'data-v50-accessibility-polish');
+    loadScriptOnce('v50-teacher-class-report.js?v=50c1-1', 'data-v50-teacher-class-report');
   }
 
   if (document.readyState === 'loading'){
