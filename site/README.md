@@ -1,128 +1,135 @@
-# Maths Practice V4.7
+# Maths Practice V4.8
 
-V4.7 is the **Intervention History & Follow-Up** release for Maths Practice. It builds on frozen V4.6 and extends the Teacher Action Center from a current intervention queue into a longitudinal follow-up workflow for individual learners and classes.
+V4.8 is the **Practice Deadlines & Follow-Up** release for Maths Practice. It builds on frozen V4.7 and makes the existing Practice assignment target dates operationally useful for both teachers and students without changing Practice access rules, grading, authentication or Exam behaviour.
 
-## V4.7 release scope
+## V4.8 release scope
 
-### V4.7A — Learner Intervention History
+### V4.8A — Teacher Deadline Monitoring
 
-Registered learners now have a **History** action in Teacher Action Center. The learner Analytics profile includes **Practice intervention history**, showing targeted Practice assignments that applied to that learner across time.
+Classes & Assignments now includes **Assignment deadline monitoring** for the currently selected class.
 
-History can show:
+It summarizes active Practice assignments that still have incomplete learners using the existing `closes_at` target date:
 
-- strand/topic;
-- assignment date;
-- question target;
-- audience type;
-- Not started / In progress / Completed / Inactive status;
-- start/completion dates where available;
-- recorded mastery %, first-try %, question count and hints for completed Practice.
+- Overdue assignments and outstanding learners;
+- Due today;
+- Due within 48 hours;
+- assignments without a due date;
+- compact rows showing strand/topic, start and target dates, completion/outstanding counts and question target;
+- **Review assignment** navigation to the existing assignment card.
 
-History is intentionally not restricted by the current Analytics period filter, so older intervention records remain visible when reviewing a learner.
+Target dates remain guidance only. An overdue Practice assignment stays available to start or complete.
 
-### V4.7B — Follow-Up From History
+### V4.8B — Student Deadline Experience
 
-Completed intervention-history entries include **Assign again**. This opens the existing Classes & Assignments builder for the same learner and prefills the historical strand/topic and question target where those options are still available.
+The student Practice Assignments view includes **Your Practice deadlines** above the existing Practice cards.
 
-The teacher must still review the setup and click the established **Assign Practice** button. V4.7B does not auto-create assignments and does not introduce a second assignment path.
+Outstanding Practice cards can show:
 
-Outstanding history entries continue to use **Review Practice**. Completed entries continue to support **Open Results**.
+- Overdue;
+- Due today;
+- Due soon;
+- Due later;
+- No due date.
 
-### V4.7C — Class Intervention Overview
+The summary and deadline chips are derived from the Practice cards already loaded through the established secure assignment flow. V4.8B does not introduce a second student assignment-loading or access path.
 
-Teacher Action Center includes **Class intervention overview** for the current Analytics scope. It summarizes:
+Completed Practice does not remain in the outstanding deadline counts, while the normal completed result remains available.
 
-- total priority learners;
-- Needs assignment / Outstanding / Completed counts;
-- per-class priority and intervention-state counts;
-- each class's leading current focus topic;
-- common priority focus topics across the current Analytics scope.
+### V4.8C — Practice Deadline Follow-Up
 
-The overview reuses the already-rendered V4.5 intervention queue state. It does not create a separate intervention status model or change intervention thresholds.
+Teachers can use **Adjust target** directly from Assignment deadline monitoring.
 
-## Intervention workflow
+The standalone editor can:
 
-The tested teacher workflow is now:
+- set a revised Practice target due date/time;
+- clear an existing due date;
+- cancel without changing the assignment;
+- reject a target due date that is not after an existing suggested start.
 
-1. Analytics identifies priority learners and focus areas.
-2. V4.4 can prefill individual or shared-focus targeted Practice.
-3. V4.4/V4.5 show matching Practice status and completed outcomes.
-4. V4.5 manages priority learners as an intervention queue.
-5. V4.6 exports the current queue as a teacher intervention record.
-6. V4.7A provides longitudinal learner intervention history.
-7. V4.7B allows deliberate follow-up Practice from a completed intervention.
-8. V4.7C summarizes intervention need and focus at class level.
+The update reuses the existing `practice_assignments.closes_at` and `updated_at` fields. It does not create a new assignment or change student access. The dialog intentionally lives outside the auto-refreshing deadline-monitor panel so the existing monitoring refresh cannot disrupt the editor.
 
-No separate intervention database or reporting engine was introduced.
+## Deadline workflow
+
+The tested V4.8 workflow is:
+
+1. Teacher creates targeted Practice using the existing assignment builder and optional target date.
+2. V4.8A identifies overdue, due-soon and no-due-date follow-up needs by class.
+3. V4.8B shows the same deadline priority clearly to the assigned student.
+4. V4.8C lets the teacher revise or clear the target date when follow-up is needed.
+5. The student receives the revised target on the normal secure Practice assignment refresh/sign-in path.
+6. Practice remains completable even after a target date passes.
+
+No second scheduling engine or deadline database model was introduced.
 
 ## Security and assessment boundaries
 
-V4.7 preserves the established production boundaries:
+V4.8 preserves the established production boundaries:
 
-- student PIN is never stored or exposed by V4.7;
+- student PIN is never stored or exposed by V4.8;
 - Practice and Exam use separate temporary access tickets;
 - Practice grading remains server-authoritative;
 - assignment visibility/start/completion remains server-validated;
 - answer-release authority remains server-side;
 - Practice AI Help continues through the established secure route;
 - AI Help remains unavailable in Exam Mode and Exam Assignments;
-- V4.7 does not change grading logic, mastery thresholds or intervention matching thresholds;
-- V4.7 adds no database migration;
-- V4.7A and V4.7C are teacher-side read-only workflow layers;
-- V4.7B reuses the established assignment builder and does not auto-create assignments.
+- V4.8 does not change grading logic, mastery thresholds or intervention matching thresholds;
+- overdue target dates do not lock students out of Practice;
+- V4.8A is a teacher monitoring layer;
+- V4.8B is a student presentation layer around existing secure Practice cards;
+- V4.8C updates only the existing target due date and timestamp fields;
+- V4.8 adds no database migration.
 
 ## Database status
 
-**V4.7 adds no database migration.** Production migration history was re-checked before the V4.7 Release Candidate and still ends at the tested V4.3 assignment baseline:
+**V4.8 adds no database migration.** The production migration history was re-checked before the V4.8 Release Candidate and still ends at the tested V4.3 assignment baseline:
 
 - `20260823125429 v43a_individual_practice_assignments`
 - `20260823125445 v43a_individual_practice_delete_guard`
 - `20260823125602 v43a_teacher_rpc_anon_revoke`
 - `20260823134448 v43b_multi_recipient_practice_assignments`
 
-Do not run SQL solely for V4.7 deployment.
+The required target date fields already existed before V4.8. Do not run SQL solely for V4.8 deployment.
 
-## Frozen V4.7 baselines
+## V4.8 baselines
 
-- Frozen V4.6 repository/docs baseline: `b1f38a842b3d1762de403673f43ea78d8d1d51fa`
-- V4.7A tested merge: `1ac29709aaf0a4e29418ebf086f8f1a8b3860ecf`
-- V4.7B tested merge: `f7f6723db6cea1a20fc6618a5009ad745ea66c1b`
-- V4.7C tested merge / RC base: `2d13e9e6b80776fdfc9655779bb64d9a7f3da4e4`
-- Final V4.7 Release Candidate tested commit: `ebed7de47a9633ccd72aac1e0dd9988764e596fb`
-- Stable V4.7 application release merge: `d62fb0892c69fda69cb76520ad90339fbbb65df2`
+- Frozen V4.7 repository/docs baseline: `0b59342b828a3cbaaf23ec42744a50dc0cc0e528`
+- V4.8A tested merge: `3cdc233b02c8cecf309d5226863940b66ba84007`
+- V4.8B tested merge: `7a94d1778cce657e483ce4801ebdf28a9bd7f852`
+- V4.8C tested merge / RC base: `09aa5e54589c7a9bf4979705465f397e29484822`
+
+The final tested V4.8 RC and stable application release SHAs will be recorded after the final release regression passes.
 
 ## Validation status
 
-V4.7A, V4.7B and V4.7C each passed focused Netlify Deploy Preview testing before merge. The final V4.7 Release Candidate then passed the one-pass release regression before merge.
+V4.8A, V4.8B and V4.8C each passed focused Netlify Deploy Preview testing before merge.
 
-Validated release behaviour includes:
+Focused validation includes:
 
-- History opens the correct learner profile and longitudinal Practice history;
-- older intervention history remains visible outside the current Analytics period filter;
-- completed history outcomes match existing Practice results;
-- Open Results and Review Practice reach the intended record/assignment;
-- Assign again preselects the intended learner and historical Practice setup while still requiring normal teacher confirmation;
-- a newly created follow-up assignment remains separate from the original completed history entry;
-- class intervention counts match the existing queue state;
-- leading/common focus topics follow the current Analytics scope;
-- class overview is not limited by queue visibility filters or the collapsed top-six view;
-- existing queue filters, Export queue CSV and guided intervention actions remain intact;
-- selected-students Practice creation, grading, early-end safeguards, completion and Practice AI Help remain intact;
-- Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank smoke checks passed;
-- Exam Mode and Exam Assignments remain AI-free;
-- narrow/mobile and Dark Mode checks passed.
+- teacher deadline counts and assignment rows follow the selected class;
+- overdue Practice remains startable/completable;
+- student deadline summary and card urgency labels appear on the established Practice Assignments screen;
+- completed Practice leaves outstanding deadline counts while normal results remain available;
+- teacher Adjust target opens as a stable standalone dialog;
+- revised target dates refresh teacher monitoring and existing assignment cards;
+- revised dates flow to the student through the normal Practice assignment data;
+- Clear due date returns the assignment to No due date;
+- target-before-suggested-start validation remains enforced;
+- normal Practice creation, grading, completion and AI Help remain intact;
+- Exam boundaries remain unchanged and AI-free.
 
-## Key V4.7 files
+The final one-pass V4.8 release regression is recorded in `DEPLOY-AND-TEST-V4.8.md`.
 
-- `v47-intervention-history.js` — longitudinal learner Practice intervention history.
-- `v47-follow-up-from-history.js` — deliberate Assign again workflow using the existing assignment builder.
-- `v47-class-intervention-overview.js` — class-level priority/intervention summary.
-- `v40-release.js` — visible V4.7 release presentation and ordered module loader.
-- `DEPLOY-AND-TEST-V4.7.md` — V4.7 release/regression record.
-- `DATABASE-MIGRATIONS-V4.7.txt` — V4.7 database-change statement.
+## Key V4.8 files
+
+- `v48-teacher-deadline-monitoring.js` — teacher deadline summary and follow-up list.
+- `v48-student-deadline-experience.js` — student deadline summary and urgency labels.
+- `v48-deadline-follow-up.js` — teacher target-date adjustment dialog.
+- `v40-release.js` — visible V4.8 release presentation and ordered module loader.
+- `DEPLOY-AND-TEST-V4.8.md` — V4.8 release/regression record.
+- `DATABASE-MIGRATIONS-V4.8.txt` — V4.8 database-change statement.
 
 ## Release discipline
 
-Treat V4.7 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.7 changes to documented critical fixes and release housekeeping.
+After the final RC passes and is frozen, treat V4.8 as the production baseline. New product features should begin from the resulting clean `main` state on a new version branch.
 
 For routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved. Preserve the production `config.js`.
