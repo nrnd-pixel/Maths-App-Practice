@@ -110,7 +110,7 @@ assert.match(exporter, /Student Performance Report - /);
 assert.match(exporter, /practice_mastery_percent/);
 assert.match(exporter, /exam_final_percent/);
 assert.match(exporter, /exam_auto_marks_so_far/);
-assert.match(exporter, /exam&&pending===0 \? finalExamPercent\(session\) : null/,
+assert.match(exporter, /exam\s*&&\s*pending===0\s*\?\s*finalExamPercent\(session\)\s*:\s*null/,
   'Pending Exam review must never be exported as a final Exam percentage.');
 assert.ok(exporter.includes('\\uFEFF'),
   'CSV export must include a UTF-8 BOM for reliable Excel opening.');
