@@ -11,6 +11,8 @@ const studentReport = fs.readFileSync(path.join(siteRoot, 'v50-teacher-student-r
 new vm.Script(report, { filename: 'v50-teacher-class-report.js' });
 new vm.Script(studentReport, { filename: 'v50-teacher-student-report.js' });
 
+assert.match(release, /v47-intervention-history\.js\?v=47a-1', 'data-v47a-intervention-history'/,
+  'Existing V4.7 history loader key must remain stable.');
 assert.match(release, /v50-teacher-class-report\.js\?v=50c1-2/);
 assert.match(release, /data-v50-teacher-class-report/);
 assert.match(release, /v50-teacher-student-report\.js\?v=50c2-1/);
@@ -88,6 +90,7 @@ assert.doesNotMatch(studentReport, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-
   'V5.0C2 must not contain server-side secrets.');
 
 console.log('V5.0 reporting verification passed.');
+console.log('- established V4.7 loader key remains stable');
 console.log('- V5.0C1 class report pagination and filename safeguards remain active');
 console.log('- V5.0C2 reuses the selected Teacher Analytics learner and current filter scope');
 console.log('- Practice mastery, final Exam results and pending review remain separate');
