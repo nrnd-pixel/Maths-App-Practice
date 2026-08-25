@@ -1,0 +1,30 @@
+Maths Practice V4.9 — Database Migration Statement
+================================================
+
+V4.9 adds NO new database migration.
+
+V4.9A, V4.9B and V4.9C reuse the existing secure student progress/dashboard output and the existing Practice assignment/deadline presentation. V4.9 does not add or alter tables, columns, RPCs, policies, grading logic, mastery thresholds or assignment access rules.
+
+Production migration history was re-checked before the V4.9 Release Candidate. Current migration tail remains:
+
+20260823125429  v43a_individual_practice_assignments
+20260823125445  v43a_individual_practice_delete_guard
+20260823125602  v43a_teacher_rpc_anon_revoke
+20260823134448  v43b_multi_recipient_practice_assignments
+
+Release instruction:
+- Do not run SQL solely for V4.9 deployment.
+- Do not re-run the V4.3 migrations.
+- Preserve the existing production Supabase configuration.
+- V4.9 does not change grading, mastery/intervention thresholds, assignment access enforcement, authentication, answer release or AI security.
+- V4.9A does not create a new progress score or second progress request.
+- V4.9B does not reconstruct hidden Exam topic history or create a new topic scoring model.
+- V4.9C does not automatically create, change or start Practice and does not add a recommendation engine.
+
+V4.9 RC database status: VERIFIED — no V4.9 migration required.
+Frozen V4.8 repository/docs baseline: 8220fca214e27372e757088a0b0b422545da7db1
+V4.9A tested merge: b2000708f571c07c203463f509eff00c660812a1
+V4.9B tested merge: 6a04d00472f737498123c83d70e2450b18054c48
+V4.9C tested merge / RC base: ae3f4bbf4fc3ca559b76ce1b1b0a39808f81f653
+Final tested V4.9 RC: PENDING
+Stable V4.9 application release merge: PENDING
