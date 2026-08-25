@@ -1,5 +1,5 @@
 /* V4.8 release presentation — Practice Deadlines & Follow-Up.
-   Loads the established V4.1–V4.7 foundation plus the tested V4.8 deadline workflow. */
+   Loads the established V4.1–V4.8 foundation plus staged V4.9 student progress improvements. */
 (() => {
   'use strict';
 
@@ -53,6 +53,7 @@
     loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-1', 'data-v48a-teacher-deadline-monitoring');
     loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
     loadScriptOnce('v48-deadline-follow-up.js?v=48c-3', 'data-v48c-deadline-follow-up');
+    loadScriptOnce('v49-student-progress-snapshot.js?v=49a-1', 'data-v49a-student-progress-snapshot');
   }
 
   if (document.readyState === 'loading'){
