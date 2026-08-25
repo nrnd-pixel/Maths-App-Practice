@@ -96,14 +96,14 @@ The required target date fields already existed before V4.8. Do not run SQL sole
 - V4.8A tested merge: `3cdc233b02c8cecf309d5226863940b66ba84007`
 - V4.8B tested merge: `7a94d1778cce657e483ce4801ebdf28a9bd7f852`
 - V4.8C tested merge / RC base: `09aa5e54589c7a9bf4979705465f397e29484822`
-
-The final tested V4.8 RC and stable application release SHAs will be recorded after the final release regression passes.
+- Final tested V4.8 RC: `5547716e0ec5daea345602741ab951e95a90fafe`
+- Stable V4.8 application release merge: `fb750cfed150cf1cc0be6eecfa6857435d651904`
 
 ## Validation status
 
-V4.8A, V4.8B and V4.8C each passed focused Netlify Deploy Preview testing before merge.
+V4.8A, V4.8B and V4.8C each passed focused Netlify Deploy Preview testing before merge. The final V4.8 Release Candidate then passed the one-pass release regression before merge.
 
-Focused validation includes:
+Validated release behaviour includes:
 
 - teacher deadline counts and assignment rows follow the selected class;
 - overdue Practice remains startable/completable;
@@ -114,10 +114,11 @@ Focused validation includes:
 - revised dates flow to the student through the normal Practice assignment data;
 - Clear due date returns the assignment to No due date;
 - target-before-suggested-start validation remains enforced;
-- normal Practice creation, grading, completion and AI Help remain intact;
-- Exam boundaries remain unchanged and AI-free.
-
-The final one-pass V4.8 release regression is recorded in `DEPLOY-AND-TEST-V4.8.md`.
+- Action Center queue filters, History, Assign again, Class intervention overview and Export queue CSV remain intact;
+- normal Practice creation, grading, early-exit status, completion and AI Help remain intact;
+- Results, Classes & Assignments, Exam Settings, Review Queue and Question Bank smoke checks passed;
+- Exam Mode and Exam Assignments remain AI-free;
+- narrow/mobile and Dark Mode checks passed.
 
 ## Key V4.8 files
 
@@ -130,6 +131,6 @@ The final one-pass V4.8 release regression is recorded in `DEPLOY-AND-TEST-V4.8.
 
 ## Release discipline
 
-After the final RC passes and is frozen, treat V4.8 as the production baseline. New product features should begin from the resulting clean `main` state on a new version branch.
+Treat V4.8 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. Limit V4.8 changes to documented critical fixes and release housekeeping.
 
 For routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved. Preserve the production `config.js`.

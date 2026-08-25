@@ -26,5 +26,5 @@ Frozen V4.7 repository/docs baseline: 0b59342b828a3cbaaf23ec42744a50dc0cc0e528
 V4.8A tested merge: 3cdc233b02c8cecf309d5226863940b66ba84007
 V4.8B tested merge: 7a94d1778cce657e483ce4801ebdf28a9bd7f852
 V4.8C tested merge / RC base: 09aa5e54589c7a9bf4979705465f397e29484822
-
-Final tested V4.8 RC and stable application release SHAs are recorded after the final release regression passes.
+Final tested V4.8 RC: 5547716e0ec5daea345602741ab951e95a90fafe
+Stable V4.8 application release merge: fb750cfed150cf1cc0be6eecfa6857435d651904

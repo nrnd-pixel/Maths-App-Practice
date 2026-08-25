@@ -26,8 +26,8 @@ The Practice `opens_at` / `closes_at` target fields already existed before V4.8.
 - V4.8A tested merge: `3cdc233b02c8cecf309d5226863940b66ba84007`
 - V4.8B tested merge: `7a94d1778cce657e483ce4801ebdf28a9bd7f852`
 - V4.8C tested merge / RC base: `09aa5e54589c7a9bf4979705465f397e29484822`
-
-The final tested RC and stable application release SHAs are recorded after this checklist passes.
+- Final tested V4.8 RC: `5547716e0ec5daea345602741ab951e95a90fafe`
+- Stable V4.8 application release merge: `fb750cfed150cf1cc0be6eecfa6857435d651904`
 
 ## Focused slice validation already passed
 
@@ -35,88 +35,92 @@ The final tested RC and stable application release SHAs are recorded after this 
 - [x] V4.8B student deadline summary/chips passed Deploy Preview testing after the direct-card decoration fix.
 - [x] V4.8C Adjust target passed Deploy Preview testing after moving the editor outside the auto-refreshing monitor panel.
 
-## Final V4.8 regression
+## Final V4.8 regression — PASSED
 
 ### Release identity
 
-- [ ] Browser title shows `Math Practice V4.8`.
-- [ ] Start badge shows `Version 4.8 • Practice Deadlines & Follow-Up`.
-- [ ] Start release note describes Practice deadlines and follow-up while preserving secure Practice/Exam boundaries.
+- [x] Browser title shows `Math Practice V4.8`.
+- [x] Start badge shows `Version 4.8 • Practice Deadlines & Follow-Up`.
+- [x] Start release note describes Practice deadlines and follow-up while preserving secure Practice/Exam boundaries.
 
 ### Student baseline
 
-- [ ] One normal registered-student sign-in lands on Home.
-- [ ] Student Assignments loads normally.
-- [ ] Practice and Exam entry points remain available as expected.
+- [x] One normal registered-student sign-in lands on Home.
+- [x] Student Assignments loads normally.
+- [x] Practice and Exam entry points remain available as expected.
 
 ### V4.8A — Teacher Deadline Monitoring
 
-- [ ] Teacher → Classes & Assignments loads normally.
-- [ ] Assignment deadline monitoring appears for the selected class.
-- [ ] Overdue / Due today / Due within 48 hours / Without due date counts are sensible.
-- [ ] Assignment rows show the intended topic/strand, target date, optional start date, outstanding/completed counts and question target.
-- [ ] Switching classes updates the monitoring panel.
-- [ ] Review assignment reaches the intended existing assignment card.
-- [ ] Completed-for-all or inactive assignments do not remain as active deadline follow-up items.
+- [x] Teacher → Classes & Assignments loads normally.
+- [x] Assignment deadline monitoring appears for the selected class.
+- [x] Overdue / Due today / Due within 48 hours / Without due date counts are sensible.
+- [x] Assignment rows show the intended topic/strand, target date, optional start date, outstanding/completed counts and question target.
+- [x] Switching classes updates the monitoring panel.
+- [x] Review assignment reaches the intended existing assignment card.
+- [x] Completed-for-all or inactive assignments do not remain as active deadline follow-up items.
 
 ### V4.8B — Student Deadline Experience
 
-- [ ] `Your Practice deadlines` appears above the existing Practice assignment cards for an assigned student.
-- [ ] Outstanding / overdue / due today / due soon / without due date counts are sensible.
-- [ ] Incomplete cards show the expected Overdue / Due today / Due soon / Due later / No due date labels.
-- [ ] Completed Practice does not remain in outstanding deadline counts.
-- [ ] Existing completed result remains available.
-- [ ] Overdue Practice still has Start Assignment / Continue Assignment and remains completable.
+- [x] `Your Practice deadlines` appears above the existing Practice assignment cards for an assigned student.
+- [x] Outstanding / overdue / due today / due soon / without due date counts are sensible.
+- [x] Incomplete cards show the expected Overdue / Due today / Due soon / Due later / No due date labels.
+- [x] Completed Practice does not remain in outstanding deadline counts.
+- [x] Existing completed result remains available.
+- [x] Overdue Practice still has Start Assignment / Continue Assignment and remains completable.
 
 ### V4.8C — Practice Deadline Follow-Up
 
-- [ ] Deadline-monitor rows show Review assignment and Adjust target.
-- [ ] Adjust target opens a stable standalone dialog.
-- [ ] Current target is displayed correctly.
-- [ ] Saving a future target updates the teacher deadline status/count and the existing assignment card.
-- [ ] The revised target appears on the assigned student's Practice card after refresh/sign-in.
-- [ ] Clear due date changes the assignment to No due date.
-- [ ] A target that is not after an existing Suggested start is rejected.
-- [ ] Cancel closes the dialog without changing the target.
+- [x] Deadline-monitor rows show Review assignment and Adjust target.
+- [x] Adjust target opens a stable standalone dialog.
+- [x] Current target is displayed correctly.
+- [x] Saving a future target updates the teacher deadline status/count and the existing assignment card.
+- [x] The revised target appears on the assigned student's Practice card after refresh/sign-in.
+- [x] Clear due date changes the assignment to No due date.
+- [x] A target that is not after an existing Suggested start is rejected.
+- [x] Cancel closes the dialog without changing the target.
 
 ### Existing intervention workflow
 
-- [ ] Teacher Analytics → Action Center loads normally.
-- [ ] Queue filters and Show all/top 6 work.
-- [ ] History opens the intended learner intervention record.
-- [ ] Assign again still prefills the intended follow-up Practice setup.
-- [ ] Class intervention overview remains sensible.
-- [ ] Export queue CSV still works.
+- [x] Teacher Analytics → Action Center loads normally.
+- [x] Queue filters and Show all/top 6 work.
+- [x] History opens the intended learner intervention record.
+- [x] Assign again still prefills the intended follow-up Practice setup.
+- [x] Class intervention overview remains sensible.
+- [x] Export queue CSV still works.
 
 ### Practice assignment and learning flow
 
-- [ ] A normal new targeted Practice assignment creates successfully.
-- [ ] Selected-student / multi-recipient targeting remains intact.
-- [ ] Practice assignment starts normally.
-- [ ] Practice grading works normally.
-- [ ] Ending assigned Practice early remains In progress.
-- [ ] Completing the target marks the assignment Completed.
-- [ ] Practice AI Learning Help remains available.
+- [x] A normal new targeted Practice assignment creates successfully.
+- [x] Selected-student / multi-recipient targeting remains intact.
+- [x] Practice assignment starts normally.
+- [x] Practice grading works normally.
+- [x] Ending assigned Practice early remains In progress.
+- [x] Completing the target marks the assignment Completed.
+- [x] Practice AI Learning Help remains available.
 
 ### Teacher/admin smoke checks
 
-- [ ] Results loads normally.
-- [ ] Classes & Assignments loads normally after deadline edits.
-- [ ] Exam Settings loads normally.
-- [ ] Review Queue loads normally.
-- [ ] Question Bank loads normally.
-- [ ] Exam Mode / Exam Assignments remain AI-free.
+- [x] Results loads normally.
+- [x] Classes & Assignments loads normally after deadline edits.
+- [x] Exam Settings loads normally.
+- [x] Review Queue loads normally.
+- [x] Question Bank loads normally.
+- [x] Exam Mode / Exam Assignments remain AI-free.
 
 ### Presentation
 
-- [ ] Narrow/mobile-width smoke check passes.
-- [ ] Dark Mode smoke check passes.
+- [x] Narrow/mobile-width smoke check passes.
+- [x] Dark Mode smoke check passes.
 
 ## Release result
 
-**PENDING — final V4.8 RC regression.**
+**PASSED — V4.8 released.**
 
-When every required check above passes, merge the exact tested RC into `main`, record the stable application release SHA, then make one documentation-only freeze commit and align `feature-v4.8` to the final frozen `main`.
+Final tested V4.8 RC: `5547716e0ec5daea345602741ab951e95a90fafe`
+
+Stable V4.8 application release merge: `fb750cfed150cf1cc0be6eecfa6857435d651904`
+
+The final frozen repository/docs commit is the `main` head after this documentation-only freeze commit.
 
 ## Rollback
 
