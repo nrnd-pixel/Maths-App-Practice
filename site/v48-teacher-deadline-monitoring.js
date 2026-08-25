@@ -1,6 +1,7 @@
 /* V4.8A — Teacher Assignment Deadline Monitoring.
    Read-only teacher workflow layer. Reuses existing Practice assignment target dates,
-   recipients and attempts. Target dates remain guidance only and do not block access. */
+   recipients and attempts. Target dates remain guidance only and do not block access.
+   V5.0B2 hardening: selected-class reads and event-driven refreshes only. */
 (() => {
   'use strict';
 
@@ -15,7 +16,10 @@
   let attempts = [];
   let busy = false;
   let queued = false;
+  let refreshRequested = false;
+  let refreshTimer = null;
   let listObserver = null;
+  let teacherObserver = null;
 
   function text(value){ return String(value ?? '').trim(); }
 
@@ -277,32 +281,69 @@
   }
 
   async function loadData(){
-    if (busy || typeof cloud === 'undefined' || !cloud || typeof teacherUser === 'undefined' || !teacherUser) return;
+    if (busy){
+      refreshRequested = true;
+      return;
+    }
+    if (typeof cloud === 'undefined' || !cloud || typeof teacherUser === 'undefined' || !teacherUser) return;
+
+    const cls = selectedClass();
+    if (!cls) return;
+    const classId = String(cls.id);
+
     busy = true;
     try {
-      const [a,b,c] = await Promise.all([
-        cloud.from('practice_assignments').select('*').order('created_at',{ascending:false}),
-        cloud.from('practice_assignment_recipients').select('*'),
-        cloud.from('practice_assignment_attempts').select('*').order('started_at',{ascending:false})
-      ]);
-      if (a.error) throw a.error;
-      if (b.error) throw b.error;
-      if (c.error) throw c.error;
-      assignments = a.data || [];
-      recipients = b.data || [];
-      attempts = c.data || [];
+      const assignmentResult = await cloud.from('practice_assignments')
+        .select('*')
+        .eq('class_id',cls.id)
+        .order('created_at',{ascending:false});
+      if (assignmentResult.error) throw assignmentResult.error;
+
+      const nextAssignments = assignmentResult.data || [];
+      const assignmentIds = nextAssignments.map(row => row?.id).filter(Boolean);
+      let nextRecipients = [];
+      let nextAttempts = [];
+
+      if (assignmentIds.length){
+        const [recipientResult,attemptResult] = await Promise.all([
+          cloud.from('practice_assignment_recipients').select('*').in('assignment_id',assignmentIds),
+          cloud.from('practice_assignment_attempts').select('*').in('assignment_id',assignmentIds).order('started_at',{ascending:false})
+        ]);
+        if (recipientResult.error) throw recipientResult.error;
+        if (attemptResult.error) throw attemptResult.error;
+        nextRecipients = recipientResult.data || [];
+        nextAttempts = attemptResult.data || [];
+      }
+
+      if (String(selectedClass()?.id || '') !== classId){
+        refreshRequested = true;
+        return;
+      }
+
+      assignments = nextAssignments;
+      recipients = nextRecipients;
+      attempts = nextAttempts;
       render();
     } catch (error){
       const panel = ensurePanel();
       if (panel) panel.innerHTML = `<div class="v48a-empty">Deadline monitoring could not load: ${html(error?.message || error)}</div>`;
     } finally {
       busy = false;
+      if (refreshRequested){
+        refreshRequested = false;
+        queueRefresh(0);
+      }
     }
   }
 
   function queueRefresh(delay=0){
-    window.setTimeout(() => {
-      if (queued) return;
+    if (refreshTimer !== null) return;
+    refreshTimer = window.setTimeout(() => {
+      refreshTimer = null;
+      if (queued){
+        refreshRequested = true;
+        return;
+      }
       queued = true;
       window.requestAnimationFrame(() => {
         queued = false;
@@ -314,24 +355,36 @@
 
   function wireListObserver(){
     const list = document.getElementById(ASSIGNMENT_LIST_ID);
-    if (!list || list.dataset.v48aDeadlineWatch === '1') return;
+    if (!list) return false;
+    if (list.dataset.v48aDeadlineWatch === '1') return true;
+
     list.dataset.v48aDeadlineWatch = '1';
     listObserver?.disconnect();
     listObserver = new MutationObserver(() => queueRefresh(80));
     listObserver.observe(list,{childList:true});
+    return true;
+  }
+
+  function wireTeacherObserver(){
+    const teacher = document.getElementById('teacher');
+    if (!teacher || teacherObserver) return;
+
+    teacherObserver = new MutationObserver(() => {
+      if (!wireListObserver()) return;
+      teacherObserver?.disconnect();
+      teacherObserver = null;
+      queueRefresh(60);
+    });
+    teacherObserver.observe(teacher,{childList:true,subtree:true});
   }
 
   function wire(){
     injectStyles();
 
-    document.getElementById('teacher')?.addEventListener('click',() => {
-      queueRefresh(120);
-      queueRefresh(450);
-    },true);
+    window.addEventListener('math-practice-assignments-changed',() => queueRefresh(40));
 
-    queueRefresh(100);
-    queueRefresh(400);
-    queueRefresh(900);
+    if (wireListObserver()) queueRefresh(60);
+    else wireTeacherObserver();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',wire,{once:true});

@@ -1,6 +1,7 @@
 /* V4.8C — Practice Deadline Follow-Up.
    Adds teacher-controlled target-date adjustment to the existing V4.8A deadline
-   monitor. Reuses practice_assignments.closes_at; target dates remain guidance only. */
+   monitor. Reuses practice_assignments.closes_at; target dates remain guidance only.
+   V5.0B2 hardening: event-driven refresh/decorate after meaningful assignment changes. */
 (() => {
   'use strict';
 
@@ -8,6 +9,7 @@
   const PANEL_ID = 'v48a-deadline-monitoring';
   const DIALOG_ID = 'v48c-target-dialog';
   let panelObserver = null;
+  let teacherObserver = null;
   let decorateQueued = false;
 
   function text(value){ return String(value ?? '').trim(); }
@@ -104,8 +106,7 @@
     } catch (error){
       console.warn('V4.8C could not refresh class admin.',error);
     }
-    queueDecorate(180);
-    queueDecorate(550);
+    queueDecorate(120);
   }
 
   async function saveTarget(dialog,assignment,value){
@@ -125,6 +126,9 @@
         .eq('id',assignment.id);
       if (error) throw error;
       setFeedback(dialog,value ? 'Target due date updated.' : 'Target due date cleared.','ok');
+      window.dispatchEvent(new CustomEvent('math-practice-assignments-changed',{
+        detail:{source:'deadline-target',assignmentId:String(assignment.id)}
+      }));
       await refreshExistingAssignmentUI();
       window.setTimeout(() => closeDialog(dialog),650);
     } catch (error){
@@ -247,22 +251,34 @@
 
   function wirePanelObserver(){
     const panel = document.getElementById(PANEL_ID);
-    if (!panel || panel.dataset.v48cWatch === '1') return;
+    if (!panel) return false;
+    if (panel.dataset.v48cWatch === '1') return true;
+
     panel.dataset.v48cWatch = '1';
     panelObserver?.disconnect();
     panelObserver = new MutationObserver(() => queueDecorate(40));
     panelObserver.observe(panel,{childList:true,subtree:true});
+    return true;
+  }
+
+  function wireTeacherObserver(){
+    const teacher = document.getElementById('teacher');
+    if (!teacher || teacherObserver) return;
+    if (wirePanelObserver()) return;
+
+    teacherObserver = new MutationObserver(() => {
+      if (!wirePanelObserver()) return;
+      teacherObserver?.disconnect();
+      teacherObserver = null;
+      queueDecorate(40);
+    });
+    teacherObserver.observe(teacher,{childList:true,subtree:true});
   }
 
   function wire(){
     injectStyles();
-    document.getElementById('teacher')?.addEventListener('click',() => {
-      queueDecorate(120);
-      queueDecorate(450);
-    },true);
-    queueDecorate(120);
-    queueDecorate(450);
-    queueDecorate(900);
+    wireTeacherObserver();
+    queueDecorate(0);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',wire,{once:true});

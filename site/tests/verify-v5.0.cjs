@@ -42,6 +42,8 @@ const config = read('site/config.js');
 const release = read('site/v40-release.js');
 const session = read('site/v40-student-session.js');
 const assignments = read('site/v43-multi-recipient-practice-assignments.js');
+const deadlineMonitor = read('site/v48-teacher-deadline-monitoring.js');
+const deadlineFollowUp = read('site/v48-deadline-follow-up.js');
 const aiUi = read('site/v38-ai-help.js');
 const aiEdge = read('supabase/functions/student-ai-help-v38/index.ts');
 const aiCompat = read('supabase/functions/student-ai-help-v381/index.ts');
@@ -110,7 +112,18 @@ assert.match(assignments, /button\.textContent = 'Assigning…'/);
 assert.match(assignments, /create_teacher_practice_assignments_v43b/);
 assert.match(assignments, /finally\s*\{[\s\S]*?button\.disabled = false/);
 
-// 8) V4.9 presentation modules must remain read-only overlays on existing secure evidence.
+// 8) V5.0B2 runtime hardening: deadline monitoring stays class-scoped and event-driven.
+assert.match(deadlineMonitor, /\.eq\('class_id',cls\.id\)/, 'Deadline assignments must be scoped to the selected class.');
+assert.match(deadlineMonitor, /practice_assignment_recipients'\)\.select\('\*'\)\.in\('assignment_id',assignmentIds\)/);
+assert.match(deadlineMonitor, /practice_assignment_attempts'\)\.select\('\*'\)\.in\('assignment_id',assignmentIds\)/);
+assert.match(deadlineMonitor, /math-practice-assignments-changed/);
+assert.doesNotMatch(deadlineMonitor, /getElementById\('teacher'\)\?\.addEventListener\('click'/, 'Deadline monitoring must not refresh on every teacher click.');
+assert.match(deadlineFollowUp, /dispatchEvent\(new CustomEvent\('math-practice-assignments-changed'/);
+assert.doesNotMatch(deadlineFollowUp, /getElementById\('teacher'\)\?\.addEventListener\('click'/, 'Deadline follow-up decoration must not run on every teacher click.');
+assert.match(release, /v48-teacher-deadline-monitoring\.js\?v=48a-2/);
+assert.match(release, /v48-deadline-follow-up\.js\?v=48c-4/);
+
+// 9) V4.9 presentation modules must remain read-only overlays on existing secure evidence.
 for (const file of [
   'site/v49-student-progress-snapshot.js',
   'site/v49-student-topic-progress.js',
@@ -120,7 +133,7 @@ for (const file of [
   assert.doesNotMatch(source, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/, `${file} must remain presentation-only.`);
 }
 
-// 9) Question-bank/import contract remains stable.
+// 10) Question-bank/import contract remains stable.
 const bank = recordsFromCsv(path.join(siteRoot, 'question-bank', 'PSR_2025_Mathematics_Paper1_Q1-Q40.csv'));
 const template = recordsFromCsv(path.join(siteRoot, 'question-import-template.csv'));
 assert.deepEqual(template.headers, bank.headers, 'Template and bank headers must stay aligned.');
@@ -144,4 +157,5 @@ console.log('- V4.9 release identity and student progress modules verified');
 console.log('- Browser-secret, student-session and Practice/Exam boundaries verified');
 console.log('- AI Help remains Practice-only at the server boundary');
 console.log('- Multi-recipient assignment double-submit guard verified');
+console.log('- V5.0B2 deadline reads are selected-class scoped and event-driven');
 console.log(`- ${active.length} active reference rows, ${logicalQuestions.size} logical questions, ${marks} marks`);
