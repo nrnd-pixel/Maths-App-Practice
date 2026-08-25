@@ -7,9 +7,11 @@ const siteRoot = path.resolve(__dirname, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
 const report = fs.readFileSync(path.join(siteRoot, 'v50-teacher-class-report.js'), 'utf8');
 const studentReport = fs.readFileSync(path.join(siteRoot, 'v50-teacher-student-report.js'), 'utf8');
+const exporter = fs.readFileSync(path.join(siteRoot, 'v50-reporting-export.js'), 'utf8');
 
 new vm.Script(report, { filename: 'v50-teacher-class-report.js' });
 new vm.Script(studentReport, { filename: 'v50-teacher-student-report.js' });
+new vm.Script(exporter, { filename: 'v50-reporting-export.js' });
 
 assert.match(release, /v47-intervention-history\.js\?v=47a-1', 'data-v47a-intervention-history'/,
   'Existing V4.7 history loader key must remain stable.');
@@ -17,6 +19,8 @@ assert.match(release, /v50-teacher-class-report\.js\?v=50c1-2/);
 assert.match(release, /data-v50-teacher-class-report/);
 assert.match(release, /v50-teacher-student-report\.js\?v=50c2-1/);
 assert.match(release, /data-v50-teacher-student-report/);
+assert.match(release, /v50-reporting-export\.js\?v=50c3a-1/);
+assert.match(release, /data-v50-reporting-export/);
 
 assert.match(report, /analyticsVisibleRows/);
 assert.match(report, /analyticsLearningRows/);
@@ -89,10 +93,48 @@ assert.doesNotMatch(studentReport, /learningIndependence\s*=|independenceScore\s
 assert.doesNotMatch(studentReport, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/,
   'V5.0C2 must not contain server-side secrets.');
 
+assert.match(exporter, /v50c3a-export-class-csv/);
+assert.match(exporter, /v50c3a-export-student-csv/);
+assert.match(exporter, /Export CSV/);
+assert.match(exporter, /analyticsVisibleRows/);
+assert.match(exporter, /analyticsLearningRows/);
+assert.match(exporter, /analyticsContext/);
+assert.match(exporter, /analyticsAnswerScore/);
+assert.match(exporter, /analyticsFinalExamPercent/);
+assert.match(exporter, /aggregateLearning/);
+assert.match(exporter, /learningBand/);
+assert.match(exporter, /record_type/,
+  'C3A exports must use typed rows so metrics, topics, students and activities stay machine-readable.');
+assert.match(exporter, /Class Performance Report - /);
+assert.match(exporter, /Student Performance Report - /);
+assert.match(exporter, /practice_mastery_percent/);
+assert.match(exporter, /exam_final_percent/);
+assert.match(exporter, /exam_auto_marks_so_far/);
+assert.match(exporter, /exam&&pending===0 \? finalExamPercent\(session\) : null/,
+  'Pending Exam review must never be exported as a final Exam percentage.');
+assert.ok(exporter.includes('\\uFEFF'),
+  'CSV export must include a UTF-8 BOM for reliable Excel opening.');
+assert.ok(exporter.includes("if (/^\\s*[=+\\-@]/.test(text))"),
+  'CSV text cells must be guarded against spreadsheet formula injection.');
+assert.match(exporter, /text\/csv;charset=utf-8/);
+assert.match(exporter, /URL\.createObjectURL/);
+assert.match(exporter, /MutationObserver/,
+  'C3A must attach export actions without rewriting the validated C1/C2 report implementation.');
+
+assert.doesNotMatch(exporter, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(|fetch\(/,
+  'V5.0C3A must not make its own network/data request.');
+assert.doesNotMatch(exporter, /localStorage\.setItem|sessionStorage\.setItem/,
+  'V5.0C3A export must not persist report data in browser storage.');
+assert.doesNotMatch(exporter, /percent\s*[<>]=?\s*(60|80)/,
+  'V5.0C3A must reuse established mastery bands instead of introducing thresholds.');
+assert.doesNotMatch(exporter, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/,
+  'V5.0C3A must not contain server-side secrets.');
+
 console.log('V5.0 reporting verification passed.');
 console.log('- established V4.7 loader key remains stable');
 console.log('- V5.0C1 class report pagination and filename safeguards remain active');
-console.log('- V5.0C2 reuses the selected Teacher Analytics learner and current filter scope');
-console.log('- Practice mastery, final Exam results and pending review remain separate');
-console.log('- no new data request, mastery threshold, AI score or server-side secret is introduced');
-console.log('- both reports retain print/PDF and dialog accessibility safeguards');
+console.log('- V5.0C2 student report evidence boundaries remain active');
+console.log('- V5.0C3A adds structured Class and Student CSV exports from loaded Analytics evidence');
+console.log('- CSV files are Excel-friendly, formula-injection guarded and consistently named');
+console.log('- Practice mastery, final Exam results and pending review remain separate in export data');
+console.log('- no new data request, persistence, mastery threshold, AI score or server-side secret is introduced');
