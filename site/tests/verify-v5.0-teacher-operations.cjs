@@ -9,6 +9,7 @@ const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
 const operations = fs.readFileSync(path.join(siteRoot, 'v50-teacher-operations.js'), 'utf8');
 const coreSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d2_teacher_operations.sql'), 'utf8');
 const safetySql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d2_teacher_operations_safety.sql'), 'utf8');
+const historySql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d2_teacher_operations_history_alignment.sql'), 'utf8');
 
 new vm.Script(operations, { filename: 'v50-teacher-operations.js' });
 
@@ -102,6 +103,19 @@ assert.match(safetySql, /delete from public\.practice_assignments where id = p_a
 assert.doesNotMatch(safetySql, /delete\s+from\s+public\.(exam_attempts|practice_assignment_attempts|practice_sessions|session_answers|student_learning_activity_days|student_ai_help_interactions|student_motivation_messages|student_practice_answer_events)/i,
   'D2 assignment cleanup must never delete student evidence.');
 
+// D2 rollover history count must use the same row families as D1 Launch Readiness.
+assert.match(historySql, /create or replace function public\.get_teacher_operations_v50d2/i);
+for (const table of [
+  'practice_sessions', 'session_answers', 'exam_attempts', 'student_access_tickets',
+  'student_access_failures', 'student_practice_answer_events', 'student_learning_activity_days',
+  'student_motivation_messages', 'student_ai_help_interactions', 'practice_assignment_attempts'
+]) {
+  assert.match(historySql, new RegExp(`select count\\(\\*\\) from public\\.${table}`, 'i'),
+    `D2 history total must include ${table}, matching D1.`);
+}
+assert.match(historySql, /'student_history_total', v_student_history_total/i);
+assert.match(historySql, /revoke all on function public\.get_teacher_operations_v50d2\(\) from anon/i);
+
 // D2 must remain outside content, grading, reporting and access-policy mutation boundaries.
 for (const table of [
   'questions', 'exam_paper_settings', 'report_archives', 'teacher_profiles',
@@ -109,13 +123,18 @@ for (const table of [
 ]) {
   assert.doesNotMatch(safetySql, new RegExp(`(?:delete\\s+from|update)\\s+public\\.${table}\\b`, 'i'),
     `D2 must not mutate preserved table ${table}.`);
+  assert.doesNotMatch(historySql, new RegExp(`(?:delete\\s+from|update)\\s+public\\.${table}\\b`, 'i'),
+    `D2 history alignment must not mutate preserved table ${table}.`);
 }
 assert.doesNotMatch(safetySql, /\btruncate\b/i);
+assert.doesNotMatch(historySql, /\btruncate\b/i);
 assert.doesNotMatch(safetySql, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+assert.doesNotMatch(historySql, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 
 console.log('V5.0D2 teacher-operations verification passed.');
 console.log('- operational browser code uses teacher-only RPCs only');
 console.log('- deactivation expires access tickets without cascading learning evidence');
 console.log('- class transfer is limited to clean/new same-year roster records');
 console.log('- assignment activation respects class status and deletion preserves attempt history');
+console.log('- rollover history counts remain aligned with D1 Launch Readiness');
 console.log('- grading, reports, questions, access policy and AI settings remain outside D2 mutation scope');
