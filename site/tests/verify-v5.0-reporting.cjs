@@ -136,7 +136,7 @@ assert.match(archive, /snapshot_version:1/);
 assert.match(archive, /schema_version:1/);
 assert.match(archive, /record_count:snapshot\.records\.length/);
 assert.match(archive, /Download CSV/);
-assert.match(archive, /student results and live Analytics were not changed/,
+assert.match(archive, /student results and live Analytics were not changed/i,
   'Archive deletion must be clearly scoped to the saved snapshot.');
 assert.match(archive, /MutationObserver/);
 assert.doesNotMatch(archive, /\.update\(/,
