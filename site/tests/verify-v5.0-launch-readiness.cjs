@@ -9,6 +9,7 @@ const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
 const launch = fs.readFileSync(path.join(siteRoot, 'v50-student-launch-readiness.js'), 'utf8');
 const coreSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d1_student_launch_readiness.sql'), 'utf8');
 const alignmentSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d1_student_launch_readiness_alignment.sql'), 'utf8');
+const tuningSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d1_student_launch_readiness_rls_tuning.sql'), 'utf8');
 
 new vm.Script(launch, { filename: 'v50-student-launch-readiness.js' });
 
@@ -47,13 +48,17 @@ assert.doesNotMatch(launch, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z
 assert.match(coreSql, /create table if not exists public\.student_launch_reset_log/i);
 assert.match(coreSql, /alter table public\.student_launch_reset_log enable row level security/i);
 assert.match(coreSql, /executed_by = auth\.uid\(\)/i,
-  'Reset log rows must be isolated to the teacher who executed the reset.');
+  'Initial reset-log policy must isolate rows to the teacher who executed the reset.');
 assert.match(coreSql, /public\.is_teacher\(\)/i);
 assert.match(coreSql, /revoke all on table public\.student_launch_reset_log from anon/i);
 assert.match(coreSql, /revoke all on table public\.student_launch_reset_log from authenticated/i);
 assert.match(coreSql, /grant select on table public\.student_launch_reset_log to authenticated/i);
 assert.doesNotMatch(coreSql, /grant\s+(insert|update|delete)[^;]*student_launch_reset_log/i,
   'Teachers must not directly mutate reset audit rows.');
+
+assert.match(tuningSql, /executed_by = \(select auth\.uid\(\)\)/i,
+  'Final reset-log RLS must evaluate auth.uid() once per statement.');
+assert.doesNotMatch(tuningSql, /executed_by = auth\.uid\(\)/i);
 
 assert.match(coreSql, /coalesce\(p_confirm_text,''\) <> 'RESET STUDENT ACTIVITY'/,
   'Server reset must independently require the exact destructive confirmation phrase.');
@@ -143,3 +148,4 @@ console.log('- destructive reset requires typed + browser confirmation and is tr
 console.log('- permanent roster/content/config/report tables are outside the delete set');
 console.log('- optional assignment/PIN cleanup stays behind explicit switches');
 console.log('- bulk missing-PIN generation stores bcrypt hashes and returns plain PINs only once');
+console.log('- reset-log RLS uses statement-scoped auth.uid() evaluation');
