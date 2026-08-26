@@ -62,6 +62,7 @@
     loadScriptOnce('v50-reporting-export.js?v=50c3a-2', 'data-v50-reporting-export');
     loadScriptOnce('v50-report-archive.js?v=50c3b-1', 'data-v50-report-archive');
     loadScriptOnce('v50-student-launch-readiness.js?v=50d1-1', 'data-v50-student-launch-readiness');
+    loadScriptOnce('v50-teacher-operations.js?v=50d2-1', 'data-v50-teacher-operations');
   }
 
   if (document.readyState === 'loading'){
