@@ -37,3 +37,5 @@ jobs:
         run: node site/tests/verify-v5.0-teacher-operations.cjs
       - name: Verify release-candidate functional audit
         run: node site/tests/verify-v5.0-release-audit.cjs
+      - name: Verify release-candidate security audit
+        run: node site/tests/verify-v5.0-security-audit.cjs
