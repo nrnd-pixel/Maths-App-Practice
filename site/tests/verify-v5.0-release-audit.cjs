@@ -7,15 +7,22 @@ const siteRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(siteRoot, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
 const audit = fs.readFileSync(path.join(siteRoot, 'v50-release-audit.js'), 'utf8');
+const rc3Audit = fs.readFileSync(path.join(siteRoot, 'v50-release-audit-rc3.js'), 'utf8');
+const polish = fs.readFileSync(path.join(siteRoot, 'v50-production-polish.js'), 'utf8');
 const sql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50rc1_functional_audit.sql'), 'utf8');
 
 new vm.Script(audit, { filename: 'v50-release-audit.js' });
+new vm.Script(rc3Audit, { filename: 'v50-release-audit-rc3.js' });
+new vm.Script(polish, { filename: 'v50-production-polish.js' });
 
 assert.match(release, /v50-teacher-operations\.js\?v=50d2-1', 'data-v50-teacher-operations'/,
   'Existing D2 loader must remain stable.');
-assert.match(release, /v50-release-audit\.js\?v=50rc(?:1|2)-1/,
-  'Release Audit may advance from RC1 to RC2 without removing the RC1 surface.');
+assert.match(release, /v50-release-audit\.js\?v=50rc2-1/,
+  'The established RC1/RC2 audit surface must remain loaded.');
+assert.match(release, /v50-production-polish\.js\?v=50rc3-1/);
+assert.match(release, /v50-release-audit-rc3\.js\?v=50rc3-1/);
 assert.match(release, /data-v50-release-audit/);
+assert.match(release, /data-v50-release-audit-rc3/);
 
 assert.match(audit, /V5\.0 Release Candidate Audit/);
 assert.match(audit, /RC1 — Functional regression audit/);
@@ -36,6 +43,17 @@ assert.doesNotMatch(audit, /localStorage\.setItem|sessionStorage\.setItem/);
 assert.doesNotMatch(audit, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 assert.doesNotMatch(audit, /grade_practice_response|request_practice_hint|finalize_exam_attempt/i,
   'Release Audit must not introduce grading, hints or Exam finalization logic.');
+
+// RC3 extends the audit only through the presentation-only polish API.
+assert.match(rc3Audit, /V50ProductionPolish\?\.getAudit/);
+assert.match(rc3Audit, /RC3 — UX & production polish/);
+assert.match(rc3Audit, /RC3 production-polish checks pass/);
+assert.doesNotMatch(rc3Audit, /cloud\.rpc\(|cloud\.from\(|fetch\(/,
+  'RC3 audit extension must not make data requests.');
+assert.doesNotMatch(rc3Audit, /localStorage|sessionStorage/,
+  'RC3 audit extension must not persist state.');
+assert.doesNotMatch(rc3Audit, /reset_student_launch_activity|generate_missing_student_pins|set_student_pin|manage_teacher_assignment|transfer_roster_student/,
+  'RC3 audit must not expose mutation workflows.');
 
 // Derived review-count repair only: no answer/result/history deletion or score mutation.
 assert.match(sql, /update public\.practice_sessions ps\s+set pending_review_count = actual\.pending_count/i);
@@ -70,13 +88,14 @@ assert.match(sql, /legacy_registered_exam_attempts_missing_class_id/i);
 assert.match(sql, /Historical warning only/i,
   'Legacy class-ID drift must be reported without rewriting historical Exam rows.');
 
-// RC1/RC2 must not stamp V5.0 yet; final branding belongs to RC3 after all passes.
-assert.match(release, /Math Practice V4\.9/);
-assert.match(release, /Version 4\.9 • Student Progress Experience/);
+// RC3 may stamp the release-candidate identity, but final stable V5.0 still belongs to sign-off.
+assert.match(release, /Math Practice V5\.0 RC/);
+assert.match(release, /Version 5\.0 • Release Candidate/);
+assert.doesNotMatch(release, /Version 5\.0 • Stable|V5\.0 Final Release/);
 
-console.log('V5.0RC1 release-audit verification passed.');
+console.log('V5.0 release-audit verification passed through RC3.');
 console.log('- RC1 audit remains read-only and visible inside the extended release audit');
 console.log('- every active Exam paper still requires explicit settings before RC1 passes');
-console.log('- pending-review cache repair is derived-only and non-destructive');
-console.log('- Exam/Practice links, mark bounds, deadlines and Student IDs remain audited');
-console.log('- final V5.0 branding remains deferred until RC3');
+console.log('- pending-review cache repair remains derived-only and non-destructive');
+console.log('- RC3 audit is presentation-only and consumes the local production-polish status');
+console.log('- V5.0 RC identity is active while final stable branding remains deferred');
