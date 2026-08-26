@@ -41,10 +41,10 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* V4.0 visible release version. */
-document.title = 'Math Practice V4.0';
+/* V5.0 release-candidate bootstrap title. */
+document.title = 'Math Practice V5.0 RC';
 
-/* Stable V3.9 foundation plus completed V4.0 student platform modules.
+/* Stable V3.9/V4.x foundation plus completed V5.0 release-candidate modules.
    Legacy V3.8/V3.8.1/V3.9 release-label-only scripts remain archived in the repository
    but are no longer executed; current release presentation is handled by v40-release.js. */
 window.addEventListener('load', () => {
