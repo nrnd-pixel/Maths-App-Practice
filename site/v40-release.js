@@ -63,7 +63,8 @@
     loadScriptOnce('v50-report-archive.js?v=50c3b-1', 'data-v50-report-archive');
     loadScriptOnce('v50-student-launch-readiness.js?v=50d1-1', 'data-v50-student-launch-readiness');
     loadScriptOnce('v50-teacher-operations.js?v=50d2-1', 'data-v50-teacher-operations');
-    loadScriptOnce('v50-release-audit.js?v=50rc1-1', 'data-v50-release-audit');
+    loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
+    loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
   }
 
   if (document.readyState === 'loading'){
