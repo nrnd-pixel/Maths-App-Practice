@@ -11,6 +11,7 @@ const release = read('site/v40-release.js');
 const hardening = read('site/v50-security-hardening.js');
 const audit = read('site/v50-release-audit.js');
 const sql = read('supabase/v50rc2_security_launch_audit.sql');
+const alignmentSql = read('supabase/v50rc2_security_privilege_alignment.sql');
 
 new vm.Script(hardening,{filename:'v50-security-hardening.js'});
 new vm.Script(audit,{filename:'v50-release-audit.js'});
@@ -60,7 +61,7 @@ assert.match(sql,/create or replace function public\.get_student_class_options/i
 assert.match(sql,/where sc\.active = true/i);
 assert.match(sql,/set search_path to ''/i);
 
-// Teacher-only and internal helper RPCs must not remain public to anon.
+// Teacher-only controls must not remain public to anon.
 for (const signature of [
   'save_student_access_mode\\(text\\)',
   'set_student_pin\\(uuid,text\\)',
@@ -68,6 +69,8 @@ for (const signature of [
 ]) {
   assert.match(sql,new RegExp(`revoke all on function public\\.${signature} from anon`,'i'));
 }
+
+// Internal helpers must also lose PostgreSQL's inherited PUBLIC EXECUTE grant.
 for (const signature of [
   'get_student_exam_access\\(text,smallint,smallint,text\\)',
   'apply_exam_roster_identity\\(\\)',
@@ -77,8 +80,8 @@ for (const signature of [
   'set_updated_at\\(\\)',
   'set_exam_paper_settings_updated_at\\(\\)'
 ]) {
-  assert.match(sql,new RegExp(`revoke all on function public\\.${signature} from anon, authenticated`,'i'),
-    `Internal helper must not be directly executable: ${signature}`);
+  assert.match(alignmentSql,new RegExp(`revoke all on function public\\.${signature} from public, anon, authenticated`,'i'),
+    `Internal helper must lose PUBLIC/anon/authenticated EXECUTE: ${signature}`);
 }
 
 // Direct anonymous table surface is closed; Exam settings retain read-only presentation access.
@@ -128,13 +131,15 @@ assert.match(sql,/Enable Supabase leaked-password protection before public launc
 assert.match(sql,/Protect the GitHub main branch\/ruleset and require V5 Regression Safety/i);
 
 // No cleanup/destructive data migration belongs in RC2.
-assert.doesNotMatch(sql,/\btruncate\b/i);
-assert.doesNotMatch(sql,/delete\s+from\s+public\.(practice_sessions|session_answers|exam_attempts|class_students|school_classes|questions|exam_assignments|practice_assignments)/i);
-assert.doesNotMatch(sql,/SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+for (const source of [sql,alignmentSql]) {
+  assert.doesNotMatch(source,/\btruncate\b/i);
+  assert.doesNotMatch(source,/delete\s+from\s+public\.(practice_sessions|session_answers|exam_attempts|class_students|school_classes|questions|exam_assignments|practice_assignments)/i);
+  assert.doesNotMatch(source,/SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+}
 
 console.log('V5.0RC2 security & launch-configuration verification passed.');
 console.log('- unconfigured Exam papers are hidden and blocked server-side');
 console.log('- legacy Student-ID-only Exam participation lookup is removed from active browser use');
-console.log('- sensitive direct anon table access and teacher/helper RPC exposure are closed');
+console.log('- sensitive direct anon table access and PUBLIC/anon helper RPC exposure are closed');
 console.log('- required PIN/token/resume-token student RPCs remain available pre-login');
 console.log('- RC2 audit remains read-only and launch cleanup stays deferred');
