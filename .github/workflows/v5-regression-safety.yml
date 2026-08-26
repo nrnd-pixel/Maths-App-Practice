@@ -9,6 +9,7 @@ on:
     branches:
       - feature-v5.0
       - feature-v5.0b1-regression-safety
+      - hotfix/v5.0-launch-reset-safe-delete
 
 permissions:
   contents: read
