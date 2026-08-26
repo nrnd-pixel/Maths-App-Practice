@@ -1,13 +1,16 @@
-/* V5.0C3A — Reporting Export.
+/* V5.0C3A/C3B — Reporting Export + Snapshot API.
    Adds structured, Excel-friendly CSV exports to the existing Class and Student
-   Performance Reports. Reuses already-loaded Teacher Analytics evidence only.
-   No database/API request, persistence, grading rule or mastery threshold. */
+   Performance Reports and exposes the same immutable-in-memory snapshot builders
+   to the teacher-only Report Archive layer. Reuses already-loaded Analytics
+   evidence only; no data request, grading rule or mastery threshold is added. */
 (() => {
   'use strict';
 
+  if (window.__v50ReportingExportInstalled) return;
+  window.__v50ReportingExportInstalled = true;
+
   const CLASS_EXPORT_ID = 'v50c3a-export-class-csv';
   const STUDENT_EXPORT_ID = 'v50c3a-export-student-csv';
-
   const byId = id => document.getElementById(id);
 
   function visibleRows(){
@@ -167,9 +170,12 @@
       .trim() || fallback || 'Report';
   }
 
+  function classSubject(reportScope){
+    return /all/i.test(reportScope.className || '') ? 'All Classes' : (reportScope.className || 'Class');
+  }
+
   function classFilename(reportScope){
-    const rawClass = /all/i.test(reportScope.className || '') ? 'All Classes' : (reportScope.className || 'Class');
-    return `Class Performance Report - ${filenamePart(rawClass,'Class')} - ${localDateStamp()}.csv`;
+    return `Class Performance Report - ${filenamePart(classSubject(reportScope),'Class')} - ${localDateStamp()}.csv`;
   }
 
   function studentFilename(row){
@@ -204,7 +210,7 @@
     setTimeout(()=>URL.revokeObjectURL(url),0);
   }
 
-  function exportClassReport(){
+  function buildClassSnapshot(){
     const rows = visibleRows();
     const topics = learningRows();
     const reportScope = scope();
@@ -261,12 +267,23 @@
       'exam_papers_fully_marked','exam_in_progress','exam_incomplete','average_final_exam_percent','current_focus_topic',
       'current_focus_status','current_focus_accuracy_percent','responses_awaiting_review','marking_status','last_activity'
     ];
-    downloadCsv(classFilename(reportScope),headers,records);
+    const filename = classFilename(reportScope);
+    return {
+      reportType:'class',
+      title:filename.replace(/\.csv$/i,''),
+      filename,
+      generatedAt,
+      subjectName:classSubject(reportScope),
+      className:reportScope.className || '',
+      studentId:'',studentName:'',
+      scope:reportScope,
+      headers,records
+    };
   }
 
-  function exportStudentReport(){
+  function buildStudentSnapshot(){
     const row = selectedStudent();
-    if (!row) return;
+    if (!row) return null;
     const evidence = studentEvidence(row);
     const reportScope = scope();
     const generatedAt = new Date().toISOString();
@@ -329,8 +346,27 @@
       'activity_name','activity_mode','activity_completed_at','practice_mastery_percent','exam_final_percent','exam_auto_marks_so_far',
       'activity_pending_review','activity_review_status'
     ];
-    downloadCsv(studentFilename(row),headers,records);
+    const filename = studentFilename(row);
+    return {
+      reportType:'student',
+      title:filename.replace(/\.csv$/i,''),
+      filename,
+      generatedAt,
+      subjectName:row.student_name||'Student',
+      className:row.class_name||row.class_group||'',
+      studentId:row.student_id||'',studentName:row.student_name||'Student',
+      scope:reportScope,
+      headers,records
+    };
   }
+
+  function downloadSnapshot(snapshot){
+    if (!snapshot || !Array.isArray(snapshot.headers) || !Array.isArray(snapshot.records)) return;
+    downloadCsv(snapshot.filename || 'Performance Report.csv',snapshot.headers,snapshot.records);
+  }
+
+  function exportClassReport(){ downloadSnapshot(buildClassSnapshot()); }
+  function exportStudentReport(){ downloadSnapshot(buildStudentSnapshot()); }
 
   function insertButton(printId,buttonId,label,handler){
     const printButton = byId(printId);
@@ -349,6 +385,14 @@
     insertButton('v50c1-print',CLASS_EXPORT_ID,'Export CSV',exportClassReport);
     insertButton('v50c2-print',STUDENT_EXPORT_ID,'Export CSV',exportStudentReport);
   }
+
+  const api = Object.freeze({
+    buildClassSnapshot,
+    buildStudentSnapshot,
+    downloadSnapshot,
+    makeCsv
+  });
+  Object.defineProperty(window,'V50ReportingExport',{value:api,writable:false,configurable:false});
 
   function wire(){
     ensureButtons();
