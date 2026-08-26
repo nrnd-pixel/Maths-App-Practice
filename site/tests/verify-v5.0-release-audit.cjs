@@ -13,7 +13,8 @@ new vm.Script(audit, { filename: 'v50-release-audit.js' });
 
 assert.match(release, /v50-teacher-operations\.js\?v=50d2-1', 'data-v50-teacher-operations'/,
   'Existing D2 loader must remain stable.');
-assert.match(release, /v50-release-audit\.js\?v=50rc1-1/);
+assert.match(release, /v50-release-audit\.js\?v=50rc(?:1|2)-1/,
+  'Release Audit may advance from RC1 to RC2 without removing the RC1 surface.');
 assert.match(release, /data-v50-release-audit/);
 
 assert.match(audit, /V5\.0 Release Candidate Audit/);
@@ -21,7 +22,7 @@ assert.match(audit, /RC1 — Functional regression audit/);
 assert.match(audit, /RC2 — Security & launch configuration/);
 assert.match(audit, /RC3 — UX & production polish/);
 assert.match(audit, /cloud\.rpc\('get_teacher_release_audit_v50rc1'\)/);
-assert.match(audit, /Exam settings still required/);
+assert.match(audit, /Deferred Exam Settings/);
 assert.match(audit, /Open Exam Settings/);
 assert.match(audit, /Pending-review synchronization/);
 assert.match(audit, /Exam result links/);
@@ -30,7 +31,7 @@ assert.match(audit, /Mark bounds/);
 assert.match(audit, /Exam deadline states/);
 assert.match(audit, /Legacy Exam class identity/);
 assert.doesNotMatch(audit, /\.from\(/,
-  'Release Audit browser code must remain read-only through the teacher audit RPC.');
+  'Release Audit browser code must remain read-only through teacher audit RPCs.');
 assert.doesNotMatch(audit, /localStorage\.setItem|sessionStorage\.setItem/);
 assert.doesNotMatch(audit, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 assert.doesNotMatch(audit, /grade_practice_response|request_practice_hint|finalize_exam_attempt/i,
@@ -69,13 +70,13 @@ assert.match(sql, /legacy_registered_exam_attempts_missing_class_id/i);
 assert.match(sql, /Historical warning only/i,
   'Legacy class-ID drift must be reported without rewriting historical Exam rows.');
 
-// RC1 must not stamp V5.0 yet; final branding belongs to RC3 after all passes.
+// RC1/RC2 must not stamp V5.0 yet; final branding belongs to RC3 after all passes.
 assert.match(release, /Math Practice V4\.9/);
 assert.match(release, /Version 4\.9 • Student Progress Experience/);
 
 console.log('V5.0RC1 release-audit verification passed.');
-console.log('- RC1 audit dashboard is read-only and teacher-only');
-console.log('- every active Exam paper requires explicit settings before RC1 passes');
+console.log('- RC1 audit remains read-only and visible inside the extended release audit');
+console.log('- every active Exam paper still requires explicit settings before RC1 passes');
 console.log('- pending-review cache repair is derived-only and non-destructive');
-console.log('- Exam/Practice links, mark bounds, deadlines and Student IDs are audited');
+console.log('- Exam/Practice links, mark bounds, deadlines and Student IDs remain audited');
 console.log('- final V5.0 branding remains deferred until RC3');
