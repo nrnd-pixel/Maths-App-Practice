@@ -33,6 +33,8 @@ jobs:
         run: node site/tests/verify-v5.0-reporting.cjs
       - name: Verify launch readiness invariants
         run: node site/tests/verify-v5.0-launch-readiness.cjs
+      - name: Verify launch reset safe-delete hotfix
+        run: node site/tests/verify-v5.0-launch-reset-hotfix.cjs
       - name: Verify teacher operations invariants
         run: node site/tests/verify-v5.0-teacher-operations.cjs
       - name: Verify release-candidate functional audit
