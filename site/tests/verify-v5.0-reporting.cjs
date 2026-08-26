@@ -4,14 +4,18 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const siteRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(siteRoot, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
 const report = fs.readFileSync(path.join(siteRoot, 'v50-teacher-class-report.js'), 'utf8');
 const studentReport = fs.readFileSync(path.join(siteRoot, 'v50-teacher-student-report.js'), 'utf8');
 const exporter = fs.readFileSync(path.join(siteRoot, 'v50-reporting-export.js'), 'utf8');
+const archive = fs.readFileSync(path.join(siteRoot, 'v50-report-archive.js'), 'utf8');
+const archiveSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50c3b_report_archives.sql'), 'utf8');
 
 new vm.Script(report, { filename: 'v50-teacher-class-report.js' });
 new vm.Script(studentReport, { filename: 'v50-teacher-student-report.js' });
 new vm.Script(exporter, { filename: 'v50-reporting-export.js' });
+new vm.Script(archive, { filename: 'v50-report-archive.js' });
 
 assert.match(release, /v47-intervention-history\.js\?v=47a-1', 'data-v47a-intervention-history'/,
   'Existing V4.7 history loader key must remain stable.');
@@ -19,8 +23,10 @@ assert.match(release, /v50-teacher-class-report\.js\?v=50c1-2/);
 assert.match(release, /data-v50-teacher-class-report/);
 assert.match(release, /v50-teacher-student-report\.js\?v=50c2-2/);
 assert.match(release, /data-v50-teacher-student-report/);
-assert.match(release, /v50-reporting-export\.js\?v=50c3a-1/);
+assert.match(release, /v50-reporting-export\.js\?v=50c3a-2/);
 assert.match(release, /data-v50-reporting-export/);
+assert.match(release, /v50-report-archive\.js\?v=50c3b-1/);
+assert.match(release, /data-v50-report-archive/);
 
 assert.match(report, /analyticsVisibleRows/);
 assert.match(report, /analyticsLearningRows/);
@@ -35,7 +41,6 @@ assert.match(report, /@media print/);
 assert.match(report, /role','dialog/);
 assert.match(report, /aria-modal','true/);
 assert.match(report, /event\.key==='Escape'/);
-
 assert.match(report, /v50c1-student-section/,
   'Student summary must have its own print-pagination hook.');
 assert.match(report, /v50c1-student-section\{break-inside:auto;page-break-inside:auto\}/,
@@ -44,19 +49,14 @@ assert.match(report, /thead\{display:table-header-group\}/,
   'Student table headers should repeat on subsequent printed pages when supported.');
 assert.match(report, /tr\{break-inside:avoid;page-break-inside:avoid\}/,
   'Printed student rows should not be split across pages.');
-assert.match(report, /Class Performance Report - /,
-  'Saved PDF should receive a report-specific document title/filename hint.');
-assert.match(report, /document\.title = reportDocumentTitle\(filterScope\(\)\)/,
-  'Print flow must set the report title immediately before printing.');
-assert.match(report, /document\.title = previousTitle/,
-  'Print flow must restore the app title after printing.');
-
+assert.match(report, /Class Performance Report - /);
+assert.match(report, /document\.title = reportDocumentTitle\(filterScope\(\)\)/);
+assert.match(report, /document\.title = previousTitle/);
 assert.doesNotMatch(report, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/,
   'V5.0C1 must not make its own Supabase/API request.');
 assert.doesNotMatch(report, /percent\s*[<>]=?\s*(60|80)/,
   'V5.0C1 must reuse existing mastery bands rather than introduce threshold comparisons.');
-assert.doesNotMatch(report, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/,
-  'V5.0C1 must not contain server-side secrets.');
+assert.doesNotMatch(report, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 
 assert.match(studentReport, /analyticsVisibleRows/);
 assert.match(studentReport, /selectedAnalyticsStudentKey/);
@@ -69,36 +69,26 @@ assert.match(studentReport, /Practice mastery and final Exam percentages remain 
   'V5.0C2 must preserve the Practice/Exam evidence boundary.');
 assert.match(studentReport, /pending \? `\$\{Number\(session\.auto_marks_awarded\|\|0\)\} marks so far`/,
   'Pending Exam review must not be presented as a final percentage.');
-assert.match(studentReport, /function displayPercent\(value\)/,
-  'V5.0C2 must explicitly preserve missing topic percentages as no evidence.');
-assert.match(studentReport, /value === null \|\| value === undefined \|\| value === ''/,
-  'Null topic accuracy must not be coerced into 0%.');
+assert.match(studentReport, /function displayPercent\(value\)/);
+assert.match(studentReport, /value === null \|\| value === undefined \|\| value === ''/);
 assert.match(studentReport, /const latestFullyMarkedExam = evidence\.exams/);
-assert.match(studentReport, /pending_review_count\|\|0\)===0 && Number\.isFinite\(finalExamPercent\(session\)\)/,
-  'Latest fully marked Exam must ignore newer papers that are still pending review.');
-
+assert.match(studentReport, /pending_review_count\|\|0\)===0 && Number\.isFinite\(finalExamPercent\(session\)\)/);
 assert.match(studentReport, /Student report/);
 assert.match(studentReport, /Print \/ Save PDF/);
 assert.match(studentReport, /Student Performance Report - /);
 assert.match(studentReport, /@page\{size:A4 portrait/);
-assert.match(studentReport, /v50c2-paged\{break-inside:auto;page-break-inside:auto\}/,
-  'Long individual report tables must be printable across pages.');
-assert.match(studentReport, /thead\{display:table-header-group\}/,
-  'V5.0C2 table headers should repeat on subsequent printed pages when supported.');
+assert.match(studentReport, /v50c2-paged\{break-inside:auto;page-break-inside:auto\}/);
+assert.match(studentReport, /thead\{display:table-header-group\}/);
 assert.match(studentReport, /role','dialog/);
 assert.match(studentReport, /aria-modal','true/);
 assert.match(studentReport, /event\.key==='Escape'/);
 assert.match(studentReport, /document\.title = reportDocumentTitle\(row\)/);
 assert.match(studentReport, /document\.title = previousTitle/);
-
 assert.doesNotMatch(studentReport, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/,
   'V5.0C2 must reuse loaded Teacher Analytics data rather than make its own request.');
-assert.doesNotMatch(studentReport, /percent\s*[<>]=?\s*(60|80)/,
-  'V5.0C2 must reuse established mastery bands instead of introducing thresholds.');
-assert.doesNotMatch(studentReport, /learningIndependence\s*=|independenceScore\s*=|aiScore\s*=/i,
-  'V5.0C2 must not invent a learning-independence or AI-derived score.');
-assert.doesNotMatch(studentReport, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/,
-  'V5.0C2 must not contain server-side secrets.');
+assert.doesNotMatch(studentReport, /percent\s*[<>]=?\s*(60|80)/);
+assert.doesNotMatch(studentReport, /learningIndependence\s*=|independenceScore\s*=|aiScore\s*=/i);
+assert.doesNotMatch(studentReport, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 
 assert.match(exporter, /v50c3a-export-class-csv/);
 assert.match(exporter, /v50c3a-export-student-csv/);
@@ -110,8 +100,7 @@ assert.match(exporter, /analyticsAnswerScore/);
 assert.match(exporter, /analyticsFinalExamPercent/);
 assert.match(exporter, /aggregateLearning/);
 assert.match(exporter, /learningBand/);
-assert.match(exporter, /record_type/,
-  'C3A exports must use typed rows so metrics, topics, students and activities stay machine-readable.');
+assert.match(exporter, /record_type/);
 assert.match(exporter, /Class Performance Report - /);
 assert.match(exporter, /Student Performance Report - /);
 assert.match(exporter, /practice_mastery_percent/);
@@ -119,29 +108,64 @@ assert.match(exporter, /exam_final_percent/);
 assert.match(exporter, /exam_auto_marks_so_far/);
 assert.match(exporter, /exam\s*&&\s*pending===0\s*\?\s*finalExamPercent\(session\)\s*:\s*null/,
   'Pending Exam review must never be exported as a final Exam percentage.');
-assert.ok(exporter.includes('\\uFEFF'),
-  'CSV export must include a UTF-8 BOM for reliable Excel opening.');
-assert.ok(exporter.includes("if (/^\\s*[=+\\-@]/.test(text))"),
-  'CSV text cells must be guarded against spreadsheet formula injection.');
+assert.ok(exporter.includes('\\uFEFF'));
+assert.ok(exporter.includes("if (/^\\s*[=+\\-@]/.test(text))"));
 assert.match(exporter, /text\/csv;charset=utf-8/);
 assert.match(exporter, /URL\.createObjectURL/);
-assert.match(exporter, /MutationObserver/,
-  'C3A must attach export actions without rewriting the validated C1/C2 report implementation.');
-
+assert.match(exporter, /buildClassSnapshot/,
+  'C3B must archive the same structured class snapshot used by CSV export.');
+assert.match(exporter, /buildStudentSnapshot/,
+  'C3B must archive the same structured student snapshot used by CSV export.');
+assert.match(exporter, /V50ReportingExport/);
+assert.match(exporter, /Object\.freeze/);
+assert.match(exporter, /downloadSnapshot/);
 assert.doesNotMatch(exporter, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(|fetch\(/,
-  'V5.0C3A must not make its own network/data request.');
-assert.doesNotMatch(exporter, /localStorage\.setItem|sessionStorage\.setItem/,
-  'V5.0C3A export must not persist report data in browser storage.');
-assert.doesNotMatch(exporter, /percent\s*[<>]=?\s*(60|80)/,
-  'V5.0C3A must reuse established mastery bands instead of introducing thresholds.');
-assert.doesNotMatch(exporter, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/,
-  'V5.0C3A must not contain server-side secrets.');
+  'Reporting snapshot/export builders must not make their own data request.');
+assert.doesNotMatch(exporter, /localStorage\.setItem|sessionStorage\.setItem/);
+assert.doesNotMatch(exporter, /percent\s*[<>]=?\s*(60|80)/);
+assert.doesNotMatch(exporter, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+
+assert.match(archive, /Report Archive/);
+assert.match(archive, /Save to Archive/);
+assert.match(archive, /manual_delete/);
+assert.match(archive, /remain stored until that teacher deletes them/,
+  'C3B retention must be explicit in the teacher UI.');
+assert.match(archive, /buildClassSnapshot\(\)/);
+assert.match(archive, /buildStudentSnapshot\(\)/);
+assert.match(archive, /snapshot_version:1/);
+assert.match(archive, /schema_version:1/);
+assert.match(archive, /record_count:snapshot\.records\.length/);
+assert.match(archive, /Download CSV/);
+assert.match(archive, /student results and live Analytics were not changed/i,
+  'Archive deletion must be clearly scoped to the saved snapshot.');
+assert.match(archive, /MutationObserver/);
+assert.doesNotMatch(archive, /\.update\(/,
+  'Archived reports are immutable in V5.0C3B.');
+assert.doesNotMatch(archive, /cloud\.rpc\(|cloud\.functions\.invoke\(/,
+  'C3B uses RLS-protected table operations only.');
+assert.doesNotMatch(archive, /localStorage\.setItem|sessionStorage\.setItem/,
+  'Archived report data must not be duplicated into browser storage.');
+assert.doesNotMatch(archive, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+const archiveTables = [...archive.matchAll(/\.from\('([^']+)'\)/g)].map(match=>match[1]);
+assert.deepEqual([...new Set(archiveTables)], ['report_archives'],
+  'C3B persistence must be isolated to report_archives.');
+
+assert.match(archiveSql, /create table if not exists public\.report_archives/i);
+assert.match(archiveSql, /alter table public\.report_archives enable row level security/i);
+assert.match(archiveSql, /created_by = auth\.uid\(\)/i,
+  'Archive RLS must isolate rows to the creating teacher.');
+assert.match(archiveSql, /public\.is_teacher\(\)/i);
+assert.match(archiveSql, /retention_policy text not null default 'manual_delete'/i);
+assert.match(archiveSql, /revoke all on table public\.report_archives from anon/i);
+assert.match(archiveSql, /grant select, insert, delete on table public\.report_archives to authenticated/i);
+assert.doesNotMatch(archiveSql, /grant[^;]*update/i,
+  'V5.0C3B must not grant UPDATE on immutable archives.');
+assert.doesNotMatch(archiveSql, /for update/i,
+  'V5.0C3B must not create an UPDATE RLS policy.');
 
 console.log('V5.0 reporting verification passed.');
-console.log('- established V4.7 loader key remains stable');
-console.log('- V5.0C1 class report pagination and filename safeguards remain active');
-console.log('- V5.0C2 preserves no-evidence topic percentages and latest fully marked Exam semantics');
-console.log('- V5.0C3A structured Class and Student CSV exports remain active');
-console.log('- CSV files are Excel-friendly, formula-injection guarded and consistently named');
-console.log('- Practice mastery, final Exam results and pending review remain separate in report/export data');
-console.log('- no new data request, persistence, mastery threshold, AI score or server-side secret is introduced');
+console.log('- V5.0C1/C2 PDF and evidence semantics remain protected');
+console.log('- V5.0C3A exports and C3B archives share the same structured snapshot builders');
+console.log('- Report Archive persistence is isolated to report_archives');
+console.log('- archives are immutable, teacher-owned, manually retained and CSV-downloadable');
+console.log('- student-facing flows, grading thresholds and Exam review boundaries are unchanged');

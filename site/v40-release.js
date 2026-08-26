@@ -59,7 +59,8 @@
     loadScriptOnce('v50-accessibility-polish.js?v=50b4a-1', 'data-v50-accessibility-polish');
     loadScriptOnce('v50-teacher-class-report.js?v=50c1-2', 'data-v50-teacher-class-report');
     loadScriptOnce('v50-teacher-student-report.js?v=50c2-2', 'data-v50-teacher-student-report');
-    loadScriptOnce('v50-reporting-export.js?v=50c3a-1', 'data-v50-reporting-export');
+    loadScriptOnce('v50-reporting-export.js?v=50c3a-2', 'data-v50-reporting-export');
+    loadScriptOnce('v50-report-archive.js?v=50c3b-1', 'data-v50-report-archive');
   }
 
   if (document.readyState === 'loading'){
