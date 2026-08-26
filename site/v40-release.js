@@ -1,6 +1,6 @@
-/* V4.9 release presentation — Student Progress Experience.
-   Loads the established V4.1–V4.8 foundation plus the tested student progress experience.
-   V5.0B3 consolidates the former V4.9A/V4.9C top-level panels into one active overview. */
+/* V5.0 Release Candidate presentation.
+   Loads the established V4.1–V4.9 foundation plus the tested V5.0 feature set.
+   Final V5.0 release branding remains separate from this RC presentation. */
 (() => {
   'use strict';
 
@@ -14,20 +14,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV49Release(){
-    document.title = 'Math Practice V4.9';
+  function applyV50ReleaseCandidate(){
+    document.title = 'Math Practice V5.0 RC';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 4.9 • Student Progress Experience';
+      versionBadge.textContent = 'Version 5.0 • Release Candidate';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V4.9:</strong>
-        Students get a clearer progress snapshot, topic-level progress drill-downs, and practical next-step guidance that reuses the app's existing secure learning evidence and Practice assignment workflow.
-        Secure Practice grading, teacher intervention tools, authentication and AI-free Exam boundaries remain unchanged.
+        <strong>V5.0 Release Candidate:</strong>
+        Practice, Exam, student progress, teacher reporting, launch readiness and operational tools are now being validated together as one release candidate.
+        Secure deterministic grading, teacher review boundaries and AI-free Exam Mode remain unchanged.
       `;
     }
 
@@ -64,12 +64,14 @@
     loadScriptOnce('v50-student-launch-readiness.js?v=50d1-1', 'data-v50-student-launch-readiness');
     loadScriptOnce('v50-teacher-operations.js?v=50d2-1', 'data-v50-teacher-operations');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
+    loadScriptOnce('v50-production-polish.js?v=50rc3-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
+    loadScriptOnce('v50-release-audit-rc3.js?v=50rc3-1', 'data-v50-release-audit-rc3');
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV49Release, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV50ReleaseCandidate, { once:true });
   } else {
-    applyV49Release();
+    applyV50ReleaseCandidate();
   }
 })();
