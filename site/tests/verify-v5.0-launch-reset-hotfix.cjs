@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
+// Regression for the production clean-start reset safe-delete requirement.
 const repoRoot = path.resolve(__dirname, '..', '..');
 const sql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50_launch_reset_safe_delete_hotfix.sql'), 'utf8');
 
