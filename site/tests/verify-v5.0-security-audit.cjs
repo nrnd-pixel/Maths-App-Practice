@@ -12,6 +12,7 @@ const hardening = read('site/v50-security-hardening.js');
 const audit = read('site/v50-release-audit.js');
 const sql = read('supabase/v50rc2_security_launch_audit.sql');
 const alignmentSql = read('supabase/v50rc2_security_privilege_alignment.sql');
+const triggerSql = read('supabase/v50rc2_trigger_search_path_alignment.sql');
 
 new vm.Script(hardening,{filename:'v50-security-hardening.js'});
 new vm.Script(audit,{filename:'v50-release-audit.js'});
@@ -84,6 +85,14 @@ for (const signature of [
     `Internal helper must lose PUBLIC/anon/authenticated EXECUTE: ${signature}`);
 }
 
+// Trigger helpers use fixed empty search paths and remain internal after replacement.
+for (const name of ['set_updated_at','set_exam_paper_settings_updated_at']) {
+  assert.match(triggerSql,new RegExp(`create or replace function public\\.${name}\\(\\)[\\s\\S]*?set search_path to ''`,'i'),
+    `${name} must use a fixed empty search_path.`);
+  assert.match(triggerSql,new RegExp(`revoke all on function public\\.${name}\\(\\) from public, anon, authenticated`,'i'),
+    `${name} must remain internal-only after replacement.`);
+}
+
 // Direct anonymous table surface is closed; Exam settings retain read-only presentation access.
 for (const table of [
   'school_classes','class_students','questions','app_access_settings','practice_sessions','session_answers',
@@ -131,7 +140,7 @@ assert.match(sql,/Enable Supabase leaked-password protection before public launc
 assert.match(sql,/Protect the GitHub main branch\/ruleset and require V5 Regression Safety/i);
 
 // No cleanup/destructive data migration belongs in RC2.
-for (const source of [sql,alignmentSql]) {
+for (const source of [sql,alignmentSql,triggerSql]) {
   assert.doesNotMatch(source,/\btruncate\b/i);
   assert.doesNotMatch(source,/delete\s+from\s+public\.(practice_sessions|session_answers|exam_attempts|class_students|school_classes|questions|exam_assignments|practice_assignments)/i);
   assert.doesNotMatch(source,/SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
@@ -141,5 +150,6 @@ console.log('V5.0RC2 security & launch-configuration verification passed.');
 console.log('- unconfigured Exam papers are hidden and blocked server-side');
 console.log('- legacy Student-ID-only Exam participation lookup is removed from active browser use');
 console.log('- sensitive direct anon table access and PUBLIC/anon helper RPC exposure are closed');
+console.log('- trigger helpers use fixed search paths and remain internal-only');
 console.log('- required PIN/token/resume-token student RPCs remain available pre-login');
 console.log('- RC2 audit remains read-only and launch cleanup stays deferred');
