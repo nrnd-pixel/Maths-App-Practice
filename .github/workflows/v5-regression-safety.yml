@@ -33,3 +33,5 @@ jobs:
         run: node site/tests/verify-v5.0-reporting.cjs
       - name: Verify launch readiness invariants
         run: node site/tests/verify-v5.0-launch-readiness.cjs
+      - name: Verify teacher operations invariants
+        run: node site/tests/verify-v5.0-teacher-operations.cjs
