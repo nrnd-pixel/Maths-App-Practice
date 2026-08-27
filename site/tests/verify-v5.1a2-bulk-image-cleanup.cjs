@@ -13,17 +13,33 @@ vm.runInContext(source,sandbox,{filename:'v51-bulk-question-image-cleanup.js'});
 const api = sandbox.window.V51BulkQuestionImageCleanup;
 assert(api,'V5.1A2 cleanup API should be exposed');
 
-const paths = api.uncommittedPaths([
-  {_v51a2_storage_path:'v51-imports/2026/paper-2/batch-a.png'},
-  {_v51a2_storage_path:'v51-imports/2026/paper-2/batch-a.png'},
-  {_v51a2_storage_path:'v51-imports/2026/paper-2/batch-b.png'},
-  {_v51a2_storage_path:''},
+const rows = [
+  {_v51a2_storage_path:'v51-imports/2026/paper-2/batch-a.png',image_url:'https://cdn.example.com/batch-a.png'},
+  {_v51a2_storage_path:'v51-imports/2026/paper-2/batch-a.png',image_url:'https://cdn.example.com/batch-a.png'},
+  {_v51a2_storage_path:'v51-imports/2026/paper-2/batch-b.png',image_url:'https://cdn.example.com/batch-b.png'},
+  {_v51a2_storage_path:'',image_url:'https://cdn.example.com/blank.png'},
   {}
-]);
+];
+
+let paths = api.uncommittedPaths(rows,[]);
 assert.strictEqual(paths.length,2,'cleanup paths should be unique');
 assert(paths.includes('v51-imports/2026/paper-2/batch-a.png'));
 assert(paths.includes('v51-imports/2026/paper-2/batch-b.png'));
 
+// If an earlier import batch committed a row before a later batch failed,
+// never delete the Storage object now referenced by that committed question.
+paths = api.uncommittedPaths(rows,[{image_url:'https://cdn.example.com/batch-a.png'}]);
+assert.deepStrictEqual(paths,['v51-imports/2026/paper-2/batch-b.png'],
+  'cleanup must preserve uploaded files already referenced by committed question rows');
+
+// Shared/multipart image paths are protected as a whole when any committed row references the URL.
+const sharedRows = [
+  {_v51a2_storage_path:'v51-imports/2026/paper-2/shared.png',image_url:'https://cdn.example.com/shared.png'},
+  {_v51a2_storage_path:'v51-imports/2026/paper-2/shared.png',image_url:'https://cdn.example.com/shared.png'}
+];
+assert.deepStrictEqual(api.uncommittedPaths(sharedRows,[{image_url:'https://cdn.example.com/shared.png'}]),[]);
+
+assert(source.includes('committedImageUrls'),'cleanup must distinguish committed image references from abandoned uploads');
 assert(source.includes("storage.from(ctx.bucket).remove(paths)"),'abandoned batch cleanup must remove only recorded Storage paths');
 assert(source.includes("#clear-import"),'cleanup must guard Clear Preview');
 assert(source.includes("#preview-csv"),'cleanup must prevent replacing a preview with uncommitted uploaded images');
@@ -35,3 +51,6 @@ assert(!source.includes('fetch('));
 assert(loader.includes('v51-bulk-question-image-cleanup.js'),'V5 loader must include abandoned-batch cleanup guard');
 
 console.log('V5.1A2 abandoned bulk image cleanup checks passed.');
+console.log('- duplicate uploaded paths are deduplicated');
+console.log('- files already referenced by committed questions are protected');
+console.log('- shared/multipart image paths are preserved after partial import success');
