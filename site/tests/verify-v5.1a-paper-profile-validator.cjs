@@ -5,12 +5,16 @@ const vm = require('node:vm');
 
 const siteRoot = path.resolve(__dirname,'..');
 const source = fs.readFileSync(path.join(siteRoot,'v51-paper-profile-validator.js'),'utf8');
+const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');
 
 const context = { window:{}, console };
 vm.createContext(context);
 new vm.Script(source,{filename:'v51-paper-profile-validator.js'}).runInContext(context);
 const api = context.window.V51PaperProfileValidator;
 assert.ok(api,'V5.1A paper profile API must be exposed.');
+assert.match(release,/v51-paper-profile-validator\.js\?v=51a-1', 'data-v51-paper-profile-validator'/,
+  'Stable loader must include the V5.1A paper-profile validator exactly once.');
+assert.equal((release.match(/data-v51-paper-profile-validator/g)||[]).length,1);
 
 const row = (paper,question,marks,extra={}) => ({
   year_level:6,
@@ -117,6 +121,7 @@ assert.doesNotMatch(source,/cloud\.rpc\(|cloud\.from\(|fetch\(|localStorage|sess
 assert.doesNotMatch(source,/insert\(|update\(|delete\(|upsert\(/i);
 
 console.log('V5.1A paper-profile validator verification passed.');
+console.log('- stable loader integration verified');
 console.log('- Paper 1 profile: 40 logical questions / 90 marks');
 console.log('- Paper 2 profile: 30 logical questions / 90 marks');
 console.log('- Paper 2 3-mark pattern remains advisory');
