@@ -1,4 +1,4 @@
-/* V5.0RC3 — extends the existing read-only Release Audit with UX/production polish status.
+/* V5.0 — extends the existing read-only Release Audit with UX/production polish status.
    Presentation-only: consumes window.V50ProductionPolish.getAudit() and does not call Supabase. */
 (() => {
   'use strict';
@@ -16,7 +16,7 @@
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
   const labels = {
-    release_candidate_branding:'Release-candidate identity',
+    stable_release_branding:'Stable-release identity',
     production_setup_control:'Production setup control',
     reviewed_work_wording:'Reviewed Work & privacy wording',
     teacher_tab_accessibility:'Teacher tab accessibility',
@@ -25,7 +25,7 @@
   };
 
   const details = {
-    release_candidate_branding:'Visible shell uses V5.0 Release Candidate rather than legacy V4.x identity.',
+    stable_release_branding:'Visible shell uses the signed-off V5.0 Stable Release identity.',
     production_setup_control:'Packaged deployments hide the connection editor from the normal student/teacher home flow.',
     reviewed_work_wording:'Practice and Exam review language is consistent and result-code privacy is explicit.',
     teacher_tab_accessibility:'Teacher sections expose tab semantics, keyboard navigation and panel relationships.',
@@ -52,7 +52,7 @@
     return `
       <section class="v50rc-section" data-v50rc3-decorated="1" data-v50rc3-ready="${state.ready?'1':'0'}">
         <div class="v50rc-phase">
-          <div><h3>RC3 — UX & production polish</h3><p class="muted">Release-candidate identity, responsive usability, terminology, privacy wording, status announcements and Teacher Dashboard accessibility.</p></div>
+          <div><h3>RC3 — UX & production polish</h3><p class="muted">Stable-release identity, responsive usability, terminology, privacy wording, status announcements and Teacher Dashboard accessibility.</p></div>
           <span class="tag">${state.ready?'Polish pass':'Needs attention'}</span>
         </div>
         <div class="v50rc-grid">
@@ -60,7 +60,7 @@
           <div class="v50rc-stat"><strong>${state.packaged_production?'Packaged':'Local'}</strong><span>Connection presentation</span></div>
         </div>
         <div class="v50rc-checks">${ordered.map(key => checkCard(key,checks[key] === true)).join('')}</div>
-        <div class="info"><strong>RC3 boundary:</strong> This phase changes presentation and accessibility only. Final V5.0 sign-off still waits for the deliberate launch actions tracked in RC1/RC2.</div>
+        <div class="info"><strong>RC3 boundary:</strong> Presentation and accessibility checks remain isolated from grading, authentication, Practice/Exam evidence and student data.</div>
       </section>`;
   }
 
@@ -69,9 +69,18 @@
       .find(section => /^RC3\s+—/.test(String(section.querySelector('h3')?.textContent || '').trim()));
   }
 
+  function applyStableAuditHeading(){
+    const panel = document.getElementById('release-audit-panel');
+    const heading = panel?.querySelector('.header h2');
+    const lead = panel?.querySelector('.header .muted');
+    if (heading) heading.textContent = 'V5.0 Release Audit';
+    if (lead) lead.textContent = 'Whole-app release checks for the stable V5.0 baseline. RC1 covers functional integrity, RC2 covers security and launch configuration, and RC3 covers UX/production polish.';
+  }
+
   function decorate(){
     const root = document.getElementById(ROOT_ID);
     if (!root) return;
+    applyStableAuditHeading();
     const state = audit();
     const section = findRc3Section(root);
     if (!section) return;
@@ -89,7 +98,7 @@
     const hero = root.querySelector('.v50rc-hero');
     if (hero && state.ready){
       hero.className = 'v50rc-hero pass';
-      hero.innerHTML = '<h3>✅ RC3 production-polish checks pass</h3><div>Functional and security audits remain visible below. Deferred Exam Settings and final launch cleanup are still intentionally tracked before V5.0 sign-off.</div>';
+      hero.innerHTML = '<h3>✅ V5.0 production-polish checks pass</h3><div>Functional and security audits remain visible below. Launch Readiness separately tracks the controlled student rollout state.</div>';
     }
   }
 
@@ -101,10 +110,12 @@
   }
 
   function wire(){
+    applyStableAuditHeading();
     const root = document.getElementById(ROOT_ID);
     if (root){ observeRoot(root); return; }
 
     const bodyObserver = new MutationObserver(() => {
+      applyStableAuditHeading();
       const next = document.getElementById(ROOT_ID);
       if (!next) return;
       bodyObserver.disconnect();
