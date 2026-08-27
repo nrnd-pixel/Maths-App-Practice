@@ -65,6 +65,7 @@
     loadScriptOnce('v50-roster-edit.js?v=50launch-1', 'data-v50-roster-edit');
     loadScriptOnce('v51-paper-profile-validator.js?v=51a-1', 'data-v51-paper-profile-validator');
     loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51-bulk-question-image-upload');
+    loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51-bulk-question-image-cleanup');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
     loadScriptOnce('v50-production-polish.js?v=50stable-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
