@@ -67,6 +67,7 @@
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
     loadScriptOnce('v50-production-polish.js?v=50rc3-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
+    loadScriptOnce('v50-rc2-empty-result-code-polish.js?v=50rc2-empty-1', 'data-v50-rc2-empty-result-code-polish');
     loadScriptOnce('v50-release-audit-rc3.js?v=50rc3-1', 'data-v50-release-audit-rc3');
   }
 
