@@ -47,3 +47,5 @@ jobs:
         run: node site/tests/verify-v5.0-rc2-empty-result-code-audit.cjs
       - name: Verify release-candidate production polish
         run: node site/tests/verify-v5.0-production-polish.cjs
+      - name: Verify V5.1A paper profile validator
+        run: node site/tests/verify-v5.1a-paper-profile-validator.cjs
