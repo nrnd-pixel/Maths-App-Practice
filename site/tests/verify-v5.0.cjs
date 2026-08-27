@@ -79,13 +79,13 @@ for (const retired of ['v38-release.js', 'v381-release.js', 'v39-release.js']) {
   assert.ok(!configRefs.includes(retired), `${retired} must not be loaded by the active config bootstrap.`);
 }
 
-// 3) Current visible identity is the V5.0 Release Candidate; final stable V5.0 branding remains deferred.
-assert.match(config, /Math Practice V5\.0 RC/);
-assert.match(release, /Math Practice V5\.0 RC/);
-assert.match(release, /Version 5\.0 • Release Candidate/);
-assert.match(release, /V5\.0 Release Candidate:/);
-assert.doesNotMatch(release, /Version 5\.0 • Stable|V5\.0 Final Release/,
-  'RC3 must not prematurely stamp the final stable V5.0 release.');
+// 3) Final visible identity is the signed-off V5.0 Stable Release.
+assert.match(config, /Math Practice V5\.0/);
+assert.match(release, /Math Practice V5\.0/);
+assert.match(release, /Version 5\.0 • Stable Release/);
+assert.match(release, /V5\.0 Stable Release:/);
+assert.doesNotMatch(release, /Version 5\.0 • Release Candidate|V5\.0 Release Candidate:/,
+  'Final V5.0 must not regress to Release Candidate branding.');
 assert.match(release, /v49-student-topic-progress\.js/);
 assert.match(release, /v50-student-progress-overview\.js/);
 assert.doesNotMatch(release, /loadScriptOnce\('v49-student-progress-snapshot\.js/, 'The superseded V4.9A panel must not be loaded after B3 consolidation.');
@@ -178,7 +178,7 @@ console.log('V5 regression safety verification passed.');
 console.log(`- ${inlineScripts.length} inline application script block(s) compiled`);
 console.log(`- ${browserJs.length} browser JS files compiled`);
 console.log(`- ${configRefs.length + releaseRefs.length} staged loader references resolved`);
-console.log('- V5.0 Release Candidate identity is active while final stable branding remains deferred');
+console.log('- V5.0 Stable Release identity is active and Release Candidate branding is rejected');
 console.log('- Legacy V3.8/V3.8.1/V3.9 release-label scripts remain archived but are no longer actively loaded');
 console.log('- Browser-secret, student-session and Practice/Exam boundaries verified');
 console.log('- AI Help remains Practice-only at the server boundary');
