@@ -1,5 +1,5 @@
-/* V5.0RC3 — UX & Production Polish.
-   Presentation/accessibility only: release-candidate branding, production start-screen cleanup,
+/* V5.0 — UX & Production Polish.
+   Presentation/accessibility only: stable-release branding, production start-screen cleanup,
    reviewed-work wording, teacher-tab ergonomics and live-region polish.
    No grading, auth, Practice/Exam, assignment or student-data mutations. */
 (() => {
@@ -9,8 +9,8 @@
   window.__v50ProductionPolishInstalled = true;
 
   const STYLE_ID = 'v50rc3-production-polish-style';
-  const TITLE = 'Math Practice V5.0 RC';
-  const BADGE = 'Version 5.0 • Release Candidate';
+  const TITLE = 'Math Practice V5.0';
+  const BADGE = 'Version 5.0 • Stable Release';
   const UPDATE_EVENT = 'v50rc3-production-polish-updated';
 
   const byId = id => document.getElementById(id);
@@ -234,7 +234,7 @@
     const items = tabItems();
 
     const checks = {
-      release_candidate_branding:
+      stable_release_branding:
         document.title === TITLE && String(badge?.textContent || '').trim() === BADGE,
       production_setup_control:
         !packagedProduction() || (!!setup && setup.classList.contains('hidden') && setup.getAttribute('aria-hidden') === 'true'),
