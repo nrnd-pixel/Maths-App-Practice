@@ -28,7 +28,7 @@ assert(paths.includes('v51-imports/2026/paper-2/batch-b.png'));
 
 // If an earlier import batch committed a row before a later batch failed,
 // never delete the Storage object now referenced by that committed question.
-paths = api.uncommittedPaths(rows,[{image_url:'https://cdn.example.com/batch-a.png'}]);
+paths = Array.from(api.uncommittedPaths(rows,[{image_url:'https://cdn.example.com/batch-a.png'}]));
 assert.deepStrictEqual(paths,['v51-imports/2026/paper-2/batch-b.png'],
   'cleanup must preserve uploaded files already referenced by committed question rows');
 
@@ -37,7 +37,7 @@ const sharedRows = [
   {_v51a2_storage_path:'v51-imports/2026/paper-2/shared.png',image_url:'https://cdn.example.com/shared.png'},
   {_v51a2_storage_path:'v51-imports/2026/paper-2/shared.png',image_url:'https://cdn.example.com/shared.png'}
 ];
-assert.deepStrictEqual(api.uncommittedPaths(sharedRows,[{image_url:'https://cdn.example.com/shared.png'}]),[]);
+assert.deepStrictEqual(Array.from(api.uncommittedPaths(sharedRows,[{image_url:'https://cdn.example.com/shared.png'}])),[]);
 
 assert(source.includes('committedImageUrls'),'cleanup must distinguish committed image references from abandoned uploads');
 assert(source.includes("storage.from(ctx.bucket).remove(paths)"),'abandoned batch cleanup must remove only recorded Storage paths');
