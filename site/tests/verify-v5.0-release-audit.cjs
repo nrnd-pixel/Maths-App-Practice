@@ -19,11 +19,12 @@ assert.match(release, /v50-teacher-operations\.js\?v=50d2-1', 'data-v50-teacher-
   'Existing D2 loader must remain stable.');
 assert.match(release, /v50-release-audit\.js\?v=50rc2-1/,
   'The established RC1/RC2 audit surface must remain loaded.');
-assert.match(release, /v50-production-polish\.js\?v=50rc3-1/);
-assert.match(release, /v50-release-audit-rc3\.js\?v=50rc3-1/);
+assert.match(release, /v50-production-polish\.js\?v=50stable-1/);
+assert.match(release, /v50-release-audit-rc3\.js\?v=50stable-1/);
 assert.match(release, /data-v50-release-audit/);
 assert.match(release, /data-v50-release-audit-rc3/);
 
+// The underlying RC1/RC2 audit remains the same read-only diagnostic surface.
 assert.match(audit, /V5\.0 Release Candidate Audit/);
 assert.match(audit, /RC1 — Functional regression audit/);
 assert.match(audit, /RC2 — Security & launch configuration/);
@@ -44,16 +45,18 @@ assert.doesNotMatch(audit, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0
 assert.doesNotMatch(audit, /grade_practice_response|request_practice_hint|finalize_exam_attempt/i,
   'Release Audit must not introduce grading, hints or Exam finalization logic.');
 
-// RC3 extends the audit only through the presentation-only polish API.
+// Stable release presentation extends the audit only through the presentation-only polish API.
 assert.match(rc3Audit, /V50ProductionPolish\?\.getAudit/);
+assert.match(rc3Audit, /V5\.0 Release Audit/);
+assert.match(rc3Audit, /Stable-release identity/);
 assert.match(rc3Audit, /RC3 — UX & production polish/);
-assert.match(rc3Audit, /RC3 production-polish checks pass/);
+assert.match(rc3Audit, /V5\.0 production-polish checks pass/);
 assert.doesNotMatch(rc3Audit, /cloud\.rpc\(|cloud\.from\(|fetch\(/,
-  'RC3 audit extension must not make data requests.');
+  'Stable audit presentation must not make data requests.');
 assert.doesNotMatch(rc3Audit, /localStorage|sessionStorage/,
-  'RC3 audit extension must not persist state.');
+  'Stable audit presentation must not persist state.');
 assert.doesNotMatch(rc3Audit, /reset_student_launch_activity|generate_missing_student_pins|set_student_pin|manage_teacher_assignment|transfer_roster_student/,
-  'RC3 audit must not expose mutation workflows.');
+  'Stable audit presentation must not expose mutation workflows.');
 
 // Derived review-count repair only: no answer/result/history deletion or score mutation.
 assert.match(sql, /update public\.practice_sessions ps\s+set pending_review_count = actual\.pending_count/i);
@@ -88,14 +91,15 @@ assert.match(sql, /legacy_registered_exam_attempts_missing_class_id/i);
 assert.match(sql, /Historical warning only/i,
   'Legacy class-ID drift must be reported without rewriting historical Exam rows.');
 
-// RC3 may stamp the release-candidate identity, but final stable V5.0 still belongs to sign-off.
-assert.match(release, /Math Practice V5\.0 RC/);
-assert.match(release, /Version 5\.0 • Release Candidate/);
-assert.doesNotMatch(release, /Version 5\.0 • Stable|V5\.0 Final Release/);
+// Final stable V5.0 identity is now locked after sign-off.
+assert.match(release, /Math Practice V5\.0/);
+assert.match(release, /Version 5\.0 • Stable Release/);
+assert.match(release, /V5\.0 Stable Release:/);
+assert.doesNotMatch(release, /Version 5\.0 • Release Candidate|V5\.0 Release Candidate:/);
 
-console.log('V5.0 release-audit verification passed through RC3.');
-console.log('- RC1 audit remains read-only and visible inside the extended release audit');
+console.log('V5.0 release-audit verification passed for the stable release.');
+console.log('- RC1/RC2 audit logic remains read-only and visible inside the stable release audit');
 console.log('- every active Exam paper still requires explicit settings before RC1 passes');
 console.log('- pending-review cache repair remains derived-only and non-destructive');
-console.log('- RC3 audit is presentation-only and consumes the local production-polish status');
-console.log('- V5.0 RC identity is active while final stable branding remains deferred');
+console.log('- stable audit presentation consumes only the local production-polish status');
+console.log('- V5.0 Stable Release identity is active and RC branding is rejected');
