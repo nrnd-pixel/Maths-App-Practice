@@ -51,3 +51,5 @@ jobs:
         run: node site/tests/verify-v5.1a-paper-profile-validator.cjs
       - name: Verify V5.1A2 bulk question image upload
         run: node site/tests/verify-v5.1a2-bulk-question-image-upload.cjs
+      - name: Verify V5.1A2 abandoned image cleanup
+        run: node site/tests/verify-v5.1a2-bulk-image-cleanup.cjs
