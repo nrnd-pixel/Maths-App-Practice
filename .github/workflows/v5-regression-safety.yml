@@ -43,5 +43,7 @@ jobs:
         run: node site/tests/verify-v5.0-release-audit.cjs
       - name: Verify release-candidate security audit
         run: node site/tests/verify-v5.0-security-audit.cjs
+      - name: Verify RC2 empty result-code audit
+        run: node site/tests/verify-v5.0-rc2-empty-result-code-audit.cjs
       - name: Verify release-candidate production polish
         run: node site/tests/verify-v5.0-production-polish.cjs
