@@ -15,25 +15,28 @@ const auditRc3 = read('site/v50-release-audit-rc3.js');
 new vm.Script(polish,{filename:'v50-production-polish.js'});
 new vm.Script(auditRc3,{filename:'v50-release-audit-rc3.js'});
 
-// Release-candidate identity must be visible before final V5.0 stable sign-off.
-assert.match(config,/document\.title = 'Math Practice V5\.0 RC'/);
-assert.match(release,/document\.title = 'Math Practice V5\.0 RC'/);
-assert.match(release,/Version 5\.0 • Release Candidate/);
-assert.match(release,/V5\.0 Release Candidate:/);
-assert.doesNotMatch(release,/Version 5\.0 • Stable|V5\.0 Final Release/);
+// Final V5.0 stable identity must be visible after sign-off.
+assert.match(config,/document\.title = 'Math Practice V5\.0'/);
+assert.match(release,/document\.title = 'Math Practice V5\.0'/);
+assert.match(release,/Version 5\.0 • Stable Release/);
+assert.match(release,/V5\.0 Stable Release:/);
+assert.doesNotMatch(release,/Version 5\.0 • Release Candidate|V5\.0 Release Candidate:/);
+assert.match(polish,/const TITLE = 'Math Practice V5\.0'/);
+assert.match(polish,/const BADGE = 'Version 5\.0 • Stable Release'/);
+assert.match(polish,/stable_release_branding/);
 
-// Loader order keeps RC2 security first, then RC3 presentation and audit extension.
-assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*v50-production-polish\.js\?v=50rc3-1[\s\S]*v50-release-audit\.js\?v=50rc2-1[\s\S]*v50-release-audit-rc3\.js\?v=50rc3-1/);
+// Loader order keeps RC2 security first, then stable production polish and audit extension.
+assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*v50-production-polish\.js\?v=50stable-1[\s\S]*v50-release-audit\.js\?v=50rc2-1[\s\S]*v50-release-audit-rc3\.js\?v=50stable-1/);
 assert.match(release,/data-v50-production-polish/);
 assert.match(release,/data-v50-release-audit-rc3/);
 
-// RC3 production polish is presentation/accessibility only.
+// Production polish remains presentation/accessibility only.
 assert.doesNotMatch(polish,/cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(|fetch\(/,
-  'RC3 polish must not make network/data calls.');
+  'Production polish must not make network/data calls.');
 assert.doesNotMatch(polish,/localStorage|sessionStorage/,
-  'RC3 polish must not persist application state.');
+  'Production polish must not persist application state.');
 assert.doesNotMatch(polish,/grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt/i,
-  'RC3 polish must not touch grading or submission logic.');
+  'Production polish must not touch grading or submission logic.');
 assert.doesNotMatch(polish,/SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 
 // Production setup control is hidden only when packaged config + deployed HTTPS are present.
@@ -68,19 +71,21 @@ assert.match(polish,/cloud-status','student-access-note','exam-save-status','mod
 assert.match(polish,/setAttribute\('aria-live','polite'\)/);
 assert.match(polish,/querySelectorAll\('\.feedback'\)/);
 
-// RC3 audit consumes only the local polish API and remains read-only.
+// Stable audit presentation consumes only the local polish API and remains read-only.
 assert.match(polish,/Object\.defineProperty\(window,'V50ProductionPolish'/);
 assert.match(polish,/getAudit/);
 assert.match(auditRc3,/V50ProductionPolish\?\.getAudit/);
+assert.match(auditRc3,/V5\.0 Release Audit/);
+assert.match(auditRc3,/Stable-release identity/);
 assert.match(auditRc3,/RC3 — UX & production polish/);
 assert.match(auditRc3,/Production-polish checks passed/);
 assert.doesNotMatch(auditRc3,/cloud\.rpc\(|cloud\.from\(|fetch\(/);
 assert.doesNotMatch(auditRc3,/localStorage|sessionStorage/);
 assert.doesNotMatch(auditRc3,/reset_student_launch_activity|generate_missing_student_pins|set_student_pin|manage_teacher_assignment|transfer_roster_student/);
 
-console.log('V5.0RC3 UX & production-polish verification passed.');
-console.log('- V5.0 Release Candidate identity is consistent across bootstrap and release loader');
+console.log('V5.0 stable UX & production-polish verification passed.');
+console.log('- V5.0 Stable Release identity is consistent across bootstrap, release loader and production polish');
 console.log('- packaged production hides the connection editor while local/dev setup remains available');
 console.log('- Reviewed Work and result-code privacy language covers both Practice and Exam');
 console.log('- Teacher tabs have keyboard semantics and narrow-screen horizontal navigation');
-console.log('- status feedback is announced accessibly and RC3 remains presentation-only');
+console.log('- status feedback is announced accessibly and stable audit presentation remains read-only');
