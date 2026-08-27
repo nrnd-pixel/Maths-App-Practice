@@ -9,7 +9,6 @@ on:
     branches:
       - feature-v5.0
       - feature-v5.0b1-regression-safety
-      - hotfix/v5.0-launch-reset-safe-delete
 
 permissions:
   contents: read
@@ -38,6 +37,8 @@ jobs:
         run: node site/tests/verify-v5.0-launch-reset-hotfix.cjs
       - name: Verify teacher operations invariants
         run: node site/tests/verify-v5.0-teacher-operations.cjs
+      - name: Verify roster identity edit invariants
+        run: node site/tests/verify-v5.0-roster-edit.cjs
       - name: Verify release-candidate functional audit
         run: node site/tests/verify-v5.0-release-audit.cjs
       - name: Verify release-candidate security audit
