@@ -1,11 +1,13 @@
 /* V5.1A2 — cleanup guard for uncommitted bulk image uploads.
    If a teacher abandons a CSV preview after uploading its matched images, Clear Preview
-   removes only the Storage paths recorded on those in-memory import rows. */
+   removes only Storage paths that are not already referenced by committed question rows. */
 (() => {
   'use strict';
 
   if (typeof window !== 'undefined' && window.__v51BulkQuestionImageCleanupInstalled) return;
   if (typeof window !== 'undefined') window.__v51BulkQuestionImageCleanupInstalled = true;
+
+  const trim = value => String(value ?? '').trim();
 
   function currentRows(){
     try {
@@ -14,10 +16,32 @@
     return [];
   }
 
-  function uncommittedPaths(rows=currentRows()){
+  function currentTeacherQuestions(){
+    try {
+      if (typeof teacherQuestions !== 'undefined' && Array.isArray(teacherQuestions)) return teacherQuestions;
+    } catch {}
+    return [];
+  }
+
+  function committedImageUrls(questions=currentTeacherQuestions()){
+    return new Set((questions || [])
+      .map(question => trim(question?.image_url))
+      .filter(Boolean));
+  }
+
+  function uncommittedPaths(rows=currentRows(),questions=currentTeacherQuestions()){
+    const committedUrls = committedImageUrls(questions);
+    const protectedPaths = new Set();
+
+    for (const row of rows || []){
+      const path = trim(row?._v51a2_storage_path);
+      const imageUrl = trim(row?.image_url);
+      if (path && imageUrl && committedUrls.has(imageUrl)) protectedPaths.add(path);
+    }
+
     return [...new Set((rows || [])
-      .map(row => String(row?._v51a2_storage_path || '').trim())
-      .filter(Boolean))];
+      .map(row => trim(row?._v51a2_storage_path))
+      .filter(path => path && !protectedPaths.has(path)))];
   }
 
   function storageContext(){
@@ -79,7 +103,7 @@
     },true);
   }
 
-  const api = Object.freeze({uncommittedPaths,clearPreviewWithCleanup});
+  const api = Object.freeze({committedImageUrls,uncommittedPaths,clearPreviewWithCleanup});
   if (typeof window !== 'undefined'){
     Object.defineProperty(window,'V51BulkQuestionImageCleanup',{value:api,writable:false,configurable:false});
     if (typeof document !== 'undefined'){
