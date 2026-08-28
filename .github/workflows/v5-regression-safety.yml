@@ -57,3 +57,5 @@ jobs:
         run: node site/tests/verify-v5.1a2-image-safety.cjs
       - name: Verify V5.1A4 paper package preview
         run: node site/tests/verify-v5.1a4-paper-package-preview.cjs
+      - name: Verify V5.1A4 package status wording
+        run: node site/tests/verify-v5.1a4-package-status.cjs
