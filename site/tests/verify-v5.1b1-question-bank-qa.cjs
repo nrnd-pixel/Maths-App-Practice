@@ -108,10 +108,19 @@ assert(metadata.includes('skill'));
 assert(metadata.includes('answer'));
 assert(qa.qaFlags(metadataRow,qa.buildQaContext([metadataRow])).some(f=>f.key==='metadata'));
 
-const imageRow = row({id:'image',qno:9,image:'images/2019_P2_Q9.png'});
-assert(qa.qaFlags(imageRow,qa.buildQaContext([imageRow])).some(f=>f.key==='image'));
-const httpsRow = row({id:'https',qno:10,image:'https://example.com/q10.png'});
+const staticRow = row({id:'static',qno:9,image:'images/2019_P2_Q9.png'});
+assert.strictEqual(qa.imageReferenceKind(staticRow.image_url),'app_static');
+assert(!qa.qaFlags(staticRow,qa.buildQaContext([staticRow])).some(f=>f.key==='image'),'Known app-static images must not be false-positive QA flags');
+const rootStaticRow = row({id:'root-static',qno:10,image:'/images/2019_P2_Q10.png'});
+assert.strictEqual(qa.imageReferenceKind(rootStaticRow.image_url),'app_static');
+assert(!qa.qaFlags(rootStaticRow,qa.buildQaContext([rootStaticRow])).some(f=>f.key==='image'));
+const httpsRow = row({id:'https',qno:11,image:'https://example.com/q11.png'});
+assert.strictEqual(qa.imageReferenceKind(httpsRow.image_url),'https');
 assert(!qa.qaFlags(httpsRow,qa.buildQaContext([httpsRow])).some(f=>f.key==='image'));
+const httpRow = row({id:'http',qno:12,image:'http://example.com/q12.png'});
+assert(qa.qaFlags(httpRow,qa.buildQaContext([httpRow])).some(f=>f.key==='image'),'Plain HTTP image URLs should be flagged');
+const unresolvedRow = row({id:'unresolved',qno:13,image:'question-assets/q13.png'});
+assert(qa.qaFlags(unresolvedRow,qa.buildQaContext([unresolvedRow])).some(f=>f.key==='image'),'Unknown relative image paths should be flagged');
 
 const topical = row({id:'topical',year:0,paper:'',qno:'',sourceType:'topical_exercise'});
 assert.strictEqual(qa.sourceCategory(topical),'topical');
@@ -125,5 +134,6 @@ assert(source.includes('V5.1B1 — Question Bank QA'));
 assert(source.includes('Needs QA'));
 assert(source.includes('Paper profile issue'));
 assert(source.includes('All source types'));
+assert(source.includes('Image path issue'));
 
 console.log('V5.1B1 Question Bank QA checks passed.');
