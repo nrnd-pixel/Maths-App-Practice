@@ -75,3 +75,7 @@ jobs:
         run: node site/tests/verify-v5.1b2b-bulk-metadata.cjs
       - name: Verify V5.1B2B loader wiring
         run: node site/tests/verify-v5.1b2b-bulk-metadata-loader.cjs
+      - name: Verify V5.1B2C question review workflow
+        run: node site/tests/verify-v5.1b2c-question-review-workflow.cjs
+      - name: Verify V5.1B2C loader wiring
+        run: node site/tests/verify-v5.1b2c-question-review-loader.cjs
