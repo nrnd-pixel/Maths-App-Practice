@@ -63,3 +63,7 @@ jobs:
         run: node site/tests/verify-v5.1a5-one-confirmation-paper-import.cjs
       - name: Verify V5.1A6 post-import integrity
         run: node site/tests/verify-v5.1a6-post-import-integrity.cjs
+      - name: Verify V5.1B1 Question Bank QA
+        run: node site/tests/verify-v5.1b1-question-bank-qa.cjs
+      - name: Verify V5.1B1 loader wiring
+        run: node site/tests/verify-v5.1b1-question-bank-qa-loader.cjs
