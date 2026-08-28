@@ -86,6 +86,39 @@
     };
   }
 
+  function currentPaperProfiles(rows=currentRows()){
+    try {
+      const fn = window.V51PaperProfileValidator?.buildProfiles;
+      if (typeof fn === 'function') return Array.from(fn(currentTeacherQuestions(),rows) || []);
+    } catch {}
+    return [];
+  }
+
+  function standardPastPaper(identity=paperIdentity()){
+    if (trim(identity.sourceType).toLowerCase() !== 'past_paper') return false;
+    try {
+      return !!window.V51PaperProfileValidator?.paperProfile?.(identity.paper);
+    } catch {
+      return /^(?:paper\s*)?[12]$/i.test(trim(identity.paper));
+    }
+  }
+
+  function profileBlockingIssues(rows=currentRows(),profiles=currentPaperProfiles(rows)){
+    const identity = paperIdentity(rows);
+    if (!standardPastPaper(identity)) return [];
+    if (!profiles.length) return ['Paper profile QA is unavailable for this past paper'];
+    return profiles.filter(item => item?.status !== 'pass').map(item => {
+      const label = [item?.examYear || identity.examYear,item?.paper || identity.paper].filter(Boolean).join(' ');
+      const detail = Number.isFinite(Number(item?.logicalQuestions)) && Number.isFinite(Number(item?.expectedLogicalQuestions))
+        ? `${item.logicalQuestions}/${item.expectedLogicalQuestions} logical questions`
+        : 'question count incomplete';
+      const marks = Number.isFinite(Number(item?.totalMarks)) && Number.isFinite(Number(item?.expectedMarks))
+        ? ` · ${item.totalMarks}/${item.expectedMarks} marks`
+        : '';
+      return `${label || 'Paper'} profile must PASS before one-confirmation import (${detail}${marks})`;
+    });
+  }
+
   function imageBlockingIssues(report){
     if (!report) return ['V5.1A2 image matcher is unavailable'];
     const issues = [];
@@ -98,11 +131,15 @@
   function buildPlan({rows=currentRows(),packageReady=packagePreviewReady(),cloudReadyForTeacher=cloudTeacherReady(),files=selectedImageFiles()}={}){
     const counts = importCounts(rows);
     const images = imageReport(rows,files);
+    const identity = paperIdentity(rows);
+    const profiles = currentPaperProfiles(rows);
+    const profileIssues = profileBlockingIssues(rows,profiles);
     const blockers = [];
     if (!packageReady) blockers.push('Run a clean V5.1A4 package preview first');
     if (counts.invalid) blockers.push(`${counts.invalid} CSV row${counts.invalid===1?' needs':'s need'} attention`);
     if (!counts.ready && counts.total) blockers.push('No new valid rows are ready to import');
     if (!counts.total) blockers.push('No CSV preview rows are loaded');
+    blockers.push(...profileIssues);
     blockers.push(...imageBlockingIssues(images));
     if (!cloudReadyForTeacher) blockers.push('Cloud Teacher mode is required');
 
@@ -119,7 +156,9 @@
       images,
       imagesToUpload,
       localImageRows:localRows.length,
-      identity:paperIdentity(rows),
+      identity,
+      profiles,
+      profilePass:!standardPastPaper(identity) || (profiles.length>0 && profiles.every(item => item?.status === 'pass')),
       blockers
     };
   }
@@ -139,6 +178,7 @@
       `Import ${label} now?`,
       '',
       `${rows} new question row${rows===1?'':'s'} will be added${images ? ` after uploading ${images} matched image${images===1?'':'s'}` : ''}.`,
+      'Paper-profile QA has passed for this one-confirmation import.',
       'This writes to the configured Supabase question bank. Existing duplicates remain skipped.',
       'No Exam Setting will be created or enabled automatically.'
     ].join('\n');
@@ -156,7 +196,7 @@
     root.style.marginTop = '12px';
     root.innerHTML = `
       <strong>V5.1A5 — Validated paper import</strong>
-      <p class="muted" style="margin:7px 0 10px">After A4 reports a clean package, one confirmation runs the existing image-upload and question-import stages in order.</p>
+      <p class="muted" style="margin:7px 0 10px">After A4 reports a clean package and the Paper 1/2 profile passes, one confirmation runs the existing image-upload and question-import stages in order.</p>
       <div class="buttons">
         <button id="v51a5-import-paper" class="primary" type="button" disabled>Import Paper</button>
       </div>
@@ -191,12 +231,14 @@
       status.className = 'feedback correct';
       status.textContent = `${plan.counts.ready} new row${plan.counts.ready===1?'':'s'} ready${plan.imagesToUpload?` • ${plan.imagesToUpload} image${plan.imagesToUpload===1?'':'s'} will be uploaded first`:''}.`;
     } else {
-      status.className = 'help';
+      status.className = plan.profilePass ? 'help' : 'feedback try';
       status.textContent = plan.blockers[0] || 'Run Preview Package first.';
     }
 
     button.disabled = !plan.ready;
-    button.textContent = plan.alreadyImported ? 'Already Imported' : `Import Paper${plan.ready ? ` (${plan.counts.ready})` : ''}`;
+    if (plan.alreadyImported) button.textContent = 'Already Imported';
+    else if (!plan.profilePass && plan.counts.ready>0) button.textContent = 'Profile Incomplete';
+    else button.textContent = `Import Paper${plan.ready ? ` (${plan.counts.ready})` : ''}`;
     return plan;
   }
 
@@ -325,7 +367,7 @@
     if (typeof document === 'undefined') return;
     if (!ensurePanel()) return;
     document.getElementById('v51a5-import-paper')?.addEventListener('click',importPaper);
-    for (const id of ['v51a4-package-report','import-summary','v51a2-bulk-image-panel']){
+    for (const id of ['v51a4-package-report','import-summary','v51a2-bulk-image-panel','v51-paper-profile-audit']){
       const node = document.getElementById(id);
       if (node && typeof MutationObserver !== 'undefined'){
         const observer = new MutationObserver(() => window.requestAnimationFrame(render));
@@ -338,6 +380,8 @@
   const api = Object.freeze({
     importCounts,
     paperIdentity,
+    currentPaperProfiles,
+    profileBlockingIssues,
     buildPlan,
     confirmationText,
     packagePreviewReady,
