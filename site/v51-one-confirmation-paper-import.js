@@ -86,14 +86,6 @@
     };
   }
 
-  function currentPaperProfiles(rows=currentRows()){
-    try {
-      const fn = window.V51PaperProfileValidator?.buildProfiles;
-      if (typeof fn === 'function') return Array.from(fn(currentTeacherQuestions(),rows) || []);
-    } catch {}
-    return [];
-  }
-
   function standardPastPaper(identity=paperIdentity()){
     if (trim(identity.sourceType).toLowerCase() !== 'past_paper') return false;
     try {
@@ -103,20 +95,90 @@
     }
   }
 
-  function profileBlockingIssues(rows=currentRows(),profiles=currentPaperProfiles(rows)){
+  function packageProfile(rows=currentRows()){
     const identity = paperIdentity(rows);
-    if (!standardPastPaper(identity)) return [];
-    if (!profiles.length) return ['Paper profile QA is unavailable for this past paper'];
-    return profiles.filter(item => item?.status !== 'pass').map(item => {
-      const label = [item?.examYear || identity.examYear,item?.paper || identity.paper].filter(Boolean).join(' ');
-      const detail = Number.isFinite(Number(item?.logicalQuestions)) && Number.isFinite(Number(item?.expectedLogicalQuestions))
-        ? `${item.logicalQuestions}/${item.expectedLogicalQuestions} logical questions`
-        : 'question count incomplete';
-      const marks = Number.isFinite(Number(item?.totalMarks)) && Number.isFinite(Number(item?.expectedMarks))
-        ? ` · ${item.totalMarks}/${item.expectedMarks} marks`
-        : '';
-      return `${label || 'Paper'} profile must PASS before one-confirmation import (${detail}${marks})`;
-    });
+    if (!standardPastPaper(identity)){
+      return {required:false,pass:true,status:'not_required',identity};
+    }
+
+    let profile = null;
+    let stats = null;
+    try { profile = window.V51PaperProfileValidator?.paperProfile?.(identity.paper) || null; } catch {}
+    try { stats = window.V51PaperPackagePreview?.packageCsvStats?.(rows) || null; } catch {}
+
+    if (!profile || !stats){
+      return {required:true,pass:false,status:'unavailable',identity,profile,stats};
+    }
+
+    const logicalQuestions = Number(stats.logicalQuestions || 0);
+    const totalMarks = Number(stats.marks || 0);
+    const expectedLogicalQuestions = Number(profile.expectedLogicalQuestions || 0);
+    const expectedMarks = Number(profile.expectedMarks || 0);
+    const countDelta = logicalQuestions - expectedLogicalQuestions;
+    const marksDelta = totalMarks - expectedMarks;
+    let status = 'pass';
+    if (countDelta < 0 || marksDelta < 0) status = 'incomplete';
+    if (countDelta > 0 || marksDelta > 0) status = 'attention';
+
+    return {
+      required:true,
+      pass:status === 'pass',
+      status,
+      identity,
+      logicalQuestions,
+      totalMarks,
+      expectedLogicalQuestions,
+      expectedMarks,
+      countDelta,
+      marksDelta
+    };
+  }
+
+  function logicalQuestionNumber(row){
+    try {
+      const fn = window.V51PaperProfileValidator?.logicalQuestionNumber;
+      if (typeof fn === 'function') return trim(fn(row));
+    } catch {}
+    const parent = trim(row?.parent_question_number);
+    if (parent) return parent.replace(/^q\s*/i,'').trim();
+    const raw = trim(row?.question_number).replace(/^q\s*/i,'');
+    const multipart = raw.match(/^(\d+)\s*(?:\(([a-z])\)|([a-z]))$/i);
+    return multipart ? multipart[1] : raw;
+  }
+
+  function inactiveLogicalQuestions(rows=currentRows()){
+    const set = new Set();
+    for (const row of rows || []){
+      if (row?._valid === false || row?.active !== false) continue;
+      const logical = logicalQuestionNumber(row);
+      if (logical) set.add(logical);
+    }
+    return [...set]
+      .sort((a,b) => {
+        const na = Number(a), nb = Number(b);
+        if (Number.isFinite(na) && Number.isFinite(nb)) return na-nb;
+        return String(a).localeCompare(String(b));
+      })
+      .map(value => /^q/i.test(String(value)) ? String(value) : `Q${value}`);
+  }
+
+  function currentPaperProfiles(rows=currentRows()){
+    try {
+      const fn = window.V51PaperProfileValidator?.buildProfiles;
+      if (typeof fn === 'function') return Array.from(fn(currentTeacherQuestions(),rows) || []);
+    } catch {}
+    return [];
+  }
+
+  function packageCompletenessIssues(rows=currentRows(),profile=packageProfile(rows)){
+    if (!profile.required) return [];
+    if (profile.status === 'unavailable') return ['Full-package Paper 1/2 profile QA is unavailable'];
+    if (profile.pass) return [];
+    const label = [profile.identity?.examYear,profile.identity?.paper].filter(Boolean).join(' ') || 'Paper';
+    return [
+      `${label} digitisation package must contain the complete paper before one-confirmation import ` +
+      `(${profile.logicalQuestions}/${profile.expectedLogicalQuestions} logical questions · ${profile.totalMarks}/${profile.expectedMarks} marks)`
+    ];
   }
 
   function imageBlockingIssues(report){
@@ -132,14 +194,17 @@
     const counts = importCounts(rows);
     const images = imageReport(rows,files);
     const identity = paperIdentity(rows);
-    const profiles = currentPaperProfiles(rows);
-    const profileIssues = profileBlockingIssues(rows,profiles);
+    const fullPackageProfile = packageProfile(rows);
+    const packageIssues = packageCompletenessIssues(rows,fullPackageProfile);
+    const activeProfiles = currentPaperProfiles(rows);
+    const inactiveQuestions = inactiveLogicalQuestions(rows);
+    const examReady = !standardPastPaper(identity) || (activeProfiles.length>0 && activeProfiles.every(item => item?.status === 'pass'));
     const blockers = [];
     if (!packageReady) blockers.push('Run a clean V5.1A4 package preview first');
     if (counts.invalid) blockers.push(`${counts.invalid} CSV row${counts.invalid===1?' needs':'s need'} attention`);
     if (!counts.ready && counts.total) blockers.push('No new valid rows are ready to import');
     if (!counts.total) blockers.push('No CSV preview rows are loaded');
-    blockers.push(...profileIssues);
+    blockers.push(...packageIssues);
     blockers.push(...imageBlockingIssues(images));
     if (!cloudReadyForTeacher) blockers.push('Cloud Teacher mode is required');
 
@@ -157,8 +222,11 @@
       imagesToUpload,
       localImageRows:localRows.length,
       identity,
-      profiles,
-      profilePass:!standardPastPaper(identity) || (profiles.length>0 && profiles.every(item => item?.status === 'pass')),
+      packageProfile:fullPackageProfile,
+      packageProfilePass:!fullPackageProfile.required || fullPackageProfile.pass,
+      activeProfiles,
+      examReady,
+      inactiveLogicalQuestions:inactiveQuestions,
       blockers
     };
   }
@@ -170,18 +238,43 @@
     return parts.join(' ') || 'this paper package';
   }
 
+  function profileSummary(profile){
+    if (!profile?.required) return '';
+    return `${profile.logicalQuestions}/${profile.expectedLogicalQuestions} logical questions · ${profile.totalMarks}/${profile.expectedMarks} marks`;
+  }
+
+  function activeProfileSummary(plan){
+    const item = (plan?.activeProfiles || [])[0];
+    if (!item) return '';
+    return `${item.logicalQuestions}/${item.expectedLogicalQuestions} logical questions · ${item.totalMarks}/${item.expectedMarks} marks`;
+  }
+
   function confirmationText(plan){
     const rows = Number(plan?.counts?.ready || 0);
     const images = Number(plan?.imagesToUpload || 0);
     const label = paperLabel(plan?.identity || {});
-    return [
+    const lines = [
       `Import ${label} now?`,
       '',
-      `${rows} new question row${rows===1?'':'s'} will be added${images ? ` after uploading ${images} matched image${images===1?'':'s'}` : ''}.`,
-      'Paper-profile QA has passed for this one-confirmation import.',
+      `${rows} new question row${rows===1?'':'s'} will be added${images ? ` after uploading ${images} matched image${images===1?'':'s'}` : ''}.`
+    ];
+
+    if (plan?.packageProfile?.required){
+      lines.push(`Digitisation package is complete: ${profileSummary(plan.packageProfile)}.`);
+    }
+    if ((plan?.inactiveLogicalQuestions || []).length){
+      const q = plan.inactiveLogicalQuestions.join(', ');
+      lines.push(`Review warning: ${q} ${plan.inactiveLogicalQuestions.length===1?'is':'are'} inactive and will stay inactive after import.`);
+      if (!plan.examReady){
+        const activeSummary = activeProfileSummary(plan);
+        lines.push(`Active exam-profile QA remains incomplete${activeSummary ? ` (${activeSummary})` : ''} until the review item${plan.inactiveLogicalQuestions.length===1?' is':'s are'} resolved and activated.`);
+      }
+    }
+    lines.push(
       'This writes to the configured Supabase question bank. Existing duplicates remain skipped.',
       'No Exam Setting will be created or enabled automatically.'
-    ].join('\n');
+    );
+    return lines.join('\n');
   }
 
   function ensurePanel(){
@@ -196,7 +289,7 @@
     root.style.marginTop = '12px';
     root.innerHTML = `
       <strong>V5.1A5 — Validated paper import</strong>
-      <p class="muted" style="margin:7px 0 10px">After A4 reports a clean package and the Paper 1/2 profile passes, one confirmation runs the existing image-upload and question-import stages in order.</p>
+      <p class="muted" style="margin:7px 0 10px">After A4 validates a complete digitisation package, one confirmation runs the existing image-upload and question-import stages in order. Inactive review rows may be imported safely and remain inactive.</p>
       <div class="buttons">
         <button id="v51a5-import-paper" class="primary" type="button" disabled>Import Paper</button>
       </div>
@@ -228,16 +321,20 @@
       status.className = 'feedback correct';
       status.textContent = 'Package is already fully imported. No new question rows are required.';
     } else if (plan.ready){
-      status.className = 'feedback correct';
-      status.textContent = `${plan.counts.ready} new row${plan.counts.ready===1?'':'s'} ready${plan.imagesToUpload?` • ${plan.imagesToUpload} image${plan.imagesToUpload===1?'':'s'} will be uploaded first`:''}.`;
+      const packageNote = plan.packageProfile?.required ? ` • package complete ${profileSummary(plan.packageProfile)}` : '';
+      const reviewNote = plan.inactiveLogicalQuestions.length
+        ? ` • ⚠ ${plan.inactiveLogicalQuestions.join(', ')} inactive; active exam-profile QA remains incomplete until reviewed`
+        : '';
+      status.className = plan.inactiveLogicalQuestions.length ? 'feedback try' : 'feedback correct';
+      status.textContent = `${plan.counts.ready} new row${plan.counts.ready===1?'':'s'} ready${plan.imagesToUpload?` • ${plan.imagesToUpload} image${plan.imagesToUpload===1?'':'s'} will be uploaded first`:''}${packageNote}${reviewNote}.`;
     } else {
-      status.className = plan.profilePass ? 'help' : 'feedback try';
+      status.className = plan.packageProfilePass ? 'help' : 'feedback try';
       status.textContent = plan.blockers[0] || 'Run Preview Package first.';
     }
 
     button.disabled = !plan.ready;
     if (plan.alreadyImported) button.textContent = 'Already Imported';
-    else if (!plan.profilePass && plan.counts.ready>0) button.textContent = 'Profile Incomplete';
+    else if (!plan.packageProfilePass && plan.counts.ready>0) button.textContent = 'Package Incomplete';
     else button.textContent = `Import Paper${plan.ready ? ` (${plan.counts.ready})` : ''}`;
     return plan;
   }
@@ -348,7 +445,10 @@
       uploadedCount = await runExistingImageUpload(plan);
       const importResult = await runExistingQuestionImport(plan);
       state.messageKind = 'correct';
-      state.message = `${plan.counts.ready} new question row${plan.counts.ready===1?'':'s'} imported successfully${uploadedCount?` after uploading ${uploadedCount} image${uploadedCount===1?'':'s'}`:''}.${importResult.refreshed?'':' Question-bank refresh is still catching up; use Refresh if needed.'}`;
+      const inactiveNote = plan.inactiveLogicalQuestions.length
+        ? ` ${plan.inactiveLogicalQuestions.join(', ')} ${plan.inactiveLogicalQuestions.length===1?'was':'were'} imported inactive for teacher review.`
+        : '';
+      state.message = `${plan.counts.ready} new question row${plan.counts.ready===1?'':'s'} imported successfully${uploadedCount?` after uploading ${uploadedCount} image${uploadedCount===1?'':'s'}`:''}.${inactiveNote}${importResult.refreshed?'':' Question-bank refresh is still catching up; use Refresh if needed.'}`;
       return true;
     } catch (error){
       state.messageKind = 'incorrect';
@@ -380,8 +480,10 @@
   const api = Object.freeze({
     importCounts,
     paperIdentity,
+    packageProfile,
+    inactiveLogicalQuestions,
     currentPaperProfiles,
-    profileBlockingIssues,
+    packageCompletenessIssues,
     buildPlan,
     confirmationText,
     packagePreviewReady,
