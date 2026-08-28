@@ -197,10 +197,6 @@
     if (imageUrl && !/^https:\/\//i.test(imageUrl)) flags.push({key:'image',label:'Image URL not HTTPS'});
     if (context.duplicateIds?.has(id)) flags.push({key:'duplicate',label:'Duplicate exam identifier'});
     if (context.multipartIds?.has(id)) flags.push({key:'multipart',label:'Multipart structure'});
-    const pkey = paperKey(row);
-    const profile = pkey ? context.profileByKey?.get(pkey) : null;
-    if (profile?.status === 'incomplete') flags.push({key:'paper_incomplete',label:'Active paper incomplete'});
-    else if (profile?.status === 'attention') flags.push({key:'paper_attention',label:'Active paper needs attention'});
     return flags;
   }
 
@@ -219,7 +215,10 @@
     const keys = new Set(qaFlags(row,context).map(flag=>flag.key));
     if (qaValue === 'flagged') return keys.size>0;
     if (qaValue === 'clean') return keys.size===0;
-    if (qaValue === 'paper_issue') return keys.has('paper_incomplete') || keys.has('paper_attention');
+    if (qaValue === 'paper_issue'){
+      const profile = context?.profileByKey?.get(paperKey(row));
+      return !!profile && profile.status !== 'pass';
+    }
     return keys.has(qaValue);
   }
 
@@ -321,7 +320,7 @@
         const detail = card.querySelector('.qcard-detail');
         if (detail) detail.insertAdjacentElement('beforebegin',chipRoot); else card.appendChild(chipRoot);
       }
-      chipRoot.innerHTML = flags.map(flag=>`<span class="tag ${flag.key==='inactive'||flag.key==='paper_incomplete'?'status-inactive':''}" title="${esc(flag.label)}">QA: ${esc(flag.label)}</span>`).join('');
+      chipRoot.innerHTML = flags.map(flag=>`<span class="tag ${flag.key==='inactive'?'status-inactive':''}" title="${esc(flag.label)}">QA: ${esc(flag.label)}</span>`).join('');
       chipRoot.classList.toggle('hidden',flags.length===0);
       const show = matchesQaFilter(row,qaValue,sourceValue,context);
       card.classList.toggle('hidden',!show);
