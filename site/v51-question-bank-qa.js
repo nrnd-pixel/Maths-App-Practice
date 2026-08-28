@@ -70,6 +70,7 @@
       if (!groups.has(key)) groups.set(key,[]);
       groups.get(key).push(row);
     }
+
     const results = [];
     for (const [key,list] of groups){
       const first = list[0] || {};
@@ -175,6 +176,22 @@
     return issues;
   }
 
+  function imageReferenceKind(value){
+    const imageUrl = trim(value);
+    if (!imageUrl) return 'none';
+    if (/^https:\/\//i.test(imageUrl)) return 'https';
+    if (/^\/?images\//i.test(imageUrl)) return 'app_static';
+    if (/^http:\/\//i.test(imageUrl)) return 'http';
+    return 'unresolved';
+  }
+
+  function imageReferenceIssue(value){
+    const kind = imageReferenceKind(value);
+    if (kind === 'http') return 'Insecure HTTP image URL';
+    if (kind === 'unresolved') return 'Unresolved image path';
+    return '';
+  }
+
   function buildQaContext(rows){
     const list = Array.from(rows || []);
     const profiles = auditPaperProfiles(list);
@@ -193,8 +210,8 @@
     if (row?.active === false) flags.push({key:'inactive',label:'Inactive'});
     const metadata = metadataIssues(row);
     if (metadata.length) flags.push({key:'metadata',label:`Metadata: ${metadata.join(', ')}`});
-    const imageUrl = trim(row?.image_url);
-    if (imageUrl && !/^https:\/\//i.test(imageUrl)) flags.push({key:'image',label:'Image URL not HTTPS'});
+    const imageIssue = imageReferenceIssue(row?.image_url);
+    if (imageIssue) flags.push({key:'image',label:imageIssue});
     if (context.duplicateIds?.has(id)) flags.push({key:'duplicate',label:'Duplicate exam identifier'});
     if (context.multipartIds?.has(id)) flags.push({key:'multipart',label:'Multipart structure'});
     return flags;
@@ -258,7 +275,7 @@
         const qa = document.createElement('select');
         qa.id = 'v51b1-qa-filter';
         qa.setAttribute('aria-label','Question QA filter');
-        qa.innerHTML = '<option value="all">All QA states</option><option value="flagged">Needs QA</option><option value="clean">No QA flags</option><option value="inactive">Inactive</option><option value="paper_issue">Paper profile issue</option><option value="metadata">Metadata issue</option><option value="image">Image URL issue</option><option value="duplicate">Duplicate identifier</option><option value="multipart">Multipart issue</option>';
+        qa.innerHTML = '<option value="all">All QA states</option><option value="flagged">Needs QA</option><option value="clean">No QA flags</option><option value="inactive">Inactive</option><option value="paper_issue">Paper profile issue</option><option value="metadata">Metadata issue</option><option value="image">Image path issue</option><option value="duplicate">Duplicate identifier</option><option value="multipart">Multipart issue</option>';
         filterGrid.appendChild(qa);
         const source = document.createElement('select');
         source.id = 'v51b1-source-filter';
@@ -290,7 +307,7 @@
     const root = document.getElementById('v51b1-qa-summary');
     if (root) root.innerHTML = [
       `${stats.total} questions`,`${stats.flagged} flagged`,`${stats.inactive} inactive`,`${stats.metadata} metadata`,
-      `${stats.image} image URL`,`${stats.duplicate} duplicate ID`,`${stats.multipart} multipart`,
+      `${stats.image} image path`,`${stats.duplicate} duplicate ID`,`${stats.multipart} multipart`,
       `${stats.paperPass} paper PASS`,`${stats.paperIssues} paper issues`
     ].map(text=>`<span class="tag">${esc(text)}</span>`).join('');
     const profiles = document.getElementById('v51b1-paper-profiles');
@@ -307,10 +324,11 @@
     const qaValue = document.getElementById('v51b1-qa-filter')?.value || 'all';
     const sourceValue = document.getElementById('v51b1-source-filter')?.value || 'all';
     let visible = 0;
-    document.querySelectorAll('#questions-cards .qcard').forEach(card=>{
+    const cards = Array.from(document.querySelectorAll('#questions-cards .qcard'));
+    for (const card of cards){
       const id = card.querySelector('.edit-q')?.dataset?.id || card.querySelector('[data-id]')?.dataset?.id;
       const row = rows.find(item=>String(item.id)===String(id));
-      if (!row) return;
+      if (!row) continue;
       const flags = qaFlags(row,context);
       let chipRoot = card.querySelector('.v51b1-qa-chips');
       if (!chipRoot){
@@ -325,9 +343,9 @@
       const show = matchesQaFilter(row,qaValue,sourceValue,context);
       card.classList.toggle('hidden',!show);
       if (show) visible++;
-    });
+    }
     const count = document.getElementById('question-bank-count');
-    if (count && (qaValue!=='all' || sourceValue!=='all')) count.textContent = `Showing ${visible} QA-filtered questions of ${rows.length} loaded`;
+    if (count && (qaValue!=='all' || sourceValue!=='all')) count.textContent = `Showing ${visible} QA-filtered questions of ${cards.length} currently displayed`;
     return visible;
   }
 
@@ -366,7 +384,8 @@
 
   const api = Object.freeze({
     paperProfile,logicalQuestionNumber,paperKey,examIdentity,auditPaperProfiles,duplicateIdentityIds,
-    multipartIssueIds,metadataIssues,buildQaContext,qaFlags,sourceCategory,matchesQaFilter,summaryStats,render
+    multipartIssueIds,metadataIssues,imageReferenceKind,imageReferenceIssue,buildQaContext,qaFlags,
+    sourceCategory,matchesQaFilter,summaryStats,render
   });
 
   if (typeof window !== 'undefined'){
