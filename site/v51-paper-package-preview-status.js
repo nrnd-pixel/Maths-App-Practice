@@ -37,7 +37,8 @@
 
     const counts = reportCounts(text);
     if (counts.readyRows == null || counts.invalidRows == null) return;
-    headline.textContent = statusLabel({ready:true,...counts});
+    const nextLabel = statusLabel({ready:true,...counts});
+    if (headline.textContent !== nextLabel) headline.textContent = nextLabel;
   }
 
   function wire(){
