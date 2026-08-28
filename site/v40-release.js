@@ -69,6 +69,7 @@
     loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51-bulk-question-image-safety');
     loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51-paper-package-preview');
     loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51-paper-package-preview-status');
+    loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51-one-confirmation-paper-import');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
     loadScriptOnce('v50-production-polish.js?v=50stable-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');

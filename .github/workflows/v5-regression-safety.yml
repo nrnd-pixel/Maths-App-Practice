@@ -59,3 +59,5 @@ jobs:
         run: node site/tests/verify-v5.1a4-paper-package-preview.cjs
       - name: Verify V5.1A4 package status wording
         run: node site/tests/verify-v5.1a4-package-status.cjs
+      - name: Verify V5.1A5 one-confirmation paper import
+        run: node site/tests/verify-v5.1a5-one-confirmation-paper-import.cjs
