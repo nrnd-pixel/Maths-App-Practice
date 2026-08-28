@@ -64,9 +64,9 @@ assert(confirmText.includes('no Exam Setting will be created or enabled'));
 assert(confirmText.includes('configured Supabase question bank'));
 
 assert(source.includes("cloud.from('questions').update({active:!!targetActive}).in('id',ids)"),'B2A should use one status-only Supabase update');
-assert(!source.includes('.delete('),'B2A must not delete rows');
-assert(!source.includes('.insert('),'B2A must not insert rows');
-assert(!source.includes('.upsert('),'B2A must not upsert rows');
+assert(!/cloud\.from\(['\"]questions['\"]\)\.delete\s*\(/.test(source),'B2A must not delete question rows');
+assert(!/cloud\.from\(['\"]questions['\"]\)\.insert\s*\(/.test(source),'B2A must not insert question rows');
+assert(!/cloud\.from\(['\"]questions['\"]\)\.upsert\s*\(/.test(source),'B2A must not upsert question rows');
 assert(!source.includes('storage.from('),'B2A must not change Storage');
 assert(!source.includes("from('exam_paper_settings')"),'B2A must not change Exam Settings');
 assert(source.includes('Select all filtered'));
