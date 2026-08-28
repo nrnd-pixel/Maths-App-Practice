@@ -55,3 +55,5 @@ jobs:
         run: node site/tests/verify-v5.1a2-bulk-image-cleanup.cjs
       - name: Verify V5.1A2 image persistence safety
         run: node site/tests/verify-v5.1a2-image-safety.cjs
+      - name: Verify V5.1A4 paper package preview
+        run: node site/tests/verify-v5.1a4-paper-package-preview.cjs
