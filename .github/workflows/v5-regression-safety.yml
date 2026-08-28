@@ -69,3 +69,5 @@ jobs:
         run: node site/tests/verify-v5.1b1-question-bank-qa-loader.cjs
       - name: Verify V5.1B2A bulk activate/deactivate
         run: node site/tests/verify-v5.1b2a-bulk-activate-deactivate.cjs
+      - name: Verify V5.1B2A loader wiring
+        run: node site/tests/verify-v5.1b2a-bulk-status-loader.cjs
