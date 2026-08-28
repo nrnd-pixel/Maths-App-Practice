@@ -29,14 +29,14 @@ assert.strictEqual(
   api.statusLabel({ready:false,readyRows:0,invalidRows:1}),
   '⚠ Package needs attention'
 );
-assert.deepStrictEqual(
-  api.reportCounts('CSV: 34 rows · 0 ready · 34 duplicates skipped · 0 need attention'),
-  {readyRows:0,invalidRows:0}
-);
-assert.deepStrictEqual(
-  api.reportCounts('CSV: 34 rows · 13 ready · 21 duplicates skipped · 0 need attention'),
-  {readyRows:13,invalidRows:0}
-);
+
+const fullyImported = api.reportCounts('CSV: 34 rows · 0 ready · 34 duplicates skipped · 0 need attention');
+assert.strictEqual(fullyImported.readyRows,0);
+assert.strictEqual(fullyImported.invalidRows,0);
+
+const stagedImport = api.reportCounts('CSV: 34 rows · 13 ready · 21 duplicates skipped · 0 need attention');
+assert.strictEqual(stagedImport.readyRows,13);
+assert.strictEqual(stagedImport.invalidRows,0);
 
 assert(loader.includes('v51-paper-package-preview-status.js'), 'V5 loader must include the A4 status polish');
 assert(!/storage\.from|\.from\(\s*['\"]questions['\"]\s*\)|localStorage|sessionStorage/.test(source), 'status polish must remain presentation-only');
