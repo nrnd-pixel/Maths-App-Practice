@@ -39,6 +39,7 @@ assert.strictEqual(stagedImport.readyRows,13);
 assert.strictEqual(stagedImport.invalidRows,0);
 
 assert(loader.includes('v51-paper-package-preview-status.js'), 'V5 loader must include the A4 status polish');
+assert(source.includes('if (headline.textContent !== nextLabel) headline.textContent = nextLabel;'), 'status observer must not rewrite an unchanged headline and trigger itself repeatedly');
 assert(!/storage\.from|\.from\(\s*['\"]questions['\"]\s*\)|localStorage|sessionStorage/.test(source), 'status polish must remain presentation-only');
 
 console.log('V5.1A4 package status wording checks passed.');
