@@ -232,6 +232,23 @@
     const yearWrap = document.getElementById('exam-year-wrap');
     if (yearWrap) new MutationObserver(scheduleRender).observe(yearWrap,{attributes:true,attributeFilter:['class']});
 
+    // The Exam engine writes local recovery state in the same tab. Storage events do not
+    // fire back into that same tab, so refresh immediately when an unfinished Exam returns
+    // to the start screen instead of waiting for another selector change or the timer poll.
+    const startScreen = document.getElementById('start');
+    if (startScreen) new MutationObserver(scheduleRender).observe(startScreen,{attributes:true,attributeFilter:['class']});
+
+    // Registered-student verification updates identity fields programmatically. Observe the
+    // existing access-status surface as an additional presentation-only refresh signal.
+    const accessNote = document.getElementById('student-access-note');
+    if (accessNote) new MutationObserver(scheduleRender).observe(accessNote,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+
+    window.addEventListener('pageshow',scheduleRender);
+    window.addEventListener('focus',scheduleRender);
+    document.addEventListener('visibilitychange',()=>{
+      if (!document.hidden) scheduleRender();
+    });
+
     setInterval(scheduleRender,60000);
     scheduleRender();
   }
