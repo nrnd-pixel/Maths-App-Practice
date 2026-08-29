@@ -7,9 +7,11 @@ const root = path.join(__dirname,'..');
 const jsPath = path.join(root,'v51-exam-publication-safety.js');
 const sqlPath = path.join(root,'..','supabase','v51b3_exam_publication_safety.sql');
 const bulkSqlPath = path.join(root,'..','supabase','v51b3_exam_publication_bulk_safety.sql');
+const followupSqlPath = path.join(root,'..','supabase','v51b3_exam_publication_safety_followup.sql');
 const code = fs.readFileSync(jsPath,'utf8');
 const sql = fs.readFileSync(sqlPath,'utf8');
 const bulkSql = fs.readFileSync(bulkSqlPath,'utf8');
+const followupSql = fs.readFileSync(followupSqlPath,'utf8');
 
 const sandbox = { window:{}, console };
 vm.createContext(sandbox);
@@ -53,6 +55,9 @@ assert(sql.includes('Exam paper is not ready for publication'),'database must re
 assert(sql.includes('create constraint trigger questions_published_exam_integrity_v51b3'),'published papers must be protected from breaking question changes');
 assert(sql.includes('deferrable initially deferred'),'question integrity guard must evaluate final transaction state');
 assert(sql.includes('Unpublish it before making this question-bank change'),'published integrity failure must tell teacher how to proceed');
+
+assert(followupSql.includes('alter function public.exam_paper_readiness_v51b3(integer,integer,text) volatile'),'deferred readiness helper must be VOLATILE so it sees final transaction state');
+assert(followupSql.includes('alter function public.get_exam_paper_readiness_v51b3(integer,integer,text) volatile'),'teacher readiness wrapper must match the final-state volatility hardening');
 
 assert(bulkSql.includes('create or replace function public.save_exam_paper_settings_bulk_v51b3'),'bulk migration must define atomic save RPC');
 assert(bulkSql.includes('-- Pass 1: validate the entire batch before any write.'),'bulk RPC must preflight all selected settings');
