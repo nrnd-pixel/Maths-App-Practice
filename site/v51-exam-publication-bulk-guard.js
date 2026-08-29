@@ -1,6 +1,6 @@
 /* V5.1B3 — guarded ownership of the legacy bulk Exam Settings save action.
    Intercepts V4.3D Save selected, validates all selected cards, confirms any
-   publish/unpublish transitions once, and saves atomically through the B3 batch RPC. */
+   publish/unpublish transitions once, and saves atomically through the canonical B3 bulk RPC. */
 (() => {
   'use strict';
 
@@ -100,7 +100,7 @@
 
     let data = null, error = null;
     try {
-      ({data,error} = await cloud.rpc('save_exam_paper_settings_batch_v51b3',{p_items:items}));
+      ({data,error} = await cloud.rpc('save_exam_paper_settings_bulk_v51b3',{p_settings:items}));
     } catch (err){ error = err; }
 
     if (error){
