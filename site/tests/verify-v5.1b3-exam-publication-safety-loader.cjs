@@ -23,5 +23,7 @@ assert(uiPolish.includes("refresh.addEventListener('click'"),'B3 must own the Re
 assert(uiPolish.includes("event.stopImmediatePropagation()"),'B3 entry guards must stop stale legacy handlers from running');
 assert(uiPolish.includes(".tab[data-panel=\"${PANEL_ID}\"]"),'B3 must own opening the Exam Settings tab');
 assert(uiPolish.includes('activateExamSettingsPanel(tab)'),'B3 tab guard must preserve normal tab activation');
+assert(uiPolish.includes("card.querySelector('.v51b3-readiness')"),'B3 must detect legacy cards that are missing readiness decoration');
+assert(uiPolish.includes('reconcileLegacyCards()'),'B3 must self-heal stale legacy card renders');
 assert(uiPolish.includes('runGuardedLoad()'),'B3 entry points must invoke the hardened loader');
-console.log('V5.1B3 loader, presentation and guarded entry-point checks passed.');
+console.log('V5.1B3 loader, presentation, guarded entry-point and self-heal checks passed.');
