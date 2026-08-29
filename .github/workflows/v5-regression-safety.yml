@@ -83,3 +83,7 @@ jobs:
         run: node site/tests/verify-v5.1b2d-correction-audit-history.cjs
       - name: Verify V5.1B2D loader wiring
         run: node site/tests/verify-v5.1b2d-correction-audit-history-loader.cjs
+      - name: Verify V5.1B2E multipart question management
+        run: node site/tests/verify-v5.1b2e-multipart-question-management.cjs
+      - name: Verify V5.1B2E loader wiring
+        run: node site/tests/verify-v5.1b2e-multipart-question-management-loader.cjs
