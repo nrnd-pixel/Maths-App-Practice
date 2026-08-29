@@ -6,7 +6,7 @@ const loader = fs.readFileSync(path.join(__dirname,'..','v40-release.js'),'utf8'
 const uiPolish = fs.readFileSync(path.join(__dirname,'..','v51-exam-publication-ui-polish.js'),'utf8');
 const b2e = loader.indexOf("v51-multipart-question-management.js?v=51b2e-1");
 const b3 = loader.indexOf("v51-exam-publication-safety.js?v=51b3-1");
-const b3Ui = loader.indexOf("v51-exam-publication-ui-polish.js?v=51b3-ui-2");
+const b3Ui = loader.indexOf("v51-exam-publication-ui-polish.js?v=51b3-ui-3");
 const security = loader.indexOf("v50-security-hardening.js?v=50rc2-1");
 assert(b2e >= 0,'B2E loader entry missing');
 assert(b3 >= 0,'B3 loader entry missing');
@@ -26,4 +26,8 @@ assert(uiPolish.includes('activateExamSettingsPanel(tab)'),'B3 tab guard must pr
 assert(uiPolish.includes("card.querySelector('.v51b3-readiness')"),'B3 must detect legacy cards that are missing readiness decoration');
 assert(uiPolish.includes('reconcileLegacyCards()'),'B3 must self-heal stale legacy card renders');
 assert(uiPolish.includes('runGuardedLoad()'),'B3 entry points must invoke the hardened loader');
-console.log('V5.1B3 loader, presentation, guarded entry-point and self-heal checks passed.');
+assert(uiPolish.includes('repairCompactPaperSummaries()'),'B3 must repair V4.3C compact paper summaries after safe defaults are applied');
+assert(uiPolish.includes("const prefix = exists ? '' : 'Safe default · ';"),'Papers without a settings row must visibly identify compact values as safe defaults');
+assert(uiPolish.includes("card.querySelector('.setting-available')?.value === 'true' ? 'Available' : 'Unavailable'"),'Compact availability must reflect the guarded availability control');
+assert(uiPolish.includes("value === 'after_manual_review'"),'Compact release wording must support the B3 conservative default');
+console.log('V5.1B3 loader, presentation, guarded entry-point, self-heal and compact-summary checks passed.');
