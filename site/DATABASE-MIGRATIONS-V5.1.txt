@@ -1,0 +1,35 @@
+Maths Practice V5.1 — Database migration record
+
+Release-candidate base:
+787c9cccf5561dc041c74a5c498631dee28e22c9
+
+V5.1A — no new database migration required.
+The paper-profile validator, bulk image workflow, package preview, one-confirmation import orchestration and post-import integrity check reuse the established Question Bank, Storage and Exam Settings structures.
+
+V5.1B — database-backed Question Bank safety layers.
+Production migration history was synchronized during V5.1 RC preparation and currently ends at:
+
+20260828155458 v51b2c_question_review_workflow
+20260828225115 v51b2d_question_change_history
+20260829011834 v51b2e_multipart_question_management
+20260829034010 v51b3_exam_publication_safety
+20260829040215 v51b3_exam_publication_bulk_safety
+20260829052501 v51b3_exam_publication_safety_followup
+20260829072524 v51b3_exam_publication_bulk_safety
+20260829072534 v51b3_exam_publication_safety_followup
+20260829080359 v51b3_exam_publication_bulk_safety
+20260829080449 v51b3_exam_publication_safety_followup
+20260829181101 v51b3_exam_publication_bulk_guard
+20260829181613 v51b3_exam_publication_bulk_cleanup
+
+V5.1C1 — no new database migration required.
+Student Exam Paper Library reads the existing available-paper metadata and established Exam Settings/secure question-retrieval paths.
+
+V5.1C2 — no new database migration required.
+Student Exam Resume & Progress Clarity is presentation-only over the existing recoverable Exam attempt snapshot and secure resume/autosave implementation.
+
+Release guidance:
+- Do not run SQL solely to deploy the V5.1 release candidate when production migration history already includes the entries above.
+- Do not re-run historical V5.1B migrations manually.
+- Before final V5.1 release, confirm the target Supabase project is SR Lumapas Math Practice and that migration history still ends at or beyond 20260829181613.
+- Any migration created after this RC record must be deliberately reviewed, tested and added to this release record before V5.1 Stable Release sign-off.
