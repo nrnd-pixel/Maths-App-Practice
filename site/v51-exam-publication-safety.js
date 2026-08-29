@@ -1,6 +1,6 @@
 /* V5.1B3 — Exam Paper Publication Safety.
    Hardens the existing Exam Settings editor. Missing settings default to unavailable,
-   publication requires server readiness, and writes use the guarded teacher RPC. */
+   publication requires server readiness, and writes use guarded teacher RPCs. */
 (() => {
   'use strict';
 
@@ -70,6 +70,17 @@
     root.textContent = message;
   }
 
+  function bulkFeedback(kind,message){
+    if (typeof document === 'undefined') return;
+    const root = document.getElementById('v43d-feedback');
+    if (root){
+      root.className = `feedback ${kind} v43d-feedback`;
+      root.textContent = message;
+      root.classList.remove('hidden');
+    }
+    feedback(kind,message);
+  }
+
   function cardPayload(card){
     const durationInput = card.querySelector('.setting-duration');
     const release = card.querySelector('.setting-release');
@@ -83,6 +94,15 @@
       answer_release_rule:trim(release?.value) || 'after_manual_review',
       is_available:available?.value === 'true'
     });
+  }
+
+  function validatePayload(payload){
+    if (!Number.isInteger(payload.year_level) || payload.year_level < 1 || payload.year_level > 13) return 'Invalid year level.';
+    if (!Number.isInteger(payload.exam_year) || payload.exam_year < 2000 || payload.exam_year > 2100) return 'Invalid exam year.';
+    if (!payload.paper) return 'Paper is required.';
+    if (payload.duration_minutes !== null && (!Number.isFinite(payload.duration_minutes) || payload.duration_minutes < 1 || payload.duration_minutes > 600)) return `${payload.exam_year} · ${payload.paper}: duration must be between 1 and 600 minutes, or blank for no timer.`;
+    if (!['immediate','after_manual_review','never'].includes(payload.answer_release_rule)) return `${payload.exam_year} · ${payload.paper}: invalid answer release rule.`;
+    return '';
   }
 
   function disableCard(card,disabled){
@@ -145,6 +165,118 @@
     return readiness;
   }
 
+  function selectedBulkCards(){
+    if (typeof document === 'undefined') return [];
+    return [...document.querySelectorAll('#exam-settings-list .settings-card')]
+      .filter(card => card.querySelector('.v43d-card-select')?.checked === true || card.classList.contains('v43d-selected'));
+  }
+
+  function cardLabel(card){ return `${trim(card.dataset.examYear)} · ${trim(card.dataset.paper)}`; }
+
+  async function readinessForPublishingCard(card){
+    const key = keyOf(card.dataset.year,card.dataset.examYear,card.dataset.paper);
+    let readiness = readinessByKey.get(key) || null;
+    if (!readiness) readiness = await loadReadiness(card);
+    return readiness;
+  }
+
+  function blockUnsafeBulkApply(event){
+    const availability = document.getElementById('v43d-availability')?.value || '';
+    if (availability !== 'true') return;
+    const targets = selectedBulkCards();
+    const blocked = targets.filter(card => {
+      const current = card.dataset.v51b3CurrentAvailable === 'true';
+      const readiness = readinessByKey.get(keyOf(card.dataset.year,card.dataset.examYear,card.dataset.paper));
+      return !current && !canPublish(readiness);
+    });
+    if (!blocked.length) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    bulkFeedback('incorrect',`Cannot apply Available to: ${blocked.map(cardLabel).join(', ')}. At least one selected paper is not publish-ready.`);
+  }
+
+  async function safeBulkSave(){
+    const targets = selectedBulkCards();
+    if (!targets.length){ bulkFeedback('try','Select at least one paper first.'); return; }
+    if (!cloudTeacherReady()){ bulkFeedback('incorrect','Teacher cloud access is not ready.'); return; }
+
+    const payloads = targets.map(cardPayload);
+    const validation = payloads.map(validatePayload).find(Boolean);
+    if (validation){ bulkFeedback('incorrect',validation); return; }
+
+    const publishing = [];
+    const unpublishing = [];
+    for (let i=0;i<targets.length;i+=1){
+      const card = targets[i];
+      const payload = payloads[i];
+      const transition = availabilityTransition(card.dataset.v51b3CurrentAvailable === 'true',payload.is_available);
+      if (transition === 'publish'){
+        let readiness;
+        try { readiness = await readinessForPublishingCard(card); }
+        catch (err){ bulkFeedback('incorrect',err.message || String(err)); return; }
+        if (!canPublish(readiness)){
+          const reasons = Array.isArray(readiness?.reasons) && readiness.reasons.length ? readiness.reasons.join(' • ') : 'Server readiness did not pass.';
+          bulkFeedback('incorrect',`Bulk save blocked before any change. ${cardLabel(card)}: ${reasons}`);
+          return;
+        }
+        publishing.push(cardLabel(card));
+      } else if (transition === 'unpublish'){
+        unpublishing.push(cardLabel(card));
+      }
+    }
+
+    if (publishing.length || unpublishing.length){
+      const lines = [];
+      if (publishing.length) lines.push(`Publish: ${publishing.join(', ')}\nStudents will be able to start these exams immediately after the save.`);
+      if (unpublishing.length) lines.push(`Unpublish: ${unpublishing.join(', ')}\nExisting results are preserved; students will no longer be able to start these papers.`);
+      const ok = window.confirm(`Save ${payloads.length} selected Exam Settings?\n\n${lines.join('\n\n')}\n\nThe full batch is validated before any write.`);
+      if (!ok) return;
+    }
+
+    const button = document.getElementById('v43d-save-selected');
+    const applyButton = document.getElementById('v43d-apply-selected');
+    if (button) button.disabled = true;
+    if (applyButton) applyButton.disabled = true;
+    bulkFeedback('try',`Saving ${payloads.length} guarded paper setting${payloads.length===1?'':'s'}…`);
+
+    let data = null, error = null;
+    try {
+      ({data,error} = await cloud.rpc('save_exam_paper_settings_bulk_v51b3',{p_settings:payloads}));
+    } catch (err){ error = err; }
+
+    if (error){
+      if (button) button.disabled = false;
+      if (applyButton) applyButton.disabled = false;
+      bulkFeedback('incorrect',error.message || String(error));
+      return;
+    }
+
+    const savedCount = Number(data?.saved_count) || payloads.length;
+    bulkFeedback('correct',`Saved ${savedCount} paper setting${savedCount===1?'':'s'} safely in one transaction.`);
+    readinessByKey.clear();
+    document.getElementById('v43d-clear-selection')?.click();
+    await hardenedLoadExamSettingsEditor();
+    try { if (typeof loadExamOptions === 'function') await loadExamOptions(); } catch {}
+  }
+
+  function hardenBulkTools(){
+    if (typeof document === 'undefined') return;
+    const applyButton = document.getElementById('v43d-apply-selected');
+    if (applyButton && applyButton.dataset.v51b3Guard !== '1'){
+      applyButton.dataset.v51b3Guard = '1';
+      applyButton.addEventListener('click',blockUnsafeBulkApply,true);
+    }
+
+    const oldSave = document.getElementById('v43d-save-selected');
+    if (oldSave && oldSave.dataset.v51b3Guard !== '1'){
+      const safeSave = oldSave.cloneNode(true);
+      safeSave.dataset.v51b3Guard = '1';
+      safeSave.textContent = 'Save selected safely';
+      oldSave.replaceWith(safeSave);
+      safeSave.addEventListener('click',safeBulkSave);
+    }
+  }
+
   async function hardenedLoadExamSettingsEditor(){
     await baseLoad();
     if (!cloudTeacherReady() || typeof document === 'undefined') return;
@@ -190,6 +322,8 @@
       disableCard(card,false);
     }));
 
+    hardenBulkTools();
+
     let summary = document.getElementById('v51b3-exam-publication-summary');
     const list = document.getElementById('exam-settings-list');
     if (!summary && list){
@@ -198,7 +332,7 @@
       summary.className = 'info';
       list.insertAdjacentElement('beforebegin',summary);
     }
-    if (summary) summary.innerHTML = `<strong>V5.1B3 — Exam Paper Publication Safety</strong><br>${readyCount} publish-ready • ${blockedCount} blocked • ${missingCount} without saved settings. Missing settings default to Unavailable; publication requires one confirmation and server readiness.`;
+    if (summary) summary.innerHTML = `<strong>V5.1B3 — Exam Paper Publication Safety</strong><br>${readyCount} publish-ready • ${blockedCount} blocked • ${missingCount} without saved settings. Missing settings default to Unavailable; publication requires one confirmation and server readiness. Bulk Save selected is atomic.`;
   }
 
   async function hardenedSaveExamSetting(card){
@@ -207,6 +341,9 @@
       return;
     }
     const payload = cardPayload(card);
+    const validation = validatePayload(payload);
+    if (validation){ feedback('incorrect',validation); return; }
+
     const key = keyOf(payload.year_level,payload.exam_year,payload.paper);
     let readiness = readinessByKey.get(key) || null;
     if (!readiness){
@@ -219,10 +356,6 @@
     if (transition === 'publish' && !canPublish(readiness)){
       const reasons = Array.isArray(readiness?.reasons) && readiness.reasons.length ? readiness.reasons.join(' • ') : 'Server readiness did not pass.';
       feedback('incorrect',`Publication blocked. ${reasons}`);
-      return;
-    }
-    if (payload.duration_minutes !== null && (!Number.isFinite(payload.duration_minutes) || payload.duration_minutes < 1 || payload.duration_minutes > 600)){
-      feedback('incorrect','Duration must be between 1 and 600 minutes, or blank for no timer.');
       return;
     }
 
