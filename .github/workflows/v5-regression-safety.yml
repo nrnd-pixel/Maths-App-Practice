@@ -91,3 +91,5 @@ jobs:
         run: node site/tests/verify-v5.1b3-exam-publication-safety.cjs
       - name: Verify V5.1B3 loader wiring
         run: node site/tests/verify-v5.1b3-exam-publication-safety-loader.cjs
+      - name: Verify V5.1B3 guarded bulk Exam Settings
+        run: node site/tests/verify-v5.1b3-exam-publication-bulk-guard.cjs
