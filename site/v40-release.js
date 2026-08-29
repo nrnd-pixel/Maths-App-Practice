@@ -78,6 +78,7 @@
     loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51-question-change-history');
     loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51-multipart-question-management');
     loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51-exam-publication-safety');
+    loadScriptOnce('v51-exam-publication-ui-polish.js?v=51b3-ui-1', 'data-v51-exam-publication-ui-polish');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
     loadScriptOnce('v50-production-polish.js?v=50stable-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
