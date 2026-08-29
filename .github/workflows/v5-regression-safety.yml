@@ -99,3 +99,5 @@ jobs:
         run: node site/tests/verify-v5.1c2-student-exam-resume-progress.cjs
       - name: Verify V5.1C2 loader wiring
         run: node site/tests/verify-v5.1c2-student-exam-resume-progress-loader.cjs
+      - name: Verify V5.1 release candidate
+        run: node site/tests/verify-v5.1-release-candidate.cjs
