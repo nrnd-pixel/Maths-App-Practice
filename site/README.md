@@ -1,134 +1,100 @@
-# Maths Practice V4.9
+# Maths Practice V5.1
 
-V4.9 is the **Student Progress Experience** release for Maths Practice. It builds on frozen V4.8 and improves how students understand their current progress, individual topic evidence and what to work on next, while preserving the existing secure progress, Practice, Exam and teacher intervention architecture.
+V5.1 is the current **release-candidate line** for Maths Practice. It builds on the signed-off V5.0 Stable Release and adds a safer past-paper content pipeline, stronger Question Bank quality controls, guarded Exam publication, and a clearer student Exam experience.
 
-## V4.9 release scope
+The current production-visible identity remains **V5.0 Stable Release until final V5.1 sign-off**. The V5.1 release candidate consolidates already accepted feature slices without changing grading rules, Practice/Exam separation, AI-free Exam boundaries, student identity/security rules, or teacher-review authority.
 
-### V4.9A — Student Progress Snapshot
+## V5.1 scope
 
-The existing secure **My Progress** screen gains a compact **Progress snapshot** under the established summary counters.
+### V5.1A — Past-paper import pipeline
 
-It mirrors already-rendered secure evidence only:
+V5.1A makes the existing 25-column question import workflow safer and easier to operate:
 
-- Current focus — first existing Focus Area;
-- Strongest now — first existing Strength;
-- Practice completed — existing Practice-session count;
-- Latest activity — first existing Recent Activity item.
+- paper-profile validation for Paper 1 and Paper 2;
+- bulk question-image matching/upload to the existing Storage path;
+- abandoned image-batch cleanup and image-persistence safeguards;
+- full digitisation-package preview using `questions.csv`, `manifest.json`, `audit_report.xlsx` and matched images;
+- one-confirmation validated paper import;
+- post-import integrity verification against the live Question Bank and Exam Settings state.
 
-V4.9A does not create a new progress score, recalculate mastery or issue a second progress request.
+The 25-column CSV contract remains unchanged.
 
-### V4.9B — Student Topic Progress
+### V5.1B — Question Bank QA and publication safety
 
-Existing **My Strengths** and **My Focus Areas** cards gain **View topic progress**.
+V5.1B adds teacher-facing controls around existing Question Bank data:
 
-The read-only topic detail shows:
+- Question Bank QA and completeness checks;
+- safe bulk activate/deactivate;
+- safe bulk metadata editing;
+- persistent question review workflow;
+- append-only correction audit history;
+- multipart-question management;
+- guarded Exam publication/readiness controls.
 
-- current mastery state;
-- current percentage;
-- scored-response count;
-- the existing topic-specific improvement milestone when the milestone names that topic;
-- recent matching Practice activity already visible in Recent Activity.
+Exam publication remains explicit. A paper is not exposed to students merely because question rows exist or are active.
 
-The topic panel intentionally does not reconstruct hidden or paper-level Exam topic history. Exam evidence may still contribute to the secure mastery state already supplied by the existing dashboard.
+### V5.1C — Student Exam experience
 
-### V4.9C — Student Next Steps
+V5.1C improves the student-facing Exam entry/recovery experience while keeping the established secure Exam engine authoritative:
 
-The My Progress screen gains **What to work on next**.
+- **C1 — Student Exam Paper Library:** students see only papers that are currently published for their year and choose from a clearer past-paper library;
+- **C2 — Student Exam Resume & Progress Clarity:** an unfinished paper on the current device shows `Resume available`, answered-question progress, current question, flags, last-save state and timer/deadline state before the student continues.
 
-It reuses already-rendered evidence and existing navigation rather than introducing a new recommendation engine. When assignment urgency has already been securely loaded, priority is:
+C2 is presentation-only over the existing secure attempt/recovery implementation. It does not create attempts, alter autosave, change grading, retrieve questions through a new path, or modify publication rules.
 
-1. overdue assigned Practice;
-2. due today;
-3. due soon;
-4. other outstanding assigned Practice;
-5. current Focus Area;
-6. build more learning evidence.
+## Current accepted baselines
 
-If Practice assignment urgency has not yet been loaded in the current session, the panel does not guess. It tells the student to open Assignments. Actions route to the existing Topic Progress and Assignments screens; nothing auto-starts Practice or changes an assignment.
-
-## Student progress workflow
-
-The tested V4.9 workflow is:
-
-1. Student signs in normally and opens My Progress.
-2. Progress snapshot summarises the same secure evidence shown in the detailed sections below.
-3. Student opens a Strength or Focus Area through View topic progress.
-4. Topic detail shows the current secure mastery/evidence picture and only topic-specific improvement or matching recent Practice that can be safely identified.
-5. What to work on next points the student toward existing Focus Areas and, after secure assignment loading, teacher-set Practice urgency.
-6. Student can open Assignments or Topic Progress explicitly; V4.9 never auto-starts work.
-
-No second progress engine, recommendation model or assignment-access path was introduced.
-
-## Security and assessment boundaries
-
-V4.9 preserves the established production boundaries:
-
-- student PIN is never stored or exposed by V4.9;
-- Practice and Exam use separate temporary access tickets;
-- Practice grading remains server-authoritative;
-- assignment visibility/start/completion remains server-validated;
-- answer-release authority remains server-side;
-- Practice AI Help continues through the established secure route;
-- AI Help remains unavailable in Exam Mode and Exam Assignments;
-- V4.9 does not change mastery thresholds, grading logic or teacher intervention thresholds;
-- V4.9A, V4.9B and V4.9C reuse already-rendered secure student evidence;
-- V4.9C does not automatically create, change or start Practice;
-- V4.9 adds no database migration.
+- V5.0 Stable Release merge: established production foundation before V5.1.
+- V5.1B3 accepted publication-safety merge: `48483029840114e766610eda93f4827e173a78c3`.
+- V5.1C1 accepted merge: `64e12d9b97aa9adb67aa9151c1597efb05a55fbb`.
+- V5.1C2 accepted merge / V5.1 RC base: `787c9cccf5561dc041c74a5c498631dee28e22c9`.
 
 ## Database status
 
-**V4.9 adds no database migration.** Production migration history was re-checked before release and still ends at the tested V4.3 assignment baseline:
+V5.1A, C1 and C2 require no new database migration. V5.1B introduced the Question Bank review/audit/multipart/publication-safety database layers.
 
-- `20260823125429 v43a_individual_practice_assignments`
-- `20260823125445 v43a_individual_practice_delete_guard`
-- `20260823125602 v43a_teacher_rpc_anon_revoke`
-- `20260823134448 v43b_multi_recipient_practice_assignments`
+The synchronized production database is healthy and its migration history currently ends at:
 
-The secure student progress/dashboard data and targeted Practice assignment data already existed before V4.9. Do not run SQL solely for V4.9 deployment.
+- `20260829181613 v51b3_exam_publication_bulk_cleanup`
 
-## V4.9 baselines
+See `DATABASE-MIGRATIONS-V5.1.txt` for the V5.1 migration record and release guidance.
 
-- Frozen V4.8 repository/docs baseline: `8220fca214e27372e757088a0b0b422545da7db1`
-- V4.9A tested preview head: `d459206fa91b46e4dec6d452769695fe15bed925`
-- V4.9A tested merge: `b2000708f571c07c203463f509eff00c660812a1`
-- V4.9B tested preview head: `c2a287a45fbaa19d2cd161eb833625c3116435bb`
-- V4.9B tested merge: `6a04d00472f737498123c83d70e2450b18054c48`
-- V4.9C tested preview head: `a7ff89ed5cb26aa18d1273214ba87c988d08b16c`
-- V4.9C tested merge / RC base: `ae3f4bbf4fc3ca559b76ce1b1b0a39808f81f653`
-- Final tested V4.9 RC: `09a8cb3257667be81b6272b81c70a006384ac624`
-- Stable V4.9 application release merge: `54d2cf4853251588ed9d6d5616a98662164c482d`
+## Current production content state at RC preparation
 
-## Validation status
+The synchronized production Question Bank contains:
 
-V4.9A, V4.9B and V4.9C each passed focused Netlify Deploy Preview testing before merge. The final V4.9 Release Candidate then passed the one-pass release regression before merge.
+- 237 total question rows;
+- 235 active rows;
+- 230 past-paper rows;
+- 7 practice rows;
+- 0 unresolved `needs_review` rows.
 
-Validated release behaviour includes:
+Complete active paper profiles include 2025 Paper 1, 2025 Paper 2, 2024 Paper 1, 2022 Paper 1 and 2020 Paper 2. 2019 Paper 2 remains intentionally incomplete at 29/30 active logical questions and 87/90 active marks.
 
-- Progress snapshot matches the existing Focus, Strength, Practice count and Recent Activity evidence;
-- Topic Progress matches the source topic card state, percentage and scored-response count;
-- Topic Progress title remains visible below sticky student navigation;
-- topic improvement is shown only when the existing milestone names that topic;
-- recent topic Practice is limited to matching visible Practice activity;
-- What to work on next falls back safely to Focus Area before assignment urgency is loaded;
-- after Assignments is securely loaded, overdue / due-today / due-soon / outstanding Practice is prioritised correctly;
-- Next Steps actions route to existing screens and never auto-start Practice;
-- V4.8 Practice deadlines and teacher deadline follow-up remain intact;
-- Practice creation, grading, early-exit status, completion and AI Learning Help remain intact;
-- teacher Action Center, History, Assign again, Class intervention overview and admin smoke checks remain intact;
-- Exam Mode and Exam Assignments remain AI-free;
-- narrow/mobile and Dark Mode checks passed.
+Only **2025 Paper 1** is currently published to students in Exam Mode. Publication state is controlled by the guarded Exam Settings flow, not by this README or the release-candidate branch.
 
-## Key V4.9 files
+## Security and assessment boundaries
 
-- `v49-student-progress-snapshot.js` — at-a-glance secure progress summary.
-- `v49-student-topic-progress.js` — read-only topic drill-down.
-- `v49-student-next-steps.js` — student learning/assignment next-step guidance.
-- `v40-release.js` — visible V4.9 release presentation and ordered module loader.
-- `DEPLOY-AND-TEST-V4.9.md` — V4.9 release/regression record.
-- `DATABASE-MIGRATIONS-V4.9.txt` — V4.9 database-change statement.
+V5.1 preserves the established production boundaries:
+
+- student PINs are never stored in browser persistence;
+- Practice and Exam use separate temporary access paths;
+- Practice grading remains server-authoritative;
+- Exam Mode remains deterministic and AI-free;
+- teacher-review responses remain under teacher authority;
+- answer release remains server-controlled;
+- published Exam papers require explicit availability settings;
+- student Exam recovery reuses the established attempt/resume/autosave implementation;
+- no V5.1C presentation layer may write or delete recovery state.
+
+## Release-candidate validation
+
+Use `DEPLOY-AND-TEST-V5.1.md` against the exact Netlify Deploy Preview head. The final pass must cover the V5.1 import/QA/publication path, student paper library, immediate resume visibility/restoration, established Practice/Exam behavior, teacher workflows, mobile layout and Dark Mode.
+
+The GitHub **V5 Regression Safety** workflow must pass on the exact candidate head before final V5.1 sign-off.
 
 ## Release discipline
 
-Treat V4.9 as the frozen production baseline. New product features should begin from the resulting clean `main` state on a new version branch. V5.0 should focus on production hardening and reporting rather than duplicating the student progress experience.
+Treat `787c9cccf5561dc041c74a5c498631dee28e22c9` as the accepted V5.1C2 baseline. The `release/v5.1-rc` branch is release preparation only: do not add unrelated feature work to it.
 
-For routine application rollback, leave the additive V4.3 assignment database objects in place unless a separate deliberate database migration with backup/data-preservation planning is approved. Preserve the production `config.js`.
+Do not change the visible production identity from V5.0 Stable Release to V5.1 Stable Release until the V5.1 RC checklist has passed and the final release is deliberately approved.
