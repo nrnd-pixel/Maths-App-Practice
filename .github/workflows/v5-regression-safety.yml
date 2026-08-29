@@ -91,3 +91,7 @@ jobs:
         run: node site/tests/verify-v5.1b3-exam-publication-safety.cjs
       - name: Verify V5.1B3 loader wiring
         run: node site/tests/verify-v5.1b3-exam-publication-safety-loader.cjs
+      - name: Verify V5.1C1 student exam paper library
+        run: node site/tests/verify-v5.1c1-student-exam-paper-library.cjs
+      - name: Verify V5.1C1 loader wiring
+        run: node site/tests/verify-v5.1c1-student-exam-paper-library-loader.cjs
