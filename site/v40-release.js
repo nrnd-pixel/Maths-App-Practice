@@ -1,5 +1,5 @@
-/* V5.0 Stable Release presentation.
-   Loads the established V4.1–V4.9 foundation plus the signed-off V5.0 feature set. */
+/* V5.1 Stable Release presentation.
+   Loads the established V4.1–V5.0 foundation plus the signed-off V5.1 feature set. */
 (() => {
   'use strict';
 
@@ -13,20 +13,20 @@
     document.head.appendChild(script);
   }
 
-  function applyV50StableRelease(){
-    document.title = 'Math Practice V5.0';
+  function applyV51StableRelease(){
+    document.title = 'Math Practice V5.1';
 
     const versionBadge = document.querySelector('#start .brand .badge');
     if (versionBadge){
-      versionBadge.textContent = 'Version 5.0 • Stable Release';
+      versionBadge.textContent = 'Version 5.1 • Stable Release';
     }
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){
       releaseNote.innerHTML = `
-        <strong>V5.0 Stable Release:</strong>
-        Practice, Exam, student progress, teacher reporting, launch readiness and operational tools are now released together as the stable V5.0 baseline.
-        Secure deterministic grading, teacher review boundaries and AI-free Exam Mode remain unchanged.
+        <strong>V5.1 Stable Release:</strong>
+        Safer past-paper import, Question Bank QA and publication controls, plus the student Exam paper library and resume clarity are now released together on the stable V5.0 foundation.
+        Secure deterministic grading, teacher review boundaries, explicit Exam publication and AI-free Exam Mode remain unchanged.
       `;
     }
 
@@ -82,15 +82,15 @@
     loadScriptOnce('v51-student-exam-paper-library.js?v=51c1-1', 'data-v51c1-student-exam-paper-library');
     loadScriptOnce('v51-student-exam-resume-progress.js?v=51c2-1', 'data-v51c2-student-exam-resume-progress');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
-    loadScriptOnce('v50-production-polish.js?v=50stable-1', 'data-v50-production-polish');
+    loadScriptOnce('v50-production-polish.js?v=51stable-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
     loadScriptOnce('v50-rc2-empty-result-code-polish.js?v=50rc2-empty-1', 'data-v50-rc2-empty-result-code-polish');
-    loadScriptOnce('v50-release-audit-rc3.js?v=50stable-1', 'data-v50-release-audit-rc3');
+    loadScriptOnce('v50-release-audit-rc3.js?v=51stable-1', 'data-v50-release-audit-rc3');
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyV50StableRelease, { once:true });
+    document.addEventListener('DOMContentLoaded', applyV51StableRelease, { once:true });
   } else {
-    applyV50StableRelease();
+    applyV51StableRelease();
   }
 })();
