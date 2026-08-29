@@ -79,3 +79,7 @@ jobs:
         run: node site/tests/verify-v5.1b2c-question-review-workflow.cjs
       - name: Verify V5.1B2C loader wiring
         run: node site/tests/verify-v5.1b2c-question-review-loader.cjs
+      - name: Verify V5.1B2D correction audit history
+        run: node site/tests/verify-v5.1b2d-correction-audit-history.cjs
+      - name: Verify V5.1B2D loader wiring
+        run: node site/tests/verify-v5.1b2d-correction-audit-history-loader.cjs
