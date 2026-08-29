@@ -47,7 +47,7 @@
     loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
     loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
     loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
-    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
+    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47-intervention-history');
     loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
     loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
     loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');
@@ -79,6 +79,7 @@
     loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51-multipart-question-management');
     loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51-exam-publication-safety');
     loadScriptOnce('v51-exam-publication-ui-polish.js?v=51b3-ui-3', 'data-v51-exam-publication-ui-polish');
+    loadScriptOnce('v51-exam-publication-bulk-guard.js?v=51b3-bulk-1', 'data-v51-exam-publication-bulk-guard');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
     loadScriptOnce('v50-production-polish.js?v=50stable-1', 'data-v50-production-polish');
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
