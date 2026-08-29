@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '20'
       - name: Verify current app invariants
-        run: node site/tests/verify-v5.0.cjs
+        run: node site/tests/verify-v5.1.cjs
       - name: Verify accessibility invariants
         run: node site/tests/verify-v5.0-accessibility.cjs
       - name: Verify reporting invariants
@@ -45,8 +45,8 @@ jobs:
         run: node site/tests/verify-v5.0-security-audit.cjs
       - name: Verify RC2 empty result-code audit
         run: node site/tests/verify-v5.0-rc2-empty-result-code-audit.cjs
-      - name: Verify release-candidate production polish
-        run: node site/tests/verify-v5.0-production-polish.cjs
+      - name: Verify V5.1 stable production polish
+        run: node site/tests/verify-v5.1-production-polish.cjs
       - name: Verify V5.1A paper profile validator
         run: node site/tests/verify-v5.1a-paper-profile-validator.cjs
       - name: Verify V5.1A2 bulk question image upload
@@ -99,5 +99,5 @@ jobs:
         run: node site/tests/verify-v5.1c2-student-exam-resume-progress.cjs
       - name: Verify V5.1C2 loader wiring
         run: node site/tests/verify-v5.1c2-student-exam-resume-progress-loader.cjs
-      - name: Verify V5.1 release candidate
-        run: node site/tests/verify-v5.1-release-candidate.cjs
+      - name: Verify V5.1 stable release stamp
+        run: node site/tests/verify-v5.1-stable-release.cjs
