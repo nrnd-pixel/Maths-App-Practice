@@ -1,6 +1,7 @@
 /* V5.1B3 — Exam Settings presentation and entry-point ownership.
-   Makes the guarded V5.1B3 layer visibly own the legacy V4.3D bulk controls
-   and ensures every Exam Settings open/refresh runs the hardened B3 loader.
+   Makes the guarded V5.1B3 layer visibly own the legacy V4.3D bulk controls,
+   ensures every Exam Settings open/refresh runs the hardened B3 loader, and
+   self-heals legacy cards that appear without B3 readiness decoration.
    Publication/save logic remains in v51-exam-publication-safety.js. */
 (() => {
   'use strict';
@@ -88,6 +89,19 @@
     return !!(refresh || tab);
   }
 
+  function reconcileLegacyCards(){
+    if (!safetyIsActive() || loadBusy) return false;
+    const panel = document.getElementById(PANEL_ID);
+    if (!panel?.classList.contains('active')) return false;
+    const cards = [...document.querySelectorAll('#exam-settings-list .settings-card')];
+    if (!cards.length) return false;
+    const hardened = cards.every(card=>!!card.querySelector('.v51b3-readiness'));
+    if (hardened) return false;
+    if (panel.dataset.v51b3LoadState === 'loading') return false;
+    runGuardedLoad();
+    return true;
+  }
+
   function upgradeExamSettingsPresentation(){
     if (!safetyIsActive()) return false;
 
@@ -125,6 +139,7 @@
       queued = false;
       wireGuardedEntryPoints();
       upgradeExamSettingsPresentation();
+      reconcileLegacyCards();
     },0);
   }
 
@@ -133,6 +148,7 @@
     guardedLoader,
     runGuardedLoad,
     wireGuardedEntryPoints,
+    reconcileLegacyCards,
     upgradeExamSettingsPresentation
   });
 
