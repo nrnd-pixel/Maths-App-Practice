@@ -95,3 +95,7 @@ jobs:
         run: node site/tests/verify-v5.1c1-student-exam-paper-library.cjs
       - name: Verify V5.1C1 loader wiring
         run: node site/tests/verify-v5.1c1-student-exam-paper-library-loader.cjs
+      - name: Verify V5.1C2 student exam resume progress
+        run: node site/tests/verify-v5.1c2-student-exam-resume-progress.cjs
+      - name: Verify V5.1C2 loader wiring
+        run: node site/tests/verify-v5.1c2-student-exam-resume-progress-loader.cjs
