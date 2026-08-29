@@ -18,6 +18,12 @@ assert(source.includes("document.getElementById('start-btn')"),'C2 must reuse th
 assert(source.includes('existing secure resume and autosave checks still apply'),'C2 must explain that existing Exam safeguards remain authoritative');
 assert(source.includes('role="progressbar"'),'C2 progress must be accessible');
 assert(source.includes("event.key === ACTIVE_ATTEMPTS_KEY"),'C2 must refresh when another tab changes recovery state');
+assert(source.includes("const startScreen = document.getElementById('start')"),'C2 must watch the start-screen transition after leaving an unfinished Exam');
+assert(source.includes("new MutationObserver(scheduleRender).observe(startScreen,{attributes:true,attributeFilter:['class']})"),'C2 must refresh immediately when the start screen becomes active in the same tab');
+assert(source.includes("const accessNote = document.getElementById('student-access-note')"),'C2 must refresh after registered-student verification updates identity programmatically');
+assert(source.includes("window.addEventListener('pageshow',scheduleRender)"),'C2 must refresh after browser page restoration');
+assert(source.includes("window.addEventListener('focus',scheduleRender)"),'C2 must refresh when the app regains focus');
+assert(source.includes("document.addEventListener('visibilitychange'"),'C2 must refresh when the page becomes visible again');
 
 assert(!source.includes('localStorage.setItem'),'C2 must not write attempt state');
 assert(!source.includes('localStorage.removeItem'),'C2 must not delete attempt state');
