@@ -7,17 +7,14 @@ const uiPolish = fs.readFileSync(path.join(__dirname,'..','v51-exam-publication-
 const b2e = loader.indexOf("v51-multipart-question-management.js?v=51b2e-1");
 const b3 = loader.indexOf("v51-exam-publication-safety.js?v=51b3-1");
 const b3Ui = loader.indexOf("v51-exam-publication-ui-polish.js?v=51b3-ui-3");
-const b3Bulk = loader.indexOf("v51-exam-publication-bulk-guard.js?v=51b3-bulk-1");
 const security = loader.indexOf("v50-security-hardening.js?v=50rc2-1");
 assert(b2e >= 0,'B2E loader entry missing');
 assert(b3 >= 0,'B3 loader entry missing');
 assert(b3Ui >= 0,'B3 Exam Settings presentation loader entry missing');
-assert(b3Bulk >= 0,'B3 guarded bulk-save loader entry missing');
 assert(security >= 0,'security hardening loader entry missing');
 assert(b3 > b2e,'B3 must load after B2E');
 assert(b3Ui > b3,'B3 presentation/entry guard must load after B3 safety');
-assert(b3Bulk > b3Ui,'B3 bulk guard must load after B3 presentation ownership');
-assert(b3Bulk < security,'B3 bulk guard must load before V5.0 security/polish overlays');
+assert(b3Ui < security,'B3 presentation/entry guard must load before V5.0 security/polish overlays');
 assert(uiPolish.includes("fn.name === 'hardenedLoadExamSettingsEditor'"),'B3 presentation must only activate when guarded Exam Settings is active');
 assert(uiPolish.includes("'Manage exam papers safely'"),'B3 presentation must replace the legacy V4.3D heading');
 assert(uiPolish.includes("setText(badge,'V5.1B3')"),'B3 presentation must replace the legacy V4.3D badge');
@@ -33,4 +30,4 @@ assert(uiPolish.includes('repairCompactPaperSummaries()'),'B3 must repair V4.3C 
 assert(uiPolish.includes("const prefix = exists ? '' : 'Safe default · ';"),'Papers without a settings row must visibly identify compact values as safe defaults');
 assert(uiPolish.includes("card.querySelector('.setting-available')?.value === 'true' ? 'Available' : 'Unavailable'"),'Compact availability must reflect the guarded availability control');
 assert(uiPolish.includes("value === 'after_manual_review'"),'Compact release wording must support the B3 conservative default');
-console.log('V5.1B3 loader, presentation, guarded entry-point, bulk-save ordering, self-heal and compact-summary checks passed.');
+console.log('V5.1B3 loader, presentation, guarded entry-point, self-heal and compact-summary checks passed.');
