@@ -1,8 +1,9 @@
 /* V5.1B3 — Exam Settings presentation and entry-point ownership.
    Makes the guarded V5.1B3 layer visibly own the legacy V4.3D bulk controls,
-   ensures every Exam Settings open/refresh runs the hardened B3 loader, and
-   self-heals legacy cards that appear without B3 readiness decoration.
-   Publication/save logic remains in v51-exam-publication-safety.js. */
+   ensures every Exam Settings open/refresh runs the hardened B3 loader, repairs
+   stale compact summaries, and self-heals legacy cards that appear without B3
+   readiness decoration. Publication/save logic remains in
+   v51-exam-publication-safety.js. */
 (() => {
   'use strict';
 
@@ -37,6 +38,33 @@
     document.getElementById(PANEL_ID)?.classList.add('active');
   }
 
+  function releaseSummary(value){
+    if (value === 'after_manual_review') return 'After review';
+    if (value === 'never') return 'Answers hidden';
+    return 'Immediate release';
+  }
+
+  function repairCompactPaperSummaries(){
+    if (!safetyIsActive()) return false;
+    let repaired = false;
+    document.querySelectorAll('#exam-settings-list .settings-card').forEach(card=>{
+      if (card.classList.contains('v43c-dirty')) return;
+      const summary = card.querySelector('.v43c-settings-summary');
+      if (!summary) return;
+      const exists = card.dataset.v51b3SettingExists === 'true';
+      const duration = card.querySelector('.setting-duration')?.value?.trim() || '';
+      const release = card.querySelector('.setting-release')?.value || 'after_manual_review';
+      const availability = card.querySelector('.setting-available')?.value === 'true' ? 'Available' : 'Unavailable';
+      const prefix = exists ? '' : 'Safe default · ';
+      const value = `${prefix}${duration ? `${duration} min` : 'No timer'} · ${releaseSummary(release)} · ${availability}`;
+      if (summary.textContent !== value){
+        summary.textContent = value;
+        repaired = true;
+      }
+    });
+    return repaired;
+  }
+
   async function runGuardedLoad(){
     const loader = guardedLoader();
     if (!loader || loadBusy) return false;
@@ -47,6 +75,7 @@
       await loader();
       if (panel) panel.dataset.v51b3LoadState = 'ready';
       upgradeExamSettingsPresentation();
+      repairCompactPaperSummaries();
       return true;
     } catch (error){
       if (panel) panel.dataset.v51b3LoadState = 'error';
@@ -96,7 +125,10 @@
     const cards = [...document.querySelectorAll('#exam-settings-list .settings-card')];
     if (!cards.length) return false;
     const hardened = cards.every(card=>!!card.querySelector('.v51b3-readiness'));
-    if (hardened) return false;
+    if (hardened){
+      repairCompactPaperSummaries();
+      return false;
+    }
     if (panel.dataset.v51b3LoadState === 'loading') return false;
     runGuardedLoad();
     return true;
@@ -129,6 +161,7 @@
       tools.insertAdjacentElement('beforebegin',summary);
     }
 
+    repairCompactPaperSummaries();
     return true;
   }
 
@@ -140,6 +173,7 @@
       wireGuardedEntryPoints();
       upgradeExamSettingsPresentation();
       reconcileLegacyCards();
+      repairCompactPaperSummaries();
     },0);
   }
 
@@ -149,6 +183,7 @@
     runGuardedLoad,
     wireGuardedEntryPoints,
     reconcileLegacyCards,
+    repairCompactPaperSummaries,
     upgradeExamSettingsPresentation
   });
 
