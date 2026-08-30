@@ -1,0 +1,47 @@
+Maths Practice V5.2 — Database migration record
+
+Starting stable base:
+88e435d1602b262c2d67c0b7dc6406f9dabe3046
+
+Post-V5.1 targeted security audit
+---------------------------------
+20260830023818 v52_preflight_is_teacher_search_path_hardening
+
+Purpose:
+- pins public.is_teacher() to an empty search_path;
+- function body, ownership and authenticated EXECUTE behavior remain unchanged;
+- anon EXECUTE remains revoked;
+- this is a behavior-preserving hardening change after the V5.1 Stable release.
+
+V5.2A — Topical Exercise Foundation
+-----------------------------------
+20260830024003 v52a_topical_exercise_source_type
+
+Purpose:
+- extends questions_source_type_check from teacher/past_paper/practice to also allow topical_exercise;
+- no existing question rows were changed;
+- no topical rows were inserted by the migration;
+- V5.2A application validation requires topical rows to remain inactive, so this migration alone does not expose any new questions to students.
+
+Verified production state immediately after migration:
+- past_paper: 230 rows, 228 active;
+- practice: 7 rows, 7 active;
+- topical_exercise: 0 rows;
+- existing RLS/server-only privilege posture remained unchanged;
+- Supabase security advisor continued to report the known intentional SECURITY DEFINER/API warnings and server-only RLS/no-policy informational items; no new direct-table exposure was introduced.
+
+V5.2A release boundary
+----------------------
+- Keep the existing 25-column question CSV schema unchanged.
+- Use source_type=topical_exercise and the existing source field as the topical set/package identity.
+- Topical rows must not use exam_year or paper metadata.
+- Topical rows must remain inactive during V5.2A staging.
+- Do not alter the current student Practice question retrieval path in V5.2A.
+- Student topical delivery belongs in a later dedicated V5.2 slice with explicit source/set filtering.
+
+Deployment guidance
+-------------------
+- These migrations are already applied to the production SR Lumapas Math Practice project.
+- Do not re-run them manually on production.
+- Before merging V5.2A application code, verify migration history includes both entries above and run the normal Supabase security advisor review.
+- Any later V5.2 migration must be added to this record and tested deliberately before release.
