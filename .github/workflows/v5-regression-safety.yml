@@ -131,3 +131,5 @@ jobs:
         run: node site/tests/verify-v5.3b-unified-practice-retrieval.cjs
       - name: Verify V5.3C two-mode student UI
         run: node site/tests/verify-v5.3c-two-mode-student-ui.cjs
+      - name: Verify V5.3D1 teacher Practice-pool alignment
+        run: node site/tests/verify-v5.3d1-teacher-practice-pool-alignment.cjs
