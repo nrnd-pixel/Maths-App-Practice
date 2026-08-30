@@ -41,12 +41,12 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* V5.0 stable-release bootstrap title. */
-document.title = 'Math Practice V5.0';
+/* V5.1 stable-release bootstrap title. */
+document.title = 'Math Practice V5.1';
 
-/* Stable V3.9/V4.x foundation plus the signed-off V5.0 feature set.
-   Legacy V3.8/V3.8.1/V3.9 release-label-only scripts remain archived in the repository
-   but are no longer executed; current release presentation is handled by v40-release.js. */
+/* Stable V3.9/V4.x/V5.0 foundation plus the signed-off V5.1 feature set.
+   Legacy release-label-only scripts remain archived in the repository but are
+   no longer executed; current release presentation is handled by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',

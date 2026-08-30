@@ -19,8 +19,10 @@ assert.match(release, /v50-teacher-operations\.js\?v=50d2-1', 'data-v50-teacher-
   'Existing D2 loader must remain stable.');
 assert.match(release, /v50-release-audit\.js\?v=50rc2-1/,
   'The established RC1/RC2 audit surface must remain loaded.');
-assert.match(release, /v50-production-polish\.js\?v=50stable-1/);
-assert.match(release, /v50-release-audit-rc3\.js\?v=50stable-1/);
+assert.match(release, /v50-production-polish\.js\?v=51stable-1/,
+  'Stable production polish must use the V5.1 release cache key.');
+assert.match(release, /v50-release-audit-rc3\.js\?v=51stable-1/,
+  'Stable audit presentation must use the V5.1 release cache key.');
 assert.match(release, /data-v50-release-audit/);
 assert.match(release, /data-v50-release-audit-rc3/);
 
@@ -45,12 +47,12 @@ assert.doesNotMatch(audit, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0
 assert.doesNotMatch(audit, /grade_practice_response|request_practice_hint|finalize_exam_attempt/i,
   'Release Audit must not introduce grading, hints or Exam finalization logic.');
 
-// Stable release presentation extends the audit only through the presentation-only polish API.
+// V5.1 stable presentation extends the established audit only through the presentation-only polish API.
 assert.match(rc3Audit, /V50ProductionPolish\?\.getAudit/);
-assert.match(rc3Audit, /V5\.0 Release Audit/);
+assert.match(rc3Audit, /V5\.1 Release Audit/);
 assert.match(rc3Audit, /Stable-release identity/);
 assert.match(rc3Audit, /RC3 — UX & production polish/);
-assert.match(rc3Audit, /V5\.0 production-polish checks pass/);
+assert.match(rc3Audit, /V5\.1 production-polish checks pass/);
 assert.doesNotMatch(rc3Audit, /cloud\.rpc\(|cloud\.from\(|fetch\(/,
   'Stable audit presentation must not make data requests.');
 assert.doesNotMatch(rc3Audit, /localStorage|sessionStorage/,
@@ -91,15 +93,15 @@ assert.match(sql, /legacy_registered_exam_attempts_missing_class_id/i);
 assert.match(sql, /Historical warning only/i,
   'Legacy class-ID drift must be reported without rewriting historical Exam rows.');
 
-// Final stable V5.0 identity is now locked after sign-off.
-assert.match(release, /Math Practice V5\.0/);
-assert.match(release, /Version 5\.0 • Stable Release/);
-assert.match(release, /V5\.0 Stable Release:/);
-assert.doesNotMatch(release, /Version 5\.0 • Release Candidate|V5\.0 Release Candidate:/);
+// Final stable V5.1 identity is locked after sign-off while the V5.0 RC1/RC2 audit engine remains intact underneath.
+assert.match(release, /Math Practice V5\.1/);
+assert.match(release, /Version 5\.1 • Stable Release/);
+assert.match(release, /V5\.1 Stable Release:/);
+assert.doesNotMatch(release, /Version 5\.1 • Release Candidate|V5\.1 Release Candidate:/);
 
-console.log('V5.0 release-audit verification passed for the stable release.');
-console.log('- RC1/RC2 audit logic remains read-only and visible inside the stable release audit');
+console.log('Release-audit verification passed for the V5.1 stable release.');
+console.log('- established RC1/RC2 audit logic remains read-only and visible inside the V5.1 stable release audit');
 console.log('- every active Exam paper still requires explicit settings before RC1 passes');
 console.log('- pending-review cache repair remains derived-only and non-destructive');
 console.log('- stable audit presentation consumes only the local production-polish status');
-console.log('- V5.0 Stable Release identity is active and RC branding is rejected');
+console.log('- V5.1 Stable Release identity is active and RC branding is rejected');
