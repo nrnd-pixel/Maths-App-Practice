@@ -30,3 +30,4 @@ assert(hintGuard.includes("coalesce(q.review_status,'none')='reviewed'"),'Topica
 assert(!hintGuard.includes('create or replace function public.request_practice_hint_v3('),'V5.2C must not replace ordinary Practice hint logic');
 
 console.log('V5.2C topical SQL safety checks passed.');
+require('./verify-v5.2c-publication-sql-wiring.cjs');
