@@ -119,3 +119,5 @@ jobs:
         run: node site/tests/verify-v5.2c-student-topical-library.cjs
       - name: Verify V5.2C topical hint bridge
         run: node site/tests/verify-v5.2c-topical-hint-bridge.cjs
+      - name: Verify V5.2C loader preservation
+        run: node site/tests/verify-v5.2c-loader.cjs
