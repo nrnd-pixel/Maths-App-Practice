@@ -58,8 +58,8 @@ assert(source.includes('V5.2B — Topical Exercise Library'),'Teacher library pa
 assert(source.includes('Student exposure remains OFF'),'Teacher library must state the staging boundary');
 assert(source.includes("cloud.from('questions').update({source:plan.newName}).in('id',plan.ids)"),'Set rename must update only the Source field for the selected set rows');
 assert(source.includes("document.querySelectorAll('#questions-cards .v51b2a-select')"),'Select set must reuse existing V5.1 B2A selection controls');
-assert(source.includes("document.getElementById('v51b1-source-filter')"),'View set must reuse the existing source filter');
-assert(source.includes("document.getElementById('v51b2c-review-filter')"),'View set must coexist with the existing review filter');
+assert(source.includes("['v51b1-source-filter','topical']"),'View set must reuse the existing source filter');
+assert(source.includes("['v51b2c-review-filter','all']"),'View set must coexist with the existing review filter');
 assert(!source.includes('localStorage.setItem'),'V5.2B must not write local storage');
 assert(!source.includes('localStorage.removeItem'),'V5.2B must not delete local storage');
 assert(!source.includes('get_student_questions'),'V5.2B must not alter student question retrieval');
