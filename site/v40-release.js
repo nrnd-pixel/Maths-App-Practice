@@ -99,6 +99,7 @@
     loadScriptOnce('v52c2-topical-result-ux.js?v=52c2-1', 'data-v52c2-topical-result-ux');
     loadScriptOnce('v53a-practice-eligibility.js?v=53a-1', 'data-v53a-practice-eligibility');
     loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1', 'data-v53b-unified-practice-retrieval');
+    loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1', 'data-v53c-two-mode-student-ui');
   }
 
   if (document.readyState === 'loading'){
