@@ -64,13 +64,13 @@
     loadScriptOnce('v50-teacher-operations.js?v=50d2-1', 'data-v50-teacher-operations');
     loadScriptOnce('v50-roster-edit.js?v=50launch-1', 'data-v50-roster-edit');
     loadScriptOnce('v51-paper-profile-validator.js?v=51a-1', 'data-v51-paper-profile-validator');
-    loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51-bulk-question-image-upload');
-    loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51-bulk-question-image-cleanup');
-    loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51-bulk-question-image-safety');
-    loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51-paper-package-preview');
-    loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51-paper-package-preview-status');
-    loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51-one-confirmation-paper-import');
-    loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51-post-import-integrity');
+    loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51a2-bulk-question-image-upload');
+    loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51a2-bulk-question-image-cleanup');
+    loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51a2-bulk-question-image-safety');
+    loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51a4-paper-package-preview');
+    loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51a4-paper-package-preview-status');
+    loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51a5-one-confirmation-paper-import');
+    loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51a6-post-import-integrity');
     loadScriptOnce('v52-topical-exercise-foundation.js?v=52a-1', 'data-v52a-topical-exercise-foundation');
     loadScriptOnce('v52b1-question-bank-observer-gate.js?v=52b1-2', 'data-v52b1-question-bank-observer-gate');
     loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');
@@ -100,7 +100,7 @@
     loadScriptOnce('v53a-practice-eligibility.js?v=53a-1', 'data-v53a-practice-eligibility');
     loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1', 'data-v53b-unified-practice-retrieval');
     loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1', 'data-v53c-two-mode-student-ui');
-    loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-1', 'data-v53d1-teacher-practice-pool-alignment');
+    loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-2', 'data-v53d1-teacher-practice-pool-alignment');
   }
 
   if (document.readyState === 'loading'){
