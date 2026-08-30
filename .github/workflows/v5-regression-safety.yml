@@ -105,3 +105,5 @@ jobs:
         run: node site/tests/verify-v5.2a-topical-exercise-foundation.cjs
       - name: Verify V5.2A topical activation guard
         run: node site/tests/verify-v5.2a-topical-activation-guard.cjs
+      - name: Verify V5.2B teacher topical library
+        run: node site/tests/verify-v5.2b-teacher-topical-library.cjs

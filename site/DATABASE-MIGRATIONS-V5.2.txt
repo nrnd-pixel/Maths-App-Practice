@@ -39,9 +39,30 @@ V5.2A release boundary
 - Do not alter the current student Practice question retrieval path in V5.2A.
 - Student topical delivery belongs in a later dedicated V5.2 slice with explicit source/set filtering.
 
+V5.2B — Teacher Topical Exercise Library & Management
+----------------------------------------------------
+No database migration required.
+
+Purpose:
+- groups existing staged topical_exercise rows by year level + source/set name in a teacher-only library;
+- reports set-level physical/logical question counts, marks, images, review state and structural attention indicators;
+- reuses the established Question Bank selection, QA and review controls for question-level management;
+- permits only a guarded set rename by updating the existing source field for every row in that inactive topical set;
+- blocks set rename if any row is active or if the new name collides with another topical set in the same year level;
+- does not create, activate, publish or expose topical questions to students.
+
+V5.2B safety boundary:
+- no schema changes;
+- no student retrieval changes;
+- no Practice grading/result changes;
+- no Exam changes;
+- no active-status changes;
+- no deletion/archive action;
+- topical student exposure remains OFF.
+
 Deployment guidance
 -------------------
-- These migrations are already applied to the production SR Lumapas Math Practice project.
+- The V5.2 preflight and V5.2A migrations are already applied to the production SR Lumapas Math Practice project.
 - Do not re-run them manually on production.
-- Before merging V5.2A application code, verify migration history includes both entries above and run the normal Supabase security advisor review.
-- Any later V5.2 migration must be added to this record and tested deliberately before release.
+- V5.2B requires no additional SQL.
+- Before merging any later V5.2 slice that changes student topical delivery, add and review any required migration/RPC changes deliberately and run the normal Supabase security advisor review.
