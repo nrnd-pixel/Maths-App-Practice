@@ -3,6 +3,8 @@
    avoids building the complete Question Bank DOM while that tab is hidden and renders
    only one 50-row page for normal browsing. Existing V5.1 bulk-selection semantics are
    preserved by temporarily expanding all matching rows when a bulk selection is active.
+   Legacy Question Bank follow-up refreshes are captured, deduplicated and staggered so
+   the first card page can paint before QA/review/library decoration completes.
    No database, grading, student-delivery, Exam Setting or Storage behavior changes. */
 (() => {
   'use strict';
@@ -18,6 +20,8 @@
     selectionMode:false,
     pending:true,
     renderScheduled:false,
+    renderGeneration:0,
+    postRenderScheduled:false,
     lastFilteredCount:0,
     lastTotalCount:0
   };
@@ -63,7 +67,7 @@
         page:1,
         pageSize:size,
         total:list.length,
-        totalPages:list.length ? 1 : 1,
+        totalPages:1,
         start:list.length ? 1 : 0,
         end:list.length,
         renderAll:true
@@ -156,7 +160,7 @@
         <span><strong>Page ${page.page} of ${page.totalPages}</strong> · up to ${PAGE_SIZE} cards per page</span>
         <button id="v52b1-page-next" class="outline" type="button" ${page.page>=page.totalPages?'disabled':''}>Next →</button>
       </div>
-      <div class="help" style="margin-top:5px">${page.total} matching question${page.total===1?'':'s'} from ${totalRows} loaded. Only this page is built in the browser.</div>`;
+      <div class="help" style="margin-top:5px">${page.total} matching question${page.total===1?'':'s'} from ${totalRows} loaded. Only this page is built in the browser; QA and management decorations finish in a coordinated background pass.</div>`;
     root.querySelector('#v52b1-page-prev')?.addEventListener('click',()=>{
       state.page=Math.max(1,page.page-1);
       try { renderQuestions(); } catch {}
@@ -182,6 +186,81 @@
     } finally {
       if (swapped) teacherQuestions = original;
     }
+  }
+
+  function callbackSource(callback){
+    try { return Function.prototype.toString.call(callback); } catch { return ''; }
+  }
+
+  function refreshCallbackKind(callback){
+    if (typeof callback !== 'function') return '';
+    const name = callback.name || '';
+    const source = callbackSource(callback);
+    if (name === 'renderSummary') return 'bulk-status';
+    if (name === 'renderAll') return 'review';
+    if (name === 'render' && source.includes('buildQaContext')) return 'qa';
+    if (name === 'render' && source.includes('buildSetSummaries')) return 'topical-library';
+    if (source.includes('applyFocusedCards') && source.includes('render()')) return 'topical-library';
+    return '';
+  }
+
+  function captureLegacyRefreshes(fn){
+    const nativeRaf = ROOT.requestAnimationFrame;
+    if (typeof nativeRaf !== 'function') return {result:fn(),captured:[]};
+    const captured = [];
+    ROOT.requestAnimationFrame = function(callback){
+      const kind = refreshCallbackKind(callback);
+      if (kind){
+        captured.push({kind,callback});
+        return -captured.length;
+      }
+      return nativeRaf.call(ROOT,callback);
+    };
+    try {
+      return {result:fn(),captured};
+    } finally {
+      ROOT.requestAnimationFrame = nativeRaf;
+    }
+  }
+
+  function dedupeRefreshes(items){
+    const byKind = new Map();
+    for (const item of items || []) if (item?.kind && typeof item.callback === 'function') byKind.set(item.kind,item.callback);
+    return [...byKind.entries()].map(([kind,callback])=>({kind,callback}));
+  }
+
+  function runWhenIdle(callback,delay=0){
+    ROOT.setTimeout?.(()=>{
+      if (typeof ROOT.requestIdleCallback === 'function'){
+        ROOT.requestIdleCallback(()=>callback(),{timeout:450});
+      } else {
+        callback();
+      }
+    },delay);
+  }
+
+  function schedulePostRenderRefreshes(captured,generation){
+    const queue = dedupeRefreshes(captured);
+    const order = ['bulk-status','qa','review','topical-library'];
+    queue.sort((a,b)=>order.indexOf(a.kind)-order.indexOf(b.kind));
+
+    const safeRun = callback => {
+      if (generation !== state.renderGeneration || !panelActive()) return;
+      try { callback(); } catch (error){ console.warn('Question Bank background refresh skipped:',error); }
+    };
+
+    queue.forEach((item,index)=>{
+      if (item.kind === 'bulk-status'){
+        ROOT.requestAnimationFrame?.(()=>safeRun(item.callback));
+      } else {
+        runWhenIdle(()=>safeRun(item.callback),20 + index*24);
+      }
+    });
+
+    // These two modules previously depended on broad/card MutationObservers. The observer
+    // gate suppresses those cascades, so refresh them exactly once after the page cards exist.
+    runWhenIdle(()=>safeRun(()=>ROOT.V52TopicalActivationGuard?.decorate?.()),70);
+    runWhenIdle(()=>safeRun(()=>ROOT.V51MultipartQuestionManagement?.renderGroup?.()),95);
   }
 
   function updateCount(page,totalRows){
@@ -213,12 +292,24 @@
     state.page = page.page;
     state.lastFilteredCount = matching.length;
     state.lastTotalCount = allRows.length;
-    const result = withQuestionSubset(page.rows,()=>previous.apply(ROOT,args));
+    const generation = ++state.renderGeneration;
+
+    let captured = [];
+    let result;
+    const execution = withQuestionSubset(page.rows,()=>captureLegacyRefreshes(()=>previous.apply(ROOT,args)));
+    if (execution && Object.prototype.hasOwnProperty.call(execution,'result')){
+      result = execution.result;
+      captured = execution.captured || [];
+    } else {
+      result = execution;
+    }
+
     renderPager(page,allRows.length);
     updateCount(page,allRows.length);
     scheduleCount(page,allRows.length);
+    schedulePostRenderRefreshes(captured,generation);
     state.pending = false;
-    return {result,page,totalRows:allRows.length,matchingRows:matching.length,deferred:false};
+    return {result,page,totalRows:allRows.length,matchingRows:matching.length,deferred:false,capturedRefreshes:captured.length};
   }
 
   function scheduleRender(resetPage=false){
@@ -308,7 +399,8 @@
   }
 
   const api=Object.freeze({
-    PAGE_SIZE,normalizeReviewStatus,baseRowMatches,paginateRows,filteredRows,panelActive
+    PAGE_SIZE,normalizeReviewStatus,baseRowMatches,paginateRows,filteredRows,panelActive,
+    refreshCallbackKind,dedupeRefreshes
   });
   if (typeof module!=='undefined' && module.exports) module.exports=api;
   if (typeof window!=='undefined'){
