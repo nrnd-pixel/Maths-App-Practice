@@ -52,7 +52,7 @@ assert.strictEqual(api.normalizeReviewStatus(''),'none');
 
 assert(source.includes("if (!panelActive())"),'Question Bank rendering must be deferred while its tab is hidden');
 assert(source.includes('teacherQuestions = Array.from(rows || [])'),'Performance layer must temporarily scope legacy rendering to the page rows');
-assert(source.includes("'v51b2a-select-visible'"),'Bulk Select all filtered must expand all matching rows before the existing selection handler runs');
+assert(source.includes("'#v51b2a-select-visible'"),'Bulk Select all filtered must expand all matching rows before the existing selection handler runs');
 assert(source.includes("'.v52b-select'"),'Topical Select set must retain whole-set selection behavior');
 assert(source.includes("node.oninput=()=>scheduleRender(true)"),'Legacy input handlers must be replaced so they cannot rebuild the full bank');
 assert(source.includes("node.onchange=()=>scheduleRender(true)"),'Legacy select handlers must be replaced so they cannot rebuild the full bank');
