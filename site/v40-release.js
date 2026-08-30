@@ -89,6 +89,8 @@
     loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
     loadScriptOnce('v50-rc2-empty-result-code-polish.js?v=50rc2-empty-1', 'data-v50-rc2-empty-result-code-polish');
     loadScriptOnce('v50-release-audit-rc3.js?v=51stable-1', 'data-v50-release-audit-rc3');
+    loadScriptOnce('v52b1-question-bank-performance.js?v=52b1-1', 'data-v52b1-question-bank-performance');
+    loadScriptOnce('v52b1-large-import-timeout-recovery.js?v=52b1-1', 'data-v52b1-large-import-timeout-recovery');
   }
 
   if (document.readyState === 'loading'){
