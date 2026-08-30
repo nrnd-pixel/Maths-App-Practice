@@ -121,3 +121,5 @@ jobs:
         run: node site/tests/verify-v5.2c-topical-hint-bridge.cjs
       - name: Verify V5.2C loader preservation
         run: node site/tests/verify-v5.2c-loader.cjs
+      - name: Verify V5.2C.1 topical library mount
+        run: node site/tests/verify-v5.2c1-topical-library-mount.cjs
