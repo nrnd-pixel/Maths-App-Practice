@@ -96,6 +96,7 @@
     loadScriptOnce('v52c-student-topical-library.js?v=52c-1', 'data-v52c-student-topical-library');
     loadScriptOnce('v52c1-topical-library-mount-hotfix.js?v=52c1-1', 'data-v52c1-topical-library-mount-hotfix');
     loadScriptOnce('v52c-topical-hint-bridge.js?v=52c-1', 'data-v52c-topical-hint-bridge');
+    loadScriptOnce('v52c2-topical-result-ux.js?v=52c2-1', 'data-v52c2-topical-result-ux');
   }
 
   if (document.readyState === 'loading'){
