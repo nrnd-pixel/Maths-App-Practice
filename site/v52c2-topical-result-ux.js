@@ -12,11 +12,28 @@
   const AGAIN_ID = 'again-btn';
   const MODE_BUTTON_ID = 'v52c-topical-mode-btn';
   const LIBRARY_ID = 'v52c-student-topical-library';
+  const STYLE_ID = 'v52c2-topical-result-ux-style';
   const lastTopical = { source:'', year:0, count:0 };
 
   const trim = value => String(value ?? '').trim();
   const norm = value => trim(value).toLowerCase().replace(/\s+/g,' ');
   const isStruggleAction = text => /^(?:practice|practise) what i struggled with$/i.test(trim(text));
+
+  function injectStyles(){
+    if (typeof document === 'undefined' || document.getElementById(STYLE_ID)) return;
+    const style=document.createElement('style');
+    style.id=STYLE_ID;
+    style.textContent=`
+      html[data-theme="dark"] #${LIBRARY_ID} .v52c-set-card{
+        background:var(--card);
+        color:var(--text);
+      }
+      html[data-theme="dark"] #${LIBRARY_ID} .v52c-set-card.selected{
+        background:var(--soft);
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   function topicalContext(){
     try {
@@ -35,9 +52,13 @@
     node.dataset[key] = node.textContent || '';
   }
 
+  function setTextIfChanged(node,text){
+    if (node && node.textContent !== text) node.textContent = text;
+  }
+
   function restoreText(node,key){
     if (!node || node.dataset[key] == null) return;
-    node.textContent = node.dataset[key];
+    setTextIfChanged(node,node.dataset[key]);
     delete node.dataset[key];
   }
 
@@ -79,12 +100,13 @@
     rememberText(heading,'v52c2OriginalText');
     rememberText(again,'v52c2OriginalText');
     rememberText(privacy,'v52c2OriginalText');
-    if (heading) heading.textContent='Topical Practice Complete';
-    if (again) again.textContent='Practise this topical set again';
-    if (privacy) privacy.textContent=topicalPrivacyText();
+    setTextIfChanged(heading,'Topical Practice Complete');
+    setTextIfChanged(again,'Practise this topical set again');
+    setTextIfChanged(privacy,topicalPrivacyText());
 
     result.querySelectorAll('button').forEach(button=>{
       if (button.id===AGAIN_ID || !isStruggleAction(button.textContent)) return;
+      if (button.dataset.v52c2TopicalHidden==='1') return;
       button.dataset.v52c2TopicalHidden='1';
       button.classList.add('hidden');
     });
@@ -141,17 +163,19 @@
     if (result?.dataset.v52c2TopicalResult!=='1') return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    reopenLastTopical();
+    void reopenLastTopical();
   }
 
   function wire(){
     if (typeof document === 'undefined') return;
+    injectStyles();
     const result=document.getElementById(RESULT_ID);
     if (!result) return;
     document.addEventListener('click',onCaptureClick,true);
     if (typeof MutationObserver !== 'undefined'){
       new MutationObserver(decorateResult).observe(result,{
-        childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']
+        attributes:true,
+        attributeFilter:['class']
       });
     }
     decorateResult();
