@@ -127,3 +127,5 @@ jobs:
         run: node site/tests/verify-v5.2c2-topical-result-ux.cjs
       - name: Verify V5.3A Practice eligibility foundation
         run: node site/tests/verify-v5.3a-practice-eligibility.cjs
+      - name: Verify V5.3B unified Practice retrieval
+        run: node site/tests/verify-v5.3b-unified-practice-retrieval.cjs
