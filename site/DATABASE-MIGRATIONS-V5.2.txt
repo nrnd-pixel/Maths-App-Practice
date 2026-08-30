@@ -60,9 +60,43 @@ V5.2B safety boundary:
 - no deletion/archive action;
 - topical student exposure remains OFF.
 
+V5.2C — Student Topical Practice Library
+----------------------------------------
+20260830094514 v52c_student_topical_practice_library
+
+Purpose:
+- adds server-only public.topical_exercise_settings for set-level publication state; direct browser-role table access is revoked and RLS remains enabled with no direct policies;
+- adds topical_source to student_access_tickets so a verified Practice ticket can be bound to one published topical set;
+- adds topical_source to practice_sessions so topical results can be identified without overloading exam metadata;
+- adds a teacher-only readiness/publication RPC path that requires every topical row to remain inactive, contain no exam metadata, pass metadata/image/multipart/duplicate checks, and have review_status=reviewed before publication;
+- adds a public metadata RPC that lists only settings that are both published and still live-ready;
+- adds dedicated bearer-token RPCs for binding access, retrieving reviewed inactive topical rows, grading topical responses, and submitting topical Practice sessions;
+- leaves get_student_questions, grade_practice_response_v3 and submit_practice_session_v3 unchanged, so ordinary Practice continues to use active questions only through its established path.
+
+V5.2C production state immediately after migration:
+- Topical Exercise Paper 2 Extra: 292 physical rows, 261 logical questions, 292 marks, 64 image rows, 18 manual/drawing rows;
+- 0 topical rows active;
+- 0 metadata/image/multipart/duplicate blockers;
+- 292 review blockers because the imported set has not yet been marked Reviewed;
+- publication readiness=false;
+- topical_exercise_settings contains 0 published rows;
+- get_available_topical_exercise_sets_v52c(6) returns 0 student-visible sets.
+
+V5.2C security boundary:
+- topical questions remain inactive even when a set is later published;
+- student retrieval requires an unexpired Practice access token bound to one currently published/live-ready set;
+- correct answers, hints and explanations are not returned by topical question retrieval;
+- grading and final submission validate the bound ticket and exact topical set before using inactive reviewed rows;
+- teacher publication RPCs are authenticated-only and internally require public.is_teacher();
+- student RPCs are intentionally callable by anon/authenticated roles but require bearer access tokens except for the safe published-set metadata list;
+- all new SECURITY DEFINER functions pin search_path='';
+- the internal readiness helper has EXECUTE revoked from anon/authenticated roles;
+- no question active status, Exam Setting, grading logic for ordinary Practice, or past-paper publication setting was changed.
+
 Deployment guidance
 -------------------
-- The V5.2 preflight and V5.2A migrations are already applied to the production SR Lumapas Math Practice project.
+- The V5.2 preflight, V5.2A and V5.2C migrations are already applied to the production SR Lumapas Math Practice project.
 - Do not re-run them manually on production.
-- V5.2B requires no additional SQL.
-- Before merging any later V5.2 slice that changes student topical delivery, add and review any required migration/RPC changes deliberately and run the normal Supabase security advisor review.
+- V5.2B and V5.2B.1 required no additional SQL.
+- V5.2C defaults to zero student exposure until a teacher-reviewed set explicitly passes the publication gate and is published.
+- Supabase advisor notices for the server-only settings table and bearer-token SECURITY DEFINER student RPCs are expected; do not change grants/RLS merely to silence those warnings.
