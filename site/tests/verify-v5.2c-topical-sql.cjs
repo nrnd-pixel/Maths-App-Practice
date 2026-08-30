@@ -31,3 +31,4 @@ assert(!hintGuard.includes('create or replace function public.request_practice_h
 
 console.log('V5.2C topical SQL safety checks passed.');
 require('./verify-v5.2c-publication-sql-wiring.cjs');
+require('./verify-v5.2c-server-contract.cjs');
