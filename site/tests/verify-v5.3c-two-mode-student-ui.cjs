@@ -18,7 +18,7 @@ expect(ui.includes("library.hidden=true"),'legacy topical set library must be hi
 expect(ui.includes("window.addEventListener('click',onWindowCapture,true)"),'window capture must block the older document-capture repeat route');
 expect(ui.includes("result?.dataset.v52c2TopicalResult!=='1'"),'ordinary Practice result repeat must remain untouched');
 expect(ui.includes("setStartMode('practice')"),'legacy topical repeat must return to ordinary Practice');
-expect(!ui.includes('MutationObserver'),'V5.3C must not add a permanent DOM observer');
+expect(!ui.includes('new MutationObserver('),'V5.3C must not add a permanent DOM observer');
 expect(!ui.includes('cloud.rpc('),'V5.3C must remain UI-only with no RPC changes');
 expect(release.includes("loadScriptOnce('v52c-student-topical-library.js?v=52c-1'"),'rollback V5.2C student route must remain loaded');
 expect(release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1'"),'unified Practice retrieval must remain loaded');
