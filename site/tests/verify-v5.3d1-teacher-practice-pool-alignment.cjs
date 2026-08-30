@@ -55,6 +55,6 @@ expect(!/grant execute[^;]+to anon/i.test(teacherSql),'teacher creation RPCs mus
 
 expect(release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1'"),'V5.3B unified Practice bridge must remain loaded');
 expect(release.includes("loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1'"),'V5.3C two-mode student UI must remain loaded');
-expect(release.includes("loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-1'"),'V5.3D1 alignment bridge must be loaded');
+expect(release.includes("loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-2'"),'V5.3D1 alignment bridge must be cache-busted and loaded');
 
 console.log('V5.3D1 teacher Practice-pool alignment regression passed.');
