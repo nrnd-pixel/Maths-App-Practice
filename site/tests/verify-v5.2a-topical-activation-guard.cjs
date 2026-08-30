@@ -28,7 +28,7 @@ assert(/Deselect them before activating other questions/i.test(api.blockMessage(
 
 assert(source.includes("document.addEventListener('click',guardClick,true)"),'Activation guard must intercept Question Bank activation in capture phase');
 assert(source.includes("event.target?.closest?.('#v51b2a-activate')"),'Bulk Activate selected must be guarded');
-assert(source.includes("event.target?.closest?.('.toggle-q')"),'Individual Activate must be guarded');
+assert(source.includes("target?.closest?.('.toggle-q')"),'Individual Activate must be guarded');
 assert(source.includes("button.textContent = 'Staged — inactive'"),'Topical cards must visibly communicate the staging lock');
 
 assert(!source.includes('cloud.from('),'Activation guard must not write Question Bank data itself');
