@@ -2,8 +2,8 @@
 -- Practice ticket for the same signed-in student. The old used bearer token is
 -- invalidated immediately so one-time-ticket semantics remain intact.
 -- Applied to production via migrations:
---   20260831... v52c2_topical_ticket_rotation
---   20260831... v52c2_topical_ticket_rotation_unbound (final contract below)
+--   20260830162514 v52c2_topical_ticket_rotation
+--   20260830162751 v52c2_topical_ticket_rotation_unbound (final contract below)
 
 create or replace function public.renew_student_practice_access_v52c2(
   p_access_token text
