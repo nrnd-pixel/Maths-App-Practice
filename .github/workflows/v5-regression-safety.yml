@@ -109,5 +109,7 @@ jobs:
         run: node site/tests/verify-v5.2b-teacher-topical-library.cjs
       - name: Verify V5.2B.1 Question Bank performance
         run: node site/tests/verify-v5.2b1-question-bank-performance.cjs
+      - name: Verify V5.2B.1 Question Bank observer gate
+        run: node site/tests/verify-v5.2b1-question-bank-observer-gate.cjs
       - name: Verify V5.2B.1 large import timeout recovery
         run: node site/tests/verify-v5.2b1-large-import-timeout-recovery.cjs
