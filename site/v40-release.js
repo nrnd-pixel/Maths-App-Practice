@@ -81,8 +81,8 @@
     loadScriptOnce('v52-teacher-topical-library.js?v=52b-1', 'data-v52b-teacher-topical-library');
     loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51-question-change-history');
     loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51-multipart-question-management');
-    loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51-exam-publication-safety');
-    loadScriptOnce('v51-exam-publication-ui-polish.js?v=51b3-ui-3', 'data-v51-exam-publication-ui-polish');
+    loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51b3-exam-publication-safety');
+    loadScriptOnce('v51-exam-publication-ui-polish.js?v=51b3-ui-3', 'data-v51b3-exam-publication-ui-polish');
     loadScriptOnce('v51-student-exam-paper-library.js?v=51c1-1', 'data-v51c1-student-exam-paper-library');
     loadScriptOnce('v51-student-exam-resume-progress.js?v=51c2-1', 'data-v51c2-student-exam-resume-progress');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
@@ -98,6 +98,7 @@
     loadScriptOnce('v52c-topical-hint-bridge.js?v=52c-1', 'data-v52c-topical-hint-bridge');
     loadScriptOnce('v52c2-topical-result-ux.js?v=52c2-1', 'data-v52c2-topical-result-ux');
     loadScriptOnce('v53a-practice-eligibility.js?v=53a-1', 'data-v53a-practice-eligibility');
+    loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1', 'data-v53b-unified-practice-retrieval');
   }
 
   if (document.readyState === 'loading'){
