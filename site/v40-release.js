@@ -73,10 +73,10 @@
     loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51-post-import-integrity');
     loadScriptOnce('v52-topical-exercise-foundation.js?v=52a-1', 'data-v52a-topical-exercise-foundation');
     loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');
-    loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51b2a-bulk-status');
+    loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51-question-bank-bulk-status');
     loadScriptOnce('v52-topical-activation-guard.js?v=52a-1', 'data-v52a-topical-activation-guard');
-    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51b2b-bulk-metadata');
-    loadScriptOnce('v51-question-review-workflow.js?v=51b2c-1', 'data-v51b2c-question-review-workflow');
+    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51-question-bank-bulk-metadata');
+    loadScriptOnce('v51-question-review-workflow.js?v=51b2c-1', 'data-v51-question-review-workflow');
     loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51-question-change-history');
     loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51-multipart-question-management');
     loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51-exam-publication-safety');
