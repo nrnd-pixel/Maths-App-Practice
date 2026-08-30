@@ -125,3 +125,5 @@ jobs:
         run: node site/tests/verify-v5.2c1-topical-library-mount.cjs
       - name: Verify V5.2C.2 topical result UX
         run: node site/tests/verify-v5.2c2-topical-result-ux.cjs
+      - name: Verify V5.3A Practice eligibility foundation
+        run: node site/tests/verify-v5.3a-practice-eligibility.cjs
