@@ -41,6 +41,8 @@ assert(source.includes("validateStudentAccess=async function(purpose)"),'Current
 assert(source.includes('void rotateCompletedTopicalTicket()'),'Ticket rotation must start as soon as the topical result is shown');
 assert(source.includes('const refreshed=await rotateCompletedTopicalTicket()'),'Repeat must wait for a successful ticket rotation');
 
+assert(sql.includes('20260830162514 v52c2_topical_ticket_rotation'),'Repository SQL must record the first applied migration exactly');
+assert(sql.includes('20260830162751 v52c2_topical_ticket_rotation_unbound'),'Repository SQL must record the final applied migration exactly');
 assert(sql.includes('create or replace function public.renew_student_practice_access_v52c2'),'Rotation RPC must be versioned in the repository');
 assert(sql.includes("or v_ticket.used_at is null"),'Only a completed/used Practice ticket may be rotated');
 assert(sql.includes("nullif(trim(coalesce(v_ticket.topical_source,'')),'') is null"),'Only a ticket used by Topical Practice may be rotated');
