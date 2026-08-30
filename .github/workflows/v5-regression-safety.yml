@@ -113,3 +113,7 @@ jobs:
         run: node site/tests/verify-v5.2b1-question-bank-observer-gate.cjs
       - name: Verify V5.2B.1 large import timeout recovery
         run: node site/tests/verify-v5.2b1-large-import-timeout-recovery.cjs
+      - name: Verify V5.2C topical publication
+        run: node site/tests/verify-v5.2c-topical-publication.cjs
+      - name: Verify V5.2C student topical library
+        run: node site/tests/verify-v5.2c-student-topical-library.cjs
