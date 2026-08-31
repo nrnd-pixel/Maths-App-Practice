@@ -38,6 +38,7 @@
     style.id = STYLE_ID;
     style.textContent = `
       #v52b-topical-library .v52c-publication{display:none!important}
+      #questions-cards .toggle-q[data-v52-topical-locked="1"]{display:none!important}
       .v53e1-practice-resource{background:var(--successbg);color:var(--success)}
       .v53e1-not-practice-resource{background:var(--warnbg);color:var(--warn)}
     `;
@@ -154,13 +155,6 @@
       resourceTag.title = eligible
         ? 'This inactive topical record may be served through ordinary Practice.'
         : 'This topical record is not currently available through ordinary Practice.';
-
-      const lockButton = card.querySelector('.toggle-q[data-active="false"]');
-      if (lockButton){
-        lockButton.textContent = 'Inactive by design';
-        lockButton.title = 'Topical resource records remain inactive by design. Practice availability is controlled separately by the Practice resource bank.';
-        lockButton.setAttribute('aria-label','Topical resource inactive by design');
-      }
     });
   }
 
