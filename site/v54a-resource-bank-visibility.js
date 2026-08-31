@@ -1,6 +1,6 @@
 /* V5.4A — Unified Teacher Resource Bank visibility.
    Read-only Question Bank overlay for practice_eligible state. Adds a compact
-   resource-bank summary, eligibility filter and per-question Practice-resource
+   resource-bank summary, full-bank eligibility filter and per-question Practice-resource
    badge. No question, publication, grading, assignment or Exam data is changed. */
 (() => {
   'use strict';
@@ -9,6 +9,7 @@
   if (ROOT.__v54aResourceBankVisibilityInstalled) return;
   ROOT.__v54aResourceBankVisibilityInstalled = true;
 
+  const FILTER_ID = 'v54a-eligibility-filter';
   const trim = value => String(value ?? '').trim();
   const norm = value => trim(value).toLowerCase().replace(/\s+/g,' ');
   const esc = value => String(value ?? '')
@@ -48,14 +49,7 @@
       } else ineligible += 1;
       if (topical && row?.active !== false) activeTopical += 1;
     }
-    return Object.freeze({
-      total:list.length,
-      eligible,
-      ineligible,
-      eligibleReviewed,
-      eligibleTopical,
-      activeTopical
-    });
+    return Object.freeze({total:list.length,eligible,ineligible,eligibleReviewed,eligibleTopical,activeTopical});
   }
 
   function matchesEligibility(row,value='all'){
@@ -63,6 +57,12 @@
     if (filter === 'eligible') return isEligible(row);
     if (filter === 'ineligible') return !isEligible(row);
     return true;
+  }
+
+  function filterRowsByEligibility(rows,value='all'){
+    const list = Array.from(rows || []);
+    const filter = norm(value || 'all');
+    return filter === 'all' ? list : list.filter(row=>matchesEligibility(row,filter));
   }
 
   function cardQuestionId(card){
@@ -74,13 +74,18 @@
     );
   }
 
+  function currentFilter(){
+    if (typeof document === 'undefined') return 'all';
+    return document.getElementById(FILTER_ID)?.value || 'all';
+  }
+
   function ensureControls(){
     if (typeof document === 'undefined') return;
     const status = document.getElementById('question-status');
     const filterGrid = status?.closest('.filtergrid') || status?.parentElement;
-    if (filterGrid && !document.getElementById('v54a-eligibility-filter')){
+    if (filterGrid && !document.getElementById(FILTER_ID)){
       const select = document.createElement('select');
-      select.id = 'v54a-eligibility-filter';
+      select.id = FILTER_ID;
       select.setAttribute('aria-label','Practice resource eligibility filter');
       select.innerHTML = [
         '<option value="all">All Practice eligibility</option>',
@@ -155,37 +160,31 @@
     });
   }
 
-  function applyFilter(rows=currentQuestions()){
-    if (typeof document === 'undefined') return 'all';
-    const value = document.getElementById('v54a-eligibility-filter')?.value || 'all';
-    if (value === 'all') return value;
-    const byId = new Map((rows || []).map(row=>[String(row.id),row]));
-    document.querySelectorAll('#questions-cards .qcard').forEach(card=>{
-      const row = byId.get(cardQuestionId(card));
-      if (row && !matchesEligibility(row,value)) card.classList.add('hidden');
-    });
-    return value;
+  function filteredLabel(value){
+    return value === 'eligible' ? 'In Practice resource bank' : 'Not in Practice resource bank';
   }
 
-  function visibleCardCount(){
-    if (typeof document === 'undefined') return 0;
-    return document.querySelectorAll('#questions-cards .qcard:not(.hidden)').length;
-  }
-
-  function updateVisibleCount(filterValue='all',rows=currentQuestions()){
+  function updateFilteredUi(renderResult,totalLoaded,filterValue){
     if (typeof document === 'undefined' || filterValue === 'all') return;
-    const root = document.getElementById('question-bank-count');
-    if (!root) return;
-    root.textContent = `Showing ${visibleCardCount()} of ${(rows || []).length} questions • Practice eligibility filter applied`;
+    const page = renderResult?.page;
+    if (!page) return;
+    const label = filteredLabel(filterValue);
+    const count = document.getElementById('question-bank-count');
+    if (count){
+      if (page.renderAll) count.textContent=`Showing all ${page.total} matching questions · ${totalLoaded} loaded · ${label}`;
+      else if (!page.total) count.textContent=`Showing 0 matching questions · ${totalLoaded} loaded · ${label}`;
+      else count.textContent=`Showing ${page.start}–${page.end} of ${page.total} matching questions · ${totalLoaded} loaded · ${label}`;
+    }
+    const pagerHelp = document.querySelector('#v52b1-question-pagination .help');
+    if (pagerHelp){
+      pagerHelp.textContent=`${page.total} matching question${page.total===1?'':'s'} from ${totalLoaded} loaded. Practice eligibility filter: ${label}.`;
+    }
   }
 
-  function renderAll(){
+  function renderAll(rows=currentQuestions()){
     ensureControls();
-    const rows = currentQuestions();
     renderSummary(rows);
     decorateCards(rows);
-    const filterValue = applyFilter(rows);
-    updateVisibleCount(filterValue,rows);
   }
 
   function installRenderBridge(){
@@ -195,8 +194,27 @@
       const previous = renderQuestions;
       ROOT.__v54aPreviousRenderQuestions = previous;
       renderQuestions = function(...args){
-        const result = previous.apply(this,args);
-        renderAll();
+        const filterValue = currentFilter();
+        const allRows = currentQuestions();
+        const eligibleRows = filterRowsByEligibility(allRows,filterValue);
+        let original = null;
+        let swapped = false;
+        let result;
+        try {
+          if (filterValue !== 'all' && typeof teacherQuestions !== 'undefined' && Array.isArray(teacherQuestions)){
+            original = teacherQuestions;
+            teacherQuestions = eligibleRows;
+            swapped = true;
+          }
+          result = previous.apply(this,args);
+        } finally {
+          if (swapped) teacherQuestions = original;
+        }
+        renderSummary(allRows);
+        decorateCards(allRows);
+        if (filterValue !== 'all'){
+          ROOT.requestAnimationFrame?.(()=>ROOT.requestAnimationFrame?.(()=>updateFilteredUi(result,allRows.length,filterValue)));
+        }
         return result;
       };
       return true;
@@ -209,18 +227,12 @@
     installRenderBridge();
     renderAll();
     document.addEventListener('click',event=>{
-      if (event.target?.closest?.('.tab[data-panel="questions-panel"]')){
-        setTimeout(renderAll,0);
-      }
+      if (event.target?.closest?.('.tab[data-panel="questions-panel"]')) setTimeout(renderAll,0);
     });
   }
 
   const api = Object.freeze({
-    isEligible,
-    sourceCategory,
-    reviewState,
-    resourceStats,
-    matchesEligibility
+    isEligible,sourceCategory,reviewState,resourceStats,matchesEligibility,filterRowsByEligibility
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
