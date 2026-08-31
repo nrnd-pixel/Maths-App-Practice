@@ -81,9 +81,18 @@ const challengePool = api.adaptiveOrder([
   q('c3','Decimals',{difficulty:'challenge'}),
   q('s1','Algebra',{difficulty:'standard'}),
   q('s2','Ratio',{difficulty:'standard'}),
-  q('s3','Measurement',{difficulty:'standard'})
+  q('s3','Measurement',{difficulty:'standard'}),
+  q('s4','Percentages',{difficulty:'standard'}),
+  q('s5','Whole Numbers',{difficulty:'standard'})
 ],{targetCount:5,recommendation:null,broadMixed:true},()=>0.1).slice(0,5);
-assert(challengePool.filter(item => item.difficulty === 'challenge').length <= 1,'Any-difficulty Mixed Practice should cap Challenge questions at 20% for five questions');
+assert(challengePool.filter(item => item.difficulty === 'challenge').length <= 1,'Any-difficulty Mixed Practice should cap Challenge questions at 20% when equivalent unseen non-Challenge alternatives are available');
+
+const exposureBeatsCap = api.adaptiveOrder([
+  q('uc1','Angles',{difficulty:'challenge',seen:0}),
+  q('uc2','Fractions',{difficulty:'challenge',seen:0}),
+  q('seen-standard','Decimals',{difficulty:'standard',seen:1})
+],{targetCount:2,recommendation:null,broadMixed:true},()=>0.1).slice(0,2);
+assert(exposureBeatsCap.every(item => item.difficulty === 'challenge'),'Repeat avoidance must remain stronger than the Challenge cap when the only non-Challenge alternative has already been seen');
 
 const explicit = [q('a','Algebra'),q('b','Fractions'),q('c','Decimals')];
 assert.deepStrictEqual(
@@ -105,6 +114,8 @@ assert.strictEqual(api.itemHistory(multipart).lastSeenMs,Date.parse('2026-08-20T
 
 assert(source.includes("previousRpc('get_student_practice_recommendation'"),'D5 must reuse the accepted D4 recommendation contract');
 assert(source.includes('get_student_practice_questions_v53d3'),'D5 must compose with the accepted D3 retrieval route');
+assert(source.includes('const broadMixed = isBroadMixedState(currentState())'),'D5 must load recommendation context only for true broad Mixed Practice');
+assert(source.includes('accessToken && broadMixed'),'Explicit Practice filters must not pay the extra recommendation-RPC cost');
 assert(!source.includes('grade_practice_response'),'D5 must not change grading');
 assert(!source.includes('submit_practice_session'),'D5 must not change Practice submission');
 assert(!source.includes('request_practice_hint'),'D5 must not change hints');
