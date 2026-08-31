@@ -1,6 +1,6 @@
-/* V5.3A — Unified Practice eligibility foundation.
-   Teacher-only staging controls for reviewed topical sets. This stage does NOT change
-   ordinary student Practice retrieval; V5.3B will consume practice_eligible safely. */
+/* V5.3A / V5.3D5.1 — Unified Practice eligibility controls.
+   Teacher-only controls for reviewed topical sets. Eligible rows are consumed by
+   ordinary Practice through the accepted V5.3 unified Practice resource bank. */
 (() => {
   'use strict';
 
@@ -39,10 +39,17 @@
 
   function eligibilityLabel(item){
     if (!item) return 'Eligibility unavailable';
-    if (item.all_eligible) return 'Staged for unified Practice';
+    if (item.all_eligible) return 'Available in Practice';
     if (item.partially_eligible) return 'Mixed eligibility — repair needed';
-    if (item.ready) return 'Ready to stage';
-    return 'Not ready to stage';
+    if (item.ready) return 'Ready for Practice';
+    return 'Not ready for Practice';
+  }
+
+  function retrievalLabel(item){
+    if (!item) return 'Practice availability unknown';
+    if (item.all_eligible) return 'Live in ordinary Practice';
+    if (item.partially_eligible) return 'Partially available in Practice';
+    return 'Not available in Practice';
   }
 
   function canEnable(item){ return !!item && item.ready===true && item.all_eligible!==true; }
@@ -65,9 +72,9 @@
   function stagingCopy(item){
     if (!item) return 'Eligibility state is loading…';
     if (!item.ready && item.readiness_reasons.length) return item.readiness_reasons.join(' • ');
-    if (item.all_eligible) return 'All rows are staged for the future unified Practice pool. V5.3A does not change student retrieval yet.';
-    if (item.partially_eligible) return 'This set has mixed row eligibility. Use “Make all eligible” or remove the set from the staged Practice pool.';
-    return 'This set is ready to be staged for the future unified Practice pool. Ordinary Practice continues using the existing active-question route until V5.3B.';
+    if (item.all_eligible) return 'Eligible rows are available to students through ordinary Practice. Topical rows remain inactive and keep their source provenance.';
+    if (item.partially_eligible) return 'This set has mixed Practice eligibility. Use “Make all eligible” or remove the set from the Practice pool.';
+    return 'This reviewed set is ready to be added to the ordinary Practice resource bank. Topical rows will remain inactive.';
   }
 
   function renderCard(card){
@@ -87,7 +94,7 @@
     }
 
     if (!item){
-      root.innerHTML='<strong>V5.3A unified Practice eligibility</strong><br><span class="help">Eligibility state is loading…</span>';
+      root.innerHTML='<strong>Unified Practice eligibility</strong><br><span class="help">Eligibility state is loading…</span>';
       return;
     }
 
@@ -103,11 +110,11 @@
     root.innerHTML=`
       <div class="header" style="align-items:center;gap:8px">
         <div>
-          <strong>V5.3A unified Practice eligibility</strong>
+          <strong>Unified Practice eligibility</strong>
           <div class="pills" style="margin-top:6px">
             <span class="tag">${esc(eligibilityLabel(item))}</span>
             <span class="tag">${esc(item.eligible_rows)}/${esc(item.physical_rows)} rows eligible</span>
-            <span class="tag">Student retrieval not live yet</span>
+            <span class="tag">${esc(retrievalLabel(item))}</span>
           </div>
         </div>
         ${action}
@@ -148,8 +155,8 @@
     if (!target&&!canDisable(item)) return;
     const action=target?'Add':'Remove';
     const detail=target
-      ? 'This stages the reviewed set for the future unified Practice pool. Ordinary student Practice will NOT use this flag until V5.3B. Topical rows remain inactive.'
-      : 'This removes the set from the staged unified Practice pool. It does not delete questions or change Topical Practice publication.';
+      ? 'This makes the reviewed set available through ordinary Practice. Topical rows remain inactive and keep their source provenance.'
+      : 'This removes the set from ordinary Practice eligibility. It does not delete questions or change their source provenance.';
     if (!window.confirm(`${action} “${source}” ${target?'to':'from'} the unified Practice pool?\n\n${detail}`)) return;
     try{
       const {error}=await cloud.rpc('save_topical_practice_eligibility_v53a',{p_year_level:Number(year),p_source:source,p_eligible:!!target});
@@ -185,7 +192,7 @@
     scheduleLoad(false);
   }
 
-  const api=Object.freeze({norm,setKey,normalizeRows,eligibilityLabel,canEnable,canDisable,stagingCopy});
+  const api=Object.freeze({norm,setKey,normalizeRows,eligibilityLabel,retrievalLabel,canEnable,canDisable,stagingCopy});
   if (typeof module!=='undefined'&&module.exports) module.exports=api;
   if (typeof window!=='undefined'){
     Object.defineProperty(window,'V53APracticeEligibility',{value:api,writable:false,configurable:false});
