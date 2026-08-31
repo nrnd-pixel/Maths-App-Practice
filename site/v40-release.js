@@ -102,6 +102,7 @@
     loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1', 'data-v53c-two-mode-student-ui');
     loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-3', 'data-v53d1-teacher-practice-pool-alignment');
     loadScriptOnce('v53d3-practice-selection-quality.js?v=53d3-1', 'data-v53d3-practice-selection-quality');
+    loadScriptOnce('v53d4-student-recommendation-alignment.js?v=53d4-1', 'data-v53d4-student-recommendation-alignment');
   }
 
   if (document.readyState === 'loading'){
