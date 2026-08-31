@@ -21,6 +21,8 @@ assert.strictEqual(api.practiceSetLabel(partial.map(row=>({...row,practice_eligi
 
 assert(source.includes("#v52b-topical-library .v52c-publication{display:none!important}"),
   'Legacy V5.2C student-publication panel must be hidden in the teacher topical library');
+assert(source.includes('#questions-cards .toggle-q[data-v52-topical-locked="1"]{display:none!important}'),
+  'Obsolete locked topical Activate control must be hidden rather than fighting the legacy guard observer');
 assert(source.includes('Topical Exercise Resource Library'),
   'Teacher topical library must be presented as a resource library');
 assert(source.includes('Students access eligible questions through ordinary Practice Mode.'),
@@ -37,13 +39,11 @@ assert(source.includes('Inactive record'),
   'Topical Question Bank cards must clarify that inactive is record state');
 assert(source.includes('Practice resource'),
   'Practice-eligible topical question cards must show an independent Practice resource badge');
-assert(source.includes('Inactive by design'),
-  'Locked topical activation control must no longer use obsolete staged wording');
 
 assert(source.includes("observe(cards,{childList:true})"),
   'UI cleanup observer must be limited to top-level topical-card replacement');
 assert(!source.includes('subtree:true'),
-  'UI cleanup must not install a broad subtree observer');
+  'UI cleanup must not install a broad new subtree observer');
 assert(!source.includes('characterData:true'),
   'UI cleanup must not observe its own text mutations');
 assert(!source.includes('.rpc('),
