@@ -1,6 +1,7 @@
-/* V5.2A — Topical Exercise Activation Guard.
-   Keeps staged topical_exercise rows inactive until the dedicated student topical
-   library exists. This is presentation/safety interception only: no database writes. */
+/* V5.2A / V5.3E1 — Topical Exercise Activation Guard.
+   Topical resource rows remain inactive by design. Ordinary Practice availability is
+   controlled separately through practice_eligible. This is presentation/safety
+   interception only: no database writes. */
 (() => {
   'use strict';
 
@@ -43,8 +44,8 @@
 
   function blockMessage(count=1){
     return count === 1
-      ? 'This topical exercise is staged safely and must remain inactive in V5.2A. Student exposure will be enabled only through the later dedicated Topical Practice library.'
-      : `${count} selected topical exercises are staged safely and must remain inactive in V5.2A. Deselect them before activating other questions.`;
+      ? 'This topical resource must remain inactive by design. Ordinary Practice availability is controlled separately through the Practice resource bank.'
+      : `${count} selected topical resources must remain inactive by design. Their ordinary Practice availability is controlled separately through the Practice resource bank. Deselect them before activating other records.`;
   }
 
   function guardClick(event){
@@ -74,9 +75,9 @@
       const row = byId.get(String(button.dataset.id));
       if (!row || !isTopical(row) || row.active !== false) return;
       button.dataset.v52TopicalLocked = '1';
-      button.textContent = 'Staged — inactive';
-      button.title = 'V5.2A keeps topical exercises inactive until the dedicated student Topical Practice library is released.';
-      button.setAttribute('aria-label','Topical exercise staged and inactive');
+      button.textContent = 'Inactive by design';
+      button.title = 'Topical resource records remain inactive by design. Practice availability is controlled separately by the Practice resource bank.';
+      button.setAttribute('aria-label','Topical resource inactive by design');
     });
 
     const selected = selectedTopicalRows(rows);
