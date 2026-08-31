@@ -10,6 +10,10 @@
 
   function text(value){ return String(value ?? '').trim(); }
   function lower(value){ return text(value).toLowerCase(); }
+  function isPracticeEligible(question){
+    if (question?.practice_eligible === true) return true;
+    return question?.practice_eligible == null && question?.active !== false;
+  }
 
   function injectStyles(){
     if (document.getElementById(STYLE_ID)) return;
@@ -122,7 +126,7 @@
       ? teacherQuestions
       : [];
     const strands = [...new Set(questions
-      .filter(question => question?.active !== false &&
+      .filter(question => isPracticeEligible(question) &&
         Number(question?.year_level) === Number(row?.year_level) &&
         lower(question?.topic) === topicName)
       .map(question => text(question?.strand))
