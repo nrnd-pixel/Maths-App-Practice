@@ -137,3 +137,5 @@ jobs:
         run: node site/tests/verify-v5.3d2-practice-recommendation-alignment.cjs
       - name: Verify V5.3D3 Practice selection quality
         run: node site/tests/verify-v5.3d3-practice-selection-quality.cjs
+      - name: Verify V5.3D4 student recommendation alignment
+        run: node site/tests/verify-v5.3d4-student-recommendation-alignment.cjs
