@@ -145,6 +145,7 @@
     while (remaining.length && selected.length < limit){
       const minSeen = Math.min(...remaining.map(entry => entry.seenCount));
       let candidates = remaining.filter(entry => entry.seenCount === minSeen);
+      let focusMode = false;
 
       if (challengeSelected >= maxChallenge){
         const nonChallenge = candidates.filter(entry => entry.difficulty !== 'challenge');
@@ -157,22 +158,22 @@
       );
       if (focusSelected < desiredFocusSoFar){
         const focusCandidates = candidates.filter(entry => entry.focus);
-        if (focusCandidates.length) candidates = focusCandidates;
+        if (focusCandidates.length){
+          candidates = focusCandidates;
+          focusMode = true;
+        }
       } else if (focusSelected >= desiredFocus){
         const nonFocus = candidates.filter(entry => !entry.focus);
         if (nonFocus.length) candidates = nonFocus;
       }
 
-      if (candidates.some(entry => entry.focus)){
+      if (focusMode){
         const bestDifficulty = Math.min(...candidates.map(entry =>
-          entry.focus ? difficultyRank(entry.difficulty,recommendation?.reason) : 99
+          difficultyRank(entry.difficulty,recommendation?.reason)
         ));
-        if (bestDifficulty < 99){
-          const preferred = candidates.filter(entry =>
-            entry.focus && difficultyRank(entry.difficulty,recommendation?.reason) === bestDifficulty
-          );
-          if (preferred.length) candidates = preferred;
-        }
+        candidates = candidates.filter(entry =>
+          difficultyRank(entry.difficulty,recommendation?.reason) === bestDifficulty
+        );
       }
 
       const minTopicCount = Math.min(...candidates.map(entry => topicCounts.get(entry.topicKey) || 0));
