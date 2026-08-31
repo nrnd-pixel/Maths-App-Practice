@@ -224,7 +224,8 @@
         latestRecommendation = null;
         const questionPromise = Promise.resolve(previousRpc(name,args,options));
         const accessToken = input.p_access_token;
-        const recommendationPromise = accessToken
+        const broadMixed = isBroadMixedState(currentState());
+        const recommendationPromise = accessToken && broadMixed
           ? Promise.resolve(previousRpc('get_student_practice_recommendation',{
               p_access_token:accessToken
             })).catch(error => {
