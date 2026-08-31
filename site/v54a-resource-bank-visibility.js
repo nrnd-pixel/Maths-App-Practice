@@ -156,14 +156,27 @@
   }
 
   function applyFilter(rows=currentQuestions()){
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return 'all';
     const value = document.getElementById('v54a-eligibility-filter')?.value || 'all';
-    if (value === 'all') return;
+    if (value === 'all') return value;
     const byId = new Map((rows || []).map(row=>[String(row.id),row]));
     document.querySelectorAll('#questions-cards .qcard').forEach(card=>{
       const row = byId.get(cardQuestionId(card));
       if (row && !matchesEligibility(row,value)) card.classList.add('hidden');
     });
+    return value;
+  }
+
+  function visibleCardCount(){
+    if (typeof document === 'undefined') return 0;
+    return document.querySelectorAll('#questions-cards .qcard:not(.hidden)').length;
+  }
+
+  function updateVisibleCount(filterValue='all',rows=currentQuestions()){
+    if (typeof document === 'undefined' || filterValue === 'all') return;
+    const root = document.getElementById('question-bank-count');
+    if (!root) return;
+    root.textContent = `Showing ${visibleCardCount()} of ${(rows || []).length} questions • Practice eligibility filter applied`;
   }
 
   function renderAll(){
@@ -171,7 +184,8 @@
     const rows = currentQuestions();
     renderSummary(rows);
     decorateCards(rows);
-    applyFilter(rows);
+    const filterValue = applyFilter(rows);
+    updateVisibleCount(filterValue,rows);
   }
 
   function installRenderBridge(){
