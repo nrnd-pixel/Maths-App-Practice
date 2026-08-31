@@ -62,7 +62,7 @@ assert.deepEqual(selection.itemHistory(multipart),{
 assert.equal(selection.balanceKey({strand:' Number ','topic':' Fractions  '}),'number|fractions');
 
 const legacy = [{id:'x'},{id:'y'},{id:'z'}];
-assert.deepEqual(selection.orderPracticeItems(legacy,() => 0),['y','z','x'],
+assert.deepEqual(selection.orderPracticeItems(legacy,() => 0).map(q=>q.id),['y','z','x'],
   'Arrays without V5.3D3 history metadata must retain randomized fallback behavior.');
 
 assert.match(sql,/get_student_practice_questions_v53d3/i);
