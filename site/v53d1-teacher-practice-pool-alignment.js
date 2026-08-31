@@ -19,6 +19,7 @@
   let assignmentLoadBusy = false;
   let topicObserver = null;
   let observedTopicSelect = null;
+  let capturedTopicSelection = null;
 
   const trim = value => String(value ?? '').trim();
   const norm = value => trim(value).toLowerCase().replace(/\s+/g,' ');
@@ -114,11 +115,14 @@
 
     const topics=topicOptions(cls,strand);
     const previous=topicSelect.value;
+    const captured=capturedTopicSelection;
+    const desired=captured !== null ? captured : previous;
     if (!sameOptions(topicSelect,topics)){
       topicSelect.innerHTML='<option value="">All topics in this strand</option>' +
         topics.map(topic=>`<option value="${html(topic)}">${html(topic)}</option>`).join('');
-      if (topics.includes(previous)) topicSelect.value=previous;
     }
+    if (desired === '' || topics.includes(desired)) topicSelect.value=desired;
+    if (captured !== null && topicSelect.value === desired) capturedTopicSelection=null;
 
     const count=availableItems(cls,strand,topicSelect.value);
     availability.textContent=count
@@ -189,6 +193,10 @@
 
   function wireUi(){
     if (typeof document === 'undefined') return;
+    document.addEventListener('change',event=>{
+      if (event.target?.matches?.('#v43b-topic')) capturedTopicSelection=trim(event.target.value);
+      else if (event.target?.matches?.('#v43b-strand')) capturedTopicSelection=null;
+    },true);
     document.addEventListener('change',event=>{
       if (event.target?.matches?.('#v43b-strand,#v43b-topic')){
         refreshUi(false,0);refreshUi(false,80);refreshUi(false,220);
