@@ -101,6 +101,7 @@
     loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1', 'data-v53b-unified-practice-retrieval');
     loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1', 'data-v53c-two-mode-student-ui');
     loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-3', 'data-v53d1-teacher-practice-pool-alignment');
+    loadScriptOnce('v53d3-practice-selection-quality.js?v=53d3-1', 'data-v53d3-practice-selection-quality');
   }
 
   if (document.readyState === 'loading'){
