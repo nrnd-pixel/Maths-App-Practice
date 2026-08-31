@@ -30,6 +30,10 @@ assert.strictEqual(mod.matchesEligibility(rows[2],'eligible'),false);
 assert.strictEqual(mod.matchesEligibility(rows[2],'ineligible'),true);
 assert.strictEqual(mod.matchesEligibility(rows[0],'all'),true);
 
+assert.deepStrictEqual(mod.filterRowsByEligibility(rows,'eligible').map(row=>row.id),['a','b']);
+assert.deepStrictEqual(mod.filterRowsByEligibility(rows,'ineligible').map(row=>row.id),['c','d']);
+assert.deepStrictEqual(mod.filterRowsByEligibility(rows,'all').map(row=>row.id),['a','b','c','d']);
+
 const fs = require('fs');
 const source = fs.readFileSync(require.resolve('../v54a-resource-bank-visibility.js'),'utf8');
 assert(source.includes('practice_eligible === true'),'Eligibility must use practice_eligible explicitly');
@@ -37,8 +41,10 @@ assert(source.includes('Practice resource'),'Cards must show an eligible resourc
 assert(source.includes('Not in Practice'),'Cards must show an ineligible resource badge');
 assert(source.includes('v54a-eligibility-filter'),'Question Bank must expose the Practice eligibility filter');
 assert(source.includes('v54a-resource-bank-summary'),'Question Bank must expose a resource-bank summary');
-assert(source.includes('Practice eligibility filter applied'),'Filtered Question Bank count must visibly reflect the eligibility filter');
-assert(source.includes("#questions-cards .qcard:not(.hidden)"),'Filtered count must use the final visible-card state after existing filters');
+assert(source.includes('teacherQuestions = eligibleRows'),'Eligibility must be applied to the full in-memory bank before the paginated renderer');
+assert(source.includes('updateFilteredUi'),'Filtered paging/count metadata must be corrected after the full-bank filter');
+assert(source.includes('page.total'),'Filtered count must come from the paginated filtered result');
+assert(!source.includes("classList.add('hidden')"),'V5.4A must not hide only the current page after pagination');
 assert(!source.includes("cloud.from('questions').update"),'V5.4A must remain read-only');
 assert(!source.includes('cloud.rpc('),'V5.4A must not add RPC writes or retrieval routes');
 assert(!source.includes('new MutationObserver('),'V5.4A must not add a permanent DOM observer');
