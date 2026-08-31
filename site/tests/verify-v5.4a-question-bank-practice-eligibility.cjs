@@ -4,8 +4,10 @@ const assert=require('assert');
 
 const modulePath=path.join(__dirname,'..','v54a-question-bank-practice-eligibility.js');
 const sqlPath=path.join(__dirname,'..','..','supabase','v54a_question_bank_practice_eligibility.sql');
+const logicalSqlPath=path.join(__dirname,'..','..','supabase','v54a_logical_item_practice_eligibility.sql');
 const source=fs.readFileSync(modulePath,'utf8');
 const sql=fs.readFileSync(sqlPath,'utf8');
+const logicalSql=fs.readFileSync(logicalSqlPath,'utf8');
 const api=require(modulePath);
 
 const topicalReviewed={source_type:'topical_exercise',review_status:'reviewed',practice_eligible:false};
@@ -42,12 +44,20 @@ assert(sql.includes('save_question_practice_eligibility_v54a'),'Migration must d
 assert(sql.includes("security definer\nset search_path to ''"),'Teacher RPCs must pin an empty search_path');
 assert(sql.includes('if not public.is_teacher()'),'Teacher RPCs must enforce teacher authorization internally');
 assert(sql.includes("v_question.source_type = 'topical_exercise'"),'Server must recognize topical resources');
-assert(sql.includes("v_question.review_status,'none') <> 'reviewed'"),'Server must require Reviewed topical rows before enabling Practice');
-assert(sql.includes('set practice_eligible = v_target'),'Per-question RPC must update only Practice eligibility');
+assert(sql.includes("v_question.review_status,'none') <> 'reviewed'"),'Initial contract must require Reviewed topical rows before enabling Practice');
+assert(sql.includes('set practice_eligible = v_target'),'Per-question RPC must update Practice eligibility only');
 assert(!/set\s+active\s*=/i.test(sql),'V5.4A migration must never activate/deactivate questions');
 assert(sql.includes('revoke all on function public.save_question_practice_eligibility_v54a(uuid,boolean) from public'),'PUBLIC execute must be revoked');
 assert(sql.includes('revoke all on function public.save_question_practice_eligibility_v54a(uuid,boolean) from anon'),'Anon execute must be revoked');
 assert(sql.includes('grant execute on function public.save_question_practice_eligibility_v54a(uuid,boolean) to authenticated, service_role'),'Only teacher-capable authenticated path/service role should receive execute');
 assert((sql.match(/'student_retrieval_live',true/g)||[]).length>=2,'Existing topical eligibility RPCs must now report live unified Practice retrieval');
+
+assert(logicalSql.includes('practice_logical_item_key_v53d1'),'Final V5.4A contract must use the accepted source-aware logical-question key');
+assert(logicalSql.includes('= v_logical_key'),'All physical rows of the selected logical question must be updated together');
+assert(logicalSql.includes("coalesce(q.review_status,'none') <> 'reviewed'"),'Every topical multipart row must be Reviewed before the logical item can be enabled');
+assert(logicalSql.includes("'updated_rows',v_rows"),'RPC must report how many physical rows were changed');
+assert(!/set\s+active\s*=/i.test(logicalSql),'Multipart integrity follow-up must never activate/deactivate questions');
+assert(logicalSql.includes('revoke all on function public.save_question_practice_eligibility_v54a(uuid,boolean) from public'),'Logical-item replacement must preserve PUBLIC revoke');
+assert(logicalSql.includes('revoke all on function public.save_question_practice_eligibility_v54a(uuid,boolean) from anon'),'Logical-item replacement must preserve anon revoke');
 
 console.log('V5.4A Question Bank Practice eligibility checks passed.');
