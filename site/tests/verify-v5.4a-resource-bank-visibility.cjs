@@ -37,6 +37,8 @@ assert(source.includes('Practice resource'),'Cards must show an eligible resourc
 assert(source.includes('Not in Practice'),'Cards must show an ineligible resource badge');
 assert(source.includes('v54a-eligibility-filter'),'Question Bank must expose the Practice eligibility filter');
 assert(source.includes('v54a-resource-bank-summary'),'Question Bank must expose a resource-bank summary');
+assert(source.includes('Practice eligibility filter applied'),'Filtered Question Bank count must visibly reflect the eligibility filter');
+assert(source.includes("#questions-cards .qcard:not(.hidden)"),'Filtered count must use the final visible-card state after existing filters');
 assert(!source.includes("cloud.from('questions').update"),'V5.4A must remain read-only');
 assert(!source.includes('cloud.rpc('),'V5.4A must not add RPC writes or retrieval routes');
 assert(!source.includes('new MutationObserver('),'V5.4A must not add a permanent DOM observer');
