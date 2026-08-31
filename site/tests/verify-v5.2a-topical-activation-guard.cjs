@@ -21,15 +21,17 @@ const fakeTarget = {
     return {dataset:{id:'t1',active:'false'}};
   }
 };
-assert.strictEqual(api.blockedIndividualActivation(fakeTarget,[topical,practice]),topical,'Individual activation of a staged topical row must be blocked');
+assert.strictEqual(api.blockedIndividualActivation(fakeTarget,[topical,practice]),topical,'Individual activation of an inactive topical resource must be blocked');
 assert.strictEqual(api.blockedIndividualActivation(fakeTarget,[practice]),null,'Ordinary Practice activation must remain untouched');
-assert(/must remain inactive in V5\.2A/i.test(api.blockMessage(1)),'Guard must explain the V5.2A staging boundary');
-assert(/Deselect them before activating other questions/i.test(api.blockMessage(2)),'Bulk guard must give a safe recovery action');
+assert(/must remain inactive by design/i.test(api.blockMessage(1)),'Guard must explain the inactive-by-design record boundary');
+assert(/Practice resource bank/i.test(api.blockMessage(1)),'Guard must explain that ordinary Practice availability is controlled separately');
+assert(/Deselect them before activating other records/i.test(api.blockMessage(2)),'Bulk guard must give a safe recovery action');
 
 assert(source.includes("document.addEventListener('click',guardClick,true)"),'Activation guard must intercept Question Bank activation in capture phase');
 assert(source.includes("event.target?.closest?.('#v51b2a-activate')"),'Bulk Activate selected must be guarded');
 assert(source.includes("target?.closest?.('.toggle-q')"),'Individual Activate must be guarded');
-assert(source.includes("button.textContent = 'Staged — inactive'"),'Topical cards must visibly communicate the staging lock');
+assert(source.includes("button.textContent = 'Inactive by design'"),'Topical cards must visibly communicate the inactive-by-design lock');
+assert(!source.includes('dedicated student Topical Practice library'),'Guard copy must not retain obsolete dedicated student-mode wording');
 
 assert(!source.includes('cloud.from('),'Activation guard must not write Question Bank data itself');
 assert(!source.includes('cloud.rpc('),'Activation guard must not call RPCs');
@@ -39,4 +41,4 @@ assert(!source.includes('correctResponse'),'Activation guard must not alter grad
 assert(!source.includes('get_student_questions'),'Activation guard must not alter student delivery');
 assert(!source.includes('exam_paper_settings'),'Activation guard must not alter Exam publication');
 
-console.log('V5.2A Topical Activation Guard checks passed.');
+console.log('V5.2A / V5.3E1 Topical Activation Guard checks passed.');
