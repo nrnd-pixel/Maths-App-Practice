@@ -141,3 +141,5 @@ jobs:
         run: node site/tests/verify-v5.3d4-student-recommendation-alignment.cjs
       - name: Verify V5.3D5 Practice selection intelligence
         run: node site/tests/verify-v5.3d5-practice-selection-intelligence.cjs
+      - name: Verify V5.4A Question Bank Practice eligibility
+        run: node site/tests/verify-v5.4a-question-bank-practice-eligibility.cjs
