@@ -145,3 +145,5 @@ jobs:
         run: node site/tests/verify-v5.3d6-resource-bank-status-clarity.cjs
       - name: Verify V5.4A unified resource bank visibility
         run: node site/tests/verify-v5.4a-resource-bank-visibility.cjs
+      - name: Verify V5.4B teacher Practice eligibility controls
+        run: node site/tests/verify-v5.4b-practice-eligibility-controls.cjs
