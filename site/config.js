@@ -41,12 +41,13 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* V5.1 stable-release bootstrap title. */
+/* Historical V5.1 bootstrap title; the signed-off V5.4 production-polish layer
+   applies the current stable identity once the staged modules are loaded. */
 document.title = 'Math Practice V5.1';
 
-/* Stable V3.9/V4.x/V5.0 foundation plus the signed-off V5.1 feature set.
+/* Stable V3.9/V4.x/V5.x foundation plus the signed-off V5.4 release checkpoint.
    Legacy release-label-only scripts remain archived in the repository but are
-   no longer executed; current release presentation is handled by v40-release.js. */
+   no longer executed; current staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -63,7 +64,8 @@ window.addEventListener('load', () => {
     './v40-learning-priorities.js',
     './v40-platform-polish.js',
     './v40-release.js',
-    './v40-start-shell.js'
+    './v40-start-shell.js',
+    './v54-stable-release-checkpoint.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
