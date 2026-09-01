@@ -155,3 +155,5 @@ jobs:
         run: node site/tests/verify-v5.4e-bulk-practice-eligibility.cjs
       - name: Verify V5.4F bulk selection scope safety
         run: node site/tests/verify-v5.4f-bulk-selection-scope-safety.cjs
+      - name: Verify V5.4G paged manual bulk selection
+        run: node site/tests/verify-v5.4g-paged-manual-bulk-selection.cjs
