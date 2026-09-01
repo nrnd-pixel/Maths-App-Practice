@@ -73,15 +73,15 @@
     loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51-post-import-integrity');
     loadScriptOnce('v52-topical-exercise-foundation.js?v=52a-1', 'data-v52a-topical-exercise-foundation');
     loadScriptOnce('v52b1-question-bank-observer-gate.js?v=52b1-2', 'data-v52b1-question-bank-observer-gate');
-    loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');
-    loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51-question-bank-bulk-status');
+    loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51b1-question-bank-qa');
+    loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51b2a-question-bank-bulk-status');
     loadScriptOnce('v52-topical-activation-guard.js?v=52a-1', 'data-v52a-topical-activation-guard');
-    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51-question-bank-bulk-metadata');
-    loadScriptOnce('v51-question-review-workflow.js?v=51b2c-1', 'data-v51-question-review-workflow');
+    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51b2b-question-bank-bulk-metadata');
+    loadScriptOnce('v51-question-review-workflow.js?v=51b2c-1', 'data-v51b2c-question-review-workflow');
     loadScriptOnce('v52-teacher-topical-library.js?v=52b-1', 'data-v52b-teacher-topical-library');
-    loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51-question-change-history');
-    loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51-multipart-question-management');
-    loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51-exam-publication-safety');
+    loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51b2d-question-change-history');
+    loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51b2e-multipart-question-management');
+    loadScriptOnce('v51-exam-publication-safety.js?v=51b3-1', 'data-v51b3-exam-publication-safety');
     loadScriptOnce('v51-exam-publication-ui-polish.js?v=51b3-ui-3', 'data-v51-exam-publication-ui-polish');
     loadScriptOnce('v51-student-exam-paper-library.js?v=51c1-1', 'data-v51c1-student-exam-paper-library');
     loadScriptOnce('v51-student-exam-resume-progress.js?v=51c2-1', 'data-v51c2-student-exam-resume-progress');
@@ -105,6 +105,7 @@
     loadScriptOnce('v53d4-student-recommendation-alignment.js?v=53d4-1', 'data-v53d4-student-recommendation-alignment');
     loadScriptOnce('v53d5-practice-selection-intelligence.js?v=53d5-1', 'data-v53d5-practice-selection-intelligence');
     loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');
+    loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-1', 'data-v54a-resource-bank-visibility');
   }
 
   if (document.readyState === 'loading'){
