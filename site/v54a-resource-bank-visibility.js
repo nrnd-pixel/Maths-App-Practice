@@ -169,15 +169,16 @@
       </div>`;
   }
 
-  function statusBadge(meta){
+  function statusBadge(meta,row){
     if (!meta) return null;
     let badge = meta.querySelector('.v54a-resource-badge');
     if (badge) return badge;
 
-    // V5.3D6 already adds a Practice-status badge to topical rows. Reuse that
-    // element instead of showing two eligibility badges on the same card.
-    badge = meta.querySelector('.v53d6-practice-eligibility-badge');
-    if (badge){
+    // V5.3D6 owns topical-row status decoration. V5.4A may reuse that badge,
+    // but never creates a second topical badge if D6 has not painted yet.
+    if (sourceCategory(row) === 'topical'){
+      badge = meta.querySelector('.v53d6-practice-eligibility-badge');
+      if (!badge) return null;
       badge.classList.add('v54a-resource-badge');
       return badge;
     }
@@ -190,13 +191,16 @@
 
   function decorateCards(rows=currentQuestions()){
     if (typeof document === 'undefined') return;
+    // Paint D6 topical status synchronously first so V5.4A can reuse it. D6 is
+    // presentation-only and this avoids a timing race with D6's scheduled bursts.
+    try { ROOT.V53D6ResourceBankStatusClarity?.decorate?.(); } catch {}
     const byId = new Map((rows || []).map(row=>[String(row?.id),row]));
     document.querySelectorAll('#questions-cards .qcard').forEach(card=>{
       const row = byId.get(cardQuestionId(card));
       if (!row) return;
       const meta = card.querySelector('.qcard-meta');
       if (!meta) return;
-      const badge = statusBadge(meta);
+      const badge = statusBadge(meta,row);
       if (!badge) return;
       const eligible = isEligible(row);
       badge.classList.remove('v54a-practice-resource','v54a-not-practice-resource');
