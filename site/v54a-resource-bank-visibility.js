@@ -99,7 +99,6 @@
     style.textContent = `
       .v54a-practice-resource{background:var(--successbg);color:var(--success)}
       .v54a-not-practice-resource{background:var(--warnbg);color:var(--warn)}
-      #v54a-eligibility-filter-wrap .help{display:block;margin-top:2px}
       @media(min-width:761px){#questions-panel .filtergrid{grid-template-columns:2fr repeat(6,minmax(120px,1fr))}}
       @media(max-width:760px){#questions-panel .filtergrid{grid-template-columns:1fr}}
     `;
@@ -113,21 +112,19 @@
     if (select) return select;
 
     const status = document.getElementById('question-status');
-    const statusLabel = status?.closest?.('label');
-    if (!statusLabel) return null;
+    const filterGrid = status?.closest?.('.filtergrid') || status?.parentElement;
+    if (!filterGrid) return null;
 
-    const label = document.createElement('label');
-    label.id = 'v54a-eligibility-filter-wrap';
-    label.innerHTML = `Practice resource
-      <select id="${FILTER_ID}" aria-label="Practice resource eligibility filter">
-        <option value="all">All Practice states</option>
-        <option value="eligible">In Practice</option>
-        <option value="ineligible">Not in Practice</option>
-      </select>
-      <span class="help">Filters the full resource bank before paging.</span>`;
-    statusLabel.insertAdjacentElement('afterend',label);
-    select = label.querySelector('select');
-    select?.addEventListener('change',()=>{
+    select = document.createElement('select');
+    select.id = FILTER_ID;
+    select.setAttribute('aria-label','Practice resource eligibility filter');
+    select.title = 'Filter the full resource bank by ordinary Practice availability.';
+    select.innerHTML = `
+      <option value="all">All Practice states</option>
+      <option value="eligible">In Practice</option>
+      <option value="ineligible">Not in Practice</option>`;
+    filterGrid.appendChild(select);
+    select.addEventListener('change',()=>{
       try { if (typeof renderQuestions === 'function') renderQuestions(); }
       catch { renderAll(); }
     });
