@@ -52,6 +52,9 @@ assert(source.includes('Unified Practice resource bank'),'Question Bank must exp
 assert(source.includes('Practice resource'),'Cards must show an eligible Practice-resource status');
 assert(source.includes('Not in Practice'),'Cards must show an ineligible Practice-resource status');
 assert(source.includes('v54a-eligibility-filter'),'Question Bank must expose the Practice eligibility filter');
+assert(source.includes("status?.closest?.('.filtergrid')") || source.includes("status.closest('.filtergrid')"),'Practice filter must anchor to the actual bare-select Question Bank filter grid');
+assert(source.includes('filterGrid.appendChild(select)'),'Practice filter must support the bare-select Question Bank filter layout');
+assert(!source.includes('if (!statusLabel) return null'),'Practice filter must not require question-status to be wrapped in a label');
 assert(source.includes('teacherQuestions = eligibleRows'),'Eligibility must be applied to the full in-memory bank before the paginated renderer');
 assert(source.includes('updateFilteredUi'),'Filtered paging/count metadata must be corrected after the full-bank filter');
 assert(source.includes('page.total'),'Filtered count must come from the paginated filtered result');
@@ -71,7 +74,7 @@ assert(!source.includes('exam_attempt'),'V5.4A must not alter Exam Mode');
 assert(!/practice_eligible\s*=(?!=)/.test(source),'V5.4A must not mutate Practice eligibility');
 
 assert(loader.includes("loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');"),'Accepted D6 loader must remain present');
-assert(loader.includes("loadScriptOnce('v54a-resource-bank-visibility.js?v=54a-1', 'data-v54a-resource-bank-visibility');"),'V5.4A loader wiring must be present');
+assert(loader.includes("loadScriptOnce('v54a-resource-bank-visibility.js?v=54a-2', 'data-v54a-resource-bank-visibility');"),'V5.4A cache-busted loader wiring must be present');
 assert(loader.indexOf('v53d6-resource-bank-status-clarity.js') < loader.indexOf('v54a-resource-bank-visibility.js'),'V5.4A must load after D6 so it can reuse D6 topical status elements');
 
 console.log('V5.4A unified Teacher Resource Bank visibility checks passed.');
