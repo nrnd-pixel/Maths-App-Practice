@@ -143,3 +143,5 @@ jobs:
         run: node site/tests/verify-v5.3d5-practice-selection-intelligence.cjs
       - name: Verify V5.3D6 resource bank status clarity
         run: node site/tests/verify-v5.3d6-resource-bank-status-clarity.cjs
+      - name: Verify V5.4A unified resource bank visibility
+        run: node site/tests/verify-v5.4a-resource-bank-visibility.cjs
