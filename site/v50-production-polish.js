@@ -1,4 +1,4 @@
-/* V5.1 — UX & Production Polish.
+/* V5.4 — UX & Production Polish.
    Presentation/accessibility only: stable-release branding, production start-screen cleanup,
    reviewed-work wording, teacher-tab ergonomics and live-region polish.
    No grading, auth, Practice/Exam, assignment or student-data mutations. */
@@ -9,8 +9,8 @@
   window.__v50ProductionPolishInstalled = true;
 
   const STYLE_ID = 'v50rc3-production-polish-style';
-  const TITLE = 'Math Practice V5.1';
-  const BADGE = 'Version 5.1 • Stable Release';
+  const TITLE = 'Math Practice V5.4';
+  const BADGE = 'Version 5.4 • Stable Release';
   const UPDATE_EVENT = 'v50rc3-production-polish-updated';
 
   const byId = id => document.getElementById(id);
@@ -251,7 +251,7 @@
     };
 
     return Object.freeze({
-      phase:'V5.1Stable',
+      phase:'V5.4Stable',
       ready:Object.values(checks).every(Boolean),
       checks:Object.freeze({...checks}),
       packaged_production:packagedProduction()
