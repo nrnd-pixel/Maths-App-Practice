@@ -104,6 +104,7 @@
     loadScriptOnce('v53d3-practice-selection-quality.js?v=53d3-1', 'data-v53d3-practice-selection-quality');
     loadScriptOnce('v53d4-student-recommendation-alignment.js?v=53d4-1', 'data-v53d4-student-recommendation-alignment');
     loadScriptOnce('v53d5-practice-selection-intelligence.js?v=53d5-1', 'data-v53d5-practice-selection-intelligence');
+    loadScriptOnce('v54a1-compact-question-bank.js?v=54a1-1', 'data-v54a1-compact-question-bank');
   }
 
   if (document.readyState === 'loading'){
