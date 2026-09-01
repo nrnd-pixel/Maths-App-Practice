@@ -1,7 +1,8 @@
 /* V5.4A — Unified Teacher Resource Bank visibility.
    Read-only Question Bank overlay for practice_eligible state. Adds a compact
-   resource-bank summary, full-bank eligibility filter and per-question Practice-resource
-   badge. No question, publication, grading, assignment or Exam data is changed. */
+   resource-bank summary, full-bank eligibility filter and per-question Practice
+   resource status. Composes with V5.2B.1 paging and V5.3D6 topical status clarity.
+   No question, publication, grading, assignment, Practice or Exam data is changed. */
 (() => {
   'use strict';
 
@@ -10,6 +11,7 @@
   ROOT.__v54aResourceBankVisibilityInstalled = true;
 
   const FILTER_ID = 'v54a-eligibility-filter';
+  const SUMMARY_ID = 'v54a-resource-bank-summary';
   const trim = value => String(value ?? '').trim();
   const norm = value => trim(value).toLowerCase().replace(/\s+/g,' ');
   const esc = value => String(value ?? '')
@@ -24,6 +26,7 @@
   }
 
   function isEligible(row){ return row?.practice_eligible === true; }
+
   function sourceCategory(row){
     const source = norm(row?.source_type);
     if (source === 'topical' || source === 'topical_exercise') return 'topical';
@@ -32,6 +35,7 @@
     if (source === 'teacher') return 'teacher';
     return source || 'other';
   }
+
   function reviewState(row){
     const value = norm(row?.review_status);
     return ['reviewed','needs_review'].includes(value) ? value : 'none';
@@ -46,10 +50,19 @@
         eligible += 1;
         if (reviewState(row) === 'reviewed') eligibleReviewed += 1;
         if (topical) eligibleTopical += 1;
-      } else ineligible += 1;
+      } else {
+        ineligible += 1;
+      }
       if (topical && row?.active !== false) activeTopical += 1;
     }
-    return Object.freeze({total:list.length,eligible,ineligible,eligibleReviewed,eligibleTopical,activeTopical});
+    return Object.freeze({
+      total:list.length,
+      eligible,
+      ineligible,
+      eligibleReviewed,
+      eligibleTopical,
+      activeTopical
+    });
   }
 
   function matchesEligibility(row,value='all'){
@@ -79,51 +92,70 @@
     return document.getElementById(FILTER_ID)?.value || 'all';
   }
 
-  function ensureControls(){
-    if (typeof document === 'undefined') return;
-    const status = document.getElementById('question-status');
-    const filterGrid = status?.closest('.filtergrid') || status?.parentElement;
-    if (filterGrid && !document.getElementById(FILTER_ID)){
-      const select = document.createElement('select');
-      select.id = FILTER_ID;
-      select.setAttribute('aria-label','Practice resource eligibility filter');
-      select.innerHTML = [
-        '<option value="all">All Practice eligibility</option>',
-        '<option value="eligible">In Practice resource bank</option>',
-        '<option value="ineligible">Not in Practice resource bank</option>'
-      ].join('');
-      filterGrid.appendChild(select);
-      select.addEventListener('change',()=>{
-        try { if (typeof renderQuestions === 'function') renderQuestions(); }
-        catch { renderAll(); }
-      });
-    }
+  function injectStyles(){
+    if (typeof document === 'undefined' || document.getElementById('v54a-resource-bank-style')) return;
+    const style = document.createElement('style');
+    style.id = 'v54a-resource-bank-style';
+    style.textContent = `
+      .v54a-practice-resource{background:var(--successbg);color:var(--success)}
+      .v54a-not-practice-resource{background:var(--warnbg);color:var(--warn)}
+      @media(min-width:761px){#questions-panel .filtergrid{grid-template-columns:2fr repeat(6,minmax(120px,1fr))}}
+      @media(max-width:760px){#questions-panel .filtergrid{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+  }
 
-    if (!document.getElementById('v54a-resource-bank-summary')){
-      const count = document.getElementById('question-bank-count');
-      if (count){
-        const panel = document.createElement('section');
-        panel.id = 'v54a-resource-bank-summary';
-        panel.className = 'info';
-        panel.style.marginBottom = '12px';
-        count.insertAdjacentElement('beforebegin',panel);
-      }
-    }
+  function ensureControls(){
+    if (typeof document === 'undefined') return null;
+    injectStyles();
+    let select = document.getElementById(FILTER_ID);
+    if (select) return select;
+
+    const status = document.getElementById('question-status');
+    const filterGrid = status?.closest?.('.filtergrid') || status?.parentElement;
+    if (!filterGrid) return null;
+
+    select = document.createElement('select');
+    select.id = FILTER_ID;
+    select.setAttribute('aria-label','Practice resource eligibility filter');
+    select.title = 'Filter the full resource bank by ordinary Practice availability.';
+    select.innerHTML = `
+      <option value="all">All Practice states</option>
+      <option value="eligible">In Practice</option>
+      <option value="ineligible">Not in Practice</option>`;
+    filterGrid.appendChild(select);
+    select.addEventListener('change',()=>{
+      try { if (typeof renderQuestions === 'function') renderQuestions(); }
+      catch { renderAll(); }
+    });
+    return select;
+  }
+
+  function ensureSummary(){
+    if (typeof document === 'undefined') return null;
+    let root = document.getElementById(SUMMARY_ID);
+    if (root) return root;
+    const count = document.getElementById('question-bank-count');
+    if (!count) return null;
+    root = document.createElement('section');
+    root.id = SUMMARY_ID;
+    root.className = 'info';
+    root.style.marginBottom = '12px';
+    count.insertAdjacentElement('beforebegin',root);
+    return root;
   }
 
   function renderSummary(rows=currentQuestions()){
-    const root = typeof document !== 'undefined' ? document.getElementById('v54a-resource-bank-summary') : null;
+    const root = ensureSummary();
     if (!root) return;
     const stats = resourceStats(rows);
     const safety = stats.activeTopical === 0
       ? '<span class="tag">✓ 0 active topical rows</span>'
       : `<span class="tag" style="background:var(--dangerbg);color:var(--danger)">⚠ ${esc(stats.activeTopical)} active topical row${stats.activeTopical===1?'':'s'}</span>`;
     root.innerHTML = `
-      <div class="header" style="align-items:center;gap:10px">
-        <div>
-          <strong>Unified Practice resource bank</strong>
-          <div class="help">Practice eligibility is independent of source type and legacy Active status. Use the filters below to audit what ordinary Practice can draw from.</div>
-        </div>
+      <div>
+        <strong>Unified Practice resource bank</strong>
+        <div class="help">Practice eligibility is independent of source type and legacy Active status. These counts show what ordinary Practice can draw from.</div>
       </div>
       <div class="pills" style="margin-top:9px">
         <span class="tag">${esc(stats.eligible)} in Practice</span>
@@ -134,38 +166,51 @@
       </div>`;
   }
 
+  function statusBadge(meta,row){
+    if (!meta) return null;
+    let badge = meta.querySelector('.v54a-resource-badge');
+    if (badge) return badge;
+
+    // V5.3D6 owns topical-row status decoration. V5.4A may reuse that badge,
+    // but never creates a second topical badge if D6 has not painted yet.
+    if (sourceCategory(row) === 'topical'){
+      badge = meta.querySelector('.v53d6-practice-eligibility-badge');
+      if (!badge) return null;
+      badge.classList.add('v54a-resource-badge');
+      return badge;
+    }
+
+    badge = document.createElement('span');
+    badge.className = 'tag v54a-resource-badge';
+    meta.appendChild(badge);
+    return badge;
+  }
+
   function decorateCards(rows=currentQuestions()){
     if (typeof document === 'undefined') return;
-    const byId = new Map((rows || []).map(row=>[String(row.id),row]));
+    // Paint D6 topical status synchronously first so V5.4A can reuse it. D6 is
+    // presentation-only and this avoids a timing race with D6's scheduled bursts.
+    try { ROOT.V53D6ResourceBankStatusClarity?.decorate?.(); } catch {}
+    const byId = new Map((rows || []).map(row=>[String(row?.id),row]));
     document.querySelectorAll('#questions-cards .qcard').forEach(card=>{
       const row = byId.get(cardQuestionId(card));
       if (!row) return;
       const meta = card.querySelector('.qcard-meta');
       if (!meta) return;
-
-      const d6Badge = meta.querySelector('.v53d6-practice-eligibility-badge');
-      if (d6Badge) return;
-
-      let badge = meta.querySelector('.v54a-resource-badge');
-      if (!badge){
-        badge = document.createElement('span');
-        badge.className = 'tag v54a-resource-badge';
-        meta.appendChild(badge);
-      }
-      if (isEligible(row)){
-        badge.textContent = 'Practice resource';
-        badge.style.background = 'var(--successbg)';
-        badge.style.color = 'var(--success)';
-      } else {
-        badge.textContent = 'Not in Practice';
-        badge.style.background = 'var(--warnbg)';
-        badge.style.color = 'var(--warn)';
-      }
+      const badge = statusBadge(meta,row);
+      if (!badge) return;
+      const eligible = isEligible(row);
+      badge.classList.remove('v54a-practice-resource','v54a-not-practice-resource');
+      badge.classList.add(eligible?'v54a-practice-resource':'v54a-not-practice-resource');
+      badge.textContent = eligible ? 'Practice resource' : 'Not in Practice';
+      badge.title = eligible
+        ? 'This question may be served through ordinary Practice.'
+        : 'This question remains in the Question Bank but is not currently served through ordinary Practice.';
     });
   }
 
   function filteredLabel(value){
-    return value === 'eligible' ? 'In Practice resource bank' : 'Not in Practice resource bank';
+    return value === 'eligible' ? 'In Practice' : 'Not in Practice';
   }
 
   function updateFilteredUi(renderResult,totalLoaded,filterValue){
@@ -181,7 +226,7 @@
     }
     const pagerHelp = document.querySelector('#v52b1-question-pagination .help');
     if (pagerHelp){
-      pagerHelp.textContent=`${page.total} matching question${page.total===1?'':'s'} from ${totalLoaded} loaded. Practice eligibility filter: ${label}.`;
+      pagerHelp.textContent=`${page.total} matching question${page.total===1?'':'s'} from ${totalLoaded} loaded. Practice resource filter: ${label}.`;
     }
   }
 
@@ -205,7 +250,9 @@
         let swapped = false;
         let result;
         try {
-          if (filterValue !== 'all' && typeof teacherQuestions !== 'undefined' && Array.isArray(teacherQuestions)){
+          if (filterValue !== 'all'
+              && typeof teacherQuestions !== 'undefined'
+              && Array.isArray(teacherQuestions)){
             original = teacherQuestions;
             teacherQuestions = eligibleRows;
             swapped = true;
@@ -217,12 +264,17 @@
         renderSummary(allRows);
         decorateCards(allRows);
         if (filterValue !== 'all'){
-          ROOT.requestAnimationFrame?.(()=>ROOT.requestAnimationFrame?.(()=>updateFilteredUi(result,allRows.length,filterValue)));
+          ROOT.requestAnimationFrame?.(()=>ROOT.requestAnimationFrame?.(()=>{
+            updateFilteredUi(result,allRows.length,filterValue);
+            decorateCards(allRows);
+          }));
         }
         return result;
       };
       return true;
-    } catch { return false; }
+    } catch {
+      return false;
+    }
   }
 
   function wire(){
@@ -231,12 +283,23 @@
     installRenderBridge();
     renderAll();
     document.addEventListener('click',event=>{
-      if (event.target?.closest?.('.tab[data-panel="questions-panel"]')) setTimeout(renderAll,0);
+      if (event.target?.closest?.('.tab[data-panel="questions-panel"]')){
+        ROOT.setTimeout?.(()=>{
+          ensureControls();
+          renderAll();
+        },0);
+      }
     });
   }
 
   const api = Object.freeze({
-    isEligible,sourceCategory,reviewState,resourceStats,matchesEligibility,filterRowsByEligibility
+    isEligible,
+    sourceCategory,
+    reviewState,
+    resourceStats,
+    matchesEligibility,
+    filterRowsByEligibility,
+    cardQuestionId
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
