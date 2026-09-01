@@ -16,7 +16,7 @@ assert(source.includes("data-v52b1-observer-gated"),'Gated targets must expose a
 
 const gateIndex = loader.indexOf("v52b1-question-bank-observer-gate.js?v=52b1-2");
 const qaIndex = loader.indexOf("v51-question-bank-qa.js?v=51b1-1");
-const performanceIndex = loader.indexOf("v52b1-question-bank-performance.js?v=52b1-2");
+const performanceIndex = loader.indexOf("v52b1-question-bank-performance.js?v=52b1-3");
 assert(gateIndex >= 0,'Observer gate must be loaded');
 assert(gateIndex < qaIndex,'Observer gate must load before Question Bank modules register observers');
 assert(performanceIndex > qaIndex,'Performance coordinator must still load after established Question Bank wrappers');

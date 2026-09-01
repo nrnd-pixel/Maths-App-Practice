@@ -7,7 +7,7 @@ const loader=fs.readFileSync(path.join(__dirname,'..','v40-release.js'),'utf8');
 const existingKeys=[
   "loadScriptOnce('v51-exam-publication-ui-polish.js?v=51b3-ui-3', 'data-v51-exam-publication-ui-polish')",
   "loadScriptOnce('v52-teacher-topical-library.js?v=52b-1', 'data-v52b-teacher-topical-library')",
-  "loadScriptOnce('v52b1-question-bank-performance.js?v=52b1-2', 'data-v52b1-question-bank-performance')"
+  "loadScriptOnce('v52b1-question-bank-performance.js?v=52b1-3', 'data-v52b1-question-bank-performance')"
 ];
 for(const line of existingKeys) assert(loader.includes(line),`Existing stable loader entry changed: ${line}`);
 
