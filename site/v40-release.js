@@ -47,7 +47,7 @@
     loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
     loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
     loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
-    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
+    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47-intervention-history');
     loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
     loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
     loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');
@@ -104,6 +104,7 @@
     loadScriptOnce('v53d3-practice-selection-quality.js?v=53d3-1', 'data-v53d3-practice-selection-quality');
     loadScriptOnce('v53d4-student-recommendation-alignment.js?v=53d4-1', 'data-v53d4-student-recommendation-alignment');
     loadScriptOnce('v53d5-practice-selection-intelligence.js?v=53d5-1', 'data-v53d5-practice-selection-intelligence');
+    loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');
   }
 
   if (document.readyState === 'loading'){
