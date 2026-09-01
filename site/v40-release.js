@@ -108,6 +108,7 @@
     loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');
     loadScriptOnce('v54b-practice-eligibility-controls.js?v=54b-1', 'data-v54b-practice-eligibility-controls');
     loadScriptOnce('v54c-compact-question-bank.js?v=54c-1', 'data-v54c-compact-question-bank');
+    loadScriptOnce('v54d-topical-resource-simplification.js?v=54d-1', 'data-v54d-topical-resource-simplification');
   }
 
   if (document.readyState === 'loading'){
