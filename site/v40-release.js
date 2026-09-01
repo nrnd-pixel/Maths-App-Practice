@@ -105,7 +105,7 @@
     loadScriptOnce('v53d4-student-recommendation-alignment.js?v=53d4-1', 'data-v53d4-student-recommendation-alignment');
     loadScriptOnce('v53d5-practice-selection-intelligence.js?v=53d5-1', 'data-v53d5-practice-selection-intelligence');
     loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');
-    loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-1', 'data-v54a-resource-bank-visibility');
+    loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');
   }
 
   if (document.readyState === 'loading'){
