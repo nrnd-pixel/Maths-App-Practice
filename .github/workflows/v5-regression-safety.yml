@@ -149,3 +149,5 @@ jobs:
         run: node site/tests/verify-v5.4b-practice-eligibility-controls.cjs
       - name: Verify V5.4C compact Question Bank browsing
         run: node site/tests/verify-v5.4c-compact-question-bank.cjs
+      - name: Verify V5.4D topical resource simplification
+        run: node site/tests/verify-v5.4d-topical-resource-simplification.cjs
