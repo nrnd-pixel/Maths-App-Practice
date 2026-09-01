@@ -68,9 +68,9 @@
     loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51-bulk-question-image-cleanup');
     loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51-bulk-question-image-safety');
     loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51-paper-package-preview');
-    loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51a4-package-status');
-    loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51a5-one-confirmation-paper-import');
-    loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51a6-post-import-integrity');
+    loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51-paper-package-preview-status');
+    loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51-one-confirmation-paper-import');
+    loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51-post-import-integrity');
     loadScriptOnce('v52-topical-exercise-foundation.js?v=52a-1', 'data-v52a-topical-exercise-foundation');
     loadScriptOnce('v52b1-question-bank-observer-gate.js?v=52b1-2', 'data-v52b1-question-bank-observer-gate');
     loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');
