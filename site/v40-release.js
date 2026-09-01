@@ -64,10 +64,10 @@
     loadScriptOnce('v50-teacher-operations.js?v=50d2-1', 'data-v50-teacher-operations');
     loadScriptOnce('v50-roster-edit.js?v=50launch-1', 'data-v50-roster-edit');
     loadScriptOnce('v51-paper-profile-validator.js?v=51a-1', 'data-v51-paper-profile-validator');
-    loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51a2-bulk-question-image-upload');
-    loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51a2-bulk-question-image-cleanup');
-    loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51a2-bulk-question-image-safety');
-    loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51a4-paper-package-preview');
+    loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51-bulk-question-image-upload');
+    loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51-bulk-question-image-cleanup');
+    loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51-bulk-question-image-safety');
+    loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51-paper-package-preview');
     loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51a4-package-status');
     loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51a5-one-confirmation-paper-import');
     loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51a6-post-import-integrity');
