@@ -65,7 +65,7 @@ assert(!source.includes('grade_practice_response'),'V5.4A must not alter grading
 assert(!source.includes('submit_practice_session'),'V5.4A must not alter Practice submission');
 assert(!source.includes('get_student_'),'V5.4A must not alter student retrieval or recommendation routes');
 assert(!source.includes('exam_attempt'),'V5.4A must not alter Exam Mode');
-assert(!source.includes('practice_eligible ='),'V5.4A must not mutate Practice eligibility');
+assert(!/practice_eligible\s*=(?!=)/.test(source),'V5.4A must not mutate Practice eligibility');
 
 assert(loader.includes("loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');"),'Accepted D6 loader must remain present');
 assert(loader.includes("loadScriptOnce('v54a-resource-bank-visibility.js?v=54a-1', 'data-v54a-resource-bank-visibility');"),'V5.4A loader wiring must be present');
