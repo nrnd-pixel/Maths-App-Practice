@@ -109,6 +109,7 @@
     loadScriptOnce('v54b-practice-eligibility-controls.js?v=54b-1', 'data-v54b-practice-eligibility-controls');
     loadScriptOnce('v54c-compact-question-bank.js?v=54c-1', 'data-v54c-compact-question-bank');
     loadScriptOnce('v54d-topical-resource-simplification.js?v=54d-1', 'data-v54d-topical-resource-simplification');
+    loadScriptOnce('v54e-bulk-practice-eligibility.js?v=54e-1', 'data-v54e-bulk-practice-eligibility');
   }
 
   if (document.readyState === 'loading'){
