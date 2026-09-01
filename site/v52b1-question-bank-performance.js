@@ -1,8 +1,9 @@
 /* V5.2B.1 — Teacher Question Bank performance hotfix.
    Keeps the full teacherQuestions dataset in memory for established teacher tools, but
    avoids building the complete Question Bank DOM while that tab is hidden and renders
-   only one 50-row page for normal browsing. Existing V5.1 bulk-selection semantics are
-   preserved by temporarily expanding all matching rows when a bulk selection is active.
+   only one 50-row page for normal browsing. Ordinary manual bulk selection stays on the
+   current 50-row page; explicit Select all filtered / Select set actions still expand the
+   full matching scope so established bulk/review tools retain whole-scope behavior.
    Legacy Question Bank follow-up refreshes are captured, deduplicated and staggered so
    the first card page can paint before QA/review/library decoration completes.
    No database, grading, student-delivery, Exam Setting or Storage behavior changes. */
@@ -18,6 +19,7 @@
   const state = {
     page:1,
     selectionMode:false,
+    expandingForExplicitSelection:false,
     pending:true,
     renderScheduled:false,
     renderGeneration:0,
@@ -94,6 +96,13 @@
     return [];
   }
 
+  function bulkSelectionCount(rows=currentQuestions()){
+    try {
+      const selected = ROOT.V51QuestionBankBulkStatus?.buildPlan?.(rows,undefined,false)?.selected;
+      return Array.isArray(selected) ? selected.length : 0;
+    } catch { return 0; }
+  }
+
   function panelActive(){
     if (typeof document === 'undefined') return false;
     const teacher = document.getElementById('teacher');
@@ -151,22 +160,28 @@
     const root = ensurePager();
     if (!root) return;
     if (state.selectionMode){
-      root.innerHTML = `<div><strong>Bulk selection mode</strong> · all ${page.total} matching row${page.total===1?'':'s'} are rendered so the existing bulk/review tools keep their full-selection behavior.</div><div class="help" style="margin-top:5px">Clear the selection to return to ${PAGE_SIZE}-row paging.</div>`;
+      root.innerHTML = `<div><strong>Full-scope bulk selection</strong> · all ${page.total} matching row${page.total===1?'':'s'} are rendered for Select all filtered / Select set.</div><div class="help" style="margin-top:5px">Clear the selection to return to ${PAGE_SIZE}-row paging.</div>`;
       return;
     }
+    const selected = bulkSelectionCount();
+    const manualLocked = selected > 0;
     root.innerHTML = `
       <div class="toolbar" style="justify-content:space-between;gap:8px">
-        <button id="v52b1-page-prev" class="outline" type="button" ${page.page<=1?'disabled':''}>← Previous</button>
-        <span><strong>Page ${page.page} of ${page.totalPages}</strong> · up to ${PAGE_SIZE} cards per page</span>
-        <button id="v52b1-page-next" class="outline" type="button" ${page.page>=page.totalPages?'disabled':''}>Next →</button>
+        <button id="v52b1-page-prev" class="outline" type="button" ${page.page<=1 || manualLocked?'disabled':''}>← Previous</button>
+        <span><strong>Page ${page.page} of ${page.totalPages}</strong> · up to ${PAGE_SIZE} cards per page${manualLocked?` · ${selected} selected`:''}</span>
+        <button id="v52b1-page-next" class="outline" type="button" ${page.page>=page.totalPages || manualLocked?'disabled':''}>Next →</button>
       </div>
-      <div class="help" style="margin-top:5px">${page.total} matching question${page.total===1?'':'s'} from ${totalRows} loaded. Only this page is built in the browser; QA and management decorations finish in a coordinated background pass.</div>`;
+      <div class="help" style="margin-top:5px">${manualLocked
+        ? `${selected} question${selected===1?' is':'s are'} selected on this page. Clear selection to change page, or use Select all filtered to select the whole current filter without paging.`
+        : `${page.total} matching question${page.total===1?'':'s'} from ${totalRows} loaded. Only this page is built in the browser; QA and management decorations finish in a coordinated background pass.`}</div>`;
     root.querySelector('#v52b1-page-prev')?.addEventListener('click',()=>{
+      if (bulkSelectionCount()) return;
       state.page=Math.max(1,page.page-1);
       try { renderQuestions(); } catch {}
       document.getElementById('question-bank-count')?.scrollIntoView?.({behavior:'smooth',block:'start'});
     });
     root.querySelector('#v52b1-page-next')?.addEventListener('click',()=>{
+      if (bulkSelectionCount()) return;
       state.page=Math.min(page.totalPages,page.page+1);
       try { renderQuestions(); } catch {}
       document.getElementById('question-bank-count')?.scrollIntoView?.({behavior:'smooth',block:'start'});
@@ -269,11 +284,12 @@
     const focus = document.getElementById('v52b-focus');
     if (focus && !focus.classList.contains('hidden')) return;
     if (state.selectionMode){
-      count.textContent = `Showing all ${page.total} matching questions of ${totalRows} loaded · bulk selection mode`;
+      count.textContent = `Showing all ${page.total} matching questions of ${totalRows} loaded · full-scope bulk selection`;
     } else if (!page.total){
       count.textContent = `Showing 0 matching questions of ${totalRows} loaded`;
     } else {
-      count.textContent = `Showing ${page.start}–${page.end} of ${page.total} matching questions · ${totalRows} loaded`;
+      const selected = bulkSelectionCount();
+      count.textContent = `Showing ${page.start}–${page.end} of ${page.total} matching questions · ${totalRows} loaded${selected?` · ${selected} selected · page locked`:''}`;
     }
   }
 
@@ -287,6 +303,10 @@
       return {deferred:true,page:state.page};
     }
     const allRows = currentQuestions();
+    if (state.selectionMode && !state.expandingForExplicitSelection && bulkSelectionCount(allRows) === 0){
+      state.selectionMode=false;
+      state.page=1;
+    }
     const matching = filteredRows(allRows);
     const page = paginateRows(matching,state.page,PAGE_SIZE,state.selectionMode);
     state.page = page.page;
@@ -334,6 +354,16 @@
     });
   }
 
+  function beginExplicitSelectionExpansion(){
+    state.selectionMode=true;
+    state.expandingForExplicitSelection=true;
+    state.page=1;
+    ROOT.setTimeout?.(()=>{
+      state.expandingForExplicitSelection=false;
+      scheduleRender(false);
+    },80);
+  }
+
   function installInteractionGuards(){
     if (typeof document === 'undefined') return;
 
@@ -344,20 +374,19 @@
       }
 
       if (event.target?.closest?.('#v51b2a-select-visible')){
-        state.selectionMode=true;
-        state.page=1;
+        beginExplicitSelectionExpansion();
         // Expand synchronously before the established B2A handler reads visible card IDs.
         try { if (panelActive() && typeof renderQuestions==='function') renderQuestions(); } catch {}
       }
       if (event.target?.closest?.('.v52b-select')){
         // V5.2B Select set calls renderQuestions after it resets the filters. Render all matching
         // rows for that explicit bulk action so every row in the set can receive a checkbox.
-        state.selectionMode=true;
-        state.page=1;
+        beginExplicitSelectionExpansion();
       }
       if (event.target?.closest?.('#v51b2a-clear-selection')){
         ROOT.setTimeout?.(()=>{
           state.selectionMode=false;
+          state.expandingForExplicitSelection=false;
           state.page=1;
           scheduleRender(false);
         },0);
@@ -369,11 +398,14 @@
       if (target?.classList?.contains('v51b2a-select')){
         ROOT.requestAnimationFrame?.(()=>{
           const checked=document.querySelectorAll('#questions-cards .v51b2a-select:checked').length;
-          if (checked){
-            if (!state.selectionMode){ state.selectionMode=true; state.page=1; scheduleRender(false); }
-          } else if (state.selectionMode){
-            state.selectionMode=false; state.page=1; scheduleRender(false);
+          if (!checked && state.selectionMode){
+            state.selectionMode=false;
+            state.expandingForExplicitSelection=false;
+            state.page=1;
           }
+          // Ordinary checkbox selection remains on the current 50-card page. A lightweight
+          // re-render updates the pager lock and restores checkbox state from B2A's canonical set.
+          scheduleRender(false);
         });
         return;
       }
@@ -399,7 +431,7 @@
   }
 
   const api=Object.freeze({
-    PAGE_SIZE,normalizeReviewStatus,baseRowMatches,paginateRows,filteredRows,panelActive,
+    PAGE_SIZE,normalizeReviewStatus,baseRowMatches,paginateRows,filteredRows,panelActive,bulkSelectionCount,
     refreshCallbackKind,dedupeRefreshes
   });
   if (typeof module!=='undefined' && module.exports) module.exports=api;
