@@ -5,6 +5,7 @@ const path=require('path');
 const siteRoot=path.resolve(__dirname,'..');
 const modulePath=path.join(siteRoot,'v54b-practice-eligibility-controls.js');
 const sqlPath=path.join(siteRoot,'..','supabase','v54b_teacher_practice_eligibility_controls.sql');
+const legacySqlPath=path.join(siteRoot,'..','supabase','v54b_retire_legacy_v54a_writer.sql');
 const loaderPath=path.join(siteRoot,'v40-release.js');
 const v54aPath=path.join(siteRoot,'v54a-resource-bank-visibility.js');
 const performancePath=path.join(siteRoot,'v52b1-question-bank-performance.js');
@@ -13,6 +14,7 @@ const d6Path=path.join(siteRoot,'v53d6-resource-bank-status-clarity.js');
 const mod=require(modulePath);
 const source=fs.readFileSync(modulePath,'utf8');
 const sql=fs.readFileSync(sqlPath,'utf8');
+const legacySql=fs.readFileSync(legacySqlPath,'utf8');
 const loader=fs.readFileSync(loaderPath,'utf8');
 const v54a=fs.readFileSync(v54aPath,'utf8');
 const d6=fs.readFileSync(d6Path,'utf8');
@@ -78,6 +80,11 @@ assert(sql.includes('revoke all on function public.save_question_practice_eligib
 assert(sql.includes('grant execute on function public.save_question_practice_eligibility_v54b(uuid,boolean) to authenticated, service_role'),'Teacher-capable authenticated path/service role may execute');
 assert(sql.includes("'practice_eligible',"),'Question Change History must audit Practice eligibility changes');
 assert(sql.includes("'practice_eligible', v_question.practice_eligible"),'Question history response should expose current Practice eligibility');
+
+assert(legacySql.includes('20260901064332 v54b_retire_legacy_v54a_writer'),'Legacy-writer retirement must match the applied follow-up migration');
+assert(legacySql.includes('revoke execute on function public.save_question_practice_eligibility_v54a(uuid[],boolean)'),'Abandoned V5.4A writer must be revoked from client roles');
+assert(legacySql.includes('from public, anon, authenticated'),'Legacy writer must not remain callable by browser roles');
+assert(legacySql.includes('to service_role'),'Legacy writer may remain only for trusted service/rollback use');
 
 assert.strictEqual(performance.PAGE_SIZE,50,'V5.4B must preserve the accepted 50-card Question Bank paging boundary');
 assert(v54a.includes('filterRowsByEligibility'),'Accepted V5.4A full-bank Practice filter must remain present');
