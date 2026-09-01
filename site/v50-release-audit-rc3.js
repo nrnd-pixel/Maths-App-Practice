@@ -1,4 +1,4 @@
-/* V5.1 — extends the existing read-only Release Audit with UX/production polish status.
+/* V5.4 — extends the existing read-only Release Audit with UX/production polish status.
    Presentation-only: consumes window.V50ProductionPolish.getAudit() and does not call Supabase. */
 (() => {
   'use strict';
@@ -25,7 +25,7 @@
   };
 
   const details = {
-    stable_release_branding:'Visible shell uses the signed-off V5.1 Stable Release identity.',
+    stable_release_branding:'Visible shell uses the signed-off V5.4 Stable Release identity.',
     production_setup_control:'Packaged deployments hide the connection editor from the normal student/teacher home flow.',
     reviewed_work_wording:'Practice and Exam review language is consistent and result-code privacy is explicit.',
     teacher_tab_accessibility:'Teacher sections expose tab semantics, keyboard navigation and panel relationships.',
@@ -73,8 +73,8 @@
     const panel = document.getElementById('release-audit-panel');
     const heading = panel?.querySelector('.header h2');
     const lead = panel?.querySelector('.header .muted');
-    if (heading) heading.textContent = 'V5.1 Release Audit';
-    if (lead) lead.textContent = 'Whole-app release checks for the stable V5.1 baseline. RC1 covers functional integrity, RC2 covers security and launch configuration, and RC3 covers UX/production polish.';
+    if (heading) heading.textContent = 'V5.4 Release Audit';
+    if (lead) lead.textContent = 'Whole-app release checks for the stable V5.4 baseline. RC1 covers functional integrity, RC2 covers security and launch configuration, and RC3 covers UX/production polish.';
   }
 
   function decorate(){
@@ -98,7 +98,7 @@
     const hero = root.querySelector('.v50rc-hero');
     if (hero && state.ready){
       hero.className = 'v50rc-hero pass';
-      hero.innerHTML = '<h3>✅ V5.1 production-polish checks pass</h3><div>Functional and security audits remain visible below. Launch Readiness separately tracks the controlled student rollout state.</div>';
+      hero.innerHTML = '<h3>✅ V5.4 production-polish checks pass</h3><div>Functional and security audits remain visible below. Launch Readiness separately tracks the controlled student rollout state.</div>';
     }
   }
 
