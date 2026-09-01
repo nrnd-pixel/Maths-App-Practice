@@ -147,3 +147,5 @@ jobs:
         run: node site/tests/verify-v5.4a-resource-bank-visibility.cjs
       - name: Verify V5.4B teacher Practice eligibility controls
         run: node site/tests/verify-v5.4b-practice-eligibility-controls.cjs
+      - name: Verify V5.4C compact Question Bank browsing
+        run: node site/tests/verify-v5.4c-compact-question-bank.cjs
