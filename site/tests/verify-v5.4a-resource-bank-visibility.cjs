@@ -56,6 +56,9 @@ assert(source.includes('teacherQuestions = eligibleRows'),'Eligibility must be a
 assert(source.includes('updateFilteredUi'),'Filtered paging/count metadata must be corrected after the full-bank filter');
 assert(source.includes('page.total'),'Filtered count must come from the paginated filtered result');
 assert(source.includes("meta.querySelector('.v53d6-practice-eligibility-badge')"),'V5.4A must reuse the D6 topical status badge instead of duplicating it');
+assert(source.includes("if (sourceCategory(row) === 'topical')"),'Topical rows must never receive a V5.4A fallback badge');
+assert(source.includes('ROOT.V53D6ResourceBankStatusClarity?.decorate?.()'),'V5.4A must paint D6 topical status before decorating Question Bank cards');
+assert(source.includes('statusBadge(meta,row)'),'Card decoration must pass source context into the badge guard');
 assert(d6.includes('v53d6-practice-eligibility-badge'),'Accepted D6 topical Practice-status badge must remain present');
 
 assert(!source.includes("cloud.from('questions').update"),'V5.4A must remain read-only');
