@@ -1,0 +1,35 @@
+name: V5.5C Resume Past Paper Practice
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v55c-resume-past-paper-practice
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.5C Resume Past Paper Practice
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.5A regression
+        run: node site/tests/verify-v5.5a-past-paper-practice.cjs
+      - name: Run V5.5A.1 guard regression
+        run: node site/tests/verify-v5.5a1-practice-type-guard.cjs
+      - name: Run V5.5B regression
+        run: node site/tests/verify-v5.5b-full-paper-practice.cjs
+      - name: Run V5.5C regression
+        run: node site/tests/verify-v5.5c-resume-past-paper-practice.cjs
+      - name: Run V5.5C.1 button bridge regression
+        run: node site/tests/verify-v5.5c1-resume-button-bridge.cjs
