@@ -71,3 +71,6 @@ assert.ok(v56cIndex >= 0,'V5.6C must remain loaded');
 assert.ok(v56dIndex > v56cIndex,'V5.6D must load after V5.6C');
 
 console.log('V5.6D teacher Past Paper analytics regression passed.');
+
+// V5.6E stable consolidation is exercised through the existing V5.6D PR workflow.
+require('./verify-v5.6-stable-release-checkpoint.cjs');
