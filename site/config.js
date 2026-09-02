@@ -68,7 +68,8 @@ window.addEventListener('load', () => {
     './v54-stable-release-checkpoint.js',
     './v55a-past-paper-practice.js',
     './v55a1-practice-type-guard.js',
-    './v55b-full-paper-practice.js'
+    './v55b-full-paper-practice.js',
+    './v55c-resume-past-paper-practice.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
