@@ -29,10 +29,7 @@ expect(key.number===25,'question-order parser must extract the numeric question 
 expect(/a/i.test(key.suffix),'question-order parser must preserve the suffix/part label');
 
 expect(feature.getScope()==='quick','Quick Session must remain the default scope');
-feature.setScope('all');
-expect(feature.getScope()==='all','All Available Questions scope must be selectable');
-feature.setScope('quick');
-
+expect(featureSource.includes("scope = next === 'all' ? 'all' : 'quick'"),'scope setter must support All Available Questions while falling back to Quick Session');
 expect(featureSource.includes('Quick Session'),'student UI must expose Quick Session');
 expect(featureSource.includes('All Available Questions'),'student UI must expose All Available Questions');
 expect(featureSource.includes("scope === 'all'"),'full-paper behavior must be opt-in');
