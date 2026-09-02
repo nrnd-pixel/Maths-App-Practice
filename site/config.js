@@ -45,7 +45,7 @@ window.MATH_APP_CONFIG = {
    current release identity once the staged modules are loaded. */
 document.title = 'Math Practice V5.1';
 
-/* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4 and V5.5 checkpoints.
+/* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
    Legacy release-label-only scripts remain archived in the repository but are
    no longer executed; current staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -77,7 +77,8 @@ window.addEventListener('load', () => {
     './v56a1-bulk-practice-confirmation-bridge.js',
     './v56b-teacher-assigned-past-paper-practice.js',
     './v56c-student-past-paper-progress.js',
-    './v56d-teacher-past-paper-analytics.js'
+    './v56d-teacher-past-paper-analytics.js',
+    './v56-stable-release-checkpoint.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
