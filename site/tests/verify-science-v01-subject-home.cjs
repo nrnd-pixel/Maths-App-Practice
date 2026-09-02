@@ -52,6 +52,16 @@ assert.match(
   'Science-only sign-in must still clear the PIN immediately.'
 );
 assert.match(
+  studentSession,
+  /if \(!mathsAllowed\(platformSession\)\)[\s\S]*?Signed in\. Choose an available subject from My Learning\.[\s\S]*?platformsubjectaccesschange[\s\S]*?return null;/,
+  'Science-only sign-in must complete the Learning Hub session without issuing a Maths capability.'
+);
+assert.doesNotMatch(
+  studentSession,
+  /alert\('Mathematics is not enabled for this student\./,
+  'Science-only sign-in must not show the legacy Mathematics-disabled alert.'
+);
+assert.match(
   mathsSession,
   /finally\s*\{[\s\S]*?const pin = document\.getElementById\('student-pin'\);[\s\S]*?if \(pin\) pin\.value = '';/,
   'The existing Maths session must retain responsibility for clearing the PIN after ticket issuance.'
@@ -129,6 +139,7 @@ console.log('Science V0.1 subject-access checks passed.');
 console.log('- preview-host isolation retained');
 console.log('- platform Student ID/PIN session present');
 console.log('- duplicate PIN prompt regression guarded');
+console.log('- Science-only sign-in completes without a Maths alert or capability');
 console.log('- atomic logout race regression guarded');
 console.log('- class + individual teacher subject controls present');
 console.log('- Year 4 credentials can be prepared while classes remain inactive');
