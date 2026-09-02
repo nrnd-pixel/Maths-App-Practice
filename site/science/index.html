@@ -16,7 +16,7 @@
       </div>
       <div class="status-wrap">
         <span class="badge dev">Development Preview</span>
-        <button id="forgetAccessBtn" class="ghost hidden" type="button">Forget access</button>
+        <button id="forgetAccessBtn" class="ghost hidden" type="button">Refresh access</button>
       </div>
     </header>
 
@@ -25,14 +25,12 @@
       <h2 id="accessTitle">Science Learning Hub</h2>
       <p class="lead">Learn, explore and practise Science in one place.</p>
       <div class="notice">
-        <strong>Teacher preview</strong>
-        <span>This development build uses a temporary Science access code. Student ID and PIN integration will be connected later.</span>
+        <strong>Shared student sign-in</strong>
+        <span>Science now uses the same Student ID + PIN session as the Learning Hub. Sign in on the main student page first, then return to Science in the same browser tab.</span>
       </div>
-      <form id="accessForm" class="stack">
-        <label for="accessToken">Science access code</label>
-        <input id="accessToken" name="accessToken" type="password" autocomplete="off" spellcheck="false" placeholder="Enter temporary access code" required />
-        <button class="primary" type="submit">Open Science</button>
-      </form>
+      <div class="stack">
+        <button id="studentSignInBtn" class="primary" type="button">Go to Student Sign In</button>
+      </div>
       <p id="accessMessage" class="message" role="status" aria-live="polite"></p>
     </section>
 
@@ -83,7 +81,7 @@
     <section id="loadingScreen" class="screen card center" aria-live="polite">
       <div class="spinner" aria-hidden="true"></div>
       <h2>Loading Science…</h2>
-      <p class="muted">Preparing your lesson resources.</p>
+      <p class="muted">Checking your Learning Hub session and preparing your lessons.</p>
     </section>
 
     <section id="errorScreen" class="screen card center">
