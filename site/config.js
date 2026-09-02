@@ -46,9 +46,10 @@ window.MATH_APP_CONFIG = {
 document.title = 'Math Practice V5.1';
 
 /* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
-   V5.6.1 is a reversible student-entry presentation layer over the stable V5.6
-   baseline. Legacy release-label-only scripts remain archived in the repository;
-   current staged loading remains coordinated by v40-release.js. */
+   V5.6.1 keeps the student entry Practice-first. V5.7A stages secure cross-device
+   Past Paper Practice checkpoints over the accepted V5.5C same-device fallback.
+   Legacy release-label-only scripts remain archived in the repository; current
+   staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -80,7 +81,9 @@ window.addEventListener('load', () => {
     './v56c-student-past-paper-progress.js',
     './v56d-teacher-past-paper-analytics.js',
     './v56-stable-release-checkpoint.js',
-    './v561-practice-first-student-experience.js'
+    './v561-practice-first-student-experience.js',
+    './v57a-cross-device-past-paper-resume.js',
+    './v57a1-cross-device-local-bridge.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
