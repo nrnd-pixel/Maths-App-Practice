@@ -43,8 +43,10 @@ for (const phrase of [
   "validate_platform_student_access: '/api/platform/validate-student'",
   "exchange_math_access_for_platform: '/api/platform/exchange-math'",
   "get_student_subject_access: '/api/platform/subject-access'",
-  "request.open('POST',endpoint,true)",
-  "request.timeout = RPC_TIMEOUT_MS",
+  'const platformFetch = typeof window.MATH_APP_NATIVE_FETCH',
+  'const response = await Promise.race([',
+  "cache: 'no-store'",
+  "credentials: 'same-origin'",
   'Contacting the Learning Platform…',
   'Access confirmed. Preparing My Learning…',
   'const RPC_TIMEOUT_MS = 15 * 1000',
@@ -124,9 +126,9 @@ assert.doesNotMatch(config, /science-subject-home\.js|platform-science-only-redi
   'Retired subject-home and redirect modules must stay removed.');
 assert.doesNotMatch(config, /platform-(?:logout-guard|signin-owner)-v01\.js/,
   'Retired sign-in/logout wrapper modules must not be loaded.');
-assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js\?v=science-v01-rpc4'/,
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js\?v=science-v01-rpc5'/,
   'The single platform session controller must load after the complete Maths stack.');
-assert.match(config, /\.\/platform-student-session-v01\.js\?v=science-v01-rpc4'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
+assert.match(config, /\.\/platform-student-session-v01\.js\?v=science-v01-rpc5'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
   'Platform session, controls, Year 4 credential prep and subject home must remain in the expected order.');
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
   'Science must load the platform adapter, app and access-denied polish in order.');

@@ -20,6 +20,9 @@
     exchange_math_access_for_platform: '/api/platform/exchange-math',
     get_student_subject_access: '/api/platform/subject-access'
   });
+  const platformFetch = typeof window.MATH_APP_NATIVE_FETCH === 'function'
+    ? window.MATH_APP_NATIVE_FETCH
+    : (typeof window.fetch === 'function' ? window.fetch.bind(window) : null);
   const mathValidateStudentAccess = validateStudentAccess;
   const mathAccessTransforms = [];
   let platformSignInPromise = null;
@@ -135,41 +138,55 @@
     if (status) status.textContent = message;
   }
 
-  function callPlatformRpc(name, args){
+  async function callPlatformRpc(name, args){
     const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
     const endpoint = PLATFORM_RPC_PATHS[name];
-    if (!endpoint || !publishableKey || typeof XMLHttpRequest !== 'function') {
-      return Promise.reject(new Error('Learning Platform is not ready.'));
+    if (!endpoint || !publishableKey || !platformFetch) {
+      throw new Error('Learning Platform is not ready.');
     }
 
     if (name === 'validate_platform_student_access') {
       setStatus('Contacting the Learning Platform…');
     }
 
-    return new Promise((resolve,reject) => {
-      const request = new XMLHttpRequest();
-      request.open('POST',endpoint,true);
-      request.timeout = RPC_TIMEOUT_MS;
-      request.setRequestHeader('apikey',publishableKey);
-      request.setRequestHeader('Content-Type','application/json');
-
-      request.onload = () => {
-        let data = null;
-        try { data = request.responseText ? JSON.parse(request.responseText) : null; } catch {}
-        if (request.status < 200 || request.status >= 300) {
-          reject(new Error(data?.message || data?.details || `Learning Platform request failed (${request.status}).`));
-          return;
-        }
-        if (name === 'validate_platform_student_access') {
-          setStatus('Access confirmed. Preparing My Learning…');
-        }
-        resolve(data);
-      };
-      request.onerror = () => reject(new Error('Learning Platform could not be reached. Please check the connection and try again.'));
-      request.ontimeout = () => reject(new Error('Learning Platform verification timed out. Please check the connection and try again.'));
-      request.onabort = () => reject(new Error('Learning Platform verification was cancelled. Please try again.'));
-      request.send(JSON.stringify(args || {}));
+    const controller = new AbortController();
+    let timeoutId = null;
+    const timeoutError = new Error('Learning Platform verification timed out. Please check the connection and try again.');
+    const timeout = new Promise((resolve,reject) => {
+      timeoutId = setTimeout(() => {
+        reject(timeoutError);
+        controller.abort();
+      }, RPC_TIMEOUT_MS);
     });
+
+    try {
+      const response = await Promise.race([
+        platformFetch(endpoint, {
+          method: 'POST',
+          headers: {
+            apikey: publishableKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(args || {}),
+          cache: 'no-store',
+          credentials: 'same-origin',
+          signal: controller.signal
+        }),
+        timeout
+      ]);
+      const responseText = await Promise.race([response.text(), timeout]);
+      let data = null;
+      try { data = responseText ? JSON.parse(responseText) : null; } catch {}
+      if (!response.ok) {
+        throw new Error(data?.message || data?.details || `Learning Platform request failed (${response.status}).`);
+      }
+      if (name === 'validate_platform_student_access') {
+        setStatus('Access confirmed. Preparing My Learning…');
+      }
+      return data;
+    } finally {
+      if (timeoutId != null) clearTimeout(timeoutId);
+    }
   }
 
   async function loginPlatformWithPin(){

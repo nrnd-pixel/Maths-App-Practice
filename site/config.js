@@ -21,6 +21,14 @@ window.MATH_APP_CONFIG = {
   const oldPath = '/functions/v1/student-ai-help-v38';
   const compatibilityPath = '/functions/v1/student-ai-help-v381';
 
+  if (!window.MATH_APP_NATIVE_FETCH) {
+    Object.defineProperty(window, 'MATH_APP_NATIVE_FETCH', {
+      value: nativeFetch,
+      writable: false,
+      configurable: false
+    });
+  }
+
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string'
       ? input
@@ -82,7 +90,7 @@ window.addEventListener('load', () => {
     './v56d-teacher-past-paper-analytics.js',
     './v56-stable-release-checkpoint.js',
     './v561-practice-first-student-experience.js',
-    './platform-student-session-v01.js?v=science-v01-rpc4',
+    './platform-student-session-v01.js?v=science-v01-rpc5',
     './platform-subject-access-v01.js',
     './platform-year-launch-v01.js',
     './platform-subject-home-v01.js'

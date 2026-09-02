@@ -127,7 +127,7 @@ function createHarness(subjects){
     }
   };
 
-  let platformCalls = 0;
+  let platformFetchCalls = 0;
   let sharedFetchCalls = 0;
   let sharedCloudCalls = 0;
   let mathsCalls = 0;
@@ -145,27 +145,19 @@ function createHarness(subjects){
   // Represents the pre-existing V4 target/bubble listener installed first.
   signIn.addEventListener('click', () => { legacyBubbleCalls += 1; });
 
-  class FakeXMLHttpRequest {
-    constructor(){
-      this.headers = {};
-      this.status = 0;
-      this.responseText = '';
-      this.timeout = 0;
-    }
-    open(method,url){ this.method=method; this.url=url; }
-    setRequestHeader(name,value){ this.headers[name]=value; }
-    send(body){
-      assert.equal(this.method, 'POST');
-      assert.equal(this.url, '/api/platform/validate-student');
-      assert.equal(this.headers.apikey, 'public-test-key');
-      assert.equal(this.headers.Authorization, undefined);
-      assert.equal(this.timeout, 15000);
-      const payload = JSON.parse(body);
+  const platformFetch = async (url, init) => {
+      assert.equal(url, '/api/platform/validate-student');
+      assert.equal(init.method, 'POST');
+      assert.equal(init.headers.apikey, 'public-test-key');
+      assert.equal(init.headers.Authorization, undefined);
+      assert.equal(init.cache, 'no-store');
+      assert.equal(init.credentials, 'same-origin');
+      assert(init.signal instanceof AbortSignal);
+      const payload = JSON.parse(init.body);
       assert.equal(payload.p_student_id, studentId.value);
       assert.equal(payload.p_pin, '123456');
-      platformCalls += 1;
-      this.status = 200;
-      this.responseText = JSON.stringify({
+      platformFetchCalls += 1;
+      const responseText = JSON.stringify({
         allowed: true,
         platform_access_token: 'platform-ticket',
         access_mode: 'student_pin',
@@ -182,9 +174,8 @@ function createHarness(subjects){
           science: { allowed:subjects.science, source:'class' }
         }
       });
-      Promise.resolve().then(() => this.onload());
-    }
-  }
+      return { ok:true, status:200, text:async () => responseText };
+  };
 
   const context = vm.createContext({
     window,
@@ -195,7 +186,8 @@ function createHarness(subjects){
       constructor(type, init = {}){ this.type = type; this.detail = init.detail; }
     },
     fetch: async () => { sharedFetchCalls += 1; throw new Error('Platform login must not use the shared fetch wrapper.'); },
-    XMLHttpRequest: FakeXMLHttpRequest,
+    AbortController,
+    AbortSignal,
     cloudReady: true,
     cloud: {
       async rpc(){
@@ -216,6 +208,7 @@ function createHarness(subjects){
     alert: message => alerts.push(message),
     console,
     setTimeout,
+    clearTimeout,
     Date,
     Promise
   });
@@ -223,6 +216,7 @@ function createHarness(subjects){
     supabaseUrl:'https://example.supabase.co',
     supabasePublishableKey:'public-test-key'
   };
+  window.MATH_APP_NATIVE_FETCH = platformFetch;
   context.window.window = window;
   context.window.document = document;
 
@@ -241,7 +235,7 @@ function createHarness(subjects){
     sessionStorage,
     emitted,
     alerts,
-    counts: () => ({ platformCalls, sharedFetchCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
+    counts: () => ({ platformFetchCalls, sharedFetchCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
   };
 }
 
@@ -259,7 +253,7 @@ async function settle(){
 
   assert.equal(click.defaultPrevented, true, 'Platform owner must consume the sign-in click.');
   assert.deepEqual(science.counts(), {
-    platformCalls: 1,
+    platformFetchCalls: 1,
     sharedFetchCalls: 0,
     sharedCloudCalls: 0,
     mathsCalls: 0,
@@ -293,7 +287,7 @@ async function settle(){
   const result = await maths.context.window.platformStudentSessionV01.signIn('practice');
   assert.equal(result.access_token, 'math-ticket');
   assert.deepEqual(maths.counts(), {
-    platformCalls: 1,
+    platformFetchCalls: 1,
     sharedFetchCalls: 0,
     sharedCloudCalls: 0,
     mathsCalls: 1,
