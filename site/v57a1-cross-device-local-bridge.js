@@ -15,6 +15,10 @@
 
   function localApi(){ return ROOT.V55CResumePastPaperPractice || null; }
   function serverApi(){ return ROOT.V57ACrossDevicePastPaperResume || null; }
+  function signedIn(){
+    if (typeof document === 'undefined') return false;
+    return !!document.querySelector('#start .v40c-session-panel.v40c-authenticated');
+  }
 
   function currentIdentity(snapshot){
     return {
@@ -42,7 +46,7 @@
   }
 
   async function syncFromServer(){
-    if (syncing) return false;
+    if (syncing || !signedIn()) return false;
     const server=serverApi();
     const local=localApi();
     const papers=ROOT.V55APastPaperPractice;
@@ -94,10 +98,10 @@
         window.setTimeout(()=>void syncFromServer(),120);
       }
     },true);
-    window.setTimeout(()=>void syncFromServer(),300);
+    window.setTimeout(()=>{ if (signedIn()) void syncFromServer(); },300);
   }
 
-  const api=Object.freeze({mirror,syncFromServer,currentServerCheckpoint});
+  const api=Object.freeze({mirror,syncFromServer,currentServerCheckpoint,signedIn});
   if (typeof module!=='undefined' && module.exports) module.exports=api;
   if (typeof window!=='undefined'){
     Object.defineProperty(window,'V57A1CrossDeviceLocalBridge',{value:api,writable:false,configurable:false});
