@@ -32,6 +32,7 @@ assert.equal(typeof api.boundarySnapshot,'function');
 assert.equal(typeof api.passivePracticeAccess,'function');
 assert.equal(typeof bridgeApi.mirror,'function');
 assert.equal(typeof bridgeApi.syncFromServer,'function');
+assert.equal(typeof bridgeApi.signedIn,'function');
 assert.equal(staleApi.RPC_NAME,'get_student_past_paper_completion_watermarks_v57a');
 assert.equal(typeof staleApi.pruneStaleLocalCheckpoints,'function');
 assert.equal(typeof staleApi.passivePracticeAccess,'function');
@@ -51,6 +52,9 @@ assert.match(source,/activeStudentAccess/);
 assert.match(staleCleanup,/passivePracticeAccess/);
 assert.doesNotMatch(source,/validateStudentAccess\s*\(\s*['"]practice['"]\s*\)/);
 assert.doesNotMatch(staleCleanup,/validateStudentAccess\s*\(\s*['"]practice['"]\s*\)/);
+assert.match(bridge,/function signedIn\(\)/);
+assert.match(bridge,/if \(syncing \|\| !signedIn\(\)\) return false/);
+assert.match(bridge,/window\.setTimeout\(\(\)=>\{ if \(signedIn\(\)\) void syncFromServer\(\); \},300\)/);
 
 // Successful server checkpoint saves have an obvious in-quiz confirmation.
 assert.match(source,/v57a-cross-device-save-banner/);
@@ -164,6 +168,7 @@ assert.doesNotMatch(watermarkSql,/session_answers|student_practice_answer_events
 console.log('V5.7A Cross-device Past Paper resume regression passed.');
 console.log('- token-gated server checkpoint with RLS and no direct browser table access');
 console.log('- background refreshes use the existing signed-in Practice ticket without prompting');
+console.log('- local bridge does not load the Past Paper library before student sign-in');
 console.log('- successful checkpoint saves show an obvious in-quiz cross-device confirmation');
 console.log('- manual testing confirmed the first 2025 Paper 1 checkpoint reached the server at 1/5 before UI hardening');
 console.log('- server grading evidence determines completed questions and score counters');
