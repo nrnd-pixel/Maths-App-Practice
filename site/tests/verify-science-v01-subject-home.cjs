@@ -7,6 +7,7 @@ const site = path.join(__dirname, '..');
 const read = (...parts) => fs.readFileSync(path.join(site, ...parts), 'utf8');
 
 const studentSession = read('platform-student-session-v01.js');
+const logoutGuard = read('platform-logout-guard-v01.js');
 const mathsSession = read('v40-student-session.js');
 const subjectAccess = read('platform-subject-access-v01.js');
 const subjectHome = read('platform-subject-home-v01.js');
@@ -16,13 +17,14 @@ const scienceHtml = read('science', 'index.html');
 
 for (const [name, source] of [
   ['platform-student-session-v01.js', studentSession],
+  ['platform-logout-guard-v01.js', logoutGuard],
   ['v40-student-session.js', mathsSession],
   ['platform-subject-access-v01.js', subjectAccess],
   ['platform-subject-home-v01.js', subjectHome],
   ['science/platform-session-adapter.js', scienceAdapter]
 ]) new vm.Script(source, { filename:name });
 
-for (const source of [studentSession, subjectAccess, subjectHome]) {
+for (const source of [studentSession, logoutGuard, subjectAccess, subjectHome]) {
   assert(source.includes("host.startsWith('deploy-preview-')"), 'Platform UI must remain deploy-preview gated.');
   assert(source.includes("host.endsWith('--magical-pixie-a61111.netlify.app')"), 'Platform UI must remain isolated from the live hostname.');
 }
@@ -52,6 +54,14 @@ assert.match(
 );
 
 for (const phrase of [
+  'let logoutInProgress = false',
+  'if (logoutInProgress) return null',
+  "window.platformStudentSessionV01?.clear",
+  "button.addEventListener('click', clearPlatformBeforeMathLogout, { capture:true })",
+  'setTimeout(() => {'
+]) assert(logoutGuard.includes(phrase), `Atomic logout guard is missing: ${phrase}`);
+
+for (const phrase of [
   'Permission precedence: student override > class setting > platform default.',
   "tab.textContent = 'Subject Access'",
   'Maths only',
@@ -77,8 +87,8 @@ assert.doesNotMatch(subjectHome, /position\s*:\s*fixed/i,
   'The old floating Science launcher must not return.');
 assert.doesNotMatch(config, /science-subject-home\.js/,
   'The retired Science-only subject-home loader must stay removed.');
-assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/platform-student-session-v01\.js'/,
-  'Platform identity must layer after the existing V4.0 student session.');
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'/,
+  'Platform identity and atomic logout guard must layer after the existing V4.0 student session.');
 assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
   'Subject controls/home must layer after the complete V5.6.1 Maths release stack.');
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>/,
@@ -92,6 +102,7 @@ console.log('Science V0.1 subject-access checks passed.');
 console.log('- preview-host isolation retained');
 console.log('- platform Student ID/PIN session present');
 console.log('- duplicate PIN prompt regression guarded');
+console.log('- atomic logout race regression guarded');
 console.log('- class + individual teacher subject controls present');
 console.log('- student subject home renders only allowed subjects');
 console.log('- Science uses the platform-session adapter');
