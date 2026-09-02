@@ -29,10 +29,12 @@ assert.equal(api.RPC_DELETE,'delete_student_past_paper_checkpoint_v57a');
 assert.equal(api.paperKey(2025,'Paper 1'),'2025|paper 1');
 assert.equal(typeof api.restoreFromServer,'function');
 assert.equal(typeof api.boundarySnapshot,'function');
+assert.equal(typeof api.passivePracticeAccess,'function');
 assert.equal(typeof bridgeApi.mirror,'function');
 assert.equal(typeof bridgeApi.syncFromServer,'function');
 assert.equal(staleApi.RPC_NAME,'get_student_past_paper_completion_watermarks_v57a');
 assert.equal(typeof staleApi.pruneStaleLocalCheckpoints,'function');
+assert.equal(typeof staleApi.passivePracticeAccess,'function');
 
 // V5.7A sits on top of the accepted same-device V5.5C fallback rather than replacing it.
 assert.match(source,/V55CResumePastPaperPractice/);
@@ -41,6 +43,20 @@ assert.match(source,/rehydrateAnswers/);
 assert.match(source,/same-device fallback remains available/i);
 assert.match(source,/startButton\.onclick\s*=\s*\(\)\s*=>\s*ROOT\.startPractice\(\)/);
 assert.match(source,/nextButton\.onclick\s*=\s*\(\)\s*=>\s*ROOT\.nextQuestion\(\)/);
+
+// Background V5.7A work reads the already-authenticated Practice ticket passively.
+// It must never initiate sign-in or raise credential alerts during page load/focus.
+assert.match(source,/function passivePracticeAccess\(\)/);
+assert.match(source,/activeStudentAccess/);
+assert.match(staleCleanup,/passivePracticeAccess/);
+assert.doesNotMatch(source,/validateStudentAccess\s*\(\s*['"]practice['"]\s*\)/);
+assert.doesNotMatch(staleCleanup,/validateStudentAccess\s*\(\s*['"]practice['"]\s*\)/);
+
+// Successful server checkpoint saves have an obvious in-quiz confirmation.
+assert.match(source,/v57a-cross-device-save-banner/);
+assert.match(source,/Saving across devices/);
+assert.match(source,/Saved across devices/);
+assert.match(source,/await refreshCheckpoints\(true\)/);
 
 // The browser sends only structural checkpoint metadata. Correctness/outcomes are reconstructed server-side.
 assert.match(source,/questionIds:api\.questionItemIds\(questions\)/);
@@ -145,6 +161,8 @@ assert.doesNotMatch(watermarkSql,/session_answers|student_practice_answer_events
 
 console.log('V5.7A Cross-device Past Paper resume regression passed.');
 console.log('- token-gated server checkpoint with RLS and no direct browser table access');
+console.log('- background refreshes use the existing signed-in Practice ticket without prompting');
+console.log('- successful checkpoint saves show an obvious in-quiz cross-device confirmation');
 console.log('- server grading evidence determines completed questions and score counters');
 console.log('- same-device V5.5C remains a fallback and stale copies are pruned after cross-device completion');
 console.log('- teacher assignment context survives a validated cross-device resume');
