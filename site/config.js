@@ -48,8 +48,10 @@ document.title = 'Math Practice V5.1';
 /* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
    V5.6.1 keeps the student entry Practice-first. V5.7A stages secure cross-device
    Past Paper Practice checkpoints over the accepted V5.5C same-device fallback.
-   Legacy release-label-only scripts remain archived in the repository; current
-   staged loading remains coordinated by v40-release.js. */
+   Manual-test hardening keeps background checkpoint refreshes passive and shows
+   an explicit in-quiz cloud-save confirmation. Legacy release-label-only scripts
+   remain archived in the repository; current staged loading remains coordinated
+   by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
