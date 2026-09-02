@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>Science Teacher Studio · SR Lumapas</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./teacher.css" />
+</head>
+<body>
+  <main class="shell teacher-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SR Lumapas Learning Platform</div>
+        <h1>Science Teacher Studio</h1>
+      </div>
+      <div class="status-wrap">
+        <span class="badge dev">Development</span>
+        <a class="ghost link-button" href="./index.html">Student view</a>
+      </div>
+    </header>
+
+    <section id="authScreen" class="screen card teacher-auth active">
+      <div class="hero-icon" aria-hidden="true">🧪</div>
+      <h2>Teacher access</h2>
+      <p class="lead">Create, review and publish Science lessons in the development environment.</p>
+      <div class="notice">
+        <strong>Development account only</strong>
+        <span>Use the same teacher email that you use for the Maths platform. Science Dev has a separate Supabase Auth account.</span>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Teacher authentication">
+        <button type="button" class="auth-tab active" data-auth-tab="signin">Sign in</button>
+        <button type="button" class="auth-tab" data-auth-tab="register">First-time setup</button>
+      </div>
+
+      <div id="signInPane">
+        <form id="signInForm" class="stack">
+          <label for="signInEmail">Teacher email</label>
+          <input id="signInEmail" type="email" autocomplete="email" required />
+          <label for="signInPassword">Password</label>
+          <input id="signInPassword" type="password" autocomplete="current-password" required />
+          <button class="primary" type="submit">Sign in</button>
+        </form>
+      </div>
+
+      <div id="registerPane" class="hidden">
+        <form id="registerForm" class="stack">
+          <label for="registerEmail">Teacher email</label>
+          <input id="registerEmail" type="email" autocomplete="email" required />
+          <label for="registerPassword">Create a development password</label>
+          <input id="registerPassword" type="password" autocomplete="new-password" minlength="8" required />
+          <p class="field-help">This password belongs to Science Dev only. It does not change the live Maths app password.</p>
+          <button class="primary" type="submit">Create Science Dev account</button>
+        </form>
+      </div>
+      <p id="authMessage" class="teacher-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="loadingScreen" class="screen card center">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2>Opening Teacher Studio…</h2>
+      <p class="muted">Checking your Science Dev teacher access.</p>
+    </section>
+
+    <section id="blockedScreen" class="screen card teacher-auth">
+      <div class="hero-icon" aria-hidden="true">🔐</div>
+      <h2>Teacher profile not enabled</h2>
+      <p class="lead">The signed-in account is authenticated, but it is not on the Science teacher allowlist.</p>
+      <div class="notice">
+        <strong>Account checked</strong>
+        <span id="blockedEmailHint"></span>
+      </div>
+      <button id="blockedSignOutBtn" class="ghost" type="button">Sign out and try another account</button>
+    </section>
+
+    <section id="dashboardScreen" class="screen">
+      <div class="teacher-toolbar card compact-card">
+        <div>
+          <div class="eyebrow">Teacher</div>
+          <h2 id="teacherName">Teacher</h2>
+        </div>
+        <div class="toolbar-actions">
+          <button id="refreshDashboardBtn" class="ghost" type="button">Refresh</button>
+          <button id="signOutBtn" class="ghost" type="button">Sign out</button>
+        </div>
+      </div>
+
+      <p id="dashboardMessage" class="teacher-message" role="status" aria-live="polite"></p>
+
+      <div class="teacher-stats">
+        <div class="teacher-stat"><strong id="lessonCount">0</strong><span>Lessons</span></div>
+        <div class="teacher-stat"><strong id="reviewedCount">0</strong><span>Reviewed</span></div>
+        <div class="teacher-stat"><strong id="publishedCount">0</strong><span>Published</span></div>
+      </div>
+
+      <section class="card teacher-section">
+        <div class="section-head teacher-section-head">
+          <div>
+            <div class="eyebrow">Authoring</div>
+            <h2>Create Science content</h2>
+            <p class="muted">Build in order: topic → lesson → resource.</p>
+          </div>
+        </div>
+
+        <div class="authoring-grid">
+          <details>
+            <summary>1. New topic</summary>
+            <form id="topicForm" class="teacher-form">
+              <div class="form-grid two">
+                <label>Year level
+                  <select id="topicYear" required>
+                    <option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option>
+                    <option value="4" selected>Year 4</option><option value="5">Year 5</option><option value="6">Year 6</option>
+                  </select>
+                </label>
+                <label>Sort order
+                  <input id="topicSort" type="number" min="0" value="0" />
+                </label>
+              </div>
+              <label>Topic title
+                <input id="topicTitle" required placeholder="e.g. Plants" />
+              </label>
+              <label>Theme
+                <input id="topicTheme" placeholder="e.g. Living Things" />
+              </label>
+              <label>Description
+                <textarea id="topicDescription" rows="3"></textarea>
+              </label>
+              <button class="primary" type="submit">Create topic</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>2. New lesson</summary>
+            <form id="lessonForm" class="teacher-form">
+              <label>Topic
+                <select id="lessonTopicId" required></select>
+              </label>
+              <label>Lesson title
+                <input id="lessonTitleInput" required placeholder="e.g. What Plants Need" />
+              </label>
+              <label>Summary
+                <textarea id="lessonSummaryInput" rows="3"></textarea>
+              </label>
+              <label>Learning objectives <span class="field-help">One per line</span>
+                <textarea id="lessonObjectives" rows="4"></textarea>
+              </label>
+              <label>Success criteria <span class="field-help">One per line</span>
+                <textarea id="lessonCriteria" rows="4"></textarea>
+              </label>
+              <label>Estimated minutes
+                <input id="lessonMinutes" type="number" min="1" max="240" placeholder="30" />
+              </label>
+              <button class="primary" type="submit">Create draft lesson</button>
+            </form>
+          </details>
+
+          <details>
+            <summary>3. New resource</summary>
+            <form id="resourceForm" class="teacher-form">
+              <label>Lesson
+                <select id="resourceLessonId" required></select>
+              </label>
+              <div class="form-grid two">
+                <label>Resource type
+                  <select id="resourceType" required>
+                    <option value="note">Note</option>
+                    <option value="worksheet">Worksheet</option>
+                    <option value="activity">Activity</option>
+                    <option value="experiment">Experiment</option>
+                    <option value="video">Video</option>
+                    <option value="infographic">Infographic</option>
+                    <option value="external_link">External link</option>
+                    <option value="quiz">Quiz</option>
+                  </select>
+                </label>
+                <label>Stage
+                  <select id="resourceStage">
+                    <option value="learn">Learn</option>
+                    <option value="explore">Explore</option>
+                    <option value="practise">Practise</option>
+                    <option value="check">Check</option>
+                    <option value="improve">Improve</option>
+                    <option value="">Other</option>
+                  </select>
+                </label>
+              </div>
+              <label>Title
+                <input id="resourceTitle" required />
+              </label>
+              <label>Description
+                <textarea id="resourceDescription" rows="2"></textarea>
+              </label>
+              <label>Resource text
+                <textarea id="resourceBody" rows="5" placeholder="Notes, instructions, experiment steps, questions…"></textarea>
+              </label>
+              <label>HTTPS resource link
+                <input id="resourceUrl" type="url" placeholder="https://…" />
+              </label>
+              <div class="form-grid two align-end">
+                <label>Sort order
+                  <input id="resourceSort" type="number" min="0" value="0" />
+                </label>
+                <label class="check-control"><input id="resourceReady" type="checkbox" /> Student-ready</label>
+              </div>
+              <button class="primary" type="submit">Add resource</button>
+            </form>
+          </details>
+        </div>
+        <p id="createMessage" class="teacher-message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card teacher-section">
+        <div class="section-head teacher-section-head">
+          <div>
+            <div class="eyebrow">Publication</div>
+            <h2>Lesson readiness</h2>
+            <p class="muted">Publishing requires a reviewed lesson and at least one student-ready resource.</p>
+          </div>
+          <label class="check-control feature-control"><input id="featureOnPublish" type="checkbox" /> Feature when publishing</label>
+        </div>
+        <div id="lessonOverview" class="admin-lesson-list"></div>
+      </section>
+
+      <section id="lessonEditor" class="card teacher-section hidden">
+        <div class="section-head teacher-section-head">
+          <div>
+            <div class="eyebrow">Lesson editor</div>
+            <h2 id="editorHeading">Edit lesson</h2>
+          </div>
+          <button id="closeEditorBtn" class="ghost" type="button">Close</button>
+        </div>
+        <form id="editLessonForm" class="teacher-form editor-form">
+          <label>Lesson title
+            <input id="editLessonTitle" required />
+          </label>
+          <label>Summary
+            <textarea id="editLessonSummary" rows="3"></textarea>
+          </label>
+          <div class="form-grid two">
+            <label>Learning objectives <span class="field-help">One per line</span>
+              <textarea id="editLessonObjectives" rows="5"></textarea>
+            </label>
+            <label>Success criteria <span class="field-help">One per line</span>
+              <textarea id="editLessonCriteria" rows="5"></textarea>
+            </label>
+          </div>
+          <label>Estimated minutes
+            <input id="editLessonMinutes" type="number" min="1" max="240" />
+          </label>
+          <button class="primary" type="submit">Save lesson</button>
+        </form>
+        <p id="editorMessage" class="teacher-message" role="status" aria-live="polite"></p>
+
+        <div class="divider"></div>
+        <h3>Resources in this lesson</h3>
+        <div id="editorResources" class="resource-admin-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script src="./teacher.js"></script>
+</body>
+</html>
