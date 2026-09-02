@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>SR Lumapas Science</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SR Lumapas Learning Platform</div>
+        <h1>Science</h1>
+      </div>
+      <div class="status-wrap">
+        <span class="badge dev">Development Preview</span>
+        <button id="forgetAccessBtn" class="ghost hidden" type="button">Forget access</button>
+      </div>
+    </header>
+
+    <section id="accessScreen" class="screen card active" aria-labelledby="accessTitle">
+      <div class="hero-icon" aria-hidden="true">🌱</div>
+      <h2 id="accessTitle">Science Learning Hub</h2>
+      <p class="lead">Learn, explore and practise Science in one place.</p>
+      <div class="notice">
+        <strong>Teacher preview</strong>
+        <span>This development build uses a temporary Science access code. Student ID and PIN integration will be connected later.</span>
+      </div>
+      <form id="accessForm" class="stack">
+        <label for="accessToken">Science access code</label>
+        <input id="accessToken" name="accessToken" type="password" autocomplete="off" spellcheck="false" placeholder="Enter temporary access code" required />
+        <button class="primary" type="submit">Open Science</button>
+      </form>
+      <p id="accessMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="homeScreen" class="screen">
+      <div class="hero card">
+        <div>
+          <div class="eyebrow">Today’s Science</div>
+          <h2 id="homeTitle">Your lessons</h2>
+          <p id="homeSubtitle" class="lead">Choose a lesson to begin.</p>
+        </div>
+        <div class="hero-plant" aria-hidden="true">🪴</div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <h2>Available lessons</h2>
+          <p class="muted">Only reviewed and published lessons are shown.</p>
+        </div>
+        <button id="refreshBtn" class="ghost" type="button">Refresh</button>
+      </div>
+      <div id="lessonGrid" class="lesson-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="lessonScreen" class="screen">
+      <button id="backBtn" class="back" type="button">← Back to lessons</button>
+      <article class="card lesson-card">
+        <div id="lessonMeta" class="lesson-meta"></div>
+        <h2 id="lessonTitle"></h2>
+        <p id="lessonSummary" class="lead"></p>
+
+        <div class="two-col">
+          <section>
+            <h3>Learning Objectives</h3>
+            <ul id="objectivesList" class="check-list"></ul>
+          </section>
+          <section>
+            <h3>Success Criteria</h3>
+            <ul id="criteriaList" class="check-list"></ul>
+          </section>
+        </div>
+
+        <div class="divider"></div>
+        <h3>Lesson Resources</h3>
+        <div id="resourceList" class="resource-list"></div>
+      </article>
+    </section>
+
+    <section id="loadingScreen" class="screen card center" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2>Loading Science…</h2>
+      <p class="muted">Preparing your lesson resources.</p>
+    </section>
+
+    <section id="errorScreen" class="screen card center">
+      <div class="hero-icon" aria-hidden="true">🔬</div>
+      <h2>Something needs checking</h2>
+      <p id="errorMessage" class="lead"></p>
+      <button id="errorBackBtn" class="primary" type="button">Return</button>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
