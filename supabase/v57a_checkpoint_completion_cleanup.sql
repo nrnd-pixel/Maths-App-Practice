@@ -1,6 +1,7 @@
 -- V5.7A completion cleanup.
--- A successfully saved non-early Past Paper Practice session is authoritative
--- evidence that the unfinished checkpoint is no longer needed.
+-- Any Past Paper Practice session that is successfully saved is authoritative
+-- evidence that its unfinished checkpoint is no longer needed. If the browser
+-- simply closes before a result session is saved, the checkpoint remains.
 
 create or replace function public.clear_completed_past_paper_checkpoint_v57a()
 returns trigger
@@ -10,7 +11,6 @@ set search_path = ''
 as $$
 begin
   if new.practice_mode = 'past_paper'
-     and coalesce(new.ended_early,false) = false
      and new.roster_student_id is not null
      and new.exam_year is not null
      and nullif(trim(coalesce(new.paper,'')),'') is not null then
