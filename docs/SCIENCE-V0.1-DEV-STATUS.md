@@ -10,10 +10,11 @@ Updated: 2026-09-02
 - Region: `ap-northeast-2`
 - Current project cost reported by Supabase: **US$0/month**
 - Production Maths project remains separate and unchanged: `SR Lumapas Math Practice`
+- GitHub branch: `feature/science-v0.1-foundation`
 
-## Applied to Science Dev
+## Backend completed in Science Dev
 
-### `science_v01_core_content_foundation`
+### 1. `science_v01_core_content_foundation`
 
 Created isolated Science content tables:
 
@@ -22,45 +23,104 @@ Created isolated Science content tables:
 - `public.science_resources`
 - `public.science_lesson_publications`
 
-Also created the planned query indexes, foreign keys, constraints, and enabled RLS on every Science table.
+Created constraints, relationships and planned query indexes. RLS is enabled on every Science table.
 
-Direct table access is currently intentionally locked down:
+Direct raw table access is intentionally locked down:
 
 - `anon`: no direct SELECT
 - `authenticated`: no direct SELECT
-- no student-facing policies yet
-- no teacher-facing policies yet
 
-This is deliberate. The fresh standalone Science project does not contain the Maths production helper `public.is_teacher()`, so the access layer is being implemented separately rather than weakening RLS for convenience.
+### 2. `science_v01_fk_indexes`
 
-### `science_v01_fk_indexes`
+Added covering indexes for Science `created_by` / `published_by` foreign keys. Supabase no longer reports unindexed Science foreign keys.
 
-Added covering indexes for the `created_by` / `published_by` foreign keys so the Supabase performance advisor no longer reports unindexed Science foreign keys.
+### 3. `science_v01_student_read_boundary`
 
-## Verification
+Added a scoped student delivery boundary without opening the content tables directly:
 
-Verified directly in the Science development database:
+- private Science access tickets stored as SHA-256 hashes
+- year-scoped temporary Science access
+- expiry / revocation checks
+- `public.science_student_catalog(p_token)`
+- `public.science_student_lesson(p_token, p_lesson_id)`
 
-- all four Science tables exist
-- RLS is enabled on all four tables
-- `anon` has no direct SELECT access
-- `authenticated` has no direct SELECT access
-- security advisor findings are informational only: RLS is enabled but policies are intentionally not created yet
-- performance advisor no longer reports unindexed foreign keys
-- remaining `unused_index` notices are expected because the development database has no workload yet
+The public RPC wrappers are `SECURITY INVOKER`. Privileged data access is kept inside the non-exposed `private` schema, with default function access revoked and only the required roles granted execution.
 
-## Current boundary
+Student delivery filters require:
 
-No changes have been made to the live Maths database during this Science setup.
+- matching year level
+- topic not archived
+- lesson not archived
+- `review_status = reviewed`
+- explicit publication
+- publication window open
+- at least one student-ready resource
 
-The original `docs/SCIENCE-V0.1-SCHEMA-DRAFT.sql` remains a design draft because its teacher policies depend on the existing Maths production teacher model. Do not run it blindly on this standalone Science development project.
+The lesson payload returns only student-ready, non-archived resources.
+
+## Dev pilot seeded
+
+Year 4 pilot:
+
+- Topic: `Plants`
+- Lesson: `What Plants Need`
+- Learn resource: `Plants Need Water, Light and Air`
+- Explore resource: `Predict: What Will Happen to the Plant?`
+- Featured + published in the development project
+
+A development-only draft lesson and an unready resource were also inserted specifically to test that unpublished/unready content does not leak.
+
+## Security verification
+
+Verified while executing as the `anon` database role:
+
+- visible published lessons: **1**
+- visible resources in the pilot lesson: **2**
+- deliberately published-but-draft lesson visible: **false**
+- deliberately unready resource visible: **false**
+
+Raw direct table SELECT remains unavailable to `anon` and `authenticated`.
+
+Supabase security advisor currently reports only informational `RLS enabled, no policy` notices on the four public Science tables. This is expected because direct table access is intentionally not the student delivery model.
+
+Performance advisor currently reports only `unused index` informational notices, expected on a new development database with almost no workload.
+
+## Student shell completed on feature branch
+
+Added:
+
+- `site/science/index.html`
+- `site/science/styles.css`
+- `site/science/app.js`
+- `site/science/config.js`
+
+Current V0.1 shell includes:
+
+- mobile-first Science home
+- temporary development access-code screen
+- Year-specific published lesson catalog
+- featured lesson indicator
+- lesson objectives and success criteria
+- safe text rendering for resource content
+- HTTPS-only external resource links
+- resource types/stages
+- session-only storage for the temporary access token
+- refresh / back / forget-access controls
+
+The temporary raw development access token is **not committed to GitHub**.
+
+## Production boundary
+
+No changes have been made to the live Maths Supabase project during this Science setup.
+
+The original `docs/SCIENCE-V0.1-SCHEMA-DRAFT.sql` remains a design draft because its teacher policies depend on the existing Maths production teacher model. Do not run it blindly on the standalone Science development project.
 
 ## Next implementation sequence
 
-1. Create a safe development identity/auth scaffold that mirrors only the interfaces Science needs from the Maths platform.
-2. Implement teacher-only Science CRUD without exposing Science tables directly to students.
-3. Implement explicit lesson readiness + publish/unpublish workflow.
-4. Implement a scoped Science student capability and published-only read RPCs.
-5. Seed the Year 4 pilot: Plants → What Plants Need.
-6. Build the `/science/` student shell against this development environment.
-7. Run security/performance advisors and regression checks again before any production migration.
+1. Preview the `/science/` student shell through a non-production deployment.
+2. Verify the REST/RPC path from a real browser/mobile device.
+3. Build teacher Science authoring + readiness + publish/unpublish controls.
+4. Add the bridge from the existing Student ID/PIN session to a scoped Science access capability.
+5. Replace the temporary development access-code screen with normal platform sign-in/session reuse.
+6. Expand the Year 4 pilot with the actual worksheet/activity/experiment resources.
+7. Run security/performance advisors and Maths regression checks before any production migration.
