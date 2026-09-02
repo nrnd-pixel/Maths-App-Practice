@@ -48,6 +48,8 @@ document.title = 'Math Practice V5.1';
 /* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
    V5.6.1 keeps the student entry Practice-first. V5.7A adds secure cross-device
    Past Paper Practice checkpoints over the accepted V5.5C same-device fallback.
+   V5.7A manual-test hardening keeps background checkpoint refreshes passive and
+   preserves the explicit in-quiz cloud-save confirmation.
    V5.7B adds teacher assignment scheduling, close/reopen, reassign-as-new and
    student completion management without changing student grading or Exam Mode.
    Legacy release-label-only scripts remain archived in the repository; current
