@@ -35,6 +35,7 @@ for (const source of [studentSession, logoutGuard, subjectAccess, yearLaunch, su
 
 for (const phrase of [
   "const PLATFORM_KEY = 'learningPlatformSessionV01'",
+  "const START_VIEW_KEY = 'v40StartView'",
   "cloud.rpc('validate_platform_student_access'",
   "cloud.rpc('get_student_subject_access'",
   "if (!mathsAllowed(platformSession))",
@@ -60,6 +61,20 @@ assert.doesNotMatch(
   studentSession,
   /alert\('Mathematics is not enabled for this student\./,
   'Science-only sign-in must not show the legacy Mathematics-disabled alert.'
+);
+for (const phrase of [
+  'function enterPlatformHome()',
+  "if (typeof show === 'function') show('start')",
+  "start.classList.add('v40-shell-authenticated')",
+  "start.classList.remove('v40-shell-logged-out')",
+  "start.dataset.v40StartView = 'home'",
+  "sessionStorage.setItem(START_VIEW_KEY, 'home')",
+  'enterPlatformHome();'
+]) assert(studentSession.includes(phrase), `Science-only home transition is missing: ${phrase}`);
+assert.match(
+  studentSession,
+  /if \(!mathsAllowed\(session\)\)[\s\S]*?enterPlatformHome\(\);/,
+  'A restored or newly signed-in Science-only platform session must explicitly enter My Learning Home.'
 );
 assert.match(
   mathsSession,
@@ -140,6 +155,7 @@ console.log('- preview-host isolation retained');
 console.log('- platform Student ID/PIN session present');
 console.log('- duplicate PIN prompt regression guarded');
 console.log('- Science-only sign-in completes without a Maths alert or capability');
+console.log('- Science-only sign-in explicitly enters My Learning Home');
 console.log('- atomic logout race regression guarded');
 console.log('- class + individual teacher subject controls present');
 console.log('- Year 4 credentials can be prepared while classes remain inactive');
