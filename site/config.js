@@ -84,6 +84,7 @@ window.addEventListener('load', () => {
     './v561-practice-first-student-experience.js',
     './platform-student-session-v01.js',
     './platform-logout-guard-v01.js',
+    './platform-signin-owner-v01.js',
     './platform-subject-access-v01.js',
     './platform-year-launch-v01.js',
     './platform-subject-home-v01.js',
