@@ -31,3 +31,5 @@ jobs:
         run: node site/tests/verify-v5.5b-full-paper-practice.cjs
       - name: Run V5.5C regression
         run: node site/tests/verify-v5.5c-resume-past-paper-practice.cjs
+      - name: Run V5.5C.1 button bridge regression
+        run: node site/tests/verify-v5.5c1-resume-button-bridge.cjs
