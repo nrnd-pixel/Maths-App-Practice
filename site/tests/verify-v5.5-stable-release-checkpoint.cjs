@@ -52,7 +52,7 @@ for (const loader of [
 }
 assert.match(config,/\.\/v54-stable-release-checkpoint\.js'[\s\S]*\.\/v55a-past-paper-practice\.js'/,
   'Historical V5.4 checkpoint must remain before the V5.5 feature sequence.');
-assert.match(config,/\.\/v55d-past-paper-result-attribution\.js',[\s\S]*\.\/v55-stable-release-checkpoint\.js'/,
+assert.match(config,/\.\/v55d-past-paper-result-attribution\.js'[\s\S]*\.\/v55-stable-release-checkpoint\.js'/,
   'V5.5 stable checkpoint must load after the accepted V5.5D feature layer.');
 
 // Browser checkpoint checks correspond to the actual accepted module installation markers.
