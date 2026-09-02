@@ -83,7 +83,8 @@ window.addEventListener('load', () => {
     './v56-stable-release-checkpoint.js',
     './v561-practice-first-student-experience.js',
     './v57a-cross-device-past-paper-resume.js',
-    './v57a1-cross-device-local-bridge.js'
+    './v57a1-cross-device-local-bridge.js',
+    './v57a2-stale-local-checkpoint-cleanup.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
