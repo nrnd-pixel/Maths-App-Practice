@@ -15,6 +15,11 @@
   const START_VIEW_KEY = 'v40StartView';
   const EXPIRY_SAFETY_MS = 15 * 1000;
   const RPC_TIMEOUT_MS = 15 * 1000;
+  const PLATFORM_RPC_PATHS = Object.freeze({
+    validate_platform_student_access: '/api/platform/validate-student',
+    exchange_math_access_for_platform: '/api/platform/exchange-math',
+    get_student_subject_access: '/api/platform/subject-access'
+  });
   const mathValidateStudentAccess = validateStudentAccess;
   const mathAccessTransforms = [];
   let platformSignInPromise = null;
@@ -131,9 +136,9 @@
   }
 
   function callPlatformRpc(name, args){
-    const baseUrl = String(window.MATH_APP_CONFIG?.supabaseUrl || '').replace(/\/$/,'');
     const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
-    if (!baseUrl || !publishableKey || typeof XMLHttpRequest !== 'function') {
+    const endpoint = PLATFORM_RPC_PATHS[name];
+    if (!endpoint || !publishableKey || typeof XMLHttpRequest !== 'function') {
       return Promise.reject(new Error('Learning Platform is not ready.'));
     }
 
@@ -143,10 +148,9 @@
 
     return new Promise((resolve,reject) => {
       const request = new XMLHttpRequest();
-      request.open('POST',`${baseUrl}/rest/v1/rpc/${name}`,true);
+      request.open('POST',endpoint,true);
       request.timeout = RPC_TIMEOUT_MS;
       request.setRequestHeader('apikey',publishableKey);
-      request.setRequestHeader('Authorization',`Bearer ${publishableKey}`);
       request.setRequestHeader('Content-Type','application/json');
 
       request.onload = () => {

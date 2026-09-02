@@ -156,8 +156,9 @@ function createHarness(subjects){
     setRequestHeader(name,value){ this.headers[name]=value; }
     send(body){
       assert.equal(this.method, 'POST');
-      assert.equal(this.url, 'https://example.supabase.co/rest/v1/rpc/validate_platform_student_access');
+      assert.equal(this.url, '/api/platform/validate-student');
       assert.equal(this.headers.apikey, 'public-test-key');
+      assert.equal(this.headers.Authorization, undefined);
       assert.equal(this.timeout, 15000);
       const payload = JSON.parse(body);
       assert.equal(payload.p_student_id, studentId.value);
