@@ -11,10 +11,18 @@ Updated: 2026-09-02
 - Current project cost reported by Supabase: **US$0/month**
 - Production Maths project remains separate and unchanged: `SR Lumapas Math Practice`
 - GitHub branch: `feature/science-v0.1-foundation`
+- Draft PR: `#157` — Science V0.1 foundation and teacher studio
+- Netlify deploy preview: `https://deploy-preview-157--magical-pixie-a61111.netlify.app`
 
-## Backend completed in Science Dev
+## Applied Science Dev migrations
 
-### 1. `science_v01_core_content_foundation`
+1. `science_v01_core_content_foundation`
+2. `science_v01_fk_indexes`
+3. `science_v01_student_read_boundary`
+4. `science_v01_student_rpc_privilege_hardening`
+5. `science_v01_teacher_auth_and_publishing`
+
+## Core content model
 
 Created isolated Science content tables:
 
@@ -23,40 +31,81 @@ Created isolated Science content tables:
 - `public.science_resources`
 - `public.science_lesson_publications`
 
-Created constraints, relationships and planned query indexes. RLS is enabled on every Science table.
+Also created `public.science_teacher_profiles` for Science Dev teacher authorization.
 
-Direct raw table access is intentionally locked down:
+All public Science tables use RLS. Student content delivery does not use direct table SELECT.
 
-- `anon`: no direct SELECT
-- `authenticated`: no direct SELECT
+## Student read boundary
 
-### 2. `science_v01_fk_indexes`
+Student access uses scoped temporary Science tickets stored only as SHA-256 hashes in the private schema.
 
-Added covering indexes for Science `created_by` / `published_by` foreign keys. Supabase no longer reports unindexed Science foreign keys.
+Public RPCs:
 
-### 3. `science_v01_student_read_boundary`
-
-Added a scoped student delivery boundary without opening the content tables directly:
-
-- private Science access tickets stored as SHA-256 hashes
-- year-scoped temporary Science access
-- expiry / revocation checks
 - `public.science_student_catalog(p_token)`
 - `public.science_student_lesson(p_token, p_lesson_id)`
 
-The public RPC wrappers are `SECURITY INVOKER`. Privileged data access is kept inside the non-exposed `private` schema, with default function access revoked and only the required roles granted execution.
+Student delivery requires:
 
-Student delivery filters require:
-
+- valid, unexpired, non-revoked Science ticket
 - matching year level
 - topic not archived
 - lesson not archived
 - `review_status = reviewed`
-- explicit publication
+- explicit active publication
 - publication window open
 - at least one student-ready resource
 
-The lesson payload returns only student-ready, non-archived resources.
+Only student-ready, non-archived resources are returned.
+
+The private raw ticket helper is no longer executable by `anon`.
+
+## Teacher authorization and publishing
+
+Science Dev now has a dedicated teacher authorization layer.
+
+- teacher account authentication uses Supabase Auth in the Science Dev project
+- the existing Maths teacher email is allowlisted using a SHA-256 email hash; the raw email is not committed in the Science frontend files
+- an auth trigger creates/enables a Science teacher profile only for an allowlisted account
+- authenticated non-teachers cannot manage Science content
+- teacher RLS permits CRUD on topics, lessons and resources
+- publication table writes remain protected behind a validated publishing RPC
+
+Teacher publication RPC:
+
+- `public.science_teacher_set_publication(...)`
+
+Publishing fails unless:
+
+- the caller is an active Science teacher
+- the topic and lesson are not archived
+- the lesson is marked `reviewed`
+- at least one non-archived resource is `student_ready`
+- any open/close publication window is valid
+
+Unpublishing automatically removes featured status.
+
+Teacher overview RPC:
+
+- `public.science_teacher_lesson_overview()`
+
+Anonymous execution of teacher overview/publish RPCs is blocked.
+
+## Security verification
+
+Current Supabase security advisor result after teacher/auth migration:
+
+- **0 security findings**
+
+Current performance advisor findings:
+
+- only `unused_index` informational notices, expected on a new development database with almost no workload
+
+Earlier student boundary regression test:
+
+- visible published lessons: **1**
+- visible resources in the pilot lesson: **2**
+- deliberately published-but-draft lesson visible: **false**
+- deliberately unready resource visible: **false**
 
 ## Dev pilot seeded
 
@@ -66,61 +115,89 @@ Year 4 pilot:
 - Lesson: `What Plants Need`
 - Learn resource: `Plants Need Water, Light and Air`
 - Explore resource: `Predict: What Will Happen to the Plant?`
-- Featured + published in the development project
+- Featured + published in Science Dev
 
-A development-only draft lesson and an unready resource were also inserted specifically to test that unpublished/unready content does not leak.
+Development-only draft/unready records also remain available for leakage regression testing.
 
-## Security verification
+## Student shell
 
-Verified while executing as the `anon` database role:
-
-- visible published lessons: **1**
-- visible resources in the pilot lesson: **2**
-- deliberately published-but-draft lesson visible: **false**
-- deliberately unready resource visible: **false**
-
-Raw direct table SELECT remains unavailable to `anon` and `authenticated`.
-
-Supabase security advisor currently reports only informational `RLS enabled, no policy` notices on the four public Science tables. This is expected because direct table access is intentionally not the student delivery model.
-
-Performance advisor currently reports only `unused index` informational notices, expected on a new development database with almost no workload.
-
-## Student shell completed on feature branch
-
-Added:
+Files:
 
 - `site/science/index.html`
 - `site/science/styles.css`
 - `site/science/app.js`
 - `site/science/config.js`
 
-Current V0.1 shell includes:
+Current capabilities:
 
 - mobile-first Science home
 - temporary development access-code screen
 - Year-specific published lesson catalog
 - featured lesson indicator
-- lesson objectives and success criteria
-- safe text rendering for resource content
+- objectives + success criteria
+- Learn/Explore/etc. resource stages
+- safe text rendering
 - HTTPS-only external resource links
-- resource types/stages
-- session-only storage for the temporary access token
-- refresh / back / forget-access controls
+- session-only storage for temporary Science token
 
-The temporary raw development access token is **not committed to GitHub**.
+No raw development access token is committed to GitHub.
+
+## Teacher Studio
+
+Files:
+
+- `site/science/teacher.html`
+- `site/science/teacher.css`
+- `site/science/teacher.js`
+
+Current capabilities:
+
+- Science Dev teacher sign-in
+- first-time Science Dev account registration
+- allowlist verification
+- create topic
+- create draft lesson
+- create resource
+- edit lesson title/summary/objectives/success criteria/time
+- mark lesson reviewed / return to draft
+- mark resource student-ready / not ready
+- archive resource
+- publish / unpublish lesson
+- optional featured publication
+- readiness counts and status badges
+
+## Preview / Git status
+
+Draft PR `#157` triggered a successful Netlify deploy preview.
+
+Preview base URL:
+
+`https://deploy-preview-157--magical-pixie-a61111.netlify.app`
+
+Expected Science paths:
+
+- student: `/science/`
+- teacher: `/science/teacher.html`
+
+The Science branch currently contains only added Science/docs files relative to its merge base, but `main` has continued moving since the branch was created. At the latest comparison the branch was **ahead 11 / behind 10** and GitHub reported the draft PR as not currently mergeable.
+
+Do not merge yet. Reconcile with current `main` and re-run Maths regression checks first.
 
 ## Production boundary
 
-No changes have been made to the live Maths Supabase project during this Science setup.
+No Science migration has been applied to the live `SR Lumapas Math Practice` Supabase project.
 
-The original `docs/SCIENCE-V0.1-SCHEMA-DRAFT.sql` remains a design draft because its teacher policies depend on the existing Maths production teacher model. Do not run it blindly on the standalone Science development project.
+No Science feature branch commit has been merged to `main`.
+
+The current Maths production application remains outside the Science Dev database changes.
 
 ## Next implementation sequence
 
-1. Preview the `/science/` student shell through a non-production deployment.
-2. Verify the REST/RPC path from a real browser/mobile device.
-3. Build teacher Science authoring + readiness + publish/unpublish controls.
-4. Add the bridge from the existing Student ID/PIN session to a scoped Science access capability.
-5. Replace the temporary development access-code screen with normal platform sign-in/session reuse.
-6. Expand the Year 4 pilot with the actual worksheet/activity/experiment resources.
-7. Run security/performance advisors and Maths regression checks before any production migration.
+1. Open the Netlify deploy preview in a real browser/phone.
+2. Create the first Science Dev teacher Auth account using the existing teacher email, then verify Teacher Studio end-to-end.
+3. Verify student `/science/` RPC delivery from a real browser using a temporary dev ticket.
+4. Reconcile the feature branch with the current `main` branch and run Maths regression checks.
+5. Build the bridge from the existing Maths Student ID/PIN session to a scoped Science capability.
+6. Replace the temporary Science access-code screen with normal platform session reuse.
+7. Add actual Year 4 worksheet/activity/experiment files and Storage delivery.
+8. Only after all gates pass, plan the production Science migration.
