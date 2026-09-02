@@ -42,12 +42,12 @@ assert.doesNotMatch(
 );
 assert.match(
   studentSession,
-  /if \(!mathsAllowed\(platformSession\)\)[\s\S]*if \(pin\) pin\.value = '';/,
+  /if \(!mathsAllowed\(platformSession\)\)[\s\S]*?if \(pin\) pin\.value = '';/,
   'Science-only sign-in must still clear the PIN immediately.'
 );
 assert.match(
   mathsSession,
-  /finally \(\) =>|finally\s*\{[\s\S]*pin\.value = '';/,
+  /finally\s*\{[\s\S]*?const pin = document\.getElementById\('student-pin'\);[\s\S]*?if \(pin\) pin\.value = '';/,
   'The existing Maths session must retain responsibility for clearing the PIN after ticket issuance.'
 );
 
