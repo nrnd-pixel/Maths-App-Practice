@@ -24,6 +24,22 @@
     return !!document.querySelector('#start .v40c-session-panel.v40c-authenticated');
   }
 
+  function passivePracticeAccess(){
+    const shared = ROOT.V57ACrossDevicePastPaperResume?.passivePracticeAccess?.();
+    if (shared?.access_token) return shared;
+    if (!signedIn()) return null;
+    try {
+      const access = typeof activeStudentAccess !== 'undefined'
+        ? activeStudentAccess
+        : ROOT.activeStudentAccess;
+      if (!access?.access_token) return null;
+      if (access.purpose && access.purpose !== 'practice') return null;
+      return access;
+    } catch {
+      return null;
+    }
+  }
+
   function matchesStudent(snapshot,student){
     if (!snapshot || !student) return false;
     const currentId = norm(student.student_id);
@@ -72,10 +88,10 @@
   async function refresh(force=false){
     if (loading || !signedIn()) return 0;
     if (!force && lastLoadedAt && Date.now()-lastLoadedAt<CACHE_MS) return 0;
+    const access = passivePracticeAccess();
+    if (!access?.access_token) return 0;
     loading = true;
     try {
-      const access = typeof validateStudentAccess === 'function' ? await validateStudentAccess('practice') : null;
-      if (!access?.access_token) return 0;
       const {data,error} = await cloud.rpc(RPC_NAME,{p_access_token:access.access_token});
       if (error) throw error;
       lastLoadedAt = Date.now();
@@ -100,7 +116,7 @@
     window.setTimeout(()=>{ if (signedIn()) void refresh(true); },350);
   }
 
-  const api = Object.freeze({RPC_NAME,paperKey,matchesStudent,pruneStaleLocalCheckpoints,refresh});
+  const api = Object.freeze({RPC_NAME,paperKey,passivePracticeAccess,matchesStudent,pruneStaleLocalCheckpoints,refresh});
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined'){
     Object.defineProperty(window,'V57A2StaleLocalCheckpointCleanup',{
