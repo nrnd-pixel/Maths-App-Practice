@@ -62,6 +62,7 @@ window.addEventListener('load', () => {
     './v40-student-nav.js',
     './v40-student-session.js',
     './platform-student-session-v01.js',
+    './platform-logout-guard-v01.js',
     './v40-learn-setup.js',
     './v40-learning-priorities.js',
     './v40-platform-polish.js',
