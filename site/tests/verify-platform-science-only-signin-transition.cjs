@@ -128,6 +128,7 @@ function createHarness(subjects){
   };
 
   let platformCalls = 0;
+  let sharedFetchCalls = 0;
   let sharedCloudCalls = 0;
   let mathsCalls = 0;
   let legacyBubbleCalls = 0;
@@ -144,6 +145,46 @@ function createHarness(subjects){
   // Represents the pre-existing V4 target/bubble listener installed first.
   signIn.addEventListener('click', () => { legacyBubbleCalls += 1; });
 
+  class FakeXMLHttpRequest {
+    constructor(){
+      this.headers = {};
+      this.status = 0;
+      this.responseText = '';
+      this.timeout = 0;
+    }
+    open(method,url){ this.method=method; this.url=url; }
+    setRequestHeader(name,value){ this.headers[name]=value; }
+    send(body){
+      assert.equal(this.method, 'POST');
+      assert.equal(this.url, 'https://example.supabase.co/rest/v1/rpc/validate_platform_student_access');
+      assert.equal(this.headers.apikey, 'public-test-key');
+      assert.equal(this.timeout, 15000);
+      const payload = JSON.parse(body);
+      assert.equal(payload.p_student_id, studentId.value);
+      assert.equal(payload.p_pin, '123456');
+      platformCalls += 1;
+      this.status = 200;
+      this.responseText = JSON.stringify({
+        allowed: true,
+        platform_access_token: 'platform-ticket',
+        access_mode: 'student_pin',
+        registered: true,
+        roster_student_id: subjects.maths ? 'roster-arina' : 'roster-rais',
+        class_id: subjects.maths ? 'class-6a' : 'class-4a',
+        student_name: subjects.maths ? 'Arina' : 'Rais',
+        student_id: studentId.value,
+        year_level: subjects.maths ? 6 : 4,
+        class_name: subjects.maths ? '6A' : '4A',
+        expires_at: expiresAt,
+        subjects: {
+          maths: { allowed:subjects.maths, source:'class' },
+          science: { allowed:subjects.science, source:'class' }
+        }
+      });
+      Promise.resolve().then(() => this.onload());
+    }
+  }
+
   const context = vm.createContext({
     window,
     document,
@@ -152,40 +193,8 @@ function createHarness(subjects){
     CustomEvent: class CustomEvent {
       constructor(type, init = {}){ this.type = type; this.detail = init.detail; }
     },
-    fetch: async (url, options) => {
-      assert.equal(url, 'https://example.supabase.co/rest/v1/rpc/validate_platform_student_access');
-      assert.equal(options.method, 'POST');
-      assert.equal(options.headers.apikey, 'public-test-key');
-      const payload = JSON.parse(options.body);
-      assert.equal(payload.p_student_id, studentId.value);
-      assert.equal(payload.p_pin, '123456');
-      platformCalls += 1;
-      return {
-        ok:true,
-        status:200,
-        async json(){
-          return {
-            allowed: true,
-            platform_access_token: 'platform-ticket',
-            access_mode: 'student_pin',
-            registered: true,
-            roster_student_id: subjects.maths ? 'roster-arina' : 'roster-rais',
-            class_id: subjects.maths ? 'class-6a' : 'class-4a',
-            student_name: subjects.maths ? 'Arina' : 'Rais',
-            student_id: studentId.value,
-            year_level: subjects.maths ? 6 : 4,
-            class_name: subjects.maths ? '6A' : '4A',
-            expires_at: expiresAt,
-            subjects: {
-              maths: { allowed:subjects.maths, source:'class' },
-              science: { allowed:subjects.science, source:'class' }
-            }
-          };
-        }
-      };
-    },
-    AbortController,
-    clearTimeout,
+    fetch: async () => { sharedFetchCalls += 1; throw new Error('Platform login must not use the shared fetch wrapper.'); },
+    XMLHttpRequest: FakeXMLHttpRequest,
     cloudReady: true,
     cloud: {
       async rpc(){
@@ -231,7 +240,7 @@ function createHarness(subjects){
     sessionStorage,
     emitted,
     alerts,
-    counts: () => ({ platformCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
+    counts: () => ({ platformCalls, sharedFetchCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
   };
 }
 
@@ -243,11 +252,14 @@ async function settle(){
 (async () => {
   const science = createHarness({ maths:false, science:true });
   const click = science.signIn.dispatch('click');
+  await Promise.resolve();
+  assert.equal(science.status.textContent, 'Contacting the Learning Platform…');
   await settle();
 
   assert.equal(click.defaultPrevented, true, 'Platform owner must consume the sign-in click.');
   assert.deepEqual(science.counts(), {
     platformCalls: 1,
+    sharedFetchCalls: 0,
     sharedCloudCalls: 0,
     mathsCalls: 0,
     legacyBubbleCalls: 0
@@ -281,6 +293,7 @@ async function settle(){
   assert.equal(result.access_token, 'math-ticket');
   assert.deepEqual(maths.counts(), {
     platformCalls: 1,
+    sharedFetchCalls: 0,
     sharedCloudCalls: 0,
     mathsCalls: 1,
     legacyBubbleCalls: 0
@@ -289,7 +302,7 @@ async function settle(){
 
   console.log('Platform sign-in state-transition regression passed.');
   console.log('- 4A Science-only moves from logged-out form to authenticated My Learning');
-  console.log('- shared cloud.rpc wrappers, legacy Maths validation and duplicate bubble listener are not invoked');
+  console.log('- shared fetch/RPC wrappers, legacy Maths validation and duplicate bubble listener are not invoked');
   console.log('- Year 6 Maths authorization still delegates exactly once');
 })().catch(error => {
   console.error(error);

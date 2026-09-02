@@ -39,7 +39,10 @@ for (const phrase of [
   "const PLATFORM_KEY = 'learningPlatformSessionV01'",
   "callPlatformRpc('validate_platform_student_access'",
   "callPlatformRpc('get_student_subject_access'",
-  "fetch(`${baseUrl}/rest/v1/rpc/${name}`",
+  "request.open('POST',`${baseUrl}/rest/v1/rpc/${name}`,true)",
+  "request.timeout = RPC_TIMEOUT_MS",
+  'Contacting the Learning Platform…',
+  'Access confirmed. Preparing My Learning…',
   'const RPC_TIMEOUT_MS = 15 * 1000',
   'const mathValidateStudentAccess = validateStudentAccess',
   'if (!mathsAllowed(session))',
@@ -117,9 +120,9 @@ assert.doesNotMatch(config, /science-subject-home\.js|platform-science-only-redi
   'Retired subject-home and redirect modules must stay removed.');
 assert.doesNotMatch(config, /platform-(?:logout-guard|signin-owner)-v01\.js/,
   'Retired sign-in/logout wrapper modules must not be loaded.');
-assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'/,
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js\?v=science-v01-rpc3'/,
   'The single platform session controller must load after the complete Maths stack.');
-assert.match(config, /\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
+assert.match(config, /\.\/platform-student-session-v01\.js\?v=science-v01-rpc3'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
   'Platform session, controls, Year 4 credential prep and subject home must remain in the expected order.');
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
   'Science must load the platform adapter, app and access-denied polish in order.');

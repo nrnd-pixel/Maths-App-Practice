@@ -125,39 +125,47 @@
     };
   }
 
-  async function callPlatformRpc(name, args){
+  function setStatus(message){
+    const status = document.getElementById('v40c-session-status');
+    if (status) status.textContent = message;
+  }
+
+  function callPlatformRpc(name, args){
     const baseUrl = String(window.MATH_APP_CONFIG?.supabaseUrl || '').replace(/\/$/,'');
     const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
-    if (!baseUrl || !publishableKey || typeof fetch !== 'function') {
-      throw new Error('Learning Platform is not ready.');
+    if (!baseUrl || !publishableKey || typeof XMLHttpRequest !== 'function') {
+      return Promise.reject(new Error('Learning Platform is not ready.'));
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
-    try {
-      const response = await fetch(`${baseUrl}/rest/v1/rpc/${name}`, {
-        method:'POST',
-        headers:{
-          apikey:publishableKey,
-          Authorization:`Bearer ${publishableKey}`,
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify(args || {}),
-        signal:controller.signal
-      });
-      const data = await response.json().catch(() => null);
-      if (!response.ok) {
-        throw new Error(data?.message || data?.details || `Learning Platform request failed (${response.status}).`);
-      }
-      return data;
-    } catch (error) {
-      if (error?.name === 'AbortError') {
-        throw new Error('Learning Platform verification timed out. Please check the connection and try again.');
-      }
-      throw error;
-    } finally {
-      clearTimeout(timeout);
+    if (name === 'validate_platform_student_access') {
+      setStatus('Contacting the Learning Platform…');
     }
+
+    return new Promise((resolve,reject) => {
+      const request = new XMLHttpRequest();
+      request.open('POST',`${baseUrl}/rest/v1/rpc/${name}`,true);
+      request.timeout = RPC_TIMEOUT_MS;
+      request.setRequestHeader('apikey',publishableKey);
+      request.setRequestHeader('Authorization',`Bearer ${publishableKey}`);
+      request.setRequestHeader('Content-Type','application/json');
+
+      request.onload = () => {
+        let data = null;
+        try { data = request.responseText ? JSON.parse(request.responseText) : null; } catch {}
+        if (request.status < 200 || request.status >= 300) {
+          reject(new Error(data?.message || data?.details || `Learning Platform request failed (${request.status}).`));
+          return;
+        }
+        if (name === 'validate_platform_student_access') {
+          setStatus('Access confirmed. Preparing My Learning…');
+        }
+        resolve(data);
+      };
+      request.onerror = () => reject(new Error('Learning Platform could not be reached. Please check the connection and try again.'));
+      request.ontimeout = () => reject(new Error('Learning Platform verification timed out. Please check the connection and try again.'));
+      request.onabort = () => reject(new Error('Learning Platform verification was cancelled. Please try again.'));
+      request.send(JSON.stringify(args || {}));
+    });
   }
 
   async function loginPlatformWithPin(){
@@ -331,8 +339,7 @@
       console.warn('Platform student sign-in failed.', error);
       const pin = document.getElementById('student-pin');
       if (pin) pin.value = '';
-      const status = document.getElementById('v40c-session-status');
-      if (status) status.textContent = 'Sign in was not completed. Check your Student ID and PIN.';
+      setStatus(error?.message || 'Sign in was not completed. Check your Student ID and PIN.');
       alert(error?.message || 'Student access could not be verified.');
       return null;
     } finally {
@@ -373,6 +380,8 @@
     if (signIn && signIn.dataset.platformSessionOwnerV01 !== 'true') {
       signIn.dataset.platformSessionOwnerV01 = 'true';
       signIn.addEventListener('click', captureSignIn, { capture:true });
+      const status = document.getElementById('v40c-session-status');
+      if (status && !readPlatformSession()) status.textContent = 'Secure platform sign-in is ready.';
     }
 
     const pin = document.getElementById('student-pin');
