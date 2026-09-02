@@ -6,9 +6,15 @@
     throw new Error('Science configuration is missing.');
   }
 
-  const STORAGE_KEY = 'scienceDevAccessV01';
+  const MATH_SESSION_KEY = 'mathStudentSessionV40';
+  const SCIENCE_SESSION_KEY = 'scienceStudentSessionV01';
+  const EXCHANGE_FUNCTION = 'science-session-exchange-v01';
+  const EXPIRY_SAFETY_MS = 15 * 1000;
+
   const state = {
     token: '',
+    expiresAt: 0,
+    student: null,
     catalog: [],
     currentLessonId: null
   };
@@ -31,6 +37,136 @@
     while (el?.firstChild) el.removeChild(el.firstChild);
   }
 
+  async function parseResponse(response) {
+    if (response.status === 204) return null;
+    const text = await response.text();
+    if (!text) return null;
+    try { return JSON.parse(text); } catch { return text; }
+  }
+
+  function readMathSession() {
+    try {
+      const raw = sessionStorage.getItem(MATH_SESSION_KEY);
+      if (!raw) return null;
+      const session = JSON.parse(raw);
+      if (
+        session?.version !== 1 ||
+        !session?.tokens?.practice ||
+        !session?.identity?.student_id ||
+        !session?.identity?.student_name ||
+        Number(session?.expiresAt || 0) <= Date.now()
+      ) return null;
+      return session;
+    } catch {
+      return null;
+    }
+  }
+
+  function scienceSessionIsValid(session, mathSession = readMathSession()) {
+    if (!session || !mathSession) return false;
+    const expiresAt = Number(session.expiresAt || 0);
+    return !!(
+      session.token &&
+      expiresAt > Date.now() + EXPIRY_SAFETY_MS &&
+      session.student?.student_id &&
+      String(session.student.student_id) === String(mathSession.identity.student_id)
+    );
+  }
+
+  function readScienceSession() {
+    try {
+      const raw = sessionStorage.getItem(SCIENCE_SESSION_KEY);
+      if (!raw) return null;
+      const session = JSON.parse(raw);
+      return scienceSessionIsValid(session) ? session : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveScienceSession(payload) {
+    const expiresAt = Date.parse(payload?.expires_at || '');
+    const session = {
+      token: String(payload?.access_token || ''),
+      expiresAt: Number.isFinite(expiresAt) ? expiresAt : 0,
+      student: payload?.student || null
+    };
+
+    if (!scienceSessionIsValid(session)) {
+      throw new Error('Science access could not be verified.');
+    }
+
+    state.token = session.token;
+    state.expiresAt = session.expiresAt;
+    state.student = session.student;
+    sessionStorage.setItem(SCIENCE_SESSION_KEY, JSON.stringify(session));
+  }
+
+  function clearScienceSession() {
+    state.token = '';
+    state.expiresAt = 0;
+    state.student = null;
+    state.catalog = [];
+    state.currentLessonId = null;
+    try { sessionStorage.removeItem(SCIENCE_SESSION_KEY); } catch {}
+  }
+
+  function applySavedScienceSession() {
+    const saved = readScienceSession();
+    if (!saved) return false;
+    state.token = saved.token;
+    state.expiresAt = saved.expiresAt;
+    state.student = saved.student;
+    return true;
+  }
+
+  function errorMessage(payload, fallback) {
+    if (!payload) return fallback;
+    if (typeof payload === 'string') return payload;
+    return payload.error || payload.message || fallback;
+  }
+
+  async function exchangeMathSession() {
+    const mathSession = readMathSession();
+    if (!mathSession) {
+      clearScienceSession();
+      return false;
+    }
+
+    const response = await fetch(`${config.supabaseUrl}/functions/v1/${EXCHANGE_FUNCTION}`, {
+      method: 'POST',
+      headers: {
+        apikey: config.supabasePublishableKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ math_access_token: mathSession.tokens.practice })
+    });
+
+    const payload = await parseResponse(response);
+    if (!response.ok) {
+      const error = new Error(errorMessage(payload, 'Your Learning Hub sign-in is invalid or expired.'));
+      error.status = response.status;
+      throw error;
+    }
+
+    saveScienceSession(payload);
+    return true;
+  }
+
+  async function ensureScienceSession({ force = false } = {}) {
+    const mathSession = readMathSession();
+    if (!mathSession) {
+      clearScienceSession();
+      return false;
+    }
+
+    if (!force && state.token && state.expiresAt > Date.now() + EXPIRY_SAFETY_MS) return true;
+    if (!force && applySavedScienceSession()) return true;
+
+    clearScienceSession();
+    return exchangeMathSession();
+  }
+
   async function rpc(functionName, args) {
     const response = await fetch(`${config.supabaseUrl}/rest/v1/rpc/${functionName}`, {
       method: 'POST',
@@ -41,58 +177,54 @@
       body: JSON.stringify(args)
     });
 
+    const payload = await parseResponse(response);
     if (!response.ok) {
-      let message = 'Unable to load Science right now.';
-      try {
-        const payload = await response.json();
-        if (payload?.message) message = payload.message;
-      } catch {}
-      const error = new Error(message);
+      const error = new Error(errorMessage(payload, 'Unable to load Science right now.'));
       error.status = response.status;
       throw error;
     }
-
-    if (response.status === 204) return null;
-    return response.json();
+    return payload;
   }
 
-  function saveToken(token) {
-    state.token = token;
-    sessionStorage.setItem(STORAGE_KEY, token);
-  }
-
-  function clearToken() {
-    state.token = '';
-    state.catalog = [];
-    state.currentLessonId = null;
-    sessionStorage.removeItem(STORAGE_KEY);
-  }
-
-  function errorForAccess(error) {
+  function scienceAccessExpired(error) {
     const text = String(error?.message || '').toLowerCase();
-    if (text.includes('invalid_science_access')) {
-      return 'That Science access code is invalid or has expired.';
-    }
-    return 'Science could not be opened. Please try again.';
+    return text.includes('invalid_science_access');
   }
 
-  async function loadCatalog({ showLoading = true } = {}) {
-    if (!state.token) {
-      showScreen('accessScreen');
-      return;
-    }
+  function showSignInRequired(message = '') {
+    clearScienceSession();
+    showScreen('accessScreen');
+    setText('accessMessage', message || 'Sign in with your Student ID + PIN on the main Learning Hub page first.');
+  }
 
+  async function loadCatalog({ showLoading = true, allowExchangeRetry = true } = {}) {
     if (showLoading) showScreen('loadingScreen');
 
     try {
+      if (!await ensureScienceSession()) {
+        showSignInRequired();
+        return;
+      }
+
       const rows = await rpc('science_student_catalog', { p_token: state.token });
       state.catalog = Array.isArray(rows) ? rows : [];
       renderCatalog();
       showScreen('homeScreen');
     } catch (error) {
-      clearToken();
-      showScreen('accessScreen');
-      setText('accessMessage', errorForAccess(error));
+      if (allowExchangeRetry && scienceAccessExpired(error) && readMathSession()) {
+        try {
+          await ensureScienceSession({ force: true });
+          return loadCatalog({ showLoading: false, allowExchangeRetry: false });
+        } catch {}
+      }
+
+      if (error?.status === 401 || scienceAccessExpired(error)) {
+        showSignInRequired('Your Learning Hub session needs to be refreshed. Please sign in again.');
+        return;
+      }
+
+      setText('errorMessage', 'Science could not be opened right now. Please try again.');
+      showScreen('errorScreen');
     }
   }
 
@@ -100,11 +232,12 @@
     const grid = $('lessonGrid');
     clearChildren(grid);
 
-    const year = state.catalog[0]?.year_level;
+    const year = state.catalog[0]?.year_level || state.student?.year_level;
+    const studentName = state.student?.student_name;
     setText('homeTitle', year ? `Year ${year} Science` : 'Your Science lessons');
     setText('homeSubtitle', state.catalog.length
-      ? 'Choose a reviewed lesson and work through the resources in order.'
-      : 'No lessons have been published for this access yet.');
+      ? `${studentName ? `Welcome, ${studentName}. ` : ''}Choose a reviewed lesson and work through the resources in order.`
+      : `${studentName ? `${studentName}, ` : ''}no lessons have been published for your year yet.`);
 
     if (!state.catalog.length) {
       const empty = document.createElement('div');
@@ -256,12 +389,17 @@
     });
   }
 
-  async function openLesson(lessonId) {
+  async function openLesson(lessonId, allowExchangeRetry = true) {
     if (!lessonId) return;
     state.currentLessonId = lessonId;
     showScreen('loadingScreen');
 
     try {
+      if (!await ensureScienceSession()) {
+        showSignInRequired();
+        return;
+      }
+
       let payload = await rpc('science_student_lesson', {
         p_token: state.token,
         p_lesson_id: lessonId
@@ -292,6 +430,13 @@
       renderResources(payload?.resources || []);
       showScreen('lessonScreen');
     } catch (error) {
+      if (allowExchangeRetry && scienceAccessExpired(error) && readMathSession()) {
+        try {
+          await ensureScienceSession({ force: true });
+          return openLesson(lessonId, false);
+        } catch {}
+      }
+
       setText('errorMessage', String(error?.message || '').includes('science_lesson_not_available')
         ? 'This lesson is not currently available to students.'
         : 'The lesson could not be loaded. Please try again.');
@@ -299,30 +444,17 @@
     }
   }
 
-  $('accessForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    setText('accessMessage', '');
-    const token = $('accessToken').value.trim();
-    if (!token) return;
-    saveToken(token);
-    $('accessToken').value = '';
-    await loadCatalog();
+  $('studentSignInBtn')?.addEventListener('click', () => {
+    window.location.href = '../';
   });
-
   $('refreshBtn')?.addEventListener('click', () => loadCatalog());
   $('backBtn')?.addEventListener('click', () => showScreen('homeScreen'));
   $('errorBackBtn')?.addEventListener('click', () => state.token ? showScreen('homeScreen') : showScreen('accessScreen'));
-  $('forgetAccessBtn')?.addEventListener('click', () => {
-    clearToken();
-    setText('accessMessage', '');
-    showScreen('accessScreen');
+  $('forgetAccessBtn')?.addEventListener('click', async () => {
+    clearScienceSession();
+    await loadCatalog();
   });
 
-  const saved = sessionStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    state.token = saved;
-    loadCatalog();
-  } else {
-    showScreen('accessScreen');
-  }
+  applySavedScienceSession();
+  loadCatalog();
 })();
