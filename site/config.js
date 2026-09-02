@@ -87,8 +87,7 @@ window.addEventListener('load', () => {
     './platform-signin-owner-v01.js',
     './platform-subject-access-v01.js',
     './platform-year-launch-v01.js',
-    './platform-subject-home-v01.js',
-    './platform-science-only-redirect-v01.js'
+    './platform-subject-home-v01.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
