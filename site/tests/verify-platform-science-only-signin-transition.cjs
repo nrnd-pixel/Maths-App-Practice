@@ -127,14 +127,17 @@ function createHarness(subjects){
     }
   };
 
-  let platformFetchCalls = 0;
+  let beginCalls = 0;
+  let claimCalls = 0;
+  let ticketActivated = false;
   let sharedFetchCalls = 0;
   let sharedCloudCalls = 0;
   let mathsCalls = 0;
   let legacyBubbleCalls = 0;
   const alerts = [];
   const sessionStorage = new FakeStorage();
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const expiresAtSeconds = Math.floor((Date.now() + 60 * 60 * 1000) / 1000);
+  const clientTicket = 'ab'.repeat(32);
 
   const legacyMathValidator = async purpose => {
     mathsCalls += 1;
@@ -146,33 +149,35 @@ function createHarness(subjects){
   signIn.addEventListener('click', () => { legacyBubbleCalls += 1; });
 
   const platformFetch = async (url, init) => {
-      assert.equal(url, '/api/platform/validate-student');
       assert.equal(init.method, 'POST');
       assert.equal(init.headers.apikey, 'public-test-key');
       assert.equal(init.headers.Authorization, undefined);
       assert.equal(init.cache, 'no-store');
       assert.equal(init.credentials, 'same-origin');
-      assert(init.signal instanceof AbortSignal);
       const payload = JSON.parse(init.body);
-      assert.equal(payload.p_student_id, studentId.value);
-      assert.equal(payload.p_pin, '123456');
-      platformFetchCalls += 1;
+      assert.equal(payload.p_platform_access_token, clientTicket);
+
+      if (url === '/api/platform/begin-student-v02') {
+        assert.equal(init.signal, undefined);
+        assert.equal(payload.p_student_id, studentId.value);
+        assert.equal(payload.p_pin, '123456');
+        beginCalls += 1;
+        ticketActivated = true;
+        return new Promise(() => {});
+      }
+
+      assert.equal(url, '/api/platform/claim-student-v02');
+      assert(init.signal instanceof AbortSignal);
+      claimCalls += 1;
       const responseText = JSON.stringify({
-        allowed: true,
-        platform_access_token: 'platform-ticket',
-        access_mode: 'student_pin',
-        registered: true,
-        roster_student_id: subjects.maths ? 'roster-arina' : 'roster-rais',
-        class_id: subjects.maths ? 'class-6a' : 'class-4a',
-        student_name: subjects.maths ? 'Arina' : 'Rais',
-        student_id: studentId.value,
-        year_level: subjects.maths ? 6 : 4,
-        class_name: subjects.maths ? '6A' : '4A',
-        expires_at: expiresAt,
-        subjects: {
-          maths: { allowed:subjects.maths, source:'class' },
-          science: { allowed:subjects.science, source:'class' }
-        }
+        r: ticketActivated,
+        n: subjects.maths ? 'Arina' : 'Rais',
+        i: studentId.value,
+        y: subjects.maths ? 6 : 4,
+        c: subjects.maths ? '6A' : '4A',
+        m: subjects.maths,
+        s: subjects.science,
+        e: expiresAtSeconds
       });
       return { ok:true, status:200, text:async () => responseText };
   };
@@ -217,6 +222,12 @@ function createHarness(subjects){
     supabasePublishableKey:'public-test-key'
   };
   window.MATH_APP_NATIVE_FETCH = platformFetch;
+  window.crypto = {
+    getRandomValues(bytes){
+      bytes.fill(0xab);
+      return bytes;
+    }
+  };
   context.window.window = window;
   context.window.document = document;
 
@@ -235,7 +246,7 @@ function createHarness(subjects){
     sessionStorage,
     emitted,
     alerts,
-    counts: () => ({ platformFetchCalls, sharedFetchCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
+    counts: () => ({ beginCalls, claimCalls, sharedFetchCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
   };
 }
 
@@ -248,12 +259,13 @@ async function settle(){
   const science = createHarness({ maths:false, science:true });
   const click = science.signIn.dispatch('click');
   await Promise.resolve();
-  assert.equal(science.status.textContent, 'Contacting the Learning Platform…');
+  assert.equal(science.status.textContent, 'Verifying your Learning Platform access…');
   await settle();
 
   assert.equal(click.defaultPrevented, true, 'Platform owner must consume the sign-in click.');
   assert.deepEqual(science.counts(), {
-    platformFetchCalls: 1,
+    beginCalls: 1,
+    claimCalls: 1,
     sharedFetchCalls: 0,
     sharedCloudCalls: 0,
     mathsCalls: 0,
@@ -287,7 +299,8 @@ async function settle(){
   const result = await maths.context.window.platformStudentSessionV01.signIn('practice');
   assert.equal(result.access_token, 'math-ticket');
   assert.deepEqual(maths.counts(), {
-    platformFetchCalls: 1,
+    beginCalls: 1,
+    claimCalls: 1,
     sharedFetchCalls: 0,
     sharedCloudCalls: 0,
     mathsCalls: 1,
@@ -297,6 +310,7 @@ async function settle(){
 
   console.log('Platform sign-in state-transition regression passed.');
   console.log('- 4A Science-only moves from logged-out form to authenticated My Learning');
+  console.log('- sign-in completes even when the original credential response never resolves');
   console.log('- shared fetch/RPC wrappers, legacy Maths validation and duplicate bubble listener are not invoked');
   console.log('- Year 6 Maths authorization still delegates exactly once');
 })().catch(error => {

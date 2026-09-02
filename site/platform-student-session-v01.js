@@ -15,8 +15,12 @@
   const START_VIEW_KEY = 'v40StartView';
   const EXPIRY_SAFETY_MS = 15 * 1000;
   const RPC_TIMEOUT_MS = 15 * 1000;
+  const LOGIN_CLAIM_TIMEOUT_MS = 10 * 1000;
+  const LOGIN_CLAIM_REQUEST_TIMEOUT_MS = 1250;
+  const LOGIN_CLAIM_INTERVAL_MS = 250;
   const PLATFORM_RPC_PATHS = Object.freeze({
-    validate_platform_student_access: '/api/platform/validate-student',
+    validate_platform_student_access_v02: '/api/platform/begin-student-v02',
+    claim_platform_student_access_v02: '/api/platform/claim-student-v02',
     exchange_math_access_for_platform: '/api/platform/exchange-math',
     get_student_subject_access: '/api/platform/subject-access'
   });
@@ -138,15 +142,38 @@
     if (status) status.textContent = message;
   }
 
-  async function callPlatformRpc(name, args){
+  function platformRequestInit(publishableKey,args,signal){
+    return {
+      method: 'POST',
+      headers: {
+        apikey: publishableKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(args || {}),
+      cache: 'no-store',
+      credentials: 'same-origin',
+      ...(signal ? { signal } : {})
+    };
+  }
+
+  function sendPlatformRpcWithoutWaiting(name,args){
     const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
     const endpoint = PLATFORM_RPC_PATHS[name];
     if (!endpoint || !publishableKey || !platformFetch) {
       throw new Error('Learning Platform is not ready.');
     }
 
-    if (name === 'validate_platform_student_access') {
-      setStatus('Contacting the Learning Platform…');
+    try {
+      const pending = platformFetch(endpoint,platformRequestInit(publishableKey,args));
+      pending?.catch?.(() => {});
+    } catch {}
+  }
+
+  async function callPlatformRpc(name, args, timeoutMs = RPC_TIMEOUT_MS){
+    const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
+    const endpoint = PLATFORM_RPC_PATHS[name];
+    if (!endpoint || !publishableKey || !platformFetch) {
+      throw new Error('Learning Platform is not ready.');
     }
 
     const controller = new AbortController();
@@ -156,22 +183,12 @@
       timeoutId = setTimeout(() => {
         reject(timeoutError);
         controller.abort();
-      }, RPC_TIMEOUT_MS);
+      }, timeoutMs);
     });
 
     try {
       const response = await Promise.race([
-        platformFetch(endpoint, {
-          method: 'POST',
-          headers: {
-            apikey: publishableKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(args || {}),
-          cache: 'no-store',
-          credentials: 'same-origin',
-          signal: controller.signal
-        }),
+        platformFetch(endpoint,platformRequestInit(publishableKey,args,controller.signal)),
         timeout
       ]);
       const responseText = await Promise.race([response.text(), timeout]);
@@ -180,13 +197,59 @@
       if (!response.ok) {
         throw new Error(data?.message || data?.details || `Learning Platform request failed (${response.status}).`);
       }
-      if (name === 'validate_platform_student_access') {
-        setStatus('Access confirmed. Preparing My Learning…');
-      }
       return data;
     } finally {
       if (timeoutId != null) clearTimeout(timeoutId);
     }
+  }
+
+  function createClientPlatformToken(){
+    if (!window.crypto?.getRandomValues) {
+      throw new Error('Secure browser ticket generation is not available.');
+    }
+    const bytes = new Uint8Array(32);
+    window.crypto.getRandomValues(bytes);
+    return Array.from(bytes,byte => byte.toString(16).padStart(2,'0')).join('');
+  }
+
+  function compactClaimPayload(token,data){
+    const expiresAt = Number(data?.e || 0) * 1000;
+    if (!data?.r || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+    return {
+      allowed: true,
+      platform_access_token: token,
+      access_mode: 'student_pin',
+      registered: true,
+      student_name: data.n,
+      student_id: data.i,
+      year_level: Number(data.y || 6),
+      class_name: data.c || 'Other',
+      expires_at: new Date(expiresAt).toISOString(),
+      subjects: {
+        maths: { allowed:data.m === true, source:'server' },
+        science: { allowed:data.s === true, source:'server' }
+      }
+    };
+  }
+
+  async function claimActivatedPlatformTicket(token){
+    const deadline = Date.now() + LOGIN_CLAIM_TIMEOUT_MS;
+    while (Date.now() < deadline) {
+      try {
+        const data = await callPlatformRpc(
+          'claim_platform_student_access_v02',
+          { p_platform_access_token:token },
+          LOGIN_CLAIM_REQUEST_TIMEOUT_MS
+        );
+        const payload = compactClaimPayload(token,data);
+        if (payload) {
+          setStatus('Access confirmed. Preparing My Learning…');
+          return savePlatformPayload(payload);
+        }
+      } catch {}
+      await new Promise(resolve => setTimeout(resolve,LOGIN_CLAIM_INTERVAL_MS));
+    }
+    throw new Error('Student ID or PIN is incorrect, inactive, or not registered.');
   }
 
   async function loginPlatformWithPin(){
@@ -202,15 +265,17 @@
       throw new Error('Please enter the student name.');
     }
 
-    const data = await callPlatformRpc('validate_platform_student_access', {
+    const token = createClientPlatformToken();
+    setStatus('Verifying your Learning Platform access…');
+    sendPlatformRpcWithoutWaiting('validate_platform_student_access_v02', {
+      p_platform_access_token: token,
       p_student_id: credentials.studentId,
       p_pin: credentials.pin,
       p_display_name: credentials.displayName,
       p_selected_year: credentials.selectedYear,
       p_class_group: credentials.classGroup
     });
-    if (!data?.allowed) throw new Error(data?.message || 'Student access could not be verified.');
-    return savePlatformPayload(data);
+    return claimActivatedPlatformTicket(token);
   }
 
   async function bootstrapPlatformFromMath(){
