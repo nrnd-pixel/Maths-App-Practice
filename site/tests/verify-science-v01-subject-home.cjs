@@ -12,6 +12,7 @@ const mathsSession = read('v40-student-session.js');
 const subjectAccess = read('platform-subject-access-v01.js');
 const yearLaunch = read('platform-year-launch-v01.js');
 const subjectHome = read('platform-subject-home-v01.js');
+const scienceOnlyRedirect = read('platform-science-only-redirect-v01.js');
 const scienceAdapter = read('science', 'platform-session-adapter.js');
 const accessDeniedPolish = read('science', 'access-denied-polish-v01.js');
 const config = read('config.js');
@@ -24,11 +25,12 @@ for (const [name, source] of [
   ['platform-subject-access-v01.js', subjectAccess],
   ['platform-year-launch-v01.js', yearLaunch],
   ['platform-subject-home-v01.js', subjectHome],
+  ['platform-science-only-redirect-v01.js', scienceOnlyRedirect],
   ['science/platform-session-adapter.js', scienceAdapter],
   ['science/access-denied-polish-v01.js', accessDeniedPolish]
 ]) new vm.Script(source, { filename:name });
 
-for (const source of [studentSession, logoutGuard, subjectAccess, yearLaunch, subjectHome]) {
+for (const source of [studentSession, logoutGuard, subjectAccess, yearLaunch, subjectHome, scienceOnlyRedirect]) {
   assert(source.includes("host.startsWith('deploy-preview-')"), 'Platform UI must remain deploy-preview gated.');
   assert(source.includes("host.endsWith('--magical-pixie-a61111.netlify.app')"), 'Platform UI must remain isolated from the live hostname.');
 }
@@ -128,6 +130,20 @@ for (const phrase of [
 ]) assert(subjectHome.includes(phrase), `Subject home is missing: ${phrase}`);
 
 for (const phrase of [
+  "const PLATFORM_KEY = 'learningPlatformSessionV01'",
+  'function isScienceOnly(session)',
+  "session?.subjects?.science?.allowed === true",
+  "session?.subjects?.maths?.allowed !== true",
+  "window.location.assign('/science/')",
+  "window.addEventListener('platformsubjectaccesschange', routeScienceOnly)"
+]) assert(scienceOnlyRedirect.includes(phrase), `Science-only direct route is missing: ${phrase}`);
+assert.doesNotMatch(
+  scienceOnlyRedirect,
+  /subjects\?\.maths\?\.allowed === true[\s\S]*window\.location\.assign\('\/science\/'\)/,
+  'Students with Mathematics enabled must not be auto-routed away from the shared subject home.'
+);
+
+for (const phrase of [
   'Science is not available for your account',
   'Your teacher has not enabled Science for you.',
   '← Return to My Learning',
@@ -141,8 +157,8 @@ assert.doesNotMatch(config, /science-subject-home\.js/,
   'The retired Science-only subject-home loader must stay removed.');
 assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'/,
   'Platform identity and atomic logout guard must layer after the existing V4.0 student session.');
-assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
-  'Subject controls, Year 4 credential prep and subject home must layer after the complete V5.6.1 Maths release stack.');
+assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'[\s\S]*\.\/platform-science-only-redirect-v01\.js'/,
+  'Subject controls, Year 4 credential prep, subject home and Science-only direct routing must layer after the complete V5.6.1 Maths release stack.');
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
   'Science must load the platform adapter, app and access-denied polish in order.');
 assert.match(scienceHtml, /class="subject-switcher" href="\/"[^>]*>← All subjects<\/a>/,
@@ -156,6 +172,7 @@ console.log('- platform Student ID/PIN session present');
 console.log('- duplicate PIN prompt regression guarded');
 console.log('- Science-only sign-in completes without a Maths alert or capability');
 console.log('- Science-only sign-in explicitly enters My Learning Home');
+console.log('- Science-only students route directly to Science after verification');
 console.log('- atomic logout race regression guarded');
 console.log('- class + individual teacher subject controls present');
 console.log('- Year 4 credentials can be prepared while classes remain inactive');
