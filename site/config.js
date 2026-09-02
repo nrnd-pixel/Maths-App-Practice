@@ -76,7 +76,8 @@ window.addEventListener('load', () => {
     './v56a-question-bank-response-filter.js',
     './v56a1-bulk-practice-confirmation-bridge.js',
     './v56b-teacher-assigned-past-paper-practice.js',
-    './v56c-student-past-paper-progress.js'
+    './v56c-student-past-paper-progress.js',
+    './v56d-teacher-past-paper-analytics.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
