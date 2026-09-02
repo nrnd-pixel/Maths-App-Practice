@@ -16,6 +16,7 @@
   const CARD_ID = 'v57a-cross-device-resume-card';
   const STYLE_ID = 'v57a-cross-device-resume-style';
   const STATUS_ID = 'v57a-cross-device-save-status';
+  const BANNER_ID = 'v57a-cross-device-save-banner';
   const CACHE_MS = 12000;
 
   const checkpoints = new Map();
@@ -39,6 +40,25 @@
   function signedIn(){
     if (typeof document === 'undefined') return false;
     return !!document.querySelector('#start .v40c-session-panel.v40c-authenticated');
+  }
+
+  /* Background checkpoint work must never initiate student sign-in. V4.0C1
+     already keeps the current verified Practice access object in the existing
+     activeStudentAccess binding. Read it passively instead of calling
+     validateStudentAccess(), which would otherwise open credential alerts when
+     a page-load/focus refresh races before sign-in has completed. */
+  function passivePracticeAccess(){
+    if (!signedIn()) return null;
+    try {
+      const access = typeof activeStudentAccess !== 'undefined'
+        ? activeStudentAccess
+        : ROOT.activeStudentAccess;
+      if (!access?.access_token) return null;
+      if (access.purpose && access.purpose !== 'practice') return null;
+      return access;
+    } catch {
+      return null;
+    }
   }
 
   function currentSelection(){
@@ -83,6 +103,9 @@
       #${CARD_ID} .v57a-assignment{font-size:12px;font-weight:800;color:var(--primary)}
       #v55c-resume-card.v57a-server-shadowed{display:none!important}
       #${STATUS_ID}{margin-left:6px}
+      #${BANNER_ID}{margin:10px 0 0;padding:10px 12px;border:1px solid color-mix(in srgb,var(--success) 32%,var(--border));border-radius:12px;background:var(--successbg);color:var(--success);font-size:12px;font-weight:850;line-height:1.4}
+      #${BANNER_ID}.hidden{display:none!important}
+      #${BANNER_ID}.warn{border-color:color-mix(in srgb,var(--warn) 34%,var(--border));background:var(--warnbg);color:var(--warn)}
     `;
     document.head.appendChild(style);
   }
@@ -117,13 +140,40 @@
     return status;
   }
 
+  function ensureSaveBanner(){
+    if (typeof document === 'undefined') return null;
+    injectStyles();
+    let banner = document.getElementById(BANNER_ID);
+    if (banner) return banner;
+    const quizbar = document.querySelector('#quiz .quizbar');
+    if (!quizbar) return null;
+    banner = document.createElement('div');
+    banner.id = BANNER_ID;
+    banner.className = 'hidden';
+    banner.setAttribute('role','status');
+    banner.setAttribute('aria-live','polite');
+    quizbar.insertAdjacentElement('afterend',banner);
+    return banner;
+  }
+
   function setSaveStatus(text,kind='saved'){
     const status = ensureSaveStatus();
-    if (!status) return;
-    if (!text){ status.classList.add('hidden'); return; }
-    status.textContent = text;
-    status.classList.remove('hidden','warn','status-active');
-    status.classList.add(kind === 'error' ? 'warn' : 'status-active');
+    const banner = ensureSaveBanner();
+    if (!text){
+      status?.classList.add('hidden');
+      banner?.classList.add('hidden');
+      return;
+    }
+    if (status){
+      status.textContent = text;
+      status.classList.remove('hidden','warn','status-active');
+      status.classList.add(kind === 'error' ? 'warn' : 'status-active');
+    }
+    if (banner){
+      banner.textContent = text;
+      banner.classList.remove('hidden','warn');
+      if (kind === 'error') banner.classList.add('warn');
+    }
   }
 
   function localApi(){ return ROOT.V55CResumePastPaperPractice || null; }
@@ -253,10 +303,14 @@
       return checkpoints;
     }
 
+    const access = passivePracticeAccess();
+    if (!access?.access_token){
+      renderCard();
+      return checkpoints;
+    }
+
     loading = true;
     try {
-      const access = typeof validateStudentAccess === 'function' ? await validateStudentAccess('practice') : null;
-      if (!access?.access_token) throw new Error('Student sign-in is required.');
       const {data,error} = await cloud.rpc(RPC_GET,{p_access_token:access.access_token});
       if (error) throw error;
       cacheRows(data || {student:{},checkpoints:[]});
@@ -275,7 +329,7 @@
     const snapshot = checkpointFor(examYear,paper) || {examYear,paper,...(studentMeta?{
       studentId:studentMeta.student_id,studentName:studentMeta.student_name,yearLevel:studentMeta.year_level
     }:{})};
-    const access = typeof validateStudentAccess === 'function' ? await validateStudentAccess('practice') : null;
+    const access = passivePracticeAccess();
     if (!access?.access_token) throw new Error('Student sign-in is required.');
     const {error} = await cloud.rpc(RPC_DELETE,{
       p_access_token:access.access_token,p_exam_year:Number(examYear),p_paper:trim(paper)
@@ -325,8 +379,12 @@
   async function saveBoundary(snapshot,assignment){
     if (!snapshot) return false;
     try {
-      const access = typeof validateStudentAccess === 'function' ? await validateStudentAccess('practice') : null;
-      if (!access?.access_token) return false;
+      const access = passivePracticeAccess();
+      if (!access?.access_token){
+        setSaveStatus('Saved on this device only','error');
+        return false;
+      }
+      setSaveStatus('☁ Saving across devices…','saved');
       const {data,error} = await cloud.rpc(RPC_SAVE,{
         p_access_token:access.access_token,
         p_snapshot:snapshot,
@@ -337,6 +395,7 @@
       if (data?.saved){
         lastLoadedAt = 0;
         setSaveStatus('☁ Saved across devices','saved');
+        await refreshCheckpoints(true);
       } else if (data?.completed){
         checkpoints.delete(paperKey(snapshot.examYear,snapshot.paper));
         setSaveStatus('☁ Progress saved','saved');
@@ -344,7 +403,7 @@
       return true;
     } catch(error){
       console.warn('V5.7A cross-device checkpoint save failed; same-device fallback remains available.',error);
-      setSaveStatus('Saved on this device','error');
+      setSaveStatus('Saved on this device only','error');
       return false;
     }
   }
@@ -554,6 +613,7 @@
     if (typeof document === 'undefined') return false;
     ensureCard();
     ensureSaveStatus();
+    ensureSaveBanner();
 
     ['v55a-paper-year','v55a-paper-name'].forEach(id=>{
       const node = document.getElementById(id);
@@ -605,7 +665,7 @@
 
   const api = Object.freeze({
     RPC_GET,RPC_SAVE,RPC_DELETE,paperKey,checkpointFor,resumeForPaper,
-    refreshCheckpoints,renderCard,restoreFromServer,boundarySnapshot
+    passivePracticeAccess,refreshCheckpoints,renderCard,restoreFromServer,boundarySnapshot
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
