@@ -41,11 +41,11 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* Historical V5.1 bootstrap title; the signed-off V5.4 production-polish layer
-   applies the current stable identity once the staged modules are loaded. */
+/* Historical V5.1 bootstrap title; stable-release checkpoint layers apply the
+   current release identity once the staged modules are loaded. */
 document.title = 'Math Practice V5.1';
 
-/* Stable V3.9/V4.x/V5.x foundation plus the signed-off V5.4 release checkpoint.
+/* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4 and V5.5 checkpoints.
    Legacy release-label-only scripts remain archived in the repository but are
    no longer executed; current staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -71,7 +71,8 @@ window.addEventListener('load', () => {
     './v55b-full-paper-practice.js',
     './v55c-resume-past-paper-practice.js',
     './v55c1-resume-button-bridge.js',
-    './v55d-past-paper-result-attribution.js'
+    './v55d-past-paper-result-attribution.js',
+    './v55-stable-release-checkpoint.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
