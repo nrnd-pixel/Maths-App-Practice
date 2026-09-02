@@ -57,6 +57,8 @@ assert.match(source,/v57a-cross-device-save-banner/);
 assert.match(source,/Saving across devices/);
 assert.match(source,/Saved across devices/);
 assert.match(source,/await refreshCheckpoints\(true\)/);
+assert.match(config,/background checkpoint refreshes passive/i);
+assert.match(config,/explicit in-quiz cloud-save confirmation/i);
 
 // The browser sends only structural checkpoint metadata. Correctness/outcomes are reconstructed server-side.
 assert.match(source,/questionIds:api\.questionItemIds\(questions\)/);
