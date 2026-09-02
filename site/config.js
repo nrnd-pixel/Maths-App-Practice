@@ -52,8 +52,10 @@ document.title = 'Math Practice V5.1';
    preserves the explicit in-quiz cloud-save confirmation.
    V5.7B adds teacher assignment scheduling, close/reopen, reassign-as-new and
    student completion management without changing student grading or Exam Mode.
-   Legacy release-label-only scripts remain archived in the repository; current
-   staged loading remains coordinated by v40-release.js. */
+   V5.7C makes signed-in Home Practice-first: resume saved Past Paper work, surface
+   teacher assignments, recommended Practice and the latest Practice result without
+   requiring Exam access. Legacy release-label-only scripts remain archived in the
+   repository; current staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -89,7 +91,8 @@ window.addEventListener('load', () => {
     './v57a-cross-device-past-paper-resume.js',
     './v57a1-cross-device-local-bridge.js',
     './v57a2-stale-local-checkpoint-cleanup.js',
-    './v57b-teacher-assignment-management.js'
+    './v57b-teacher-assignment-management.js',
+    './v57c-student-continue-learning-home.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
