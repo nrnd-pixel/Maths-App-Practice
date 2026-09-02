@@ -165,6 +165,7 @@ console.log('V5.7A Cross-device Past Paper resume regression passed.');
 console.log('- token-gated server checkpoint with RLS and no direct browser table access');
 console.log('- background refreshes use the existing signed-in Practice ticket without prompting');
 console.log('- successful checkpoint saves show an obvious in-quiz cross-device confirmation');
+console.log('- manual testing confirmed the first 2025 Paper 1 checkpoint reached the server at 1/5 before UI hardening');
 console.log('- server grading evidence determines completed questions and score counters');
 console.log('- same-device V5.5C remains a fallback and stale copies are pruned after cross-device completion');
 console.log('- teacher assignment context survives a validated cross-device resume');
