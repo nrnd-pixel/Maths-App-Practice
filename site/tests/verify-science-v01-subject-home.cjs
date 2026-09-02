@@ -37,8 +37,10 @@ for (const source of [studentSession, subjectAccess, yearLaunch, subjectHome]) {
 
 for (const phrase of [
   "const PLATFORM_KEY = 'learningPlatformSessionV01'",
-  "cloud.rpc('validate_platform_student_access'",
-  "cloud.rpc('get_student_subject_access'",
+  "callPlatformRpc('validate_platform_student_access'",
+  "callPlatformRpc('get_student_subject_access'",
+  "fetch(`${baseUrl}/rest/v1/rpc/${name}`",
+  'const RPC_TIMEOUT_MS = 15 * 1000',
   'const mathValidateStudentAccess = validateStudentAccess',
   'if (!mathsAllowed(session))',
   'const mathAccess = await mathValidateStudentAccess(purpose)',

@@ -128,6 +128,7 @@ function createHarness(subjects){
   };
 
   let platformCalls = 0;
+  let sharedCloudCalls = 0;
   let mathsCalls = 0;
   let legacyBubbleCalls = 0;
   const alerts = [];
@@ -151,15 +152,19 @@ function createHarness(subjects){
     CustomEvent: class CustomEvent {
       constructor(type, init = {}){ this.type = type; this.detail = init.detail; }
     },
-    cloudReady: true,
-    cloud: {
-      async rpc(name, payload){
-        assert.equal(name, 'validate_platform_student_access');
-        assert.equal(payload.p_student_id, studentId.value);
-        assert.equal(payload.p_pin, '123456');
-        platformCalls += 1;
-        return {
-          data: {
+    fetch: async (url, options) => {
+      assert.equal(url, 'https://example.supabase.co/rest/v1/rpc/validate_platform_student_access');
+      assert.equal(options.method, 'POST');
+      assert.equal(options.headers.apikey, 'public-test-key');
+      const payload = JSON.parse(options.body);
+      assert.equal(payload.p_student_id, studentId.value);
+      assert.equal(payload.p_pin, '123456');
+      platformCalls += 1;
+      return {
+        ok:true,
+        status:200,
+        async json(){
+          return {
             allowed: true,
             platform_access_token: 'platform-ticket',
             access_mode: 'student_pin',
@@ -175,11 +180,20 @@ function createHarness(subjects){
               maths: { allowed:subjects.maths, source:'class' },
               science: { allowed:subjects.science, source:'class' }
             }
-          },
-          error: null
-        };
+          };
+        }
+      };
+    },
+    AbortController,
+    clearTimeout,
+    cloudReady: true,
+    cloud: {
+      async rpc(){
+        sharedCloudCalls += 1;
+        throw new Error('Platform login must bypass the mutable shared cloud.rpc chain.');
       }
     },
+    MATH_APP_CONFIG: undefined,
     studentAccessPolicy: {
       access_mode: 'student_pin',
       student_id_required: true,
@@ -195,6 +209,10 @@ function createHarness(subjects){
     Date,
     Promise
   });
+  window.MATH_APP_CONFIG = {
+    supabaseUrl:'https://example.supabase.co',
+    supabasePublishableKey:'public-test-key'
+  };
   context.window.window = window;
   context.window.document = document;
 
@@ -213,7 +231,7 @@ function createHarness(subjects){
     sessionStorage,
     emitted,
     alerts,
-    counts: () => ({ platformCalls, mathsCalls, legacyBubbleCalls })
+    counts: () => ({ platformCalls, sharedCloudCalls, mathsCalls, legacyBubbleCalls })
   };
 }
 
@@ -230,6 +248,7 @@ async function settle(){
   assert.equal(click.defaultPrevented, true, 'Platform owner must consume the sign-in click.');
   assert.deepEqual(science.counts(), {
     platformCalls: 1,
+    sharedCloudCalls: 0,
     mathsCalls: 0,
     legacyBubbleCalls: 0
   }, 'Science-only sign-in must authenticate once without entering either legacy Maths path.');
@@ -262,6 +281,7 @@ async function settle(){
   assert.equal(result.access_token, 'math-ticket');
   assert.deepEqual(maths.counts(), {
     platformCalls: 1,
+    sharedCloudCalls: 0,
     mathsCalls: 1,
     legacyBubbleCalls: 0
   }, 'Maths-enabled sign-in must delegate exactly once after platform authorization.');
@@ -269,7 +289,7 @@ async function settle(){
 
   console.log('Platform sign-in state-transition regression passed.');
   console.log('- 4A Science-only moves from logged-out form to authenticated My Learning');
-  console.log('- legacy Maths validation and duplicate bubble listener are not invoked');
+  console.log('- shared cloud.rpc wrappers, legacy Maths validation and duplicate bubble listener are not invoked');
   console.log('- Year 6 Maths authorization still delegates exactly once');
 })().catch(error => {
   console.error(error);

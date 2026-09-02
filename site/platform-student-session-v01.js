@@ -14,6 +14,7 @@
   const MATH_KEY = 'mathStudentSessionV40';
   const START_VIEW_KEY = 'v40StartView';
   const EXPIRY_SAFETY_MS = 15 * 1000;
+  const RPC_TIMEOUT_MS = 15 * 1000;
   const mathValidateStudentAccess = validateStudentAccess;
   const mathAccessTransforms = [];
   let platformSignInPromise = null;
@@ -124,8 +125,42 @@
     };
   }
 
+  async function callPlatformRpc(name, args){
+    const baseUrl = String(window.MATH_APP_CONFIG?.supabaseUrl || '').replace(/\/$/,'');
+    const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
+    if (!baseUrl || !publishableKey || typeof fetch !== 'function') {
+      throw new Error('Learning Platform is not ready.');
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
+    try {
+      const response = await fetch(`${baseUrl}/rest/v1/rpc/${name}`, {
+        method:'POST',
+        headers:{
+          apikey:publishableKey,
+          Authorization:`Bearer ${publishableKey}`,
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(args || {}),
+        signal:controller.signal
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(data?.message || data?.details || `Learning Platform request failed (${response.status}).`);
+      }
+      return data;
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        throw new Error('Learning Platform verification timed out. Please check the connection and try again.');
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   async function loginPlatformWithPin(){
-    if (!cloudReady || !cloud) throw new Error('Learning Platform is not ready.');
     const credentials = credentialsFromForm();
 
     if (studentAccessPolicy?.student_id_required && !credentials.studentId) {
@@ -138,37 +173,36 @@
       throw new Error('Please enter the student name.');
     }
 
-    const { data, error } = await cloud.rpc('validate_platform_student_access', {
+    const data = await callPlatformRpc('validate_platform_student_access', {
       p_student_id: credentials.studentId,
       p_pin: credentials.pin,
       p_display_name: credentials.displayName,
       p_selected_year: credentials.selectedYear,
       p_class_group: credentials.classGroup
     });
-    if (error) throw error;
     if (!data?.allowed) throw new Error(data?.message || 'Student access could not be verified.');
     return savePlatformPayload(data);
   }
 
   async function bootstrapPlatformFromMath(){
     const mathSession = readMathSession();
-    if (!mathSession?.tokens?.practice || !cloudReady || !cloud) return null;
+    if (!mathSession?.tokens?.practice) return null;
 
-    const { data, error } = await cloud.rpc('exchange_math_access_for_platform', {
+    const data = await callPlatformRpc('exchange_math_access_for_platform', {
       p_math_access_token: mathSession.tokens.practice
     });
-    if (error || !data?.allowed) return null;
+    if (!data?.allowed) return null;
     return savePlatformPayload(data);
   }
 
   async function refreshPlatformAccess(){
     const current = readPlatformSession();
-    if (!current || !cloudReady || !cloud) return current;
+    if (!current) return current;
     try {
-      const { data, error } = await cloud.rpc('get_student_subject_access', {
+      const data = await callPlatformRpc('get_student_subject_access', {
         p_platform_access_token: current.token
       });
-      if (error || !data?.allowed) throw error || new Error('Platform session expired.');
+      if (!data?.allowed) throw new Error('Platform session expired.');
       const refreshed = {
         ...current,
         expiresAt: Date.parse(data?.expires_at || '') || current.expiresAt,
