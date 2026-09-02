@@ -20,7 +20,7 @@
   const LOGIN_CLAIM_INTERVAL_MS = 250;
   const PLATFORM_RPC_PATHS = Object.freeze({
     validate_platform_student_access_v02: '/api/platform/begin-student-v02',
-    claim_platform_student_access_v02: '/api/platform/claim-student-v02',
+    claim_platform_student_access_v02: `${String(window.MATH_APP_CONFIG?.supabaseUrl || '').replace(/\/$/,'')}/rest/v1/rpc/claim_platform_student_access_v02`,
     exchange_math_access_for_platform: '/api/platform/exchange-math',
     get_student_subject_access: '/api/platform/subject-access'
   });
@@ -142,7 +142,7 @@
     if (status) status.textContent = message;
   }
 
-  function platformRequestInit(publishableKey,args,signal){
+  function platformRequestInit(publishableKey,args,signal,endpoint){
     return {
       method: 'POST',
       headers: {
@@ -151,7 +151,7 @@
       },
       body: JSON.stringify(args || {}),
       cache: 'no-store',
-      credentials: 'same-origin',
+      credentials: String(endpoint || '').startsWith('/') ? 'same-origin' : 'omit',
       ...(signal ? { signal } : {})
     };
   }
@@ -164,7 +164,7 @@
     }
 
     try {
-      const pending = platformFetch(endpoint,platformRequestInit(publishableKey,args));
+      const pending = platformFetch(endpoint,platformRequestInit(publishableKey,args,null,endpoint));
       pending?.catch?.(() => {});
     } catch {}
   }
@@ -188,7 +188,7 @@
 
     try {
       const response = await Promise.race([
-        platformFetch(endpoint,platformRequestInit(publishableKey,args,controller.signal)),
+        platformFetch(endpoint,platformRequestInit(publishableKey,args,controller.signal,endpoint)),
         timeout
       ]);
       const responseText = await Promise.race([response.text(), timeout]);

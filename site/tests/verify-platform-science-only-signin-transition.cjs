@@ -153,11 +153,11 @@ function createHarness(subjects){
       assert.equal(init.headers.apikey, 'public-test-key');
       assert.equal(init.headers.Authorization, undefined);
       assert.equal(init.cache, 'no-store');
-      assert.equal(init.credentials, 'same-origin');
       const payload = JSON.parse(init.body);
       assert.equal(payload.p_platform_access_token, clientTicket);
 
       if (url === '/api/platform/begin-student-v02') {
+        assert.equal(init.credentials, 'same-origin');
         assert.equal(init.signal, undefined);
         assert.equal(payload.p_student_id, studentId.value);
         assert.equal(payload.p_pin, '123456');
@@ -166,7 +166,8 @@ function createHarness(subjects){
         return new Promise(() => {});
       }
 
-      assert.equal(url, '/api/platform/claim-student-v02');
+      assert.equal(url, 'https://example.supabase.co/rest/v1/rpc/claim_platform_student_access_v02');
+      assert.equal(init.credentials, 'omit');
       assert(init.signal instanceof AbortSignal);
       claimCalls += 1;
       const responseText = JSON.stringify({

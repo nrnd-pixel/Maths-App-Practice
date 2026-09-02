@@ -43,13 +43,13 @@ for (const phrase of [
   "'claim_platform_student_access_v02'",
   "callPlatformRpc('get_student_subject_access'",
   "validate_platform_student_access_v02: '/api/platform/begin-student-v02'",
-  "claim_platform_student_access_v02: '/api/platform/claim-student-v02'",
+  "claim_platform_student_access_v02: `${String(window.MATH_APP_CONFIG?.supabaseUrl || '').replace(/\\\/$/,'')}/rest/v1/rpc/claim_platform_student_access_v02`",
   "exchange_math_access_for_platform: '/api/platform/exchange-math'",
   "get_student_subject_access: '/api/platform/subject-access'",
   'const platformFetch = typeof window.MATH_APP_NATIVE_FETCH',
   'const response = await Promise.race([',
   "cache: 'no-store'",
-  "credentials: 'same-origin'",
+  "credentials: String(endpoint || '').startsWith('/') ? 'same-origin' : 'omit'",
   'Verifying your Learning Platform access…',
   'Access confirmed. Preparing My Learning…',
   'const RPC_TIMEOUT_MS = 15 * 1000',
@@ -129,9 +129,9 @@ assert.doesNotMatch(config, /science-subject-home\.js|platform-science-only-redi
   'Retired subject-home and redirect modules must stay removed.');
 assert.doesNotMatch(config, /platform-(?:logout-guard|signin-owner)-v01\.js/,
   'Retired sign-in/logout wrapper modules must not be loaded.');
-assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js\?v=science-v01-ticket2'/,
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js\?v=science-v01-ticket3'/,
   'The single platform session controller must load after the complete Maths stack.');
-assert.match(config, /\.\/platform-student-session-v01\.js\?v=science-v01-ticket2'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
+assert.match(config, /\.\/platform-student-session-v01\.js\?v=science-v01-ticket3'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
   'Platform session, controls, Year 4 credential prep and subject home must remain in the expected order.');
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
   'Science must load the platform adapter, app and access-denied polish in order.');
@@ -140,14 +140,13 @@ assert.match(scienceAdapter, /learningPlatformSessionV01/,
 
 for (const route of [
   '/api/platform/begin-student-v02  https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/validate_platform_student_access_v02  200',
-  '/api/platform/claim-student-v02  https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/claim_platform_student_access_v02  200',
   '/api/platform/exchange-math     https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/exchange_math_access_for_platform     200',
   '/api/platform/subject-access    https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/get_student_subject_access            200'
 ]) assert(redirects.includes(route), `Same-origin platform proxy is missing: ${route}`);
 assert.equal(
   redirects.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#')).length,
-  4,
-  'The preview proxy must expose only the four required platform RPCs.'
+  3,
+  'The preview proxy must expose only the three required platform RPCs.'
 );
 
 for (const phrase of [

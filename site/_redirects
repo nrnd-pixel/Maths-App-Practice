@@ -1,4 +1,3 @@
 /api/platform/begin-student-v02  https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/validate_platform_student_access_v02  200
-/api/platform/claim-student-v02  https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/claim_platform_student_access_v02  200
 /api/platform/exchange-math     https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/exchange_math_access_for_platform     200
 /api/platform/subject-access    https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/get_student_subject_access            200
