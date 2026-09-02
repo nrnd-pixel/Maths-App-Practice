@@ -68,12 +68,13 @@
     document.querySelector('#start .v40c-learn-setup')?.scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
-  function makeCard({ subject, icon, name, description, action, preview, onClick }){
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'platform-v01-card';
-    button.dataset.subject = subject;
-    button.setAttribute('aria-label', `${name}. ${action}`);
+  function makeCard({ subject, icon, name, description, action, preview, href, onClick }){
+    const card = document.createElement(href ? 'a' : 'button');
+    if (href) card.href = href;
+    else card.type = 'button';
+    card.className = 'platform-v01-card';
+    card.dataset.subject = subject;
+    card.setAttribute('aria-label', `${name}. ${action}`);
 
     const iconWrap = document.createElement('span');
     iconWrap.className = 'platform-v01-icon';
@@ -102,9 +103,9 @@
     actionText.textContent = `${action} →`;
 
     copy.append(title,descriptionText,actionText);
-    button.append(iconWrap,copy);
-    button.addEventListener('click',onClick);
-    return button;
+    card.append(iconWrap,copy);
+    if (onClick) card.addEventListener('click',onClick);
+    return card;
   }
 
   function ensureRoot(){
@@ -169,7 +170,7 @@
       grid.appendChild(makeCard({
         subject:'science',icon:'🔬',name:'Science',
         description:'Open your published lessons, resources and activities.',
-        action:'Continue Learning',preview:true,onClick:() => location.assign('/science/')
+        action:'Continue Learning',preview:true,href:'/science/'
       }));
     }
 
@@ -188,47 +189,13 @@
     start.classList.add('platform-v01-subject-home-ready');
   }
 
-  async function refreshAccess(){
-    const session = readSession();
-    if (!session || !cloudReady || !cloud) {
-      render();
-      return;
-    }
-    try {
-      const { data, error } = await cloud.rpc('get_student_subject_access', {
-        p_platform_access_token: session.token
-      });
-      if (error || !data?.allowed) throw error || new Error('Access unavailable');
-      const refreshed = {
-        ...session,
-        expiresAt: Date.parse(data.expires_at || '') || session.expiresAt,
-        identity: {
-          ...session.identity,
-          ...(data.student || {})
-        },
-        subjects: data.subjects || session.subjects
-      };
-      sessionStorage.setItem(PLATFORM_KEY,JSON.stringify(refreshed));
-    } catch {}
-    render();
-  }
-
-  function watchPanel(){
-    const panel = document.querySelector('#start .v40c-session-panel');
-    if (!panel || panel.dataset.platformSubjectHomeWatch === 'true') return;
-    panel.dataset.platformSubjectHomeWatch = 'true';
-    new MutationObserver(render).observe(panel,{attributes:true,attributeFilter:['class']});
-  }
-
   function apply(){
     injectStyles();
-    watchPanel();
     render();
-    refreshAccess();
   }
 
   window.addEventListener('platformsubjectaccesschange',render);
-  window.addEventListener('focus',refreshAccess);
+  window.platformSubjectHomeV01 = { render };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded',apply,{once:true});

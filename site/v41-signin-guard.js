@@ -15,6 +15,10 @@
     const panel = document.querySelector('#start .v40c-session-panel');
     if (!panel || panel.classList.contains('v40c-authenticated')) return;
 
+    /* The preview platform controller owns the target capture listener. Yield
+       here so Enter follows the same deterministic path as the sign-in button. */
+    if (window.platformStudentSessionV01?.signIn) return;
+
     event.preventDefault();
     event.stopImmediatePropagation();
 

@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - feature/science-v0.1-synced
+      - feature/science-v0.1-clean-sync
 
 permissions:
   contents: read
@@ -25,6 +26,8 @@ jobs:
           node-version: '20'
       - name: Verify shared subject home
         run: node site/tests/verify-science-v01-subject-home.cjs
+      - name: Simulate Science-only sign-in transition
+        run: node site/tests/verify-platform-science-only-signin-transition.cjs
       - name: Verify current Maths invariants
         run: node site/tests/verify-v5.1.cjs
       - name: Verify latest Maths release checkpoint

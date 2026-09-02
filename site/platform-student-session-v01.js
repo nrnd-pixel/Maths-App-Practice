@@ -1,6 +1,7 @@
-/* Platform V0.1 — preview-only Student ID/PIN platform session.
-   Separates Learning Hub identity from Mathematics subject access so a student
-   can be Maths-only, Science-only, both, or neither without storing the PIN. */
+/* Platform V0.1 — preview-only platform-first student session controller.
+   This is the single owner of Student sign-in, platform session rendering and
+   coordinated logout. It delegates to the established Mathematics validator
+   only after the platform ticket explicitly grants Mathematics access. */
 (() => {
   'use strict';
 
@@ -14,7 +15,9 @@
   const START_VIEW_KEY = 'v40StartView';
   const EXPIRY_SAFETY_MS = 15 * 1000;
   const mathValidateStudentAccess = validateStudentAccess;
+  const mathAccessTransforms = [];
   let platformSignInPromise = null;
+  let logoutInProgress = false;
 
   function platformSessionIsValid(session){
     return !!(
@@ -80,6 +83,10 @@
     };
   }
 
+  function emitSession(session){
+    window.dispatchEvent(new CustomEvent('platformsubjectaccesschange', { detail: session }));
+  }
+
   function savePlatformPayload(payload){
     const token = String(payload?.platform_access_token || payload?.token || '').trim();
     const expiresAt = Date.parse(payload?.expires_at || '');
@@ -97,14 +104,14 @@
     }
 
     sessionStorage.setItem(PLATFORM_KEY, JSON.stringify(session));
-    window.dispatchEvent(new CustomEvent('platformsubjectaccesschange', { detail: session }));
-    renderPlatformUi();
+    renderPlatformUi(session);
+    emitSession(session);
     return session;
   }
 
   function clearPlatformSession(){
     try { sessionStorage.removeItem(PLATFORM_KEY); } catch {}
-    window.dispatchEvent(new CustomEvent('platformsubjectaccesschange', { detail: null }));
+    emitSession(null);
   }
 
   function credentialsFromForm(){
@@ -169,12 +176,11 @@
         subjects: normalizedSubjects(data)
       };
       sessionStorage.setItem(PLATFORM_KEY, JSON.stringify(refreshed));
-      window.dispatchEvent(new CustomEvent('platformsubjectaccesschange', { detail: refreshed }));
-      renderPlatformUi();
+      renderPlatformUi(refreshed);
+      emitSession(refreshed);
       return refreshed;
     } catch {
       clearPlatformSession();
-      renderPlatformUi();
       return null;
     }
   }
@@ -212,12 +218,9 @@
     });
   }
 
-  function renderPlatformUi(){
-    const session = readPlatformSession();
+  function renderPlatformUi(session = readPlatformSession()){
     const panel = document.querySelector('#start .v40c-session-panel');
-    if (!panel) return;
-
-    if (!session) return;
+    if (!panel || !platformSessionIsValid(session)) return;
 
     panel.classList.add('v40c-authenticated');
     const identityText = panel.querySelector('.v40c-session-identity-text');
@@ -236,95 +239,150 @@
     const id = document.getElementById('student-id');
     const pin = document.getElementById('student-pin');
     if (id) id.disabled = true;
-    if (pin) {
-      /*
-        Do not clear the PIN here during the initial platform sign-in. The
-        existing V4.0 Maths session immediately reuses the in-memory form value
-        to issue its practice/exam tickets, then clears it in its own finally
-        block. Science-only access clears the PIN explicitly below. The PIN is
-        never copied to sessionStorage or any other persistent browser state.
-      */
-      pin.disabled = true;
-    }
+    if (pin) pin.disabled = true;
 
     if (!mathsAllowed(session)) {
       activeStudentAccess = null;
       document.getElementById('my-progress-btn')?.classList.add('hidden');
       document.getElementById('my-assignments-btn')?.classList.add('hidden');
-      /*
-        Science-only students have no Maths session for the legacy start shell
-        to observe. Enter My Learning explicitly so a successful platform login
-        cannot remain visually stuck on the logged-out form. This does not mint
-        or simulate any Mathematics capability.
-      */
       enterPlatformHome();
     }
   }
 
-  validateStudentAccess = async function(purpose){
-    if (!platformSignInPromise) {
-      platformSignInPromise = ensurePlatformSession().finally(() => {
-        platformSignInPromise = null;
-      });
+  function setSigningState(isSigning){
+    const button = document.getElementById('v40c-student-signin');
+    if (button) button.disabled = isSigning;
+    if (isSigning) {
+      const status = document.getElementById('v40c-session-status');
+      if (status) status.textContent = 'Signing you in securely…';
     }
+  }
 
-    let platformSession;
+  async function transformMathAccess(access, purpose){
+    let transformed = access;
+    for (const transform of mathAccessTransforms) {
+      transformed = await transform(transformed, purpose);
+    }
+    return transformed;
+  }
+
+  async function platformFirstStudentAccess(purpose){
+    if (logoutInProgress) return null;
+
+    setSigningState(true);
+    let session = null;
     try {
-      platformSession = await platformSignInPromise;
+      if (!platformSignInPromise) {
+        platformSignInPromise = ensurePlatformSession().finally(() => {
+          platformSignInPromise = null;
+        });
+      }
+      session = await platformSignInPromise;
+
+      if (!mathsAllowed(session)) {
+        const pin = document.getElementById('student-pin');
+        if (pin) pin.value = '';
+        activeStudentAccess = null;
+        renderPlatformUi(session);
+        const status = document.getElementById('v40c-session-status');
+        if (status) status.textContent = session?.subjects?.science?.allowed
+          ? 'Signed in securely. Choose Science from My Learning.'
+          : 'Signed in securely. No subjects are currently enabled.';
+        return null;
+      }
+
+      const mathAccess = await mathValidateStudentAccess(purpose);
+      return transformMathAccess(mathAccess, purpose);
     } catch (error) {
+      console.warn('Platform student sign-in failed.', error);
+      const pin = document.getElementById('student-pin');
+      if (pin) pin.value = '';
       const status = document.getElementById('v40c-session-status');
       if (status) status.textContent = 'Sign in was not completed. Check your Student ID and PIN.';
       alert(error?.message || 'Student access could not be verified.');
       return null;
+    } finally {
+      setSigningState(false);
     }
+  }
 
-    if (!mathsAllowed(platformSession)) {
-      const pin = document.getElementById('student-pin');
-      if (pin) pin.value = '';
-      activeStudentAccess = null;
-      renderPlatformUi();
-      const status = document.getElementById('v40c-session-status');
-      if (status) status.textContent = 'Signed in. Choose an available subject from My Learning.';
-      window.dispatchEvent(new CustomEvent('platformsubjectaccesschange', { detail: platformSession }));
-      /*
-        This is a successful Learning Hub sign-in, but deliberately returns no
-        Mathematics access object. Maths callers therefore remain denied while
-        the subject-aware home can render Science immediately.
-      */
-      return null;
-    }
-
-    return mathValidateStudentAccess(purpose);
+  validateStudentAccess = async function(purpose){
+    return platformFirstStudentAccess(purpose);
   };
 
-  function wireLogout(){
-    const button = document.getElementById('v40c-student-logout');
-    if (!button || button.dataset.platformV01Logout === 'true') return;
-    button.dataset.platformV01Logout = 'true';
-    button.addEventListener('click', () => {
-      clearPlatformSession();
-    });
+  function captureSignIn(event){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void platformFirstStudentAccess('practice');
+  }
+
+  function capturePinEnter(event){
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void platformFirstStudentAccess('practice');
+  }
+
+  function captureLogout(){
+    const activeScreen = document.querySelector('.screen.active');
+    if (activeScreen?.id === 'quiz' || activeScreen?.id === 'exam') return;
+
+    logoutInProgress = true;
+    clearPlatformSession();
+    setTimeout(() => {
+      logoutInProgress = false;
+    }, 0);
+  }
+
+  function wireInteractionOwner(){
+    const signIn = document.getElementById('v40c-student-signin');
+    if (signIn && signIn.dataset.platformSessionOwnerV01 !== 'true') {
+      signIn.dataset.platformSessionOwnerV01 = 'true';
+      signIn.addEventListener('click', captureSignIn, { capture:true });
+    }
+
+    const pin = document.getElementById('student-pin');
+    if (pin && pin.dataset.platformSessionOwnerV01 !== 'true') {
+      pin.dataset.platformSessionOwnerV01 = 'true';
+      pin.addEventListener('keydown', capturePinEnter, { capture:true });
+    }
+
+    const logout = document.getElementById('v40c-student-logout');
+    if (logout && logout.dataset.platformSessionOwnerV01 !== 'true') {
+      logout.dataset.platformSessionOwnerV01 = 'true';
+      logout.addEventListener('click', captureLogout, { capture:true });
+    }
   }
 
   async function apply(){
-    wireLogout();
-    renderPlatformUi();
-
-    if (!readPlatformSession() && readMathSession()) {
-      try { await bootstrapPlatformFromMath(); } catch {}
+    wireInteractionOwner();
+    const current = readPlatformSession();
+    if (current) {
+      renderPlatformUi(current);
+      emitSession(current);
+      return;
     }
 
-    renderPlatformUi();
+    if (readMathSession()) {
+      try { await bootstrapPlatformFromMath(); } catch {}
+    }
   }
 
   window.platformStudentSessionV01 = {
     read: readPlatformSession,
     refresh: refreshPlatformAccess,
-    clear: clearPlatformSession
+    clear: clearPlatformSession,
+    signIn: platformFirstStudentAccess,
+    whenIdle: () => platformSignInPromise || Promise.resolve(),
+    addMathAccessTransform(transform){
+      if (typeof transform !== 'function' || mathAccessTransforms.includes(transform)) return false;
+      mathAccessTransforms.push(transform);
+      return true;
+    }
   };
+  window.dispatchEvent(new CustomEvent('platformsessioncontrollerready'));
 
   window.addEventListener('focus', () => refreshPlatformAccess());
-  window.addEventListener('platformsubjectaccesschange', renderPlatformUi);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', apply, { once: true });

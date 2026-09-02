@@ -91,12 +91,32 @@
 
   function installPracticeAccessOverride(){
     if (typeof validateStudentAccess!=='function' || ROOT.__v52c2PracticeAccessOverrideInstalled) return;
+
+    const applyOverride=(access,purpose)=>{
+      if (!access || purpose==='exam' || !practiceOverrideToken) return access;
+      return {...access,access_token:practiceOverrideToken};
+    };
+    const host=String(ROOT.location?.hostname || '').toLowerCase();
+    const platformPreview=host.startsWith('deploy-preview-') &&
+      host.endsWith('--magical-pixie-a61111.netlify.app');
+
+    if (platformPreview){
+      const register=()=>{
+        const controller=ROOT.platformStudentSessionV01;
+        if (!controller?.addMathAccessTransform) return false;
+        if (!controller.addMathAccessTransform(applyOverride)) return false;
+        ROOT.__v52c2PracticeAccessOverrideInstalled=true;
+        return true;
+      };
+      if (!register()) ROOT.addEventListener('platformsessioncontrollerready',register,{once:true});
+      return;
+    }
+
     ROOT.__v52c2PracticeAccessOverrideInstalled=true;
     const base=validateStudentAccess;
     validateStudentAccess=async function(purpose){
       const access=await base(purpose);
-      if (!access || purpose==='exam' || !practiceOverrideToken) return access;
-      return {...access,access_token:practiceOverrideToken};
+      return applyOverride(access,purpose);
     };
   }
 
