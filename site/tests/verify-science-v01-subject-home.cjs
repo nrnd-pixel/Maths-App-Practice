@@ -7,6 +7,7 @@ const site = path.join(__dirname, '..');
 const read = (...parts) => fs.readFileSync(path.join(site, ...parts), 'utf8');
 
 const studentSession = read('platform-student-session-v01.js');
+const mathsSession = read('v40-student-session.js');
 const subjectAccess = read('platform-subject-access-v01.js');
 const subjectHome = read('platform-subject-home-v01.js');
 const scienceAdapter = read('science', 'platform-session-adapter.js');
@@ -15,6 +16,7 @@ const scienceHtml = read('science', 'index.html');
 
 for (const [name, source] of [
   ['platform-student-session-v01.js', studentSession],
+  ['v40-student-session.js', mathsSession],
   ['platform-subject-access-v01.js', subjectAccess],
   ['platform-subject-home-v01.js', subjectHome],
   ['science/platform-session-adapter.js', scienceAdapter]
@@ -32,6 +34,22 @@ for (const phrase of [
   "if (!mathsAllowed(platformSession))",
   'return mathValidateStudentAccess(purpose)'
 ]) assert(studentSession.includes(phrase), `Platform student session is missing: ${phrase}`);
+
+assert.doesNotMatch(
+  studentSession,
+  /if \(pin\) \{\s*pin\.disabled = true;\s*pin\.value = '';\s*\}/,
+  'Platform rendering must not clear the PIN before the existing Maths session validator can issue its tickets.'
+);
+assert.match(
+  studentSession,
+  /if \(!mathsAllowed\(platformSession\)\)[\s\S]*if \(pin\) pin\.value = '';/,
+  'Science-only sign-in must still clear the PIN immediately.'
+);
+assert.match(
+  mathsSession,
+  /finally \(\) =>|finally\s*\{[\s\S]*pin\.value = '';/,
+  'The existing Maths session must retain responsibility for clearing the PIN after ticket issuance.'
+);
 
 for (const phrase of [
   'Permission precedence: student override > class setting > platform default.',
@@ -73,6 +91,7 @@ assert.match(scienceAdapter, /learningPlatformSessionV01/,
 console.log('Science V0.1 subject-access checks passed.');
 console.log('- preview-host isolation retained');
 console.log('- platform Student ID/PIN session present');
+console.log('- duplicate PIN prompt regression guarded');
 console.log('- class + individual teacher subject controls present');
 console.log('- student subject home renders only allowed subjects');
 console.log('- Science uses the platform-session adapter');
