@@ -11,6 +11,7 @@
 
   const PLATFORM_KEY = 'learningPlatformSessionV01';
   const MATH_KEY = 'mathStudentSessionV40';
+  const START_VIEW_KEY = 'v40StartView';
   const EXPIRY_SAFETY_MS = 15 * 1000;
   const mathValidateStudentAccess = validateStudentAccess;
   let platformSignInPromise = null;
@@ -192,6 +193,25 @@
     return session?.subjects?.maths?.allowed === true;
   }
 
+  function enterPlatformHome(){
+    const start = document.getElementById('start');
+    if (!start) return;
+
+    try {
+      if (typeof show === 'function') show('start');
+    } catch {}
+
+    start.classList.add('v40-shell-authenticated');
+    start.classList.remove('v40-shell-logged-out');
+    start.dataset.v40StartView = 'home';
+    try { sessionStorage.setItem(START_VIEW_KEY, 'home'); } catch {}
+
+    document.querySelectorAll('#start [data-v40-nav]').forEach(button => {
+      if (button.dataset.v40Nav === 'home') button.setAttribute('aria-current','page');
+      else button.removeAttribute('aria-current');
+    });
+  }
+
   function renderPlatformUi(){
     const session = readPlatformSession();
     const panel = document.querySelector('#start .v40c-session-panel');
@@ -231,6 +251,13 @@
       activeStudentAccess = null;
       document.getElementById('my-progress-btn')?.classList.add('hidden');
       document.getElementById('my-assignments-btn')?.classList.add('hidden');
+      /*
+        Science-only students have no Maths session for the legacy start shell
+        to observe. Enter My Learning explicitly so a successful platform login
+        cannot remain visually stuck on the logged-out form. This does not mint
+        or simulate any Mathematics capability.
+      */
+      enterPlatformHome();
     }
   }
 
