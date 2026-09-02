@@ -8,6 +8,7 @@ const read = (...parts) => fs.readFileSync(path.join(site, ...parts), 'utf8');
 
 const studentSession = read('platform-student-session-v01.js');
 const logoutGuard = read('platform-logout-guard-v01.js');
+const signInOwner = read('platform-signin-owner-v01.js');
 const mathsSession = read('v40-student-session.js');
 const subjectAccess = read('platform-subject-access-v01.js');
 const yearLaunch = read('platform-year-launch-v01.js');
@@ -21,6 +22,7 @@ const scienceHtml = read('science', 'index.html');
 for (const [name, source] of [
   ['platform-student-session-v01.js', studentSession],
   ['platform-logout-guard-v01.js', logoutGuard],
+  ['platform-signin-owner-v01.js', signInOwner],
   ['v40-student-session.js', mathsSession],
   ['platform-subject-access-v01.js', subjectAccess],
   ['platform-year-launch-v01.js', yearLaunch],
@@ -30,7 +32,7 @@ for (const [name, source] of [
   ['science/access-denied-polish-v01.js', accessDeniedPolish]
 ]) new vm.Script(source, { filename:name });
 
-for (const source of [studentSession, logoutGuard, subjectAccess, yearLaunch, subjectHome, scienceOnlyRedirect]) {
+for (const source of [studentSession, logoutGuard, signInOwner, subjectAccess, yearLaunch, subjectHome, scienceOnlyRedirect]) {
   assert(source.includes("host.startsWith('deploy-preview-')"), 'Platform UI must remain deploy-preview gated.');
   assert(source.includes("host.endsWith('--magical-pixie-a61111.netlify.app')"), 'Platform UI must remain isolated from the live hostname.');
 }
@@ -91,6 +93,19 @@ for (const phrase of [
   "button.addEventListener('click', clearPlatformBeforeMathLogout, { capture:true })",
   'setTimeout(() => {'
 ]) assert(logoutGuard.includes(phrase), `Atomic logout guard is missing: ${phrase}`);
+
+for (const phrase of [
+  'const platformValidateStudentAccess = validateStudentAccess',
+  'event.stopImmediatePropagation()',
+  "button.addEventListener('click', captureSignInClick, { capture:true })",
+  "pin.addEventListener('keydown', capturePinEnter, { capture:true })",
+  "await platformValidateStudentAccess('practice')",
+  'const platformSession = readPlatformSession()',
+  'if (isScienceOnly(platformSession))',
+  "window.location.assign('/science/')"
+]) assert(signInOwner.includes(phrase), `Platform sign-in ownership is missing: ${phrase}`);
+assert.doesNotMatch(signInOwner, /localStorage\./,
+  'Preview sign-in ownership must not persist credentials or session state in localStorage.');
 
 for (const phrase of [
   'Permission precedence: student override > class setting > platform default.',
@@ -155,10 +170,11 @@ assert.doesNotMatch(subjectHome, /position\s*:\s*fixed/i,
   'The old floating Science launcher must not return.');
 assert.doesNotMatch(config, /science-subject-home\.js/,
   'The retired Science-only subject-home loader must stay removed.');
-assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'/,
-  'Platform identity and logout guard must load after the complete Maths stack so the platform wrapper remains final.');
-assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'[\s\S]*\.\/platform-science-only-redirect-v01\.js'/,
-  'Platform sign-in, controls, Year 4 credential prep, subject home and Science-only direct routing must all layer after the complete V5.6.1 Maths release stack.');
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'[\s\S]*\.\/platform-signin-owner-v01\.js'/,
+  'Platform sign-in must load after the complete Maths stack and own the final preview interaction.');
+assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'[\s\S]*\.\/platform-signin-owner-v01\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'[\s\S]*\.\/platform-science-only-redirect-v01\.js'/,
+  'Platform sign-in ownership, controls, Year 4 credential prep, subject home and Science-only direct routing must all layer after V5.6.1.'
+);
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
   'Science must load the platform adapter, app and access-denied polish in order.');
 assert.match(scienceHtml, /class="subject-switcher" href="\/"[^>]*>← All subjects<\/a>/,
@@ -169,6 +185,7 @@ assert.match(scienceAdapter, /learningPlatformSessionV01/,
 console.log('Science V0.1 subject-access checks passed.');
 console.log('- preview-host isolation retained');
 console.log('- platform Student ID/PIN session is the final sign-in wrapper');
+console.log('- preview sign-in button is capture-owned before legacy Maths listeners');
 console.log('- duplicate PIN prompt regression guarded');
 console.log('- Science-only sign-in completes without a Maths alert or capability');
 console.log('- Science-only sign-in explicitly enters My Learning Home');
