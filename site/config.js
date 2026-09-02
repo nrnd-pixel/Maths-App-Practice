@@ -47,8 +47,8 @@ document.title = 'Math Practice V5.1';
 
 /* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
    V5.6.1 is a reversible student-entry presentation layer over the stable V5.6
-   baseline. Legacy release-label-only scripts remain archived in the repository;
-   current staged loading remains coordinated by v40-release.js. */
+   baseline. Science/platform modules below are preview-host gated and do not
+   activate on the production hostname. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -61,6 +61,7 @@ window.addEventListener('load', () => {
     './v40-student-platform.js',
     './v40-student-nav.js',
     './v40-student-session.js',
+    './platform-student-session-v01.js',
     './v40-learn-setup.js',
     './v40-learning-priorities.js',
     './v40-platform-polish.js',
@@ -80,7 +81,9 @@ window.addEventListener('load', () => {
     './v56c-student-past-paper-progress.js',
     './v56d-teacher-past-paper-analytics.js',
     './v56-stable-release-checkpoint.js',
-    './v561-practice-first-student-experience.js'
+    './v561-practice-first-student-experience.js',
+    './platform-subject-access-v01.js',
+    './platform-subject-home-v01.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
