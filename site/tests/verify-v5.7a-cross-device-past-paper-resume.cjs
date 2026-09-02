@@ -10,14 +10,18 @@ const readRoot = name => fs.readFileSync(path.join(root,name),'utf8');
 
 const source = readSite('v57a-cross-device-past-paper-resume.js');
 const bridge = readSite('v57a1-cross-device-local-bridge.js');
+const staleCleanup = readSite('v57a2-stale-local-checkpoint-cleanup.js');
 const config = readSite('config.js');
 const sql = readRoot('supabase/v57a_cross_device_past_paper_resume.sql');
 const cleanupSql = readRoot('supabase/v57a_checkpoint_completion_cleanup.sql');
+const watermarkSql = readRoot('supabase/v57a_completion_watermarks.sql');
 
 new vm.Script(source,{filename:'v57a-cross-device-past-paper-resume.js'});
 new vm.Script(bridge,{filename:'v57a1-cross-device-local-bridge.js'});
+new vm.Script(staleCleanup,{filename:'v57a2-stale-local-checkpoint-cleanup.js'});
 const api = require(path.join(site,'v57a-cross-device-past-paper-resume.js'));
 const bridgeApi = require(path.join(site,'v57a1-cross-device-local-bridge.js'));
+const staleApi = require(path.join(site,'v57a2-stale-local-checkpoint-cleanup.js'));
 
 assert.equal(api.RPC_GET,'get_student_past_paper_checkpoints_v57a');
 assert.equal(api.RPC_SAVE,'save_student_past_paper_checkpoint_v57a');
@@ -27,6 +31,8 @@ assert.equal(typeof api.restoreFromServer,'function');
 assert.equal(typeof api.boundarySnapshot,'function');
 assert.equal(typeof bridgeApi.mirror,'function');
 assert.equal(typeof bridgeApi.syncFromServer,'function');
+assert.equal(staleApi.RPC_NAME,'get_student_past_paper_completion_watermarks_v57a');
+assert.equal(typeof staleApi.pruneStaleLocalCheckpoints,'function');
 
 // V5.7A sits on top of the accepted same-device V5.5C fallback rather than replacing it.
 assert.match(source,/V55CResumePastPaperPractice/);
@@ -57,13 +63,23 @@ assert.match(bridge,/v57a:checkpoints-updated/);
 assert.match(bridge,/#v55c-resume-card \[data-v55c-resume\]/);
 assert.match(bridge,/restoreFromServer/);
 
-// Load order: stable V5.6 + Practice-first V5.6.1, then V5.7A server layer and its compatibility bridge.
+// A successful completion on another device removes only an older local fallback for the same student/paper.
+assert.match(staleCleanup,/get_student_past_paper_completion_watermarks_v57a/);
+assert.match(staleCleanup,/completedAt < savedAt/);
+assert.match(staleCleanup,/matchesStudent\(snapshot,data\.student\)/);
+assert.match(staleCleanup,/delete store\[key\]/);
+assert.match(staleCleanup,/V55CResumePastPaperPractice/);
+assert.match(staleCleanup,/v57a:local-fallback-pruned/);
+
+// Load order: stable V5.6 + Practice-first V5.6.1, then V5.7A server, bridge and stale-local cleanup.
 const v561 = config.indexOf("'./v561-practice-first-student-experience.js'");
 const v57a = config.indexOf("'./v57a-cross-device-past-paper-resume.js'");
 const v57a1 = config.indexOf("'./v57a1-cross-device-local-bridge.js'");
+const v57a2 = config.indexOf("'./v57a2-stale-local-checkpoint-cleanup.js'");
 assert.ok(v561 >= 0,'V5.6.1 Practice-first layer must remain loaded');
 assert.ok(v57a > v561,'V5.7A must load after Practice-first V5.6.1');
 assert.ok(v57a1 > v57a,'V5.7A compatibility bridge must load after the server checkpoint layer');
+assert.ok(v57a2 > v57a1,'V5.7A stale-local cleanup must load after the compatibility bridge');
 
 // Database storage is additive, private-by-default and token-gated.
 assert.match(sql,/create table if not exists public\.student_past_paper_checkpoints_v57a/i);
@@ -118,8 +134,17 @@ assert.match(cleanupSql,/new\.practice_mode\s*=\s*'past_paper'/i);
 assert.match(cleanupSql,/delete from public\.student_past_paper_checkpoints_v57a/i);
 assert.match(cleanupSql,/c\.roster_student_id\s*=\s*new\.roster_student_id/i);
 
+// Completion watermarks expose metadata only and are scoped to the same roster student/class.
+assert.match(watermarkSql,/get_student_past_paper_completion_watermarks_v57a/i);
+assert.match(watermarkSql,/ps\.roster_student_id\s*=\s*v_ticket\.roster_student_id/i);
+assert.match(watermarkSql,/ps\.class_id\s*=\s*v_ticket\.class_id/i);
+assert.match(watermarkSql,/ps\.practice_mode\s*=\s*'past_paper'/i);
+assert.match(watermarkSql,/coalesce\(ps\.ended_early,false\)\s*=\s*false/i);
+assert.match(watermarkSql,/'completedAt', completed_at/i);
+assert.doesNotMatch(watermarkSql,/session_answers|student_practice_answer_events|correct_answer|explanation|hint/i);
+
 console.log('V5.7A Cross-device Past Paper resume regression passed.');
 console.log('- token-gated server checkpoint with RLS and no direct browser table access');
 console.log('- server grading evidence determines completed questions and score counters');
-console.log('- same-device V5.5C remains a fallback and existing My Progress can reuse it');
+console.log('- same-device V5.5C remains a fallback and stale copies are pruned after cross-device completion');
 console.log('- teacher assignment context survives a validated cross-device resume');
