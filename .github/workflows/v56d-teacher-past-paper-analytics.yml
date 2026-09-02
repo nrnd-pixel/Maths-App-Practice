@@ -1,0 +1,43 @@
+name: V5.6D Teacher Past Paper Analytics
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v56d-teacher-past-paper-analytics
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.6D Teacher Past Paper Analytics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.5A Past Paper Practice regression
+        run: node site/tests/verify-v5.5a-past-paper-practice.cjs
+      - name: Run V5.5B Full Paper Practice regression
+        run: node site/tests/verify-v5.5b-full-paper-practice.cjs
+      - name: Run V5.5C Resume Past Paper Practice regression
+        run: node site/tests/verify-v5.5c-resume-past-paper-practice.cjs
+      - name: Run V5.5D result attribution regression
+        run: node site/tests/verify-v5.5d-past-paper-result-attribution.cjs
+      - name: Run V5.5 stable checkpoint regression
+        run: node site/tests/verify-v5.5-stable-release-checkpoint.cjs
+      - name: Run V5.6A Question Bank response filter regression
+        run: node site/tests/verify-v5.6a-question-bank-response-filter.cjs
+      - name: Run V5.6B teacher-assigned Past Paper regression
+        run: node site/tests/verify-v5.6b-teacher-assigned-past-paper-practice.cjs
+      - name: Run V5.6C student Past Paper progress regression
+        run: node site/tests/verify-v5.6c-student-past-paper-progress.cjs
+      - name: Run V5.6D teacher Past Paper analytics regression
+        run: node site/tests/verify-v5.6d-teacher-past-paper-analytics.cjs
