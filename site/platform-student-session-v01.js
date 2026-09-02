@@ -254,11 +254,16 @@
     if (!mathsAllowed(platformSession)) {
       const pin = document.getElementById('student-pin');
       if (pin) pin.value = '';
+      activeStudentAccess = null;
       renderPlatformUi();
-      const active = document.activeElement;
-      if (active?.id !== 'v40c-student-signin') {
-        alert('Mathematics is not enabled for this student. Choose an available subject from My Learning.');
-      }
+      const status = document.getElementById('v40c-session-status');
+      if (status) status.textContent = 'Signed in. Choose an available subject from My Learning.';
+      window.dispatchEvent(new CustomEvent('platformsubjectaccesschange', { detail: platformSession }));
+      /*
+        This is a successful Learning Hub sign-in, but deliberately returns no
+        Mathematics access object. Maths callers therefore remain denied while
+        the subject-aware home can render Science immediately.
+      */
       return null;
     }
 
