@@ -143,7 +143,9 @@
 
   function renderCatalog(rows) {
     lessonList.replaceChildren();
-    const lessons = Array.isArray(rows) ? rows : [];
+    const lessons = Array.isArray(rows)
+      ? rows
+      : (rows && typeof rows === 'object' ? [rows] : []);
     catalogStatus.textContent = lessons.length === 1 ? '1 published lesson' : `${lessons.length} published lessons`;
 
     if (!lessons.length) {
@@ -167,7 +169,7 @@
     catalogStatus.textContent = 'Loading lessons…';
     try {
       const rows = await rpc('science_student_catalog', { p_token: currentSession.token });
-      renderCatalog(Array.isArray(rows) ? rows : []);
+      renderCatalog(rows);
     } catch (error) {
       catalogStatus.textContent = '';
       lessonList.replaceChildren(element('div', 'empty', error?.message || 'Lessons could not be loaded.'));
