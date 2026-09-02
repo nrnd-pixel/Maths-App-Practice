@@ -4,36 +4,76 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const site = path.join(__dirname, '..');
-const source = fs.readFileSync(path.join(site, 'science-subject-home.js'), 'utf8');
-const config = fs.readFileSync(path.join(site, 'config.js'), 'utf8');
-const scienceHtml = fs.readFileSync(path.join(site, 'science', 'index.html'), 'utf8');
+const read = (...parts) => fs.readFileSync(path.join(site, ...parts), 'utf8');
 
-new vm.Script(source, { filename:'science-subject-home.js' });
+const studentSession = read('platform-student-session-v01.js');
+const subjectAccess = read('platform-subject-access-v01.js');
+const subjectHome = read('platform-subject-home-v01.js');
+const scienceAdapter = read('science', 'platform-session-adapter.js');
+const config = read('config.js');
+const scienceHtml = read('science', 'index.html');
+
+for (const [name, source] of [
+  ['platform-student-session-v01.js', studentSession],
+  ['platform-subject-access-v01.js', subjectAccess],
+  ['platform-subject-home-v01.js', subjectHome],
+  ['science/platform-session-adapter.js', scienceAdapter]
+]) new vm.Script(source, { filename:name });
+
+for (const source of [studentSession, subjectAccess, subjectHome]) {
+  assert(source.includes("host.startsWith('deploy-preview-')"), 'Platform UI must remain deploy-preview gated.');
+  assert(source.includes("host.endsWith('--magical-pixie-a61111.netlify.app')"), 'Platform UI must remain isolated from the live hostname.');
+}
 
 for (const phrase of [
-  "host.startsWith('deploy-preview-')",
-  "host.endsWith('--magical-pixie-a61111.netlify.app')",
-  "const STORAGE_KEY = 'mathStudentSessionV40'",
-  "name:'Mathematics'",
-  "name:'Science'",
-  "action:'Continue Practice'",
-  "action:'Continue Learning'",
-  "location.assign('/science/')",
-  'Science is available only in this development preview.'
-]) assert(source.includes(phrase), `Subject home is missing: ${phrase}`);
+  "const PLATFORM_KEY = 'learningPlatformSessionV01'",
+  "cloud.rpc('validate_platform_student_access'",
+  "cloud.rpc('get_student_subject_access'",
+  "if (!mathsAllowed(platformSession))",
+  'return mathValidateStudentAccess(purpose)'
+]) assert(studentSession.includes(phrase), `Platform student session is missing: ${phrase}`);
 
-assert.doesNotMatch(source, /position\s*:\s*fixed/i,
+for (const phrase of [
+  'Permission precedence: student override > class setting > platform default.',
+  "tab.textContent = 'Subject Access'",
+  'Maths only',
+  'Science only',
+  'Both subjects',
+  'Individual student overrides',
+  'teacher_set_class_subject_access',
+  'teacher_set_student_subject_access_override',
+  'teacher_set_year_subject_access'
+]) assert(subjectAccess.includes(phrase), `Teacher subject access is missing: ${phrase}`);
+
+for (const phrase of [
+  "const PLATFORM_KEY = 'learningPlatformSessionV01'",
+  "session.subjects?.maths?.allowed === true",
+  "session.subjects?.science?.allowed === true",
+  "subject:'maths'",
+  "subject:'science'",
+  "location.assign('/science/')",
+  'Subject access is controlled by your teacher.'
+]) assert(subjectHome.includes(phrase), `Subject home is missing: ${phrase}`);
+
+assert.doesNotMatch(subjectHome, /position\s*:\s*fixed/i,
   'The old floating Science launcher must not return.');
-assert.doesNotMatch(source, /setInterval\s*\(/,
-  'The native subject home should react to session state without polling.');
-assert.match(config, /\.\/v56c-student-past-paper-progress\.js'[\s\S]*\.\/science-subject-home\.js'/,
-  'The preview subject home must load after the complete Maths release stack.');
-assert.doesNotMatch(config, /science-preview-launcher/,
-  'The temporary floating launcher must not remain wired.');
+assert.doesNotMatch(config, /science-subject-home\.js/,
+  'The retired Science-only subject-home loader must stay removed.');
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/platform-student-session-v01\.js'/,
+  'Platform identity must layer after the existing V4.0 student session.');
+assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
+  'Subject controls/home must layer after the complete V5.6.1 Maths release stack.');
+assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>/,
+  'Science must load the platform-session adapter before its app.');
 assert.match(scienceHtml, /class="subject-switcher" href="\/"[^>]*>← All subjects<\/a>/,
   'Science must provide a native same-tab route back to the subject home.');
+assert.match(scienceAdapter, /learningPlatformSessionV01/,
+  'Science adapter must consume the platform session rather than requiring a Maths-only identity.');
 
-console.log('Science V0.1 shared subject home checks passed.');
+console.log('Science V0.1 subject-access checks passed.');
 console.log('- preview-host isolation retained');
-console.log('- signed-in Mathematics / Science selector present');
-console.log('- floating launcher removed and same-tab switching preserved');
+console.log('- platform Student ID/PIN session present');
+console.log('- class + individual teacher subject controls present');
+console.log('- student subject home renders only allowed subjects');
+console.log('- Science uses the platform-session adapter');
+console.log('- latest V5.6.1 Maths loader remains in front of preview platform modules');
