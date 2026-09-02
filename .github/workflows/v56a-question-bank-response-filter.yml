@@ -33,3 +33,5 @@ jobs:
         run: node site/tests/verify-v5.5-stable-release-checkpoint.cjs
       - name: Run V5.6A response filter regression
         run: node site/tests/verify-v5.6a-question-bank-response-filter.cjs
+      - name: Run V5.6A.1 bulk Practice confirmation bridge regression
+        run: node site/tests/verify-v5.6a1-bulk-practice-confirmation-bridge.cjs
