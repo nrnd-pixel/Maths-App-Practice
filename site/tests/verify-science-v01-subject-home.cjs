@@ -155,10 +155,10 @@ assert.doesNotMatch(subjectHome, /position\s*:\s*fixed/i,
   'The old floating Science launcher must not return.');
 assert.doesNotMatch(config, /science-subject-home\.js/,
   'The retired Science-only subject-home loader must stay removed.');
-assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'/,
-  'Platform identity and atomic logout guard must layer after the existing V4.0 student session.');
-assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'[\s\S]*\.\/platform-science-only-redirect-v01\.js'/,
-  'Subject controls, Year 4 credential prep, subject home and Science-only direct routing must layer after the complete V5.6.1 Maths release stack.');
+assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'/,
+  'Platform identity and logout guard must load after the complete Maths stack so the platform wrapper remains final.');
+assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-student-session-v01\.js'[\s\S]*\.\/platform-logout-guard-v01\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-year-launch-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'[\s\S]*\.\/platform-science-only-redirect-v01\.js'/,
+  'Platform sign-in, controls, Year 4 credential prep, subject home and Science-only direct routing must all layer after the complete V5.6.1 Maths release stack.');
 assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
   'Science must load the platform adapter, app and access-denied polish in order.');
 assert.match(scienceHtml, /class="subject-switcher" href="\/"[^>]*>← All subjects<\/a>/,
@@ -168,7 +168,7 @@ assert.match(scienceAdapter, /learningPlatformSessionV01/,
 
 console.log('Science V0.1 subject-access checks passed.');
 console.log('- preview-host isolation retained');
-console.log('- platform Student ID/PIN session present');
+console.log('- platform Student ID/PIN session is the final sign-in wrapper');
 console.log('- duplicate PIN prompt regression guarded');
 console.log('- Science-only sign-in completes without a Maths alert or capability');
 console.log('- Science-only sign-in explicitly enters My Learning Home');
@@ -180,4 +180,4 @@ console.log('- plaintext Year 4 PINs are not persisted in browser storage');
 console.log('- student subject home renders only allowed subjects');
 console.log('- denied Science access has student-friendly messaging');
 console.log('- Science uses the platform-session adapter');
-console.log('- latest V5.6.1 Maths loader remains in front of preview platform modules');
+console.log('- latest V5.6.1 Maths loader remains in front of all preview platform modules');
