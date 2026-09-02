@@ -47,8 +47,9 @@ document.title = 'Math Practice V5.1';
 
 /* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
    V5.6.1 is a reversible student-entry presentation layer over the stable V5.6
-   baseline. Science/platform modules below are preview-host gated and do not
-   activate on the production hostname. */
+   baseline. Preview-only platform modules are intentionally loaded AFTER the
+   complete Maths stack so platform Student ID/PIN becomes the final sign-in
+   wrapper rather than being replaced by a later Maths compatibility layer. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -61,8 +62,6 @@ window.addEventListener('load', () => {
     './v40-student-platform.js',
     './v40-student-nav.js',
     './v40-student-session.js',
-    './platform-student-session-v01.js',
-    './platform-logout-guard-v01.js',
     './v40-learn-setup.js',
     './v40-learning-priorities.js',
     './v40-platform-polish.js',
@@ -83,6 +82,8 @@ window.addEventListener('load', () => {
     './v56d-teacher-past-paper-analytics.js',
     './v56-stable-release-checkpoint.js',
     './v561-practice-first-student-experience.js',
+    './platform-student-session-v01.js',
+    './platform-logout-guard-v01.js',
     './platform-subject-access-v01.js',
     './platform-year-launch-v01.js',
     './platform-subject-home-v01.js',
