@@ -25,3 +25,5 @@ jobs:
           node-version: '20'
       - name: Run V5.5A regression
         run: node site/tests/verify-v5.5a-past-paper-practice.cjs
+      - name: Run V5.5A.1 Practice type guard regression
+        run: node site/tests/verify-v5.5a1-practice-type-guard.cjs
