@@ -169,6 +169,31 @@
     } catch {}
   }
 
+  function normalizeRpcPayload(value){
+    let current = value;
+    for (let depth = 0; depth < 3; depth += 1) {
+      if (typeof current === 'string') {
+        try { current = JSON.parse(current); }
+        catch { break; }
+        continue;
+      }
+      if (Array.isArray(current) && current.length === 1) {
+        current = current[0];
+        continue;
+      }
+      break;
+    }
+    if (
+      current &&
+      typeof current === 'object' &&
+      current.claim_platform_student_access_v02 &&
+      typeof current.claim_platform_student_access_v02 === 'object'
+    ) {
+      current = current.claim_platform_student_access_v02;
+    }
+    return current;
+  }
+
   async function callPlatformRpc(name, args, timeoutMs = RPC_TIMEOUT_MS){
     const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
     const endpoint = PLATFORM_RPC_PATHS[name];
@@ -192,8 +217,7 @@
         timeout
       ]);
       const responseText = await Promise.race([response.text(), timeout]);
-      let data = null;
-      try { data = responseText ? JSON.parse(responseText) : null; } catch {}
+      const data = normalizeRpcPayload(responseText);
       if (!response.ok) {
         throw new Error(data?.message || data?.details || `Learning Platform request failed (${response.status}).`);
       }
@@ -201,6 +225,33 @@
     } finally {
       if (timeoutId != null) clearTimeout(timeoutId);
     }
+  }
+
+  function callClaimRpcViaXhr(args, timeoutMs = LOGIN_CLAIM_REQUEST_TIMEOUT_MS){
+    const publishableKey = String(window.MATH_APP_CONFIG?.supabasePublishableKey || '');
+    const endpoint = PLATFORM_RPC_PATHS.claim_platform_student_access_v02;
+    if (!endpoint || !publishableKey || typeof XMLHttpRequest !== 'function') {
+      return Promise.reject(new Error('Learning Platform claim fallback is unavailable.'));
+    }
+
+    return new Promise((resolve,reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', endpoint, true);
+      xhr.timeout = timeoutMs;
+      xhr.setRequestHeader('apikey', publishableKey);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = () => {
+        const data = normalizeRpcPayload(xhr.responseText || '');
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject(new Error(data?.message || data?.details || `Learning Platform request failed (${xhr.status}).`));
+          return;
+        }
+        resolve(data);
+      };
+      xhr.onerror = () => reject(new Error('Learning Platform verification could not be completed.'));
+      xhr.ontimeout = () => reject(new Error('Learning Platform verification timed out. Please check the connection and try again.'));
+      xhr.send(JSON.stringify(args || {}));
+    });
   }
 
   function createClientPlatformToken(){
@@ -213,42 +264,71 @@
   }
 
   function compactClaimPayload(token,data){
-    const expiresAt = Number(data?.e || 0) * 1000;
-    if (!data?.r || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+    const normalized = normalizeRpcPayload(data);
+    const expiresAt = Number(normalized?.e || 0) * 1000;
+    if (!normalized?.r || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
     return {
       allowed: true,
       platform_access_token: token,
       access_mode: 'student_pin',
       registered: true,
-      student_name: data.n,
-      student_id: data.i,
-      year_level: Number(data.y || 6),
-      class_name: data.c || 'Other',
+      student_name: normalized.n,
+      student_id: normalized.i,
+      year_level: Number(normalized.y || 6),
+      class_name: normalized.c || 'Other',
       expires_at: new Date(expiresAt).toISOString(),
       subjects: {
-        maths: { allowed:data.m === true, source:'server' },
-        science: { allowed:data.s === true, source:'server' }
+        maths: { allowed:normalized.m === true, source:'server' },
+        science: { allowed:normalized.s === true, source:'server' }
       }
     };
   }
 
   async function claimActivatedPlatformTicket(token){
     const deadline = Date.now() + LOGIN_CLAIM_TIMEOUT_MS;
+    let lastTransportError = null;
+
     while (Date.now() < deadline) {
+      let data = null;
       try {
-        const data = await callPlatformRpc(
+        data = await callPlatformRpc(
           'claim_platform_student_access_v02',
           { p_platform_access_token:token },
           LOGIN_CLAIM_REQUEST_TIMEOUT_MS
         );
-        const payload = compactClaimPayload(token,data);
-        if (payload) {
-          setStatus('Access confirmed. Preparing My Learning…');
-          return savePlatformPayload(payload);
+      } catch (error) {
+        lastTransportError = error;
+      }
+
+      const normalized = normalizeRpcPayload(data);
+      const fetchResponseWasUsable = !!(
+        normalized &&
+        typeof normalized === 'object' &&
+        typeof normalized.r === 'boolean'
+      );
+
+      if (!fetchResponseWasUsable && typeof XMLHttpRequest === 'function') {
+        try {
+          data = await callClaimRpcViaXhr(
+            { p_platform_access_token:token },
+            LOGIN_CLAIM_REQUEST_TIMEOUT_MS
+          );
+          lastTransportError = null;
+        } catch (error) {
+          lastTransportError = error;
         }
-      } catch {}
+      }
+
+      const payload = compactClaimPayload(token,data);
+      if (payload) {
+        setStatus('Access confirmed. Preparing My Learning…');
+        return savePlatformPayload(payload);
+      }
+
       await new Promise(resolve => setTimeout(resolve,LOGIN_CLAIM_INTERVAL_MS));
     }
+
+    if (lastTransportError) throw lastTransportError;
     throw new Error('Student ID or PIN is incorrect, inactive, or not registered.');
   }
 
