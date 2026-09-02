@@ -216,7 +216,16 @@
     const id = document.getElementById('student-id');
     const pin = document.getElementById('student-pin');
     if (id) id.disabled = true;
-    if (pin) { pin.disabled = true; pin.value = ''; }
+    if (pin) {
+      /*
+        Do not clear the PIN here during the initial platform sign-in. The
+        existing V4.0 Maths session immediately reuses the in-memory form value
+        to issue its practice/exam tickets, then clears it in its own finally
+        block. Science-only access clears the PIN explicitly below. The PIN is
+        never copied to sessionStorage or any other persistent browser state.
+      */
+      pin.disabled = true;
+    }
 
     if (!mathsAllowed(session)) {
       activeStudentAccess = null;
