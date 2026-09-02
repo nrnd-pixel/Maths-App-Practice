@@ -77,7 +77,7 @@ window.addEventListener('load', () => {
     './v56a1-bulk-practice-confirmation-bridge.js',
     './v56b-teacher-assigned-past-paper-practice.js',
     './v56c-student-past-paper-progress.js',
-    './science-preview-launcher.js'
+    './science-subject-home.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;

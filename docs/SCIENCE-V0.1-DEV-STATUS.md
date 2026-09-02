@@ -14,7 +14,7 @@ Updated: 2026-09-02
 - Draft production PR: `#162`
 - Netlify preview family: `https://deploy-preview-162--magical-pixie-a61111.netlify.app`
 
-The Science branch was rebuilt on the then-current Maths `main` baseline and passed all eight Maths regression workflows after synchronization. Science remains unmerged and off the live student site.
+The Science branch was rebuilt on the current Maths `main` baseline. Science remains unmerged and off the live student site.
 
 ## Science Dev backend
 
@@ -149,6 +149,8 @@ Files:
 Current behavior:
 
 - mobile-first Science home
+- native signed-in subject home with Mathematics and Science choices
+- native `All subjects` switcher inside Science
 - automatically reuses the existing same-tab Learning Hub student session
 - exchanges Maths capability for a one-hour Science capability
 - automatically retries exchange when the Science capability expires
@@ -172,9 +174,8 @@ Still unchanged:
 
 ## Next gates
 
-1. Run full browser test: Maths preview Student ID + PIN → same-tab `/science/` → automatic Science access.
-2. Confirm Year 4 student sees only `What Plants Need` and the two student-ready resources.
+1. Run full browser test: Maths preview Student ID + PIN → subject home → Science → automatic Science access.
+2. Confirm the Year 6 development copy shows only `What Plants Need — Preview` and its two student-ready resources.
 3. Re-run Netlify / Maths regression checks for the latest Science commits.
 4. Add actual worksheet, infographic and experiment resources.
 5. Add Science completion/progress tracking.
-6. Design the future subject-neutral student home (`Mathematics` / `Science`) before production exposure.
