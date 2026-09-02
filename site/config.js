@@ -65,7 +65,8 @@ window.addEventListener('load', () => {
     './v40-platform-polish.js',
     './v40-release.js',
     './v40-start-shell.js',
-    './v54-stable-release-checkpoint.js'
+    './v54-stable-release-checkpoint.js',
+    './v55a-past-paper-practice.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
