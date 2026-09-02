@@ -78,7 +78,7 @@ assert.match(sql,/v_ticket\.class_id is null/i);
 
 // Every saved question must still be part of the student's current Practice-eligible past-paper bank.
 assert.match(sql,/q\.practice_eligible\s*=\s*true/i);
-assert.match(sql,/source_type,''\)\)\s*=\s*'past_paper'/i);
+assert.match(sql,/lower\(trim\(coalesce\(q\.source_type,''\)\)\)\s*=\s*'past_paper'/i);
 assert.match(sql,/q\.year_level\s*=\s*v_ticket\.year_level/i);
 assert.match(sql,/q\.exam_year\s*=\s*v_exam_year/i);
 assert.match(sql,/lower\(trim\(coalesce\(q\.paper,''\)\)\)\s*=\s*lower\(trim\(v_paper\)\)/i);
