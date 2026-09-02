@@ -70,7 +70,8 @@ window.addEventListener('load', () => {
     './v55a1-practice-type-guard.js',
     './v55b-full-paper-practice.js',
     './v55c-resume-past-paper-practice.js',
-    './v55c1-resume-button-bridge.js'
+    './v55c1-resume-button-bridge.js',
+    './v55d-past-paper-result-attribution.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
