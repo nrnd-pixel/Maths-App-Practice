@@ -54,7 +54,7 @@ assert.match(source,/teacherQuestions = filterRows\(original,filter\)/,
 assert.match(source,/finally[\s\S]*teacherQuestions = original/,
   'Full teacherQuestions dataset must be restored after each filtered render.');
 
-assert.doesNotMatch(source,/cloud\.from\(|cloud\.rpc\(|fetch\(|\.update\(|\.insert\(|\.delete\(/i,
+assert.doesNotMatch(source,/cloud\.from\(|cloud\.rpc\(|\bfetch\s*\(|\.update\s*\(|\.insert\s*\(|\.delete\s*\(/i,
   'V5.6A filter must not perform database/network writes.');
 assert.doesNotMatch(source,/practice_eligible\s*=|active\s*=|exam_paper_settings/i,
   'V5.6A filter must not mutate Practice eligibility, active status or Exam publication.');
