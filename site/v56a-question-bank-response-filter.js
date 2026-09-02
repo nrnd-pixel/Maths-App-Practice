@@ -20,8 +20,10 @@
 
   const FILTER_OPTIONS = Object.freeze([
     ['all','All response types'],
-    ['teacher_review','Requires teacher review — Drawing + Manual'],
-    ['drawing','Drawing'],
+    ['teacher_review_practice','Requires teacher review — non-topical only'],
+    ['drawing_practice','Drawing — non-topical only'],
+    ['teacher_review','Requires teacher review — all sources'],
+    ['drawing','Drawing — all sources'],
     ['manual','Manual / teacher response'],
     ['auto_graded','Auto-graded only'],
     ['text','Text / typed answer'],
@@ -37,10 +39,20 @@
     return norm(row?.response_type) || 'text';
   }
 
+  function sourceType(row){
+    return norm(row?.source_type);
+  }
+
+  function isTopical(row){
+    return sourceType(row) === 'topical_exercise';
+  }
+
   function matchesResponseType(row,filter='all'){
     const value = norm(filter) || 'all';
     const type = responseType(row);
     if (value === 'all') return true;
+    if (value === 'teacher_review_practice') return !isTopical(row) && (type === 'drawing' || type === 'manual');
+    if (value === 'drawing_practice') return !isTopical(row) && type === 'drawing';
     if (value === 'teacher_review') return type === 'drawing' || type === 'manual';
     if (value === 'auto_graded') return type !== 'drawing' && type !== 'manual';
     return type === value;
@@ -85,7 +97,7 @@
     root.style.margin = '0 0 12px';
     root.innerHTML = `
       <div class="header" style="align-items:end;gap:12px;flex-wrap:wrap">
-        <label style="min-width:min(100%,330px);margin:0">
+        <label style="min-width:min(100%,360px);margin:0">
           Response type
           <select id="${FILTER_ID}" aria-label="Filter Question Bank by response type">
             ${FILTER_OPTIONS.map(([value,label])=>`<option value="${value}">${label}</option>`).join('')}
@@ -93,7 +105,7 @@
         </label>
         <div style="flex:1;min-width:240px">
           <div id="${SUMMARY_ID}" class="help"></div>
-          <div class="help" style="margin-top:4px"><strong>Safe workflow:</strong> filter Drawing or Requires teacher review → Select all filtered → Remove selected from Practice. This leaves Exam availability unchanged.</div>
+          <div class="help" style="margin-top:4px"><strong>Safe Practice workflow:</strong> choose Drawing — non-topical only (or Requires teacher review — non-topical only) → Select all filtered → Remove selected from Practice. Topical Exercise rows are excluded because their Practice availability is managed as whole resource sets.</div>
         </div>
       </div>`;
     grid.insertAdjacentElement('afterend',root);
@@ -111,7 +123,9 @@
     if (!root) return null;
     const rows = currentQuestions();
     const filter = currentFilter();
-    const matching = filterRows(rows,filter).length;
+    const matchingRows = filterRows(rows,filter);
+    const matching = matchingRows.length;
+    const topicalMatches = matchingRows.filter(isTopical).length;
     const selected = selectedCount(rows);
     const select = document.getElementById(FILTER_ID);
     const summary = document.getElementById(SUMMARY_ID);
@@ -121,11 +135,15 @@
       select.title = selected > 0 ? LOCK_TITLE : '';
     }
     if (summary){
-      summary.textContent = filter === 'all'
-        ? `${rows.length} loaded questions · showing all response types${selected?` · ${selected} selected`:''}`
-        : `${matching} of ${rows.length} loaded questions match “${filterLabel(filter)}”${selected?` · ${selected} selected · filter locked until selection is cleared`:''}`;
+      const base = filter === 'all'
+        ? `${rows.length} loaded questions · showing all response types`
+        : `${matching} of ${rows.length} loaded questions match “${filterLabel(filter)}”`;
+      const topicalWarning = topicalMatches && (filter === 'drawing' || filter === 'teacher_review')
+        ? ` · ${topicalMatches} topical row${topicalMatches===1?' is':'s are'} included; use the non-topical option before bulk Practice changes`
+        : '';
+      summary.textContent = `${base}${topicalWarning}${selected?` · ${selected} selected · filter locked until selection is cleared`:''}`;
     }
-    return Object.freeze({filter,matching,total:rows.length,selected,locked:selected>0});
+    return Object.freeze({filter,matching,total:rows.length,topicalMatches,selected,locked:selected>0});
   }
 
   function scheduleSummary(){
@@ -200,6 +218,8 @@
   const api = Object.freeze({
     FILTER_OPTIONS,
     responseType,
+    sourceType,
+    isTopical,
     matchesResponseType,
     filterRows,
     filterLabel,
