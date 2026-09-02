@@ -60,6 +60,7 @@ window.addEventListener('load', () => {
     './v40-student-platform.js',
     './v40-student-nav.js',
     './v40-student-session.js',
+    './platform-student-session-v01.js',
     './v40-learn-setup.js',
     './v40-learning-priorities.js',
     './v40-platform-polish.js',
@@ -77,7 +78,9 @@ window.addEventListener('load', () => {
     './v56a1-bulk-practice-confirmation-bridge.js',
     './v56b-teacher-assigned-past-paper-practice.js',
     './v56c-student-past-paper-progress.js',
-    './science-subject-home.js'
+    './v56d-teacher-past-paper-analytics.js',
+    './platform-subject-access-v01.js',
+    './platform-subject-home-v01.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
