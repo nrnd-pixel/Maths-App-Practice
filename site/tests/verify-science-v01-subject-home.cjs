@@ -12,6 +12,7 @@ const mathsSession = read('v40-student-session.js');
 const subjectAccess = read('platform-subject-access-v01.js');
 const subjectHome = read('platform-subject-home-v01.js');
 const scienceAdapter = read('science', 'platform-session-adapter.js');
+const accessDeniedPolish = read('science', 'access-denied-polish-v01.js');
 const config = read('config.js');
 const scienceHtml = read('science', 'index.html');
 
@@ -21,7 +22,8 @@ for (const [name, source] of [
   ['v40-student-session.js', mathsSession],
   ['platform-subject-access-v01.js', subjectAccess],
   ['platform-subject-home-v01.js', subjectHome],
-  ['science/platform-session-adapter.js', scienceAdapter]
+  ['science/platform-session-adapter.js', scienceAdapter],
+  ['science/access-denied-polish-v01.js', accessDeniedPolish]
 ]) new vm.Script(source, { filename:name });
 
 for (const source of [studentSession, logoutGuard, subjectAccess, subjectHome]) {
@@ -83,6 +85,14 @@ for (const phrase of [
   'Subject access is controlled by your teacher.'
 ]) assert(subjectHome.includes(phrase), `Subject home is missing: ${phrase}`);
 
+for (const phrase of [
+  'Science is not available for your account',
+  'Your teacher has not enabled Science for you.',
+  '← Return to My Learning',
+  "platform?.subjects?.science?.allowed === true",
+  "window.location.assign('../')"
+]) assert(accessDeniedPolish.includes(phrase), `Science access-denied polish is missing: ${phrase}`);
+
 assert.doesNotMatch(subjectHome, /position\s*:\s*fixed/i,
   'The old floating Science launcher must not return.');
 assert.doesNotMatch(config, /science-subject-home\.js/,
@@ -91,8 +101,8 @@ assert.match(config, /\.\/v40-student-session\.js'[\s\S]*\.\/platform-student-se
   'Platform identity and atomic logout guard must layer after the existing V4.0 student session.');
 assert.match(config, /\.\/v56-stable-release-checkpoint\.js'[\s\S]*\.\/v561-practice-first-student-experience\.js'[\s\S]*\.\/platform-subject-access-v01\.js'[\s\S]*\.\/platform-subject-home-v01\.js'/,
   'Subject controls/home must layer after the complete V5.6.1 Maths release stack.');
-assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>/,
-  'Science must load the platform-session adapter before its app.');
+assert.match(scienceHtml, /<script src="\.\/platform-session-adapter\.js"><\/script>[\s\S]*<script src="\.\/app\.js"><\/script>[\s\S]*<script src="\.\/access-denied-polish-v01\.js"><\/script>/,
+  'Science must load the platform adapter, app and access-denied polish in order.');
 assert.match(scienceHtml, /class="subject-switcher" href="\/"[^>]*>← All subjects<\/a>/,
   'Science must provide a native same-tab route back to the subject home.');
 assert.match(scienceAdapter, /learningPlatformSessionV01/,
@@ -105,5 +115,6 @@ console.log('- duplicate PIN prompt regression guarded');
 console.log('- atomic logout race regression guarded');
 console.log('- class + individual teacher subject controls present');
 console.log('- student subject home renders only allowed subjects');
+console.log('- denied Science access has student-friendly messaging');
 console.log('- Science uses the platform-session adapter');
 console.log('- latest V5.6.1 Maths loader remains in front of preview platform modules');
