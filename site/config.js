@@ -72,7 +72,8 @@ window.addEventListener('load', () => {
     './v55c-resume-past-paper-practice.js',
     './v55c1-resume-button-bridge.js',
     './v55d-past-paper-result-attribution.js',
-    './v55-stable-release-checkpoint.js'
+    './v55-stable-release-checkpoint.js',
+    './v56a-question-bank-response-filter.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
