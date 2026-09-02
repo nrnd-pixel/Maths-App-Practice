@@ -79,6 +79,7 @@ window.addEventListener('load', () => {
     './v56b-teacher-assigned-past-paper-practice.js',
     './v56c-student-past-paper-progress.js',
     './v56d-teacher-past-paper-analytics.js',
+    './v56-stable-release-checkpoint.js',
     './platform-subject-access-v01.js',
     './platform-subject-home-v01.js'
   ].forEach(src => {
