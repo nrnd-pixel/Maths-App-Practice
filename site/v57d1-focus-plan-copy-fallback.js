@@ -1,7 +1,8 @@
 /* V5.7D.1 — Focus Plan Copy Fallback.
-   Hardens the V5.7D Teaching Focus Plan copy action for browsers/previews where
-   the async Clipboard API is unavailable or denied. Uses the same read-only
-   teacher analytics RPC and exposes a selectable in-app fallback when needed. */
+   Hardens the V5.7D Teaching Focus Plan action for browsers/previews where
+   clipboard APIs are unavailable or denied. The analytics action always opens
+   a selectable in-app plan first; copying is then attempted from an explicit
+   user gesture inside that view. Uses the same read-only teacher analytics RPC. */
 (() => {
   'use strict';
 
@@ -88,10 +89,10 @@
     root.id = OVERLAY_ID;
     root.className = 'hidden';
     root.innerHTML = `<div class="v57d1-card" role="dialog" aria-modal="true" aria-labelledby="v57d1-title">
-      <div class="v57d1-head"><div><h3 id="v57d1-title">📋 Teaching Focus Plan</h3><div class="help">Copy the plan below into your lesson notes, WhatsApp draft or planning document.</div></div><button type="button" class="outline" data-v57d1-close>Close</button></div>
+      <div class="v57d1-head"><div><h3 id="v57d1-title">📋 Teaching Focus Plan</h3><div class="help">Review the plan, then copy it into your lesson notes, WhatsApp draft or planning document.</div></div><button type="button" class="outline" data-v57d1-close>Close</button></div>
       <textarea id="${TEXTAREA_ID}" readonly aria-label="Teaching focus plan"></textarea>
       <div class="v57d1-actions"><button type="button" class="primary" data-v57d1-copy>Copy Plan</button><button type="button" class="outline" data-v57d1-select>Select All</button></div>
-      <div class="v57d1-note">If your browser blocks automatic clipboard access, the plan remains selected here so you can press Ctrl+C (or Copy on mobile).</div>
+      <div class="v57d1-note">If your browser blocks clipboard access, use Select All and press Ctrl+C, or use Copy on your phone/tablet. The full plan stays visible here.</div>
       <div class="feedback hidden" data-v57d1-feedback role="status" aria-live="polite"></div>
     </div>`;
     document.body.appendChild(root);
@@ -103,14 +104,17 @@
     return root;
   }
 
-  function showOverlay(text,message='Automatic clipboard access is blocked here. The plan is ready to copy manually.'){
+  function showOverlay(text,message='Teaching focus plan is ready. Review it, then use Copy Plan or Select All.'){
     const root = ensureOverlay();
     const area = root.querySelector(`#${TEXTAREA_ID}`);
     const feedback = root.querySelector('[data-v57d1-feedback]');
     if (area) area.value = String(text || '');
-    if (feedback){ feedback.textContent = message; feedback.className = 'feedback try'; }
+    if (feedback){ feedback.textContent = message; feedback.className = 'feedback correct'; }
     root.classList.remove('hidden');
-    window.setTimeout(selectPlan,0);
+    window.setTimeout(()=>{
+      const close = root.querySelector('[data-v57d1-close]');
+      close?.focus?.({preventScroll:true});
+    },0);
   }
 
   function closeOverlay(){
@@ -131,10 +135,14 @@
     const feedback = document.querySelector(`#${OVERLAY_ID} [data-v57d1-feedback]`);
     const text = area?.value || '';
     if (!text) return false;
+
+    // This button click is a fresh user gesture. Try the synchronous legacy
+    // path first, then the modern API. If both are blocked, leave the plan
+    // selected so manual copy remains deterministic.
     const syncOk = legacyCopy(text);
     const ok = syncOk || await clipboardCopy(text);
     if (feedback){
-      feedback.textContent = ok ? 'Teaching focus plan copied.' : 'Clipboard access is still blocked. The full plan is selected — press Ctrl+C or use Copy on your device.';
+      feedback.textContent = ok ? 'Teaching focus plan copied.' : 'Clipboard access is blocked here. The full plan is selected — press Ctrl+C or use Copy on your device.';
       feedback.className = `feedback ${ok?'correct':'try'}`;
     }
     if (!ok) selectPlan();
@@ -157,13 +165,26 @@
     return api.focusPlanText(data || {});
   }
 
+  function enableFocusButtons(root=document){
+    if (typeof document === 'undefined' || !root?.querySelectorAll) return 0;
+    let changed = 0;
+    root.querySelectorAll('[data-v57d-copy]').forEach(button=>{
+      if (button.disabled || button.hasAttribute('disabled')) changed += 1;
+      button.disabled = false;
+      button.removeAttribute('disabled');
+      button.setAttribute('aria-disabled','false');
+      button.title = 'Open the teaching focus plan';
+    });
+    return changed;
+  }
+
   async function handleCopyClick(event){
     const button = event.target?.closest?.('[data-v57d-copy]');
     if (!button) return;
 
-    // Capture at window level so the original delegated V5.7D handler does not
-    // consume the click first. This keeps the user gesture available for the
-    // synchronous clipboard fallback used by embedded deploy previews.
+    // Capture at window level so the original V5.7D delegated handler is not
+    // invoked. V5.7D.1 always opens an in-app plan; clipboard permission is
+    // only requested later from the explicit Copy Plan button.
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation?.();
@@ -174,34 +195,17 @@
     try {
       const text = await loadPlan();
       if (!text){
-        setFeedback('There is not enough Past Paper evidence to copy yet.','warn');
+        setFeedback('There is not enough Past Paper evidence to prepare a focus plan yet.','warn');
         return;
       }
-
-      // The async analytics read can consume transient clipboard activation in
-      // some embedded browsers. Try the legacy copy first; if neither method is
-      // permitted, always expose the complete plan in an in-app selectable view.
-      const syncOk = legacyCopy(text);
-      const ok = syncOk || await clipboardCopy(text);
-      if (ok){
-        setFeedback('Teaching focus plan copied to the clipboard.','ok');
-      } else {
-        setFeedback('Clipboard access is blocked in this browser. The plan has been opened for manual copy.','warn');
-        showOverlay(text);
-      }
+      showOverlay(text);
+      setFeedback('Teaching focus plan opened. Use Copy Plan or Select All.','ok');
     } catch(error){
-      console.warn('V5.7D.1 focus plan copy failed.',error);
-      setFeedback('Automatic copy failed. The plan has been opened so you can copy it manually.','warn');
-      try {
-        const selected = selectionFromUi();
-        if (selected){
-          const {data} = await cloud.rpc(RPC_NAME,{p_class_id:selected.classId,p_exam_year:selected.examYear,p_paper:selected.paper});
-          const text = ROOT.V57DPastPaperAnalyticsActions?.focusPlanText?.(data || {}) || '';
-          if (text) showOverlay(text,'Automatic copy failed. Select the plan and copy it manually.');
-        }
-      } catch {}
+      console.warn('V5.7D.1 focus plan preparation failed.',error);
+      setFeedback('Could not prepare the focus plan. Refresh Past Paper Analytics and try again.','warn');
     } finally {
       button.disabled = false;
+      button.removeAttribute('disabled');
       button.textContent = original;
     }
   }
@@ -209,13 +213,34 @@
   function install(){
     if (typeof window === 'undefined' || typeof document === 'undefined') return false;
     injectStyles();
+    enableFocusButtons(document);
+
     // Window capture runs before V5.7D's document-capture delegated click handler.
     window.addEventListener('click',handleCopyClick,true);
     document.addEventListener('keydown',event=>{ if (event.key === 'Escape') closeOverlay(); });
+
+    // V5.7D rebuilds the action panel whenever the class/paper changes. Re-enable
+    // the focus-plan action after each render, including papers with no attempted
+    // question/topic evidence yet; the class summary/cohort plan is still useful.
+    if (typeof MutationObserver !== 'undefined'){
+      new MutationObserver(mutations=>{
+        for (const mutation of mutations){
+          for (const node of mutation.addedNodes || []){
+            if (node?.nodeType === 1){
+              if (node.matches?.('[data-v57d-copy]')) enableFocusButtons(node.parentElement || document);
+              else if (node.querySelector?.('[data-v57d-copy]')) enableFocusButtons(node);
+            }
+          }
+        }
+        enableFocusButtons(document);
+      }).observe(document.body,{childList:true,subtree:true});
+    }
+
+    [0,120,350,800].forEach(delay=>window.setTimeout(()=>enableFocusButtons(document),delay));
     return true;
   }
 
-  const api = Object.freeze({RPC_NAME,selectionFromUi,legacyCopy,clipboardCopy});
+  const api = Object.freeze({RPC_NAME,selectionFromUi,legacyCopy,clipboardCopy,enableFocusButtons});
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined'){
     Object.defineProperty(window,'V57D1FocusPlanCopyFallback',{value:api,writable:false,configurable:false});
