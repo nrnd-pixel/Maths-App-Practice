@@ -1,0 +1,35 @@
+name: V5.7D Past Paper Analytics Actions
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v57d-past-paper-analytics-actions
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.7D Past Paper Analytics Actions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.6D Past Paper Analytics regression
+        run: node site/tests/verify-v5.6d-teacher-past-paper-analytics.cjs
+      - name: Run V5.7B teacher assignment-management regression
+        run: node site/tests/verify-v5.7b-teacher-assignment-management.cjs
+      - name: Run V5.7C Continue Learning Home regression
+        run: node site/tests/verify-v5.7c-student-continue-learning-home.cjs
+      - name: Run V5.7D analytics actions regression
+        run: node site/tests/verify-v5.7d-past-paper-analytics-actions.cjs
+      - name: Run V5 regression safety
+        run: node site/tests/verify-v5-regressions.cjs
