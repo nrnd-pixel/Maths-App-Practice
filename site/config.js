@@ -62,7 +62,9 @@ document.title = 'Math Practice V5.1';
    V5.7A-D sequence as the V5.7 stable release identity and audit checkpoint; the
    checkpoint itself makes no network or data writes. V5.7.1A adds a read-only
    student XP + level card on top of the accepted Continue Learning Home, derived
-   from verified saved Practice activity and excluding Exam activity. Legacy
+   from verified saved Practice activity and excluding Exam activity. V5.7.1B adds
+   a gentle Practice streak and achievement badges derived from the same saved,
+   non-Exam learning evidence; no streak/badge write path is introduced. Legacy
    release-label-only scripts remain archived in the repository; current staged
    loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -105,7 +107,8 @@ window.addEventListener('load', () => {
     './v57d-past-paper-analytics-actions.js',
     './v57d1-focus-plan-copy-fallback.js',
     './v57-stable-release-checkpoint.js',
-    './v571a-gamification-foundation.js'
+    './v571a-gamification-foundation.js',
+    './v571b-streaks-achievements.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
