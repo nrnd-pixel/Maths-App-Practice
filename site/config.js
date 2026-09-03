@@ -58,9 +58,9 @@ document.title = 'Math Practice V5.1';
    prepare targeted cohorts in the existing assignment form, open assignment
    management, or copy a teaching focus plan. V5.7D.1 hardens focus-plan copying
    with synchronous and selectable in-app fallbacks for restricted clipboard contexts.
-   These analytics actions perform no automatic assignment writes. Legacy
-   release-label-only scripts remain archived in the repository; current staged
-   loading remains coordinated by v40-release.js. */
+   V5.7D performs no automatic assignment writes. Legacy release-label-only scripts
+   remain archived in the repository; current staged loading remains coordinated by
+   v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
