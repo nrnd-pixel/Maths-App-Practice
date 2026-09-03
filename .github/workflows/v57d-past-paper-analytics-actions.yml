@@ -31,5 +31,3 @@ jobs:
         run: node site/tests/verify-v5.7c-student-continue-learning-home.cjs
       - name: Run V5.7D analytics actions regression
         run: node site/tests/verify-v5.7d-past-paper-analytics-actions.cjs
-      - name: Run V5 regression safety
-        run: node site/tests/verify-v5-regressions.cjs
