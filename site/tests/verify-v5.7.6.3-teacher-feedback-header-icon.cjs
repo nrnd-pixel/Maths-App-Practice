@@ -1,0 +1,58 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+
+const site=path.join(__dirname,'..');
+const read=name=>fs.readFileSync(path.join(site,name),'utf8');
+
+const config=read('config.js');
+const feedbackSource=read('v576-classroom-feedback-support.js');
+const teacherIconSource=read('v5763-teacher-feedback-header-icon.js');
+
+new vm.Script(teacherIconSource,{filename:'v5763-teacher-feedback-header-icon.js'});
+
+// V5.7.6.3 remains a presentation-only layer after the accepted feedback workflow.
+assert.match(config,/\.\/v576-classroom-feedback-support\.js'[\s\S]*\.\/v5761-feedback-trigger-position\.js'[\s\S]*\.\/v5763-teacher-feedback-header-icon\.js'/);
+assert.match(teacherIconSource,/__v5763TeacherFeedbackHeaderIconInstalled/);
+assert.match(teacherIconSource,/const SOURCE_ID='v576-feedback-inbox'/);
+assert.match(teacherIconSource,/const ICON_ID='v5763-teacher-feedback-icon'/);
+assert.match(teacherIconSource,/const TOOLBAR_SELECTOR='#teacher > \.header > \.toolbar'/);
+assert.match(teacherIconSource,/const PRIMARY_GROUP_ID='v5763-teacher-primary-actions'/);
+assert.match(teacherIconSource,/const ACCOUNT_GROUP_ID='v5763-teacher-account-actions'/);
+
+// Desktop: Feedback is a normal teacher utility action, with account controls intentionally grouped.
+assert.match(teacherIconSource,/grid-template-columns:minmax\(230px,\.8fr\) minmax\(0,1\.4fr\)/);
+assert.match(teacherIconSource,/v5763-teacher-toolbar/);
+assert.match(teacherIconSource,/moveInto\(document\.getElementById\('teacher-mode'\),primary\)/);
+assert.match(teacherIconSource,/moveInto\(document\.getElementById\('refresh-btn'\),primary\)/);
+assert.match(teacherIconSource,/moveInto\(toolbar\.querySelector\('\.back-home'\),primary\)/);
+assert.match(teacherIconSource,/moveInto\(document\.getElementById\('change-password-btn'\),account\)/);
+assert.match(teacherIconSource,/moveInto\(document\.getElementById\('signout-btn'\),account\)/);
+assert.match(teacherIconSource,/v5763-feedback-label">Feedback</);
+assert.match(teacherIconSource,/home\.insertAdjacentElement\('beforebegin',icon\)/);
+
+// Mobile: preserve an easy touch target while collapsing the text label to the chat symbol.
+assert.match(teacherIconSource,/@media\(max-width:520px\)/);
+assert.match(teacherIconSource,/width:42px;height:42px;min-width:42px;min-height:42px/);
+assert.match(teacherIconSource,/\.v5763-feedback-label\{display:none\}/);
+assert.match(teacherIconSource,/aria-label','Feedback Inbox'/);
+assert.match(teacherIconSource,/title','Feedback Inbox'/);
+
+// The toolbar action proxies the accepted V5.7.6 Inbox instead of duplicating its workflow.
+assert.match(feedbackSource,/const TEACHER_TRIGGER_ID='v576-feedback-inbox'/);
+assert.match(feedbackSource,/button\.textContent='💬 Feedback Inbox'/);
+assert.match(teacherIconSource,/v5763-feedback-source\{display:none!important\}/);
+assert.match(teacherIconSource,/currentSource\.click\(\)/);
+assert.match(teacherIconSource,/openTeacherFeedback/);
+assert.doesNotMatch(teacherIconSource,/appendChild\(source\)|insertAdjacentElement\([^\n]*source/,'V5.7.6.3 must not reparent the original Feedback Inbox trigger.');
+
+// Toolbar polish must remain presentation-only.
+assert.doesNotMatch(teacherIconSource,/cloud\.rpc\(|cloud\.from\(|supabase|fetch\(/i,'Teacher toolbar polish must not make network/data calls.');
+assert.doesNotMatch(teacherIconSource,/grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt/,'Teacher toolbar polish must not touch learning or Exam authority.');
+
+console.log('V5.7.6.3 Teacher Feedback Toolbar checks passed.');
+console.log('- desktop Feedback is grouped with Refresh and Home as a normal utility action');
+console.log('- Change Password and Sign Out stay together as account actions');
+console.log('- mobile Feedback collapses to an accessible 42px chat button');
+console.log('- original V5.7.6 inbox remains the workflow owner with no new network/data calls');
