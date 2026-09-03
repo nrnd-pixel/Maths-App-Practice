@@ -123,6 +123,12 @@
     document.querySelector('#start .v40c-learn-setup')?.scrollIntoView?.({behavior:'smooth',block:'start'});
   }
 
+  function restoreStartButton(button,original){
+    if(!button || !document.contains(button)) return;
+    button.disabled=false;
+    button.textContent=original || 'Start My First 5 Questions';
+  }
+
   function startFirstPractice(button){
     if(!signedIn()) return;
     const original=button?.textContent || '';
@@ -132,10 +138,13 @@
       const start=document.getElementById('start-btn');
       if(!configured || !start) throw new Error('Practice setup is not ready yet.');
       start.click();
+      window.setTimeout(()=>{
+        if(document.getElementById('start')?.classList.contains('active')) restoreStartButton(button,original);
+      },1400);
     } catch(error){
       console.warn('V5.8A first Practice could not start directly.',error);
       openLearnFallback();
-      if(button && document.contains(button)){ button.disabled=false; button.textContent=original; }
+      restoreStartButton(button,original);
     }
   }
 
