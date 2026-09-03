@@ -1,0 +1,43 @@
+name: V5.7 Stable Release Checkpoint
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v57e-stable-checkpoint
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.7 Stable Release Checkpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.5 stable checkpoint regression
+        run: node site/tests/verify-v5.5-stable-release-checkpoint.cjs
+      - name: Run V5.6 stable checkpoint regression
+        run: node site/tests/verify-v5.6-stable-release-checkpoint.cjs
+      - name: Run V5.6.1 Practice-first regression
+        run: node site/tests/verify-v5.6.1-practice-first-student-experience.cjs
+      - name: Run V5.7A cross-device resume regression
+        run: node site/tests/verify-v5.7a-cross-device-past-paper-resume.cjs
+      - name: Run V5.7B assignment-management regression
+        run: node site/tests/verify-v5.7b-teacher-assignment-management.cjs
+      - name: Run V5.7C Continue Learning Home regression
+        run: node site/tests/verify-v5.7c-student-continue-learning-home.cjs
+      - name: Run V5.7D analytics actions regression
+        run: node site/tests/verify-v5.7d-past-paper-analytics-actions.cjs
+      - name: Run V5.7D.1 focus-plan fallback regression
+        run: node site/tests/verify-v5.7d1-focus-plan-copy-fallback.cjs
+      - name: Run V5.7 stable checkpoint regression
+        run: node site/tests/verify-v5.7-stable-release-checkpoint.cjs
