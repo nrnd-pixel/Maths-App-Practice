@@ -64,7 +64,9 @@ document.title = 'Math Practice V5.1';
    student XP + level card on top of the accepted Continue Learning Home, derived
    from verified saved Practice activity and excluding Exam activity. V5.7.1B adds
    a gentle Practice streak and achievement badges derived from the same saved,
-   non-Exam learning evidence; no streak/badge write path is introduced. Legacy
+   non-Exam learning evidence; no streak/badge write path is introduced. V5.7.2 adds
+   three weekly Practice missions that reset each Monday in Brunei time and are
+   derived from saved non-Exam activity without a mission write path. Legacy
    release-label-only scripts remain archived in the repository; current staged
    loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -108,7 +110,8 @@ window.addEventListener('load', () => {
     './v57d1-focus-plan-copy-fallback.js',
     './v57-stable-release-checkpoint.js',
     './v571a-gamification-foundation.js',
-    './v571b-streaks-achievements.js'
+    './v571b-streaks-achievements.js',
+    './v572-weekly-missions.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
