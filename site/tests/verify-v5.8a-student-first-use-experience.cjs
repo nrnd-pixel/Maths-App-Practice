@@ -52,8 +52,10 @@ const loaderToken="'./v58a-student-first-use-experience.js'";
 assert(config.includes(loaderToken),'config.js must load V5.8A');
 assert(config.indexOf(loaderToken)>config.indexOf("'./v5763-teacher-feedback-header-icon.js'"),'V5.8A must load after the accepted V5.7.6.3 layer');
 
-assert(/'id',\s*'first_practice'/i.test(achievementSql),'achievement SQL must retain First Practice badge');
-assert(/completed_practice_sessions/i.test(achievementSql),'First Practice evidence must remain derived from completed Practice');
-assert(/practice_mode[^\n]*exam|exam[^\n]*practice_mode/i.test(achievementSql),'achievement source must retain the non-Exam boundary');
+assert(achievementSql.includes("select 'first_practice'::text as id"),'achievement SQL must retain First Practice badge');
+assert(achievementSql.includes('(select min(completed_at) from completed_sessions) as first_practice_at'),'First Practice must remain tied to the first completed Practice session');
+assert(achievementSql.includes("ps.practice_mode <> 'exam'"),'achievement evidence must retain the non-Exam boundary');
+assert(achievementSql.includes('where not sr.ended_early'),'ended-early Practice must not earn First Practice');
+assert(achievementSql.includes('and sr.total > 0'),'empty Practice sessions must not earn First Practice');
 
 console.log('V5.8A Student First-Use Experience regression: PASS');
