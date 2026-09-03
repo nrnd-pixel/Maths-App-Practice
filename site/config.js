@@ -80,9 +80,13 @@ document.title = 'Math Practice V5.1';
    or grading data. V5.7.6.1 keeps that workflow unchanged while moving the student
    feedback trigger to a compact top-right Home icon. V5.7.6.3 mirrors that compact
    presentation for teachers by placing a proxy Feedback Inbox icon beside the
-   Teacher Dashboard title without adding network calls. Legacy release-label-only
-   scripts remain archived in the repository; current staged loading remains
-   coordinated by v40-release.js. */
+   Teacher Dashboard title without adding network calls. V5.8A adds a lightweight
+   first-use Home card for students who have not yet earned the existing First
+   Practice achievement. It prepares the established Mixed Practice controls for
+   five questions and forwards to the existing Start Practice flow; assignments,
+   saved Past Paper checkpoints, grading, XP and achievement ownership are unchanged.
+   Legacy release-label-only scripts remain archived in the repository; current
+   staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -131,7 +135,8 @@ window.addEventListener('load', () => {
     './v575-gamification-stable-checkpoint.js',
     './v576-classroom-feedback-support.js',
     './v5761-feedback-trigger-position.js',
-    './v5763-teacher-feedback-header-icon.js'
+    './v5763-teacher-feedback-header-icon.js',
+    './v58a-student-first-use-experience.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
