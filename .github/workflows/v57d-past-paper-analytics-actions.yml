@@ -31,3 +31,5 @@ jobs:
         run: node site/tests/verify-v5.7c-student-continue-learning-home.cjs
       - name: Run V5.7D analytics actions regression
         run: node site/tests/verify-v5.7d-past-paper-analytics-actions.cjs
+      - name: Run V5.7D.1 focus-plan copy fallback regression
+        run: node site/tests/verify-v5.7d1-focus-plan-copy-fallback.cjs
