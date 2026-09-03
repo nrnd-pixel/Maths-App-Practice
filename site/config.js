@@ -60,9 +60,11 @@ document.title = 'Math Practice V5.1';
    with synchronous and selectable in-app fallbacks for restricted clipboard contexts.
    V5.7D performs no automatic assignment writes. V5.7E consolidates the accepted
    V5.7A-D sequence as the V5.7 stable release identity and audit checkpoint; the
-   checkpoint itself makes no network or data writes. Legacy release-label-only
-   scripts remain archived in the repository; current staged loading remains
-   coordinated by v40-release.js. */
+   checkpoint itself makes no network or data writes. V5.7.1A adds a read-only
+   student XP + level card on top of the accepted Continue Learning Home, derived
+   from verified saved Practice activity and excluding Exam activity. Legacy
+   release-label-only scripts remain archived in the repository; current staged
+   loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -102,7 +104,8 @@ window.addEventListener('load', () => {
     './v57c-student-continue-learning-home.js',
     './v57d-past-paper-analytics-actions.js',
     './v57d1-focus-plan-copy-fallback.js',
-    './v57-stable-release-checkpoint.js'
+    './v57-stable-release-checkpoint.js',
+    './v571a-gamification-foundation.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
