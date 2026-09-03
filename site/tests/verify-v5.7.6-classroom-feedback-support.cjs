@@ -11,6 +11,7 @@ const config=read('config.js');
 const moduleSource=read('v576-classroom-feedback-support.js');
 const positionSource=read('v5761-feedback-trigger-position.js');
 const sql=fs.readFileSync(path.join(repo,'supabase','v576_classroom_feedback_support.sql'),'utf8');
+const pinFix=fs.readFileSync(path.join(repo,'supabase','v5762_student_pin_reset_lockout_fix.sql'),'utf8');
 const stable=read('v575-gamification-stable-checkpoint.js');
 
 new vm.Script(moduleSource,{filename:'v576-classroom-feedback-support.js'});
@@ -70,6 +71,15 @@ assert.match(sql,/revoke all on function public\.update_teacher_feedback_v576\(u
 assert.match(sql,/grant execute on function public\.get_teacher_feedback_v576\(uuid,text\) to authenticated,service_role/);
 assert.match(sql,/grant execute on function public\.update_teacher_feedback_v576\(uuid,text,text\) to authenticated,service_role/);
 
+// V5.7.6.2 keeps PIN reset teacher-only and clears stale login failures for that Student ID.
+assert.match(pinFix,/create or replace function public\.set_student_pin\(p_student_uuid uuid, p_pin text\)/);
+assert.match(pinFix,/if not public\.is_teacher\(\) then/);
+assert.match(pinFix,/delete from public\.student_access_failures/);
+assert.match(pinFix,/identifier_hash=extensions\.digest\(lower\(trim\(v_student\.student_id\)\),'sha256'\)/);
+assert.match(pinFix,/cleared_failed_attempts/);
+assert.match(pinFix,/revoke all on function public\.set_student_pin\(uuid,text\) from public,anon/);
+assert.match(pinFix,/grant execute on function public\.set_student_pin\(uuid,text\) to authenticated,service_role/);
+
 // Input and workflow limits remain bounded.
 assert.match(sql,/feedback_type in \('problem','suggestion','question'\)/);
 assert.match(sql,/between 5 and 1500/);
@@ -87,5 +97,6 @@ for(const forbidden of [
 console.log('V5.7.6 Classroom Feedback + Support checks passed.');
 console.log('- student feedback is token-gated and contains safe diagnostic context only');
 console.log('- feedback trigger is a compact accessible top-right Home icon');
+console.log('- PIN reset now clears temporary failed-login lockout for that Student ID');
 console.log('- teacher inbox is authenticated with acknowledge/resolve workflow');
 console.log('- V5.7.5 release identity and learning/Exam boundaries remain unchanged');
