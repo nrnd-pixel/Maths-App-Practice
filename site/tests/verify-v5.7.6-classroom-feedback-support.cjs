@@ -9,10 +9,12 @@ const read=name=>fs.readFileSync(path.join(site,name),'utf8');
 
 const config=read('config.js');
 const moduleSource=read('v576-classroom-feedback-support.js');
+const positionSource=read('v5761-feedback-trigger-position.js');
 const sql=fs.readFileSync(path.join(repo,'supabase','v576_classroom_feedback_support.sql'),'utf8');
 const stable=read('v575-gamification-stable-checkpoint.js');
 
 new vm.Script(moduleSource,{filename:'v576-classroom-feedback-support.js'});
+new vm.Script(positionSource,{filename:'v5761-feedback-trigger-position.js'});
 
 assert.match(moduleSource,/__v576ClassroomFeedbackSupportInstalled/);
 assert.match(moduleSource,/submit_student_feedback_v576/);
@@ -28,9 +30,19 @@ assert.match(moduleSource,/Resolved/);
 assert.match(moduleSource,/If a problem is visual, showing your teacher a screenshot can also help/);
 
 // V5.7.6 is a feature layer after the accepted V5.7.5 stable checkpoint.
-assert.match(config,/\.\/v575-gamification-stable-checkpoint\.js'[\s\S]*\.\/v576-classroom-feedback-support\.js'/);
+assert.match(config,/\.\/v575-gamification-stable-checkpoint\.js'[\s\S]*\.\/v576-classroom-feedback-support\.js'[\s\S]*\.\/v5761-feedback-trigger-position\.js'/);
 assert.match(stable,/Math Practice V5\.7\.5/);
 assert.doesNotMatch(moduleSource,/document\.title\s*=/,'V5.7.6 must not replace the accepted V5.7.5 release identity.');
+
+// V5.7.6.1 moves only the student trigger: compact icon, top-right Home hero, accessible label.
+assert.match(positionSource,/__v5761FeedbackTriggerPositionInstalled/);
+assert.match(positionSource,/#start \.v40-learning-hub-hero/);
+assert.match(positionSource,/button\.textContent='💬'/);
+assert.match(positionSource,/aria-label','Send feedback'/);
+assert.match(positionSource,/title','Send feedback'/);
+assert.match(positionSource,/position:absolute;top:10px;right:10px/);
+assert.match(positionSource,/border-radius:50%/);
+assert.doesNotMatch(positionSource,/cloud\.rpc\(|cloud\.from\(|fetch\(/,'Trigger-position polish must not make network/data calls.');
 
 // Student feedback uses an existing temporary Practice ticket and sends only safe context.
 assert.match(moduleSource,/passivePracticeAccess/);
@@ -74,5 +86,6 @@ for(const forbidden of [
 
 console.log('V5.7.6 Classroom Feedback + Support checks passed.');
 console.log('- student feedback is token-gated and contains safe diagnostic context only');
+console.log('- feedback trigger is a compact accessible top-right Home icon');
 console.log('- teacher inbox is authenticated with acknowledge/resolve workflow');
 console.log('- V5.7.5 release identity and learning/Exam boundaries remain unchanged');
