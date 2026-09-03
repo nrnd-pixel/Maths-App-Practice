@@ -66,9 +66,12 @@ document.title = 'Math Practice V5.1';
    a gentle Practice streak and achievement badges derived from the same saved,
    non-Exam learning evidence; no streak/badge write path is introduced. V5.7.2 adds
    three weekly Practice missions that reset each Monday in Brunei time and are
-   derived from saved non-Exam activity without a mission write path. Legacy
-   release-label-only scripts remain archived in the repository; current staged
-   loading remains coordinated by v40-release.js. */
+   derived from saved non-Exam activity without a mission write path. V5.7.3 adds
+   a cooperative class question challenge plus an alphabetical teacher motivation
+   view for XP, streaks and weekly missions. It deliberately adds no leaderboard,
+   class-v-class competition or gamification write path. Legacy release-label-only
+   scripts remain archived in the repository; current staged loading remains
+   coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -111,7 +114,8 @@ window.addEventListener('load', () => {
     './v57-stable-release-checkpoint.js',
     './v571a-gamification-foundation.js',
     './v571b-streaks-achievements.js',
-    './v572-weekly-missions.js'
+    './v572-weekly-missions.js',
+    './v573-class-challenges-teacher-gamification.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
