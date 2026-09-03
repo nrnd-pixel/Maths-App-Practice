@@ -1,0 +1,37 @@
+name: V5.7.4 Gamification Polish and Teacher Controls
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v574-gamification-polish-teacher-controls
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.7.4 Gamification Polish and Teacher Controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.7 stable checkpoint regression
+        run: node site/tests/verify-v5.7-stable-release-checkpoint.cjs
+      - name: Run V5.7.1A gamification regression
+        run: node site/tests/verify-v5.7.1a-gamification-foundation.cjs
+      - name: Run V5.7.1B streaks and achievements regression
+        run: node site/tests/verify-v5.7.1b-streaks-achievements.cjs
+      - name: Run V5.7.2 weekly missions regression
+        run: node site/tests/verify-v5.7.2-weekly-missions.cjs
+      - name: Run V5.7.3 class challenge regression
+        run: node site/tests/verify-v5.7.3-class-challenges-teacher-gamification.cjs
+      - name: Run V5.7.4 gamification polish regression
+        run: node site/tests/verify-v5.7.4-gamification-polish-teacher-controls.cjs

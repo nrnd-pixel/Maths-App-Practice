@@ -69,7 +69,10 @@ document.title = 'Math Practice V5.1';
    derived from saved non-Exam activity without a mission write path. V5.7.3 adds
    a cooperative class question challenge plus an alphabetical teacher motivation
    view for XP, streaks and weekly missions. It deliberately adds no leaderboard,
-   class-v-class competition or gamification write path. Legacy release-label-only
+   class-v-class competition or gamification write path. V5.7.4 polishes the class
+   challenge and adds teacher-only controls to enable/pause it and choose a target
+   of 5, 10, 15 or 20 questions per active student. Student reads remain aggregate,
+   Exam activity is excluded and XP rules are unchanged. Legacy release-label-only
    scripts remain archived in the repository; current staged loading remains
    coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -115,7 +118,8 @@ window.addEventListener('load', () => {
     './v571a-gamification-foundation.js',
     './v571b-streaks-achievements.js',
     './v572-weekly-missions.js',
-    './v573-class-challenges-teacher-gamification.js'
+    './v573-class-challenges-teacher-gamification.js',
+    './v574-gamification-polish-teacher-controls.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
