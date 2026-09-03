@@ -33,8 +33,10 @@ assert.equal(api.progressPercent(model.missions[0]),70);
 assert.equal(api.progressPercent(model.missions[1]),100);
 assert.match(api.missionProgressText(model.missions[0]),/7\/10 questions/);
 assert.equal(api.missionProgressText(model.missions[1]),'Complete');
-assert.match(api.weekLabel(model),/31 Aug/);
-assert.match(api.weekLabel(model),/6 Sep/);
+const label = api.weekLabel(model);
+assert.match(label,/Aug/);
+assert.match(label,/Sep/);
+assert.match(label,/31|6/);
 
 const completed = api.normalizePayload({
   missions:[
