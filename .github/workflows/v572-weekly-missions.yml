@@ -1,0 +1,33 @@
+name: V5.7.2 Weekly Missions
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v572-weekly-missions
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.7.2 Weekly Missions
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.7 stable checkpoint regression
+        run: node site/tests/verify-v5.7-stable-release-checkpoint.cjs
+      - name: Run V5.7.1A gamification regression
+        run: node site/tests/verify-v5.7.1a-gamification-foundation.cjs
+      - name: Run V5.7.1B streaks and achievements regression
+        run: node site/tests/verify-v5.7.1b-streaks-achievements.cjs
+      - name: Run V5.7.2 weekly missions regression
+        run: node site/tests/verify-v5.7.2-weekly-missions.cjs
