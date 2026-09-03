@@ -35,14 +35,20 @@ assert.match(config,/\.\/v575-gamification-stable-checkpoint\.js'[\s\S]*\.\/v576
 assert.match(stable,/Math Practice V5\.7\.5/);
 assert.doesNotMatch(moduleSource,/document\.title\s*=/,'V5.7.6 must not replace the accepted V5.7.5 release identity.');
 
-// V5.7.6.1 moves only the student trigger: compact icon, top-right Home hero, accessible label.
+// V5.7.6.1 presents a compact top-right proxy icon while leaving the original
+// feedback trigger in its V5.7C host. This prevents two MutationObservers from
+// continuously reparenting the same button and making Home extremely laggy.
 assert.match(positionSource,/__v5761FeedbackTriggerPositionInstalled/);
 assert.match(positionSource,/#start \.v40-learning-hub-hero/);
-assert.match(positionSource,/button\.textContent='💬'/);
+assert.match(positionSource,/const SOURCE_ID='v576-send-feedback'/);
+assert.match(positionSource,/const ICON_ID='v5761-feedback-icon'/);
+assert.match(positionSource,/icon\.textContent='💬'/);
 assert.match(positionSource,/aria-label','Send feedback'/);
 assert.match(positionSource,/title','Send feedback'/);
 assert.match(positionSource,/position:absolute;top:10px;right:10px/);
 assert.match(positionSource,/border-radius:50%/);
+assert.match(positionSource,/currentSource\.click\(\)/);
+assert.doesNotMatch(positionSource,/hero\.appendChild\(source\)|hero\.appendChild\(button\)/,'Polish must not reparent the original V5.7.6 trigger.');
 assert.doesNotMatch(positionSource,/cloud\.rpc\(|cloud\.from\(|fetch\(/,'Trigger-position polish must not make network/data calls.');
 
 // Student feedback uses an existing temporary Practice ticket and sends only safe context.
@@ -96,7 +102,7 @@ for(const forbidden of [
 
 console.log('V5.7.6 Classroom Feedback + Support checks passed.');
 console.log('- student feedback is token-gated and contains safe diagnostic context only');
-console.log('- feedback trigger is a compact accessible top-right Home icon');
+console.log('- compact feedback icon no longer reparents the original trigger');
 console.log('- PIN reset now clears temporary failed-login lockout for that Student ID');
 console.log('- teacher inbox is authenticated with acknowledge/resolve workflow');
 console.log('- V5.7.5 release identity and learning/Exam boundaries remain unchanged');
