@@ -1,0 +1,30 @@
+name: V5.8A Student First-Use Experience
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - development/v58a-student-first-use-experience
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Practice-first regression
+        run: node site/tests/verify-v5.6.1-practice-first-student-experience.cjs
+      - name: Continue Learning Home regression
+        run: node site/tests/verify-v5.7c-student-continue-learning-home.cjs
+      - name: Streaks and achievements regression
+        run: node site/tests/verify-v5.7.1b-streaks-achievements.cjs
+      - name: V5.8A first-use regression
+        run: node site/tests/verify-v5.8a-student-first-use-experience.cjs
