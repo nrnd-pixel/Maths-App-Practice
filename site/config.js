@@ -72,9 +72,11 @@ document.title = 'Math Practice V5.1';
    class-v-class competition or gamification write path. V5.7.4 polishes the class
    challenge and adds teacher-only controls to enable/pause it and choose a target
    of 5, 10, 15 or 20 questions per active student. Student reads remain aggregate,
-   Exam activity is excluded and XP rules are unchanged. Legacy release-label-only
-   scripts remain archived in the repository; current staged loading remains
-   coordinated by v40-release.js. */
+   Exam activity is excluded and XP rules are unchanged. V5.7.5 consolidates the
+   accepted gamification sequence as a presentation/audit-only stable checkpoint;
+   it adds no network calls, data writes or learning-rule changes. Legacy
+   release-label-only scripts remain archived in the repository; current staged
+   loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -119,7 +121,8 @@ window.addEventListener('load', () => {
     './v571b-streaks-achievements.js',
     './v572-weekly-missions.js',
     './v573-class-challenges-teacher-gamification.js',
-    './v574-gamification-polish-teacher-controls.js'
+    './v574-gamification-polish-teacher-controls.js',
+    './v575-gamification-stable-checkpoint.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
