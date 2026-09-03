@@ -54,8 +54,13 @@ document.title = 'Math Practice V5.1';
    student completion management without changing student grading or Exam Mode.
    V5.7C makes signed-in Home Practice-first: resume saved Past Paper work, surface
    teacher assignments, recommended Practice and the latest Practice result without
-   requiring Exam access. Legacy release-label-only scripts remain archived in the
-   repository; current staged loading remains coordinated by v40-release.js. */
+   requiring Exam access. V5.7D turns Past Paper Analytics into safe teacher actions:
+   prepare targeted cohorts in the existing assignment form, open assignment
+   management, or copy a teaching focus plan. V5.7D.1 hardens focus-plan copying
+   with synchronous and selectable in-app fallbacks for restricted clipboard contexts.
+   V5.7D performs no automatic assignment writes. Legacy release-label-only scripts
+   remain archived in the repository; current staged loading remains coordinated by
+   v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -92,7 +97,9 @@ window.addEventListener('load', () => {
     './v57a1-cross-device-local-bridge.js',
     './v57a2-stale-local-checkpoint-cleanup.js',
     './v57b-teacher-assignment-management.js',
-    './v57c-student-continue-learning-home.js'
+    './v57c-student-continue-learning-home.js',
+    './v57d-past-paper-analytics-actions.js',
+    './v57d1-focus-plan-copy-fallback.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
