@@ -74,9 +74,13 @@ document.title = 'Math Practice V5.1';
    of 5, 10, 15 or 20 questions per active student. Student reads remain aggregate,
    Exam activity is excluded and XP rules are unchanged. V5.7.5 consolidates the
    accepted gamification sequence as a presentation/audit-only stable checkpoint;
-   it adds no network calls, data writes or learning-rule changes. Legacy
-   release-label-only scripts remain archived in the repository; current staged
-   loading remains coordinated by v40-release.js. */
+   it adds no network calls, data writes or learning-rule changes. V5.7.6 adds an
+   in-app student feedback form and secure teacher Feedback Inbox so classroom
+   problems and suggestions can be captured without exposing access tokens, answers
+   or grading data. V5.7.6.1 keeps that workflow unchanged while moving the student
+   feedback trigger to a compact top-right Home icon. Legacy release-label-only
+   scripts remain archived in the repository; current staged loading remains
+   coordinated by v40-release.js. */
 window.addEventListener('load', () => {
   [
     './v38-ai-help.js',
@@ -122,7 +126,9 @@ window.addEventListener('load', () => {
     './v572-weekly-missions.js',
     './v573-class-challenges-teacher-gamification.js',
     './v574-gamification-polish-teacher-controls.js',
-    './v575-gamification-stable-checkpoint.js'
+    './v575-gamification-stable-checkpoint.js',
+    './v576-classroom-feedback-support.js',
+    './v5761-feedback-trigger-position.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
