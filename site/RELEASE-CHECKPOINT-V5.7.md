@@ -44,7 +44,7 @@ The accepted V5.6, V5.5 and V5.4 stable/audit foundations remain retained below 
 
 ## Product boundaries retained
 
-- Student entry remains Practice-first under the accepted V5.6.1 rollout.
+- The student entry remains Practice-first under the accepted V5.6.1 rollout.
 - Exam Mode remains preserved in code, data, teacher publication controls, existing attempts and historical results, while its student entry point remains hidden.
 - Mixed Practice, Topic Practice and Past Paper Practice retain deterministic grading and their accepted feedback behaviour.
 - V5.7E is presentation/audit-only and makes no network calls.
