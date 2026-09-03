@@ -78,7 +78,9 @@ document.title = 'Math Practice V5.1';
    in-app student feedback form and secure teacher Feedback Inbox so classroom
    problems and suggestions can be captured without exposing access tokens, answers
    or grading data. V5.7.6.1 keeps that workflow unchanged while moving the student
-   feedback trigger to a compact top-right Home icon. Legacy release-label-only
+   feedback trigger to a compact top-right Home icon. V5.7.6.3 mirrors that compact
+   presentation for teachers by placing a proxy Feedback Inbox icon beside the
+   Teacher Dashboard title without adding network calls. Legacy release-label-only
    scripts remain archived in the repository; current staged loading remains
    coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -128,7 +130,8 @@ window.addEventListener('load', () => {
     './v574-gamification-polish-teacher-controls.js',
     './v575-gamification-stable-checkpoint.js',
     './v576-classroom-feedback-support.js',
-    './v5761-feedback-trigger-position.js'
+    './v5761-feedback-trigger-position.js',
+    './v5763-teacher-feedback-header-icon.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
