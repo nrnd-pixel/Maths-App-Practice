@@ -13,7 +13,7 @@
   const IMPORT_ID='v58d-content-workflow-import';
   const QUESTIONS_ID='v58d-content-workflow-questions';
   const WORKSPACE_SHORTCUT_ID='v58d-workspace-content-workflow';
-  const STATUS_ID='v58d-content-workflow-status';
+  const STATUS_CLASS='v58d-content-workflow-status';
   let retryTimer=0;
   let highlightTimer=0;
 
@@ -81,8 +81,8 @@
       .v58d-step-desc{font-size:9px;color:var(--muted);font-weight:600;line-height:1.4}
       .v58d-route-notes{display:grid;gap:5px;margin-top:9px;padding:9px 10px;border:1px dashed var(--border);border-radius:11px;background:color-mix(in srgb,var(--soft) 13%,var(--card));font-size:9px;color:var(--muted);line-height:1.45}
       .v58d-route-notes strong{color:var(--text)}
-      #${STATUS_ID}{min-height:16px;margin-top:8px;font-size:9px;color:var(--muted);font-weight:700}
-      #${STATUS_ID}.warn{color:var(--warn)}
+      .${STATUS_CLASS}{min-height:16px;margin-top:8px;font-size:9px;color:var(--muted);font-weight:700}
+      .${STATUS_CLASS}.warn{color:var(--warn)}
       .v58d-highlight{outline:3px solid color-mix(in srgb,var(--primary) 34%,transparent)!important;outline-offset:4px!important;border-radius:10px}
       @media(max-width:820px){.v58d-workflow-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:520px){.v58d-workflow-grid{grid-template-columns:1fr}.v58d-workflow-summary-main span{display:none}.v58d-step{min-height:0}}
@@ -110,7 +110,7 @@
           <div><strong>Topical exercises:</strong> use Step 5 to publish the reviewed whole set through the existing Topical Exercise Library.</div>
           <div><strong>Exam papers:</strong> Exam publication remains under Exam Settings and is intentionally not promoted here while Exam Mode is deferred.</div>
         </div>
-        <div id="${STATUS_ID}" role="status" aria-live="polite"></div>
+        <div class="${STATUS_CLASS}" role="status" aria-live="polite"></div>
       </div>`;
   }
 
@@ -144,7 +144,7 @@
     button.className='v58b-tool';
     button.innerHTML='<strong>Content Workflow</strong><span>Import → QA → Practice availability → audit</span>';
     button.title='Open the consolidated content workflow';
-    button.addEventListener('click',()=>openStep('review'));
+    button.addEventListener('click',openWorkflow);
     tools.prepend(button);
   }
 
@@ -163,8 +163,10 @@
   }
 
   function setStatus(message,kind=''){
-    const nodes=document.querySelectorAll(`#${IMPORT_ID} #${STATUS_ID},#${QUESTIONS_ID} #${STATUS_ID}`);
-    nodes.forEach(node=>{ node.textContent=message||''; node.className=kind==='warn'?'warn':''; });
+    document.querySelectorAll(`.${STATUS_CLASS}`).forEach(node=>{
+      node.textContent=message||'';
+      node.className=kind==='warn'?`${STATUS_CLASS} warn`:STATUS_CLASS;
+    });
   }
 
   function highlight(node){
@@ -173,6 +175,19 @@
     node.classList.add('v58d-highlight');
     if(highlightTimer) window.clearTimeout(highlightTimer);
     highlightTimer=window.setTimeout(()=>node.classList.remove('v58d-highlight'),2200);
+  }
+
+  function openWorkflow(){
+    const tab=tabFor('questions-panel');
+    if(tab) tab.click();
+    window.setTimeout(()=>{
+      const hub=byId(QUESTIONS_ID);
+      if(!hub){ scheduleEnsure(); return; }
+      hub.open=true;
+      hub.scrollIntoView?.({behavior:'smooth',block:'start'});
+      highlight(hub);
+      setStatus('Content Workflow opened. Choose the step you need.');
+    },80);
   }
 
   function openStep(key,attempt=0){
@@ -235,7 +250,7 @@
     });
   }
 
-  const api=Object.freeze({STEPS,stepByKey,openStep});
+  const api=Object.freeze({STEPS,stepByKey,openStep,openWorkflow});
   if(typeof module!=='undefined'&&module.exports) module.exports=api;
   if(typeof window!=='undefined'){
     Object.defineProperty(window,'V58DContentWorkflow',{value:api,writable:false,configurable:false});
