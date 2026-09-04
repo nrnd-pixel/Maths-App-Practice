@@ -1,0 +1,26 @@
+name: V5.8B Teacher Workspace Consolidation
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - development/v58b-teacher-workspace-consolidation
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Teacher feedback toolbar regression
+        run: node site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs
+      - name: V5.8B teacher workspace regression
+        run: node site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs

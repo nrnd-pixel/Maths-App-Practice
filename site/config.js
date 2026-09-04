@@ -85,6 +85,9 @@ document.title = 'Math Practice V5.1';
    Practice achievement. It prepares the established Mixed Practice controls for
    five questions and forwards to the existing Start Practice flow; assignments,
    saved Past Paper checkpoints, grading, XP and achievement ownership are unchanged.
+   V5.8B adds a task-grouped Teacher Workspace launcher over the established teacher
+   tools. It delegates to existing tabs and overlay triggers only; no analytics,
+   assignment, reporting, content, feedback or data authority is duplicated.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -136,7 +139,8 @@ window.addEventListener('load', () => {
     './v576-classroom-feedback-support.js',
     './v5761-feedback-trigger-position.js',
     './v5763-teacher-feedback-header-icon.js',
-    './v58a-student-first-use-experience.js'
+    './v58a-student-first-use-experience.js',
+    './v58b-teacher-workspace-consolidation.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
