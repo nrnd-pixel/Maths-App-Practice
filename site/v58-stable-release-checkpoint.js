@@ -128,7 +128,9 @@
 
   function scheduleApply(){
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    [0,100,300,900,1800,2600,3400].forEach(delay => window.setTimeout(apply,delay));
+    /* V5.7.5's historical identity burst finishes at 4300ms. V5.8 must run after
+       every retained checkpoint so its release identity is authoritative. */
+    [0,120,420,1100,2200,3400,4600,5200].forEach(delay => window.setTimeout(apply,delay));
     document.addEventListener('click',event => {
       const control = event.target?.closest?.('[data-panel="release-audit-panel"]');
       if (control) window.setTimeout(applyAuditSummary,0);
