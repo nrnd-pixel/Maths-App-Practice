@@ -27,7 +27,7 @@ assert(source.includes('Areas to focus on'),'missing focus section');
 assert(source.includes('Suggested next step'),'missing deterministic next-step section');
 assert(source.includes('Recent Practice'),'missing recent Practice section');
 assert(source.includes("String(row?.activity_mode||'').toLowerCase()==='practice'"),'recent family activity must remain Practice-only');
-assert(source.includes("status.includes('secure')"),'strengths must reuse established secure band text');
+assert(source.includes("statusText(row).includes('secure')"),'strengths must reuse established secure band text');
 assert(source.includes("status.includes('needs attention')"),'focus must reuse established needs-attention band text');
 assert(source.includes("status.includes('developing')"),'focus must reuse established developing band text');
 
