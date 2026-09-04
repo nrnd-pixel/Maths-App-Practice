@@ -1,0 +1,41 @@
+name: V5.8 Stable Release Checkpoint
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v58-stable-release-checkpoint
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.8 Stable Release Checkpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.7 stable checkpoint regression
+        run: node site/tests/verify-v5.7-stable-release-checkpoint.cjs
+      - name: Run V5.7.5 gamification checkpoint regression
+        run: node site/tests/verify-v5.7.5-gamification-stable-checkpoint.cjs
+      - name: Run V5.7.6 classroom feedback regression
+        run: node site/tests/verify-v5.7.6-classroom-feedback-support.cjs
+      - name: Run V5.8A first-use regression
+        run: node site/tests/verify-v5.8a-student-first-use-experience.cjs
+      - name: Run V5.8B teacher workspace regression
+        run: node site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs
+      - name: Run V5.8C parent report regression
+        run: node site/tests/verify-v5.8c-parent-friendly-student-report.cjs
+      - name: Run V5.8D content workflow regression
+        run: node site/tests/verify-v5.8d-content-workflow-consolidation.cjs
+      - name: Run V5.8 stable checkpoint regression
+        run: node site/tests/verify-v5.8-stable-release-checkpoint.cjs
