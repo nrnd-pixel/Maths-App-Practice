@@ -1,0 +1,28 @@
+name: V5.8C Parent-Friendly Student Report
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - development/v58c-parent-friendly-student-report
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Reporting regression
+        run: node site/tests/verify-v5.0-reporting.cjs
+      - name: Teacher Workspace regression
+        run: node site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs
+      - name: V5.8C parent report regression
+        run: node site/tests/verify-v5.8c-parent-friendly-student-report.cjs
