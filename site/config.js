@@ -94,7 +94,9 @@ document.title = 'Math Practice V5.1';
    V5.8D consolidates the established content tools into a source-aware teacher route:
    Import, Validate, Review, Practice availability, topical publication and Audit.
    It is navigation/presentation only; Exam publication remains in Exam Settings and
-   is intentionally not promoted while Exam Mode is deferred.
+   is intentionally not promoted while Exam Mode is deferred. V5.8 Stable then
+   consolidates the accepted V5.8A-D sequence as the authoritative V5.8 release
+   identity and audit checkpoint without adding network calls or data writes.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -150,7 +152,8 @@ window.addEventListener('load', () => {
     './v58b-teacher-workspace-consolidation.js',
     './v58c-parent-friendly-student-report.js',
     './v58c-parent-summary-workspace-shortcut.js',
-    './v58d-content-workflow-consolidation.js'
+    './v58d-content-workflow-consolidation.js',
+    './v58-stable-release-checkpoint.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
