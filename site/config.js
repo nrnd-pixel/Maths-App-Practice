@@ -88,6 +88,9 @@ document.title = 'Math Practice V5.1';
    V5.8B adds a task-grouped Teacher Workspace launcher over the established teacher
    tools. It delegates to existing tabs and overlay triggers only; no analytics,
    assignment, reporting, content, feedback or data authority is duplicated.
+   V5.8C adds a teacher-only parent/family progress summary derived entirely from
+   the established Student Performance Report snapshot, with a printable Practice-
+   focused view and no new reporting calculation, persistence or parent account.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -140,7 +143,9 @@ window.addEventListener('load', () => {
     './v5761-feedback-trigger-position.js',
     './v5763-teacher-feedback-header-icon.js',
     './v58a-student-first-use-experience.js',
-    './v58b-teacher-workspace-consolidation.js'
+    './v58b-teacher-workspace-consolidation.js',
+    './v58c-parent-friendly-student-report.js',
+    './v58c-parent-summary-workspace-shortcut.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
