@@ -24,7 +24,7 @@
   function moduleChecks(){
     return Object.freeze({
       student_first_use:!!ROOT.__v58aStudentFirstUseExperienceInstalled,
-      teacher_workspace:!!ROOT.__v58bTeacherWorkspaceConsolidationInstalled,
+      teacher_workspace:!!ROOT.__v58bTeacherWorkspaceInstalled,
       parent_friendly_report:!!ROOT.__v58cParentFriendlyStudentReportInstalled,
       content_workflow:!!ROOT.__v58dContentWorkflowInstalled,
       accepted_v57_foundation:!!ROOT.__v57StableReleaseCheckpointInstalled
