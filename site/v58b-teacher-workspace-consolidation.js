@@ -14,6 +14,7 @@
   const STYLE_ID='v58b-teacher-workspace-style';
   const STATUS_ID='v58b-teacher-workspace-status';
   const ALL_TOOLS_ID='v58b-all-tools-label';
+  const SUBTITLE='Plan, monitor, support and manage learning in one workspace.';
   let retryTimer=0;
   let statusTimer=0;
   let installed=false;
@@ -170,7 +171,7 @@
     }
 
     const subtitle=document.getElementById('teacher-subtitle');
-    if(subtitle) subtitle.textContent='Plan, monitor, support and manage learning in one workspace.';
+    if(subtitle && subtitle.textContent!==SUBTITLE) subtitle.textContent=SUBTITLE;
     refreshAvailability();
     return true;
   }
