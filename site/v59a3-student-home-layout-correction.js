@@ -1,8 +1,9 @@
 /* V5.9A.3 — Student Home final layout and control polish.
    Presentation/navigation-only correction after real-device review. Targets the visible
    V5.7.4 class-challenge card, enforces the approved lower-dashboard order, removes the
-   duplicate legacy feedback bubble from the redesigned Home, and keeps theme switching
-   available through More on mobile. No learning/data authority is added. */
+   duplicate legacy feedback bubble from the redesigned Home, keeps theme switching
+   available through More on mobile, and applies final spacing/control polish. No
+   learning/data authority is added. */
 (() => {
   'use strict';
 
@@ -39,7 +40,9 @@
         position:relative;z-index:7;gap:8px!important
       }
       body.v59a2-mobile-density #start #v59a-student-profile .v59a-profile-action{
-        position:relative;z-index:7
+        position:relative;z-index:7;width:40px!important;height:40px!important;
+        min-width:40px!important;min-height:40px!important;border-radius:13px!important;
+        font-size:17px!important
       }
 
       /* The visible challenge is V5.7.4. Force both generations full width safely and
@@ -68,44 +71,66 @@
         body.v59a2-mobile-density .app-theme-bar{display:none!important}
         body.v59a2-mobile-density .shell{margin-top:0!important}
 
+        /* Reclaim the remaining accumulated legacy Home spacing above the profile. */
+        body.v59a2-mobile-density #start.v40-shell-authenticated[data-v40-start-view="home"]{
+          padding-top:0!important
+        }
+        body.v59a2-mobile-density #start.v40-shell-authenticated[data-v40-start-view="home"] > .header{
+          display:none!important
+        }
+        body.v59a2-mobile-density #start.v40-shell-authenticated[data-v40-start-view="home"] .v39-home-hub{
+          margin-top:0!important
+        }
+        body.v59a2-mobile-density #start.v40-shell-authenticated[data-v40-start-view="home"] .v40-learning-hub-hero.v59a-hero-refresh{
+          margin-top:0!important
+        }
+
+        /* One compact utility pair: Feedback + More. Keep it inside the profile safe area. */
+        body.v59a2-mobile-density #start #v59a-student-profile .v59a-profile-actions{
+          transform:translate(-4px,4px);gap:8px!important
+        }
+        body.v59a2-mobile-density #start #v59a-student-profile .v59a-profile-action{
+          width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important
+        }
+
         /* Slightly denser motivation row. */
         body.v59a2-mobile-density #start #v572-weekly-missions-card,
         body.v59a2-mobile-density #start #v571b-latest-achievement{
-          min-height:166px!important;padding:11px!important;gap:6px!important
+          min-height:164px!important;padding:11px!important;gap:5px!important
         }
-        body.v59a2-mobile-density #start #v572-weekly-missions-card .v572-mission-head{gap:4px!important}
-        body.v59a2-mobile-density #start #v572-weekly-missions-card .v59a-mission-streak{margin-top:2px!important;line-height:1.02!important}
-        body.v59a2-mobile-density #start #v572-weekly-missions-card .v572-mission-list{gap:3px!important}
+        body.v59a2-mobile-density #start #v572-weekly-missions-card .v572-mission-head{gap:3px!important}
+        body.v59a2-mobile-density #start #v572-weekly-missions-card .v59a-mission-streak{margin-top:1px!important;line-height:1!important}
+        body.v59a2-mobile-density #start #v572-weekly-missions-card .v572-mission-list{gap:2px!important}
         body.v59a2-mobile-density #start #v59a-mission-toggle{
           margin:0!important;padding:0!important;align-self:start!important;justify-self:start!important
         }
         body.v59a2-mobile-density #start #v571b-latest-achievement .v571b-achievement-icon{
-          width:62px!important;height:62px!important
+          width:66px!important;height:66px!important;font-size:30px!important
         }
         body.v59a2-mobile-density #start #v571b-latest-achievement .v571b-achievements{
-          margin-top:2px!important;padding-top:5px!important
+          margin-top:1px!important;padding-top:4px!important
         }
 
         /* Compact the cooperative challenge while retaining useful class context. */
         body.v59a2-mobile-density #start #v574-class-challenge-card{
-          min-height:136px!important;
-          padding:12px!important;
+          min-height:132px!important;
+          padding:11px!important;
           border-radius:19px!important;
-          gap:7px!important;
+          gap:6px!important;
         }
-        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-challenge-head{gap:6px!important}
+        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-challenge-head{gap:5px!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-kicker{font-size:8.5px!important}
-        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-challenge-head h3{font-size:16px!important;line-height:1.12!important}
-        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-challenge-head p{font-size:8px!important;line-height:1.25!important}
+        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-challenge-head h3{font-size:16px!important;line-height:1.1!important}
+        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-challenge-head p{font-size:8px!important;line-height:1.2!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-week{font-size:7.5px!important;padding:3px 6px!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-progress-head strong{font-size:10.5px!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-phase{font-size:7.5px!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-bar{height:8px!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-milestones{font-size:7.5px!important}
-        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-foot{padding-top:3px!important;gap:5px!important}
+        body.v59a2-mobile-density #start #v574-class-challenge-card .v574-foot{padding-top:2px!important;gap:4px!important}
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-foot p{
-          font-size:7.5px!important;line-height:1.25!important;max-width:none!important;
-          display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden
+          font-size:7.5px!important;line-height:1.2!important;max-width:none!important;
+          white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
         }
         body.v59a2-mobile-density #start #v574-class-challenge-card .v574-foot button{font-size:8.5px!important;padding:6px 8px!important}
       }
@@ -115,7 +140,7 @@
       html[data-theme="dark"] body.v59a2-mobile-density #start #v59a-student-profile .v59a-xp-text{color:#10205a!important}
       html[data-theme="dark"] body.v59a2-mobile-density #start #v59a-student-profile .v59a-year{color:#526a9a!important}
       html[data-theme="dark"] body.v59a2-mobile-density #start #v59a-student-profile .v59a-level-pill{color:#213b82!important;background:rgba(255,255,255,.72)!important;border-color:rgba(37,99,235,.12)!important}
-      html[data-theme="dark"] body.v59a2-mobile-density #start #v59a-student-profile .v59a-profile-action{color:#17356f!important;background:rgba(255,255,255,.75)!important}
+      html[data-theme="dark"] body.v59a2-mobile-density #start #v59a-student-profile .v59a-profile-action{color:#17356f!important;background:rgba(255,255,255,.78)!important}
 
       html[data-theme="dark"] body.v59a2-mobile-density #start #v574-class-challenge-card{
         background:linear-gradient(145deg,#10243c,#0f1f35)!important;
