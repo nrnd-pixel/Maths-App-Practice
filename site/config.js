@@ -102,6 +102,11 @@ document.title = 'Math Practice V5.1';
    Practice, and a cohesive visual treatment for the existing XP, streak, mission,
    achievement, assignment and progress surfaces. It delegates to the established
    Practice and navigation controls and adds no new learning/data authority.
+   V5.9A.1 applies the approved screenshot-derived design system over that Home:
+   reusable spacing/radius/elevation tokens, refined profile/XP hierarchy, icon
+   containers, three-tile Practice grid, two-column dashboard widgets, progress
+   treatments and app-style bottom navigation. It remains presentation-only and
+   delegates every student action to the existing accepted controls.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -159,7 +164,8 @@ window.addEventListener('load', () => {
     './v58c-parent-summary-workspace-shortcut.js',
     './v58d-content-workflow-consolidation.js',
     './v58-stable-release-checkpoint.js',
-    './v59a-student-home-refresh.js'
+    './v59a-student-home-refresh.js',
+    './v59a1-student-home-design-system.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
