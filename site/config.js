@@ -107,6 +107,11 @@ document.title = 'Math Practice V5.1';
    containers, three-tile Practice grid, two-column dashboard widgets, progress
    treatments and app-style bottom navigation. It remains presentation-only and
    delegates every student action to the existing accepted controls.
+   V5.9A.2 tightens the real-device mobile hierarchy from manual screenshot review:
+   compact profile/hero spacing, denser two-column widgets, a full-width cooperative
+   class challenge, Recent Practice moved out of Home, cleaner student-only Home
+   chrome, stronger bottom navigation and a coherent dark variant. It remains
+   presentation-only and does not change any learning, grading or data authority.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -165,7 +170,8 @@ window.addEventListener('load', () => {
     './v58d-content-workflow-consolidation.js',
     './v58-stable-release-checkpoint.js',
     './v59a-student-home-refresh.js',
-    './v59a1-student-home-design-system.js'
+    './v59a1-student-home-design-system.js',
+    './v59a2-student-home-mobile-density.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
