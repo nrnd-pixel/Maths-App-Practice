@@ -71,7 +71,8 @@
       }
       #start .v59a-hero-refresh>.v40-learning-cycle,#start .v59a-hero-refresh>.v59a-original-hero-copy{display:none!important}
       #start #${PROFILE_ID}{position:relative;z-index:2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:18px 20px 20px;min-height:178px}
-      #start #${PROFILE_ID} .v59a-avatar{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#dbeafe);border:5px solid rgba(255,255,255,.92);box-shadow:0 10px 24px rgba(37,99,235,.17);font-size:38px;position:relative}
+      #start #${PROFILE_ID} .v59a-avatar{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#dbeafe);border:5px solid rgba(255,255,255,.92);box-shadow:0 10px 24px rgba(37,99,235,.17);position:relative;overflow:hidden}
+      #start #${PROFILE_ID} .v59a-avatar svg{width:100%;height:100%;display:block}
       #start #${PROFILE_ID} .v59a-avatar::after{content:'★';position:absolute;right:-3px;bottom:-2px;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#fbbf24;color:#713f12;border:3px solid #fff;font-size:11px}
       #start #${PROFILE_ID} .v59a-profile-main{min-width:0;display:grid;gap:7px;max-width:620px}
       #start #${PROFILE_ID} .v59a-greeting{font-size:clamp(25px,4vw,34px);font-weight:950;line-height:1.05;letter-spacing:-.025em;color:#172554}
@@ -188,12 +189,12 @@
       html[data-theme="dark"] #start .v59a-home-refresh .v57c-mini-card,html[data-theme="dark"] #start .v59a-home-refresh #v572-weekly-missions-card,html[data-theme="dark"] #start .v59a-home-refresh #v571b-latest-achievement{background:color-mix(in srgb,var(--soft) 12%,var(--card))}
 
       @media(max-width:760px){
-        body{padding-bottom:76px}
+        body.v59a-student-active{padding-bottom:76px}
+        body.v59a-student-active .v40-student-nav{display:none!important}
         #start.v40-shell-authenticated .v40c-session-panel{display:none!important}
-        #start>.v40-student-nav{display:none!important}
         #start.v40-shell-authenticated[data-v40-start-view="home"] .v40-learning-hub-hero.v59a-hero-refresh{border-radius:0;margin-left:-12px;margin-right:-12px;margin-top:0;border-left:0;border-right:0;box-shadow:none}
         #start #${PROFILE_ID}{grid-template-columns:62px minmax(0,1fr) auto;gap:11px;padding:15px 14px 82px;min-height:205px}
-        #start #${PROFILE_ID} .v59a-avatar{width:62px;height:62px;font-size:31px;border-width:4px}
+        #start #${PROFILE_ID} .v59a-avatar{width:62px;height:62px;border-width:4px}
         #start #${PROFILE_ID} .v59a-greeting{font-size:27px}
         #start #${PROFILE_ID} .v59a-profile-actions{gap:5px}
         #start #${PROFILE_ID} .v59a-profile-action{width:38px;height:38px;border-radius:12px;font-size:17px}
@@ -247,11 +248,13 @@
       }
       @media(max-width:390px){
         #start #${PROFILE_ID}{grid-template-columns:54px minmax(0,1fr) auto;padding-left:11px;padding-right:11px}
-        #start #${PROFILE_ID} .v59a-avatar{width:54px;height:54px;font-size:27px}
+        #start #${PROFILE_ID} .v59a-avatar{width:54px;height:54px}
         #start #${PROFILE_ID} .v59a-greeting{font-size:23px}
         #start #${PROFILE_ID} .v59a-profile-action{width:34px;height:34px;font-size:15px}
         #start #${SHORTCUTS_ID} .v59a-practice-tile{min-height:116px}
         #start #${SHORTCUTS_ID} .v59a-tile-icon{width:43px;height:43px;font-size:21px}
+      }
+      @media(max-width:340px){
         #start .v59a-home-refresh #v572-weekly-missions-card,#start .v59a-home-refresh #v571b-latest-achievement{grid-column:1/-1}
       }
       @media(prefers-reduced-motion:reduce){
@@ -261,9 +264,22 @@
     document.head.appendChild(style);
   }
 
+  function avatarSvg(){
+    return `<svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
+      <defs><linearGradient id="v59aAvatarBg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bfdbfe"/><stop offset="1" stop-color="#e0f2fe"/></linearGradient></defs>
+      <rect width="80" height="80" rx="40" fill="url(#v59aAvatarBg)"/>
+      <path d="M19 75c2-15 10-22 21-22s20 7 22 22" fill="#2563eb"/><path d="M28 57l12 10 12-10" fill="#1d4ed8"/>
+      <ellipse cx="40" cy="37" rx="18" ry="20" fill="#f6c89f"/><path d="M23 34c0-16 8-24 19-24 12 0 19 8 19 21-6-7-14-10-25-8-5 1-9 5-13 11z" fill="#4b2e2a"/>
+      <path d="M27 27c5-9 16-13 26-7 4 2 7 6 8 11-8-6-18-7-34-4z" fill="#3b2724"/>
+      <circle cx="34" cy="38" r="2" fill="#172554"/><circle cx="47" cy="38" r="2" fill="#172554"/>
+      <path d="M35 47c3 3 8 3 11 0" fill="none" stroke="#9a5138" stroke-width="2" stroke-linecap="round"/>
+      <path d="M31 34c2-1 4-1 6 0M44 34c2-1 4-1 6 0" fill="none" stroke="#5b352d" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
+  }
+
   function mountainSvg(){
     return `<svg viewBox="0 0 260 140" aria-hidden="true" focusable="false">
-      <defs><linearGradient id="v59aSky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#7dd3fc"/><stop offset="1" stop-color="#dbeafe"/></linearGradient><linearGradient id="v59aMountain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>
+      <defs><linearGradient id="v59aMountain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>
       <path d="M40 134 L116 45 L154 86 L190 36 L252 134 Z" fill="url(#v59aMountain)" opacity=".95"/>
       <path d="M98 66 L116 45 L127 61 L116 56 Z" fill="#eff6ff" opacity=".9"/><path d="M174 54 L190 36 L206 56 L191 48 Z" fill="#eff6ff" opacity=".9"/>
       <path d="M187 38 L187 16" stroke="#7c2d12" stroke-width="2"/><path d="M188 17 L215 24 L188 32 Z" fill="#f97316"/>
@@ -294,7 +310,6 @@
     const game = gamificationSnapshot();
     const year = Number(who?.year_level || 6);
     const className = trim(who?.class_name);
-    const avatar = '🧑‍🎓';
 
     let profile = document.getElementById(PROFILE_ID);
     if (!profile){
@@ -305,10 +320,10 @@
     }
 
     profile.innerHTML = `
-      <div class="v59a-avatar" aria-hidden="true">${avatar}</div>
+      <div class="v59a-avatar" aria-hidden="true">${avatarSvg()}</div>
       <div class="v59a-profile-main">
         <div class="v59a-greeting">Hi ${esc(firstName(who?.student_name))}! 👋</div>
-        <div class="v59a-year">Year ${year}${className ? ` · ${esc(className)}` : ''} · Year 6 Maths</div>
+        <div class="v59a-year">Year ${year}${className ? ` · ${esc(className)}` : ''} · Maths Practice</div>
         <div class="v59a-level-row">
           <span class="v59a-level-pill">👑 Level ${game.level}${game.levelTitle ? ` · ${esc(game.levelTitle)}` : ''}</span>
           <div class="v59a-xp-wrap"><div class="v59a-xp-bar" role="progressbar" aria-label="XP progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${game.progress}"><span style="width:${game.progress}%"></span></div><span class="v59a-xp-text">${esc(game.xpLabel)}</span></div>
@@ -610,6 +625,7 @@
     document.getElementById(SHORTCUTS_ID)?.remove();
     document.getElementById(PROFILE_ID)?.remove();
     document.getElementById(MOBILE_NAV_ID)?.classList.add('hidden');
+    document.body?.classList.remove('v59a-student-active');
     closeMore();
     const hero=document.querySelector('#start .v40-learning-hub-hero');
     hero?.classList.remove('v59a-hero-refresh');
@@ -625,6 +641,7 @@
     }
     const root=dashboard();
     if (!root?.querySelector('.v57c-continue-card')) return false;
+    document.body?.classList.add('v59a-student-active');
     root.classList.add('v59a-home-refresh');
     enhanceHero();
     enhanceContinueCard();
