@@ -47,3 +47,5 @@ jobs:
         run: node site/tests/verify-v5.9a1-student-home-design-system.cjs
       - name: Run V5.9A.2 real-device mobile density regression
         run: node site/tests/verify-v5.9a2-student-home-mobile-density.cjs
+      - name: Run V5.9A.3 final student Home polish regression
+        run: node site/tests/verify-v5.9a3-student-home-final-polish.cjs
