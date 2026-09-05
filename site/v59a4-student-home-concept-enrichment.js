@@ -166,6 +166,7 @@
     document.querySelectorAll('#v59a-practice-shortcuts .v59a-practice-tile[data-type]').forEach(tile => {
       const icon = tile.querySelector('.v59a-tile-icon');
       if (!icon) return;
+      if (icon.dataset.v59a4Premium === 'true') { count += 1; return; }
       const type = tile.dataset.type || 'mixed';
       icon.innerHTML = premiumIcon(type);
       icon.dataset.v59a4Premium = 'true';
@@ -189,7 +190,7 @@
     const strong = [...card.children].find(node => node.tagName === 'STRONG');
     const paragraph = [...card.children].find(node => node.tagName === 'P');
     const button = card.querySelector('button');
-    if (!strong || !paragraph) return false;
+    if (!strong || !paragraph) return !!card.querySelector('.v59a4-assignment-summary');
 
     let summary = card.querySelector('.v59a4-assignment-summary');
     if (!summary){
@@ -223,7 +224,7 @@
     const strong = [...card.children].find(node => node.tagName === 'STRONG');
     const paragraph = [...card.children].find(node => node.tagName === 'P');
     const button = card.querySelector('button');
-    if (!strong || !paragraph) return false;
+    if (!strong || !paragraph) return !!card.querySelector('.v59a4-recommend-shell');
 
     let shell = card.querySelector('.v59a4-recommend-shell');
     if (!shell){
