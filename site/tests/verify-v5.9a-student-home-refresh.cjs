@@ -19,62 +19,49 @@ new vm.Script(source,{filename:'v59a-student-home-refresh.js'});
 
 assert(source.includes('V5.9A — Student Home Refresh'),'missing V5.9A identity');
 assert(source.includes('__v59aStudentHomeRefreshInstalled'),'missing V5.9A install guard');
-assert(source.includes("const SHORTCUTS_ID = 'v59a-practice-shortcuts'"),'missing Practice shortcuts id');
-assert(source.includes("const PROFILE_ID = 'v59a-student-profile'"),'missing concept-style student profile');
-assert(source.includes("const MOBILE_NAV_ID = 'v59a-mobile-nav'"),'missing app-style mobile navigation');
-assert(source.includes("const MORE_SHEET_ID = 'v59a-more-sheet'"),'missing More proxy sheet');
-assert(source.includes("const MISSION_TOGGLE_ID = 'v59a-mission-toggle'"),'missing compact weekly-mission details control');
+for(const marker of [
+  "const SHORTCUTS_ID = 'v59a-practice-shortcuts'",
+  "const PROFILE_ID = 'v59a-student-profile'",
+  "const MOBILE_NAV_ID = 'v59a-mobile-nav'",
+  "const MORE_SHEET_ID = 'v59a-more-sheet'",
+  "const MISSION_TOGGLE_ID = 'v59a-mission-toggle'"
+]) assert(source.includes(marker),`missing V5.9A UI marker: ${marker}`);
 
-for(const [type,label] of [
-  ['mixed','Start Mixed Practice'],
-  ['topic','Topic Practice'],
-  ['past_paper','Past Papers']
-]){
-  assert(source.includes(`data-type=\"${type}\"`),`missing quick Practice type: ${type}`);
+for(const [type,label] of [['mixed','Start Mixed Practice'],['topic','Topic Practice'],['past_paper','Past Papers']]){
+  assert(source.includes(`data-type="${type}"`),`missing quick Practice type: ${type}`);
   assert(source.includes(`<strong>${label}</strong>`),`missing quick Practice label: ${label}`);
 }
 
-assert(source.includes('Small Steps,'),'concept profile must retain the progress motto');
-assert(source.includes('Same learning.<br>A brighter you.'),'Continue Learning concept slogan missing');
-assert(source.includes('mountainSvg()'),'concept profile mountain artwork missing');
-assert(source.includes('continueSvg()'),'Continue Learning goal artwork missing');
-assert(source.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'Practice shortcuts must retain three-column app tile rhythm');
-assert(source.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),'Home must support two-column concept card rhythm');
-assert(source.includes('Stronger together!'),'class challenge concept treatment missing');
-assert(source.includes('🏆'),'class challenge trophy treatment missing');
+for(const conceptMarker of [
+  'Small Steps,','Same learning.<br>A brighter you.','avatarSvg()','mountainSvg()','continueSvg()',
+  'Stronger together!','🏆','grid-template-columns:repeat(3,minmax(0,1fr))',
+  'grid-template-columns:repeat(2,minmax(0,1fr))','body.v59a-student-active .v40-student-nav'
+]) assert(source.includes(conceptMarker),`missing concept-parity marker: ${conceptMarker}`);
 
-for(const [key,label] of [
-  ['home','Home'],['practice','Practice'],['progress','Progress'],['badges','Badges'],['more','More']
-]){
-  assert(source.includes(`data-v59a-nav=\"${key}\"`),`missing mobile nav destination: ${key}`);
+for(const [key,label] of [['home','Home'],['practice','Practice'],['progress','Progress'],['badges','Badges'],['more','More']]){
+  assert(source.includes(`data-v59a-nav="${key}"`),`missing mobile nav destination: ${key}`);
   assert(source.includes(`<span>${label}</span>`),`missing mobile nav label: ${label}`);
 }
 
-assert(source.includes("data-v59a-more=\"assignments\""),'More sheet must preserve Assignments access');
-assert(source.includes("data-v59a-more=\"reviewed\""),'More sheet must preserve Reviewed Work access');
-assert(source.includes("data-v59a-more=\"feedback\""),'More sheet must preserve Feedback access');
-assert(source.includes("getElementById('my-assignments-btn')"),'Assignments proxy must use the accepted control');
-assert(source.includes("getElementById('my-progress-btn')"),'Progress proxy must use the accepted control');
-assert(source.includes("getElementById('check-reviewed-btn')"),'Reviewed Work proxy must use the accepted control');
-assert(source.includes("getElementById('v576-send-feedback')"),'Feedback proxy must use the accepted trigger');
+for(const marker of [
+  'data-v59a-more="assignments"','data-v59a-more="reviewed"','data-v59a-more="feedback"',
+  "getElementById('my-assignments-btn')","getElementById('my-progress-btn')",
+  "getElementById('check-reviewed-btn')","getElementById('v576-send-feedback')"
+]) assert(source.includes(marker),`missing delegated student destination: ${marker}`);
 assert(feedback.includes("const STUDENT_TRIGGER_ID='v576-send-feedback'"),'accepted Feedback trigger changed');
 
-assert(source.includes('Continue Learning'),'V5.9A must preserve Continue Learning hierarchy');
-assert(source.includes('ROOT.V55APastPaperPractice'),'Practice shortcuts must delegate to the accepted Practice-type owner');
-assert(source.includes('api.setPracticeType(type)'),'Practice shortcuts must use the accepted Practice-type API');
+assert(source.includes('ROOT.V55APastPaperPractice'),'Practice shortcuts must delegate to accepted Practice-type owner');
+assert(source.includes('api.setPracticeType(type)'),'Practice shortcuts must use accepted Practice-type API');
 assert(source.includes('ROOT.V561PracticeFirstStudentExperience?.ensurePracticeSelection?.()'),'shortcuts must preserve Practice-first mode');
-assert(source.includes('[data-v40-nav=\\"learn\\"]') || source.includes('[data-v40-nav="learn"]'),'shortcuts must delegate through existing Learn navigation');
+assert(source.includes('[data-v40-nav="learn"]'),'shortcuts must delegate through existing Learn navigation');
 assert(source.includes('v40c-change-settings'),'Topic Practice must reuse existing Practice settings');
 assert(source.includes('v55a-paper-year'),'Past Papers must reuse existing Past Paper selectors');
-assert(source.includes("activeQuiz() && key!=='practice'"),'mobile nav must not bypass active-Practice navigation protection');
+assert(source.includes("activeQuiz() && key!=='practice'"),'mobile nav must preserve active-Practice protection');
 
 for(const marker of [
-  '__v57cStudentContinueLearningHomeInstalled',
-  '__v571aGamificationFoundationInstalled',
-  '__v571bStreaksAchievementsInstalled',
-  '__v572WeeklyMissionsInstalled',
-  '__v573ClassChallengesTeacherGamificationInstalled',
-  '__v55aPastPaperPracticeInstalled',
+  '__v57cStudentContinueLearningHomeInstalled','__v571aGamificationFoundationInstalled',
+  '__v571bStreaksAchievementsInstalled','__v572WeeklyMissionsInstalled',
+  '__v573ClassChallengesTeacherGamificationInstalled','__v55aPastPaperPracticeInstalled',
   '__v58aStudentFirstUseExperienceInstalled'
 ]){
   assert(
@@ -83,55 +70,32 @@ for(const marker of [
   );
 }
 
-assert(source.includes('#v571a-gamification-card'),'V5.9A must visually derive profile XP/Level from accepted card');
-assert(source.includes('#v572-weekly-missions-card'),'V5.9A must visually reuse weekly missions');
-assert(source.includes('#v573-class-challenge-card'),'V5.9A must visually reuse class challenge');
-assert(source.includes('#v571b-latest-achievement'),'V5.9A must visually reuse achievements');
-assert(source.includes('.v57c-home-grid'),'V5.9A must visually reuse assignment/recommendation/recent Practice cards');
-assert(source.includes('#v58a-first-use-card'),'V5.9A must preserve and style the accepted first-use card');
-assert(source.includes('gamificationSnapshot()'),'profile summary must read already-rendered gamification evidence rather than fetch a second copy');
+for(const marker of ['#v571a-gamification-card','#v572-weekly-missions-card','#v573-class-challenge-card','#v571b-latest-achievement','.v57c-home-grid','#v58a-first-use-card','gamificationSnapshot()']){
+  assert(source.includes(marker),`accepted student presentation source missing: ${marker}`);
+}
 
-assert(source.includes('@media(max-width:760px)'),'V5.9A must include tablet/mobile app layout');
-assert(source.includes('@media(max-width:520px)'),'V5.9A must include small-phone layout');
-assert(source.includes('@media(max-width:390px)'),'V5.9A must protect very small phones');
-assert(source.includes('@media(prefers-reduced-motion:reduce)'),'V5.9A must respect reduced-motion preference');
-assert(source.includes('position:fixed;left:0;right:0;bottom:0'),'mobile app nav must be bottom-fixed');
+for(const marker of ['@media(max-width:760px)','@media(max-width:520px)','@media(max-width:390px)','@media(max-width:340px)','@media(prefers-reduced-motion:reduce)','position:fixed;left:0;right:0;bottom:0']){
+  assert(source.includes(marker),`missing responsive/mobile marker: ${marker}`);
+}
 
-for(const eventName of [
-  'v57c:home-updated','v571a:gamification-updated','v571b:achievements-updated',
-  'v572:missions-updated','v573:class-challenge-updated'
-]){
+for(const eventName of ['v57c:home-updated','v571a:gamification-updated','v571b:achievements-updated','v572:missions-updated','v573:class-challenge-updated']){
   assert(source.includes(eventName),`V5.9A must refresh after existing owner event: ${eventName}`);
 }
 
 for(const forbidden of [
-  'cloud.rpc(',
-  'cloud.from(',
-  'supabase.',
-  'fetch(',
-  'localStorage',
-  'sessionStorage',
-  'startPractice(',
-  "getElementById('start-btn')",
-  'grade_practice_response',
-  'request_practice_hint',
-  'submit_practice_session',
-  'finalize_exam_attempt',
-  'create_teacher_past_paper_assignments',
-  'update_teacher_past_paper_assignment',
-  'save_question_practice_eligibility',
-  'MutationObserver'
-]){
-  assert(!source.includes(forbidden),`V5.9A must remain presentation/navigation only: ${forbidden}`);
-}
+  'cloud.rpc(','cloud.from(','supabase.','fetch(','localStorage','sessionStorage','startPractice(',
+  "getElementById('start-btn')",'grade_practice_response','request_practice_hint','submit_practice_session',
+  'finalize_exam_attempt','create_teacher_past_paper_assignments','update_teacher_past_paper_assignment',
+  'save_question_practice_eligibility','MutationObserver'
+]) assert(!source.includes(forbidden),`V5.9A must remain presentation/navigation only: ${forbidden}`);
 
 const loader="'./v59a-student-home-refresh.js'";
 assert(config.includes(loader),'config.js must load V5.9A');
-assert(config.indexOf(loader)>config.indexOf("'./v58-stable-release-checkpoint.js'"),'V5.9A must layer after the accepted V5.8 stable checkpoint');
+assert(config.indexOf(loader)>config.indexOf("'./v58-stable-release-checkpoint.js'"),'V5.9A must layer after accepted V5.8 stable checkpoint');
 assert(config.includes('V5.9A refreshes the signed-in student Home presentation for Year 6'),'config release narrative must describe V5.9A boundary');
 
 console.log('V5.9A Student Home Refresh regression: PASS');
-console.log('- concept-style profile, Continue Learning artwork and three-tile Practice row are present');
+console.log('- concept-style profile/avatar, illustrated Continue Learning hero and three-tile Practice row are present');
 console.log('- mobile Home / Practice / Progress / Badges / More navigation delegates to accepted destinations');
 console.log('- Assignments, Reviewed Work and Feedback remain available through More');
 console.log('- existing XP, streak, mission, achievement, assignment and progress ownership is preserved');
