@@ -1,0 +1,45 @@
+name: V5.9A Student Home Refresh
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - development/v59a-student-home-refresh
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify V5.9A Student Home Refresh
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run V5.8 stable checkpoint regression
+        run: node site/tests/verify-v5.8-stable-release-checkpoint.cjs
+      - name: Run V5.5A Past Paper Practice regression
+        run: node site/tests/verify-v5.5a-past-paper-practice.cjs
+      - name: Run V5.6.1 Practice-first regression
+        run: node site/tests/verify-v5.6.1-practice-first-student-experience.cjs
+      - name: Run V5.7C Continue Learning Home regression
+        run: node site/tests/verify-v5.7c-student-continue-learning-home.cjs
+      - name: Run V5.7.1A XP/Level regression
+        run: node site/tests/verify-v5.7.1a-gamification-foundation.cjs
+      - name: Run V5.7.1B streaks/achievements regression
+        run: node site/tests/verify-v5.7.1b-streaks-achievements.cjs
+      - name: Run V5.7.2 weekly missions regression
+        run: node site/tests/verify-v5.7.2-weekly-missions.cjs
+      - name: Run V5.7.3 class challenge regression
+        run: node site/tests/verify-v5.7.3-class-challenges-teacher-gamification.cjs
+      - name: Run V5.8A first-use regression
+        run: node site/tests/verify-v5.8a-student-first-use-experience.cjs
+      - name: Run V5.9A student Home refresh regression
+        run: node site/tests/verify-v5.9a-student-home-refresh.cjs
