@@ -97,6 +97,11 @@ document.title = 'Math Practice V5.1';
    is intentionally not promoted while Exam Mode is deferred. V5.8 Stable then
    consolidates the accepted V5.8A-D sequence as the authoritative V5.8 release
    identity and audit checkpoint without adding network calls or data writes.
+   V5.9A refreshes the signed-in student Home presentation for Year 6: stronger
+   Continue Learning hierarchy, quick visual entry to Mixed, Topic and Past Paper
+   Practice, and a cohesive visual treatment for the existing XP, streak, mission,
+   achievement, assignment and progress surfaces. It delegates to the established
+   Practice and navigation controls and adds no new learning/data authority.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -153,7 +158,8 @@ window.addEventListener('load', () => {
     './v58c-parent-friendly-student-report.js',
     './v58c-parent-summary-workspace-shortcut.js',
     './v58d-content-workflow-consolidation.js',
-    './v58-stable-release-checkpoint.js'
+    './v58-stable-release-checkpoint.js',
+    './v59a-student-home-refresh.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
