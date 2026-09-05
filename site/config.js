@@ -112,6 +112,10 @@ document.title = 'Math Practice V5.1';
    class challenge, Recent Practice moved out of Home, cleaner student-only Home
    chrome, stronger bottom navigation and a coherent dark variant. It remains
    presentation-only and does not change any learning, grading or data authority.
+   V5.9A.3 corrects the real visible V5.7.4 class-challenge card after device review,
+   enforces the approved Missions + Badge then full-width Challenge order, hides
+   student-irrelevant teacher/release chrome and restores profile contrast in dark
+   mode. It is presentation-only and adds no learning or data authority.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -171,7 +175,8 @@ window.addEventListener('load', () => {
     './v58-stable-release-checkpoint.js',
     './v59a-student-home-refresh.js',
     './v59a1-student-home-design-system.js',
-    './v59a2-student-home-mobile-density.js'
+    './v59a2-student-home-mobile-density.js',
+    './v59a3-student-home-layout-correction.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
