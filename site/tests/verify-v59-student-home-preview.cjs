@@ -56,4 +56,17 @@ ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state tha
 ['.v57c-primary','.v57c-assignments','.v57c-progress','.v57c-learn','#my-assignments-btn','#my-progress-btn','#v40c-student-logout']
   .forEach(selector => ok(preview.includes(selector), `Missing V5.8 delegation selector: ${selector}`));
 
+// Handoff must reveal the established V5.8 destination and return to preview only on Home.
+ok(preview.includes('function suspendPreview()'), 'Preview must suspend itself before handing off to existing V5.8 destinations.');
+ok(preview.includes('function resumePreview()'), 'Preview must provide an explicit Home resume path.');
+ok(preview.includes("dataset.v59StudentHomePreviewState = 'handoff'"), 'Preview handoff state marker is missing.');
+ok(preview.includes("closest?.('[data-v40-nav=\"home\"],.back-home')"), 'Preview must resume only from established Home navigation.');
+
+// Rendering must be idempotent and ignore its own DOM mutations to avoid observer loops.
+ok(preview.includes('const signature = modelSignature(model);'), 'Preview must compute a stable render signature.');
+ok(preview.includes('lastSignature === signature'), 'Preview must skip unchanged re-renders.');
+ok(preview.includes('function previewOnlyMutation(mutation)'), 'Preview must identify its own DOM mutations.');
+ok(preview.includes('mutations.every(previewOnlyMutation)'), 'MutationObserver must ignore preview-only mutations.');
+ok(preview.includes('if (rendering || suspended) return;'), 'MutationObserver must stop during rendering and handoff.');
+
 console.log('V5.9 student home preview isolation checks passed.');
