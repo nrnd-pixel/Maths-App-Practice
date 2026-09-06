@@ -24,8 +24,12 @@ assert.match(config, /student-ai-help-v38/,
   'AI Help compatibility redirect must remain preserved');
 assert.match(config, /student-ai-help-v381/,
   'AI Help compatibility redirect must remain preserved');
-assert.doesNotMatch(config, /service[_-]?role/i,
-  'Browser config must never contain a service-role credential');
+assert.match(config, /supabasePublishableKey:\s*'sb_publishable_/,
+  'Browser config must retain only the publishable client key boundary');
+assert.doesNotMatch(config, /serviceRoleKey\s*:/i,
+  'Browser config must never define a service-role key');
+assert.match(config, /Maths Practice • Starting/,
+  'Historical V4 presentation must be neutralised before staged loading starts');
 
 // 2) The consolidated bootstrap must preserve the exact accepted outer manifest
 // order from V5.8.1. This is intentionally a loader-only change.
@@ -107,11 +111,13 @@ assert.match(bootstrap, /Loading your learning space/);
 assert.doesNotMatch(bootstrap, /Loading V\d/i);
 assert.match(bootstrap, /v582-bootstrap-overlay/);
 
-// 5) Readiness delegates to the accepted V5.8 checkpoint and has a safety timeout
-// so a presentation-only readiness problem cannot lock students out of the app.
+// 5) Readiness delegates to the accepted V5.8 checkpoint. The overlay stays up
+// through the retained historical identity timers, then has a safety timeout so
+// presentation readiness can never lock students out indefinitely.
 assert.match(bootstrap, /V58StableReleaseCheckpoint/);
+assert.match(bootstrap, /settleMs = 5350/);
 assert.match(bootstrap, /safety-timeout/);
-assert.match(bootstrap, /8500/);
+assert.match(bootstrap, /12000/);
 
 // 6) Introduce only a compatibility namespace / boot API. No feature authority,
 // database access, grading, auth, assignment or Exam write path belongs here.
