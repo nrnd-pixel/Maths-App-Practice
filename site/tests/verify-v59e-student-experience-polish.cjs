@@ -18,7 +18,7 @@ expect(source.includes("window.addEventListener('click', capture, true)"), 'V5.9
 
 expect(source.includes("prepareHomeLearn(mixed, 'mixed')"), 'Home Mixed Practice must be prepared for direct Learn handoff');
 expect(source.includes("button.dataset.v59Action = 'learn'"), 'Home Mixed Practice must bypass the V5.9B Practice hub while preserving V5.9A suspension');
-expect(source.includes("setPracticeType?.('past_paper')"), 'Past Paper selection must reuse the existing V5.5A practice type API');
+expect(source.includes("setPracticeType('past_paper')"), 'Past Paper selection must reuse the existing V5.5A practice type API');
 expect(source.includes('attempt >= 24'), 'Past Paper selection must use a bounded readiness retry');
 expect(source.includes('120'), 'Past Paper readiness retry must allow asynchronous option population');
 
