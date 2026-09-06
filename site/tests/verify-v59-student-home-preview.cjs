@@ -9,6 +9,7 @@ const site = path.join(root, 'site');
 const indexPath = path.join(site, 'index.html');
 const configPath = path.join(site, 'config.js');
 const previewPath = path.join(site, 'v59-student-home-preview.js');
+const practicePath = path.join(site, 'v59b-student-practice-preview.js');
 const entryPath = path.join(site, 'student-v59-preview', 'index.html');
 
 function read(file){ return fs.readFileSync(file, 'utf8'); }
@@ -21,6 +22,7 @@ function gitBlobSha(text){
 const index = read(indexPath);
 const config = read(configPath);
 const preview = read(previewPath);
+const practice = read(practicePath);
 const entry = read(entryPath);
 
 // Exact V5.8 stable root HTML must remain unchanged on the integration branch.
@@ -31,16 +33,14 @@ ok(/name=["']robots["'][^>]+noindex,nofollow/i.test(entry), 'Preview entry route
 ok(entry.includes("searchParams.set('v59-student-home-preview','1')"), 'Preview entry route must set the V5.9 preview flag.');
 ok(entry.includes('TEST PREVIEW · NOT PRODUCTION'), 'Preview entry route must visibly identify itself as non-production.');
 
-// V5.8 config may load the presentation layer only when the explicit query flag is present.
+// V5.8 config may load the presentation layers only when the explicit query flag is present.
 ok(config.includes("get('v59-student-home-preview') === '1'"), 'config.js must guard V5.9 preview loading behind the explicit query flag.');
-ok(config.includes("stagedScripts.push('./v59-student-home-preview.js')"), 'config.js must add the preview module only inside the guarded path.');
-ok((config.match(/v59-student-home-preview\.js/g) || []).length === 1, 'Preview module should be referenced exactly once from config.js.');
+ok(config.includes("stagedScripts.push('./v59-student-home-preview.js')"), 'config.js must add the Home preview module only inside the guarded path.');
+ok(config.includes("stagedScripts.push('./v59b-student-practice-preview.js')"), 'config.js must add the Practice preview module only inside the guarded path.');
+ok((config.match(/v59-student-home-preview\.js/g) || []).length === 1, 'Home preview module should be referenced exactly once from config.js.');
+ok((config.match(/v59b-student-practice-preview\.js/g) || []).length === 1, 'Practice preview module should be referenced exactly once from config.js.');
 
-// The preview module is presentation/delegation only: no direct network or persistence path.
-ok(preview.includes("get(PARAM) !== '1'"), 'Preview module must self-guard against accidental default loading.');
-ok(preview.includes("meta.content = 'noindex,nofollow'"), 'Preview module must mark the query preview noindex,nofollow.');
-ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state that it is using existing V5.8 data.');
-[
+const forbidden = [
   /\bfetch\s*\(/,
   /\bXMLHttpRequest\b/,
   /\bWebSocket\b/,
@@ -50,11 +50,23 @@ ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state tha
   /\.from\s*\(/,
   /localStorage\.setItem/,
   /sessionStorage\.setItem/
-].forEach(pattern => ok(!pattern.test(preview), `Preview module contains forbidden direct data/network behavior: ${pattern}`));
+];
+
+// Both V5.9 layers are presentation/delegation only: no direct network or persistence path.
+ok(preview.includes("get(PARAM) !== '1'"), 'Home preview module must self-guard against accidental default loading.');
+ok(preview.includes("meta.content = 'noindex,nofollow'"), 'Home preview module must mark the query preview noindex,nofollow.');
+ok(preview.includes('Real signed-in V5.8 data'), 'Home preview must visibly state that it is using existing V5.8 data.');
+ok(practice.includes("get(PARAM) !== '1'"), 'Practice preview module must self-guard against accidental default loading.');
+forbidden.forEach(pattern => {
+  ok(!pattern.test(preview), `Home preview contains forbidden direct data/network behavior: ${pattern}`);
+  ok(!pattern.test(practice), `Practice preview contains forbidden direct data/network behavior: ${pattern}`);
+});
 
 // All real student actions delegate into already accepted V5.8 controls/APIs.
 ['.v57c-primary','.v57c-assignments','.v57c-progress','.v57c-learn','#my-assignments-btn','#my-progress-btn','#v40c-student-logout','V55APastPaperPractice?.setPracticeType']
   .forEach(selector => ok(preview.includes(selector), `Missing V5.8 delegation selector/API: ${selector}`));
+['V55APastPaperPractice?.getPaperLibrary','V55APastPaperPractice?.setPracticeType','topic-filter','v55a-paper-year','v55a-paper-name']
+  .forEach(selector => ok(practice.includes(selector), `V5.9B Practice preview is not delegating to the established Practice source: ${selector}`));
 
 // Home must closely follow the approved concept hierarchy.
 ['Hi, ${html(model.name)}!','Today\'s practice','Mixed<br>Practice','Topic<br>Practice','Past<br>Papers','Assignments','Recommended next','Weekly missions','Latest badge','Class challenge']
@@ -66,15 +78,24 @@ ok(preview.includes('data-v59-action="notifications"'), 'Concept notification co
 ok(preview.includes('data-v59-action="settings"'), 'Concept settings control is missing.');
 ok(preview.includes('v573-class-challenge-card'), 'Class challenge must read the established V5.8 class-challenge source.');
 
-// Handoff must reveal the established V5.8 destination and return to preview through Home.
-ok(preview.includes('function suspendPreview()'), 'Preview must suspend itself before handing off to existing V5.8 destinations.');
-ok(preview.includes('function resumePreview()'), 'Preview must provide an explicit Home resume path.');
-ok(preview.includes("closest?.('[data-v40-nav=\"home\"],.back-home')"), 'Preview must resume from established Home navigation.');
+// V5.9B must reproduce the approved Practice hub, Topic picker and Past Papers hierarchy.
+['Your practice space','How would you like to practise?','Assigned practice','Recommended practice','Pick a topic','Past Papers','Familiar paper choices. Friendly practice.']
+  .forEach(label => ok(practice.includes(label), `Approved Practice concept element missing: ${label}`));
+['data-v59b-nav="home"','data-v59b-nav="practice"','data-v59b-nav="progress"','data-v59b-nav="badges"','data-v59b-nav="more"']
+  .forEach(action => ok(practice.includes(action), `V5.9B five-item navigation is missing: ${action}`));
+ok(practice.includes('function captureHomeAction(event)'), 'Practice preview must intercept Home Practice navigation without rewriting V5.8.');
+ok(practice.includes('function chooseTopic(value)'), 'Practice preview must map topic choices to the established topic filter.');
+ok(practice.includes('function choosePaper(yearValue,paperName)'), 'Practice preview must map paper choices to the established Past Paper Practice controls.');
 
-// Rendering must be idempotent and ignore its own DOM mutations to avoid observer loops.
-ok(preview.includes('function signatureFor(model)'), 'Preview must compute a stable render signature.');
-ok(preview.includes('signature===lastSignature'), 'Preview must skip unchanged re-renders.');
-ok(preview.includes('function mutationBelongsToPreview(mutation)'), 'Preview must identify its own DOM mutations.');
+// Handoff must reveal the established V5.8 destination and return to preview through Home.
+ok(preview.includes('function suspendPreview()'), 'Home preview must suspend itself before handing off to existing V5.8 destinations.');
+ok(preview.includes('function resumePreview()'), 'Home preview must provide an explicit Home resume path.');
+ok(preview.includes("closest?.('[data-v40-nav=\"home\"],.back-home')"), 'Home preview must resume from established Home navigation.');
+
+// Home rendering must remain idempotent and ignore its own DOM mutations.
+ok(preview.includes('function signatureFor(model)'), 'Home preview must compute a stable render signature.');
+ok(preview.includes('signature===lastSignature'), 'Home preview must skip unchanged re-renders.');
+ok(preview.includes('function mutationBelongsToPreview(mutation)'), 'Home preview must identify its own DOM mutations.');
 ok(preview.includes('mutations.every(mutationBelongsToPreview)'), 'MutationObserver must ignore preview-only mutations.');
 
-console.log('V5.9 student home preview concept/isolation checks passed.');
+console.log('V5.9 student Home + Practice preview concept/isolation checks passed.');
