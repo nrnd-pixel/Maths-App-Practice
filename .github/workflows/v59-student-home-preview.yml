@@ -10,10 +10,12 @@ on:
       - 'site/v59c-student-quiz-result-preview.js'
       - 'site/v59d-student-experience-preview.js'
       - 'site/v59e-student-experience-polish.js'
+      - 'site/v59f-student-home-concept-polish.js'
       - 'site/student-v59-preview/**'
       - 'site/tests/verify-v59-student-home-preview.cjs'
       - 'site/tests/verify-v59d-student-experience-preview.cjs'
       - 'site/tests/verify-v59e-student-experience-polish.cjs'
+      - 'site/tests/verify-v59f-student-home-concept-polish.cjs'
       - '.github/workflows/v59-student-home-preview.yml'
   push:
     branches:
@@ -42,9 +44,11 @@ jobs:
           node --check site/v59c-student-quiz-result-preview.js
           node --check site/v59d-student-experience-preview.js
           node --check site/v59e-student-experience-polish.js
+          node --check site/v59f-student-home-concept-polish.js
 
       - name: Verify preview isolation
         run: |
           node site/tests/verify-v59-student-home-preview.cjs
           node site/tests/verify-v59d-student-experience-preview.cjs
           node site/tests/verify-v59e-student-experience-polish.cjs
+          node site/tests/verify-v59f-student-home-concept-polish.cjs
