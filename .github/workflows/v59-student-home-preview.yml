@@ -7,6 +7,7 @@ on:
       - 'site/config.js'
       - 'site/v59-student-home-preview.js'
       - 'site/v59b-student-practice-preview.js'
+      - 'site/v59c-student-quiz-result-preview.js'
       - 'site/student-v59-preview/**'
       - 'site/tests/verify-v59-student-home-preview.cjs'
       - '.github/workflows/v59-student-home-preview.yml'
@@ -34,6 +35,7 @@ jobs:
         run: |
           node --check site/v59-student-home-preview.js
           node --check site/v59b-student-practice-preview.js
+          node --check site/v59c-student-quiz-result-preview.js
 
       - name: Verify preview isolation
         run: node site/tests/verify-v59-student-home-preview.cjs
