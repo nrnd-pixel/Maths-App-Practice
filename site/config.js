@@ -159,6 +159,7 @@ window.addEventListener('load', () => {
   if (new URLSearchParams(window.location.search).get('v59-student-home-preview') === '1') {
     stagedScripts.push('./v59-student-home-preview.js');
     stagedScripts.push('./v59b-student-practice-preview.js');
+    stagedScripts.push('./v59c-student-quiz-result-preview.js');
   }
 
   stagedScripts.forEach(src => {
