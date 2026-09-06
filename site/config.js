@@ -100,7 +100,7 @@ document.title = 'Math Practice V5.1';
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
-  [
+  const stagedScripts = [
     './v38-ai-help.js',
     './v38-ai-admin.js',
     './v38-ai-polish.js',
@@ -154,7 +154,13 @@ window.addEventListener('load', () => {
     './v58c-parent-summary-workspace-shortcut.js',
     './v58d-content-workflow-consolidation.js',
     './v58-stable-release-checkpoint.js'
-  ].forEach(src => {
+  ];
+
+  if (new URLSearchParams(window.location.search).get('v59-student-home-preview') === '1') {
+    stagedScripts.push('./v59-student-home-preview.js');
+  }
+
+  stagedScripts.forEach(src => {
     const script = document.createElement('script');
     script.src = src;
     script.async = false;
