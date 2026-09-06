@@ -1,0 +1,35 @@
+name: Student UI Test Isolation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'site/student-ui-test/**'
+      - 'site/tests/verify-student-ui-test-isolation.cjs'
+      - 'site/index.html'
+      - 'site/config.js'
+      - '.github/workflows/student-ui-test-isolation.yml'
+  push:
+    branches:
+      - test/student-ui-prototype-v58
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify isolated student UI prototype
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify prototype isolation
+        run: node site/tests/verify-student-ui-test-isolation.cjs
+      - name: Re-run V5.8 stable checkpoint regression
+        run: node site/tests/verify-v5.8-stable-release-checkpoint.cjs
