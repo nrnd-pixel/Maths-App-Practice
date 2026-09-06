@@ -29,6 +29,19 @@ expect(source.includes("getElementById('v40c-student-logout')"), 'Sign out must 
 expect(source.includes('latest practice score'), 'Progress must use score wording instead of labelling the extracted percentage accuracy');
 expect(source.includes('latest visible Practice score'), 'Progress summary must use safer score wording');
 
+// Stage 1.1 shell cleanup and concept-fidelity checks.
+expect(source.includes('body.v59-preview-home-ready .app-theme-bar'), 'signed-in V5.9 preview must hide the legacy floating theme bar');
+expect(source.includes('body.v59-preview-home-ready #start>.header'), 'signed-in V5.9 preview must hide the legacy Math Practice header');
+expect(source.includes('body.v59-preview-home-ready #start .v39-teacher-zone'), 'signed-in V5.9 preview must hide Teacher access from the student shell');
+expect(source.includes('body.v59-preview-home-ready #start>.info'), 'signed-in V5.9 preview must hide the legacy release footer');
+expect(source.includes("banner.textContent = 'TEST PREVIEW'"), 'preview safety label must be compact instead of cutting across student content');
+expect(source.includes('html[data-theme="dark"]'), 'V5.9E must include dedicated dark-mode concept contrast fixes');
+expect(source.includes("'🎉 Weekly Missions Complete!'"), 'completed weekly missions must use a coherent celebratory state');
+expect(source.includes("earned.textContent = 'You earned this!'"), 'latest earned badge must receive a student-facing celebration cue');
+expect(source.includes("challengeIcon.textContent = '🏆'"), 'class challenge must receive a stronger concept-style visual focal point');
+expect(source.includes('data-v59e-theme-toggle'), 'V5.9 Settings must expose Appearance inside the student experience');
+expect(source.includes("getElementById('theme-toggle')"), 'V5.9 Appearance must delegate to the existing theme control');
+
 const forbidden = [
   'fetch(',
   'XMLHttpRequest',
