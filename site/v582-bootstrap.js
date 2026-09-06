@@ -70,7 +70,8 @@
     phase: 'loading',
     loaded: 0,
     failed: [],
-    readyAt: null
+    readyAt: null,
+    stableSeenAt: null
   };
 
   let resolveReady;
@@ -179,19 +180,37 @@
   }
 
   function waitForStableIdentity(){
-    const deadline = Date.now() + 8500;
+    /*
+     * V5.8.1 still contains historical release-identity timers below the final
+     * stable checkpoint. Keep those internal transitions behind the neutral
+     * loading screen until the accepted V5.8 checkpoint has had time to finish
+     * its final authoritative identity pass. This changes presentation only.
+     */
+    const settleMs = 5350;
+    const deadline = Date.now() + 12000;
+
     const check = () => {
-      if (legacyV58Ready()) {
-        window.setTimeout(() => finish('v58-ready'), 120);
+      if (!state.stableSeenAt && ROOT.V58StableReleaseCheckpoint) {
+        state.stableSeenAt = Date.now();
+      }
+
+      const stableSettled = state.stableSeenAt !== null
+        && (Date.now() - state.stableSeenAt) >= settleMs;
+
+      if (legacyV58Ready() && stableSettled) {
+        finish('v58-settled');
         return;
       }
+
       if (Date.now() >= deadline) {
         console.warn('V5.8.2 bootstrap: stable-release readiness was not confirmed before the safety timeout.');
         finish('safety-timeout');
         return;
       }
+
       window.setTimeout(check, 100);
     };
+
     check();
   }
 
@@ -234,6 +253,7 @@
       failed: [...state.failed],
       total: MANIFEST.length,
       stableV58Ready: legacyV58Ready(),
+      stableSeenAt: state.stableSeenAt,
       elapsedMs: Date.now() - startedAt
     })
   });
