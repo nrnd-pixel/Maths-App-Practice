@@ -163,6 +163,7 @@ window.addEventListener('load', () => {
     stagedScripts.push('./v59d-student-experience-preview.js');
     stagedScripts.push('./v59e-student-experience-polish.js');
     stagedScripts.push('./v59f-student-home-concept-polish.js');
+    stagedScripts.push('./v59g-student-home-visual-fidelity.js');
   }
 
   stagedScripts.forEach(src => {
