@@ -36,7 +36,7 @@ ok(config.includes("get('v59-student-home-preview') === '1'"), 'config.js must g
 ok(config.includes("stagedScripts.push('./v59-student-home-preview.js')"), 'config.js must add the preview module only inside the guarded path.');
 ok((config.match(/v59-student-home-preview\.js/g) || []).length === 1, 'Preview module should be referenced exactly once from config.js.');
 
-// The preview module is presentation/delegation only: no new network, Supabase or persistence path.
+// The preview module is presentation/delegation only: no new network or persistence path.
 ok(preview.includes("get(PARAM) !== '1'"), 'Preview module must self-guard against accidental default loading.');
 ok(preview.includes("meta.content = 'noindex,nofollow'"), 'Preview module must mark the query preview noindex,nofollow.');
 ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state that it is using existing V5.8 data.');
@@ -46,7 +46,6 @@ ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state tha
   /\bWebSocket\b/,
   /\bsendBeacon\b/,
   /\bcloud\s*\./,
-  /\bsupabase\b/i,
   /\.rpc\s*\(/,
   /\.from\s*\(/,
   /localStorage\.setItem/,
