@@ -25,6 +25,8 @@ expect(source.includes("['paper','[data-v59-action=\"past_paper\"]']"), 'Past Pa
 expect(source.includes('v59g-badge-card'), 'Latest badge must receive celebratory visual treatment');
 expect(source.includes("content:'🏆'"), 'Class Challenge must receive a larger trophy treatment');
 expect(source.includes('html[data-theme="dark"]'), 'Visual fidelity layer must preserve explicit dark-mode treatment');
+expect(source.includes('v59-welcome-wrap:before'), 'Header must include the concept-style mountain layer');
+expect(source.includes('v59-avatar:after'), 'Avatar must receive the concept-style achievement accent');
 
 const forbidden = [
   'fetch(',
