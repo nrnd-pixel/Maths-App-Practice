@@ -74,6 +74,9 @@
       @media(min-width:980px){
         html[data-theme="dark"] #${HOME_ID} .v59-bottom button:not([data-v59-action="home"]){background:rgba(255,255,255,.04)}
       }
+      @media(max-width:979px){
+        html[data-theme="dark"] #${HOME_ID} .v59-bottom button:not([data-v59-action="home"]){color:#65718a}
+      }
       @media(max-width:620px){
         html[data-v59-student-home-preview="true"] body.v59-preview-home-ready>.shell{padding-left:14px;padding-right:14px}
         #${HOME_ID} .v59-avatar{width:60px;height:60px;border-radius:21px;font-size:22px}
