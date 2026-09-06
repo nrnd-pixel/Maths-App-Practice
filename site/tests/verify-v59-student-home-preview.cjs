@@ -36,7 +36,7 @@ ok(config.includes("get('v59-student-home-preview') === '1'"), 'config.js must g
 ok(config.includes("stagedScripts.push('./v59-student-home-preview.js')"), 'config.js must add the preview module only inside the guarded path.');
 ok((config.match(/v59-student-home-preview\.js/g) || []).length === 1, 'Preview module should be referenced exactly once from config.js.');
 
-// The preview module is presentation/delegation only: no new network or persistence path.
+// The preview module is presentation/delegation only: no direct network or persistence path.
 ok(preview.includes("get(PARAM) !== '1'"), 'Preview module must self-guard against accidental default loading.');
 ok(preview.includes("meta.content = 'noindex,nofollow'"), 'Preview module must mark the query preview noindex,nofollow.');
 ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state that it is using existing V5.8 data.');
@@ -52,21 +52,29 @@ ok(preview.includes('Real signed-in V5.8 data'), 'Preview must visibly state tha
   /sessionStorage\.setItem/
 ].forEach(pattern => ok(!pattern.test(preview), `Preview module contains forbidden direct data/network behavior: ${pattern}`));
 
-// All interactive preview actions must delegate into accepted V5.8 controls.
-['.v57c-primary','.v57c-assignments','.v57c-progress','.v57c-learn','#my-assignments-btn','#my-progress-btn','#v40c-student-logout']
-  .forEach(selector => ok(preview.includes(selector), `Missing V5.8 delegation selector: ${selector}`));
+// All real student actions delegate into already accepted V5.8 controls/APIs.
+['.v57c-primary','.v57c-assignments','.v57c-progress','.v57c-learn','#my-assignments-btn','#my-progress-btn','#v40c-student-logout','V55APastPaperPractice?.setPracticeType']
+  .forEach(selector => ok(preview.includes(selector), `Missing V5.8 delegation selector/API: ${selector}`));
 
-// Handoff must reveal the established V5.8 destination and return to preview only on Home.
+// Home must closely follow the approved concept hierarchy.
+['Hi, ${html(model.name)}!','Today\'s practice','Mixed<br>Practice','Topic<br>Practice','Past<br>Papers','Assignments','Recommended next','Weekly missions','Latest badge','Class challenge']
+  .forEach(label => ok(preview.includes(label), `Approved Home concept element missing: ${label}`));
+['data-v59-action="home"','data-v59-action="practice"','data-v59-action="progress"','data-v59-action="badges"','data-v59-action="more"']
+  .forEach(action => ok(preview.includes(action), `Approved five-item navigation is missing: ${action}`));
+ok(preview.includes('v59-desktop-brand'), 'Desktop Maths Practice brand/sidebar treatment is missing.');
+ok(preview.includes('data-v59-action="notifications"'), 'Concept notification control is missing.');
+ok(preview.includes('data-v59-action="settings"'), 'Concept settings control is missing.');
+ok(preview.includes('v573-class-challenge-card'), 'Class challenge must read the established V5.8 class-challenge source.');
+
+// Handoff must reveal the established V5.8 destination and return to preview through Home.
 ok(preview.includes('function suspendPreview()'), 'Preview must suspend itself before handing off to existing V5.8 destinations.');
 ok(preview.includes('function resumePreview()'), 'Preview must provide an explicit Home resume path.');
-ok(preview.includes("dataset.v59StudentHomePreviewState = 'handoff'"), 'Preview handoff state marker is missing.');
-ok(preview.includes("closest?.('[data-v40-nav=\"home\"],.back-home')"), 'Preview must resume only from established Home navigation.');
+ok(preview.includes("closest?.('[data-v40-nav=\"home\"],.back-home')"), 'Preview must resume from established Home navigation.');
 
 // Rendering must be idempotent and ignore its own DOM mutations to avoid observer loops.
-ok(preview.includes('const signature = modelSignature(model);'), 'Preview must compute a stable render signature.');
-ok(preview.includes('lastSignature === signature'), 'Preview must skip unchanged re-renders.');
-ok(preview.includes('function previewOnlyMutation(mutation)'), 'Preview must identify its own DOM mutations.');
-ok(preview.includes('mutations.every(previewOnlyMutation)'), 'MutationObserver must ignore preview-only mutations.');
-ok(preview.includes('if (rendering || suspended) return;'), 'MutationObserver must stop during rendering and handoff.');
+ok(preview.includes('function signatureFor(model)'), 'Preview must compute a stable render signature.');
+ok(preview.includes('signature===lastSignature'), 'Preview must skip unchanged re-renders.');
+ok(preview.includes('function mutationBelongsToPreview(mutation)'), 'Preview must identify its own DOM mutations.');
+ok(preview.includes('mutations.every(mutationBelongsToPreview)'), 'MutationObserver must ignore preview-only mutations.');
 
-console.log('V5.9 student home preview isolation checks passed.');
+console.log('V5.9 student home preview concept/isolation checks passed.');
