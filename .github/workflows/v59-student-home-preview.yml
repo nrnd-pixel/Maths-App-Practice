@@ -8,8 +8,10 @@ on:
       - 'site/v59-student-home-preview.js'
       - 'site/v59b-student-practice-preview.js'
       - 'site/v59c-student-quiz-result-preview.js'
+      - 'site/v59d-student-experience-preview.js'
       - 'site/student-v59-preview/**'
       - 'site/tests/verify-v59-student-home-preview.cjs'
+      - 'site/tests/verify-v59d-student-experience-preview.cjs'
       - '.github/workflows/v59-student-home-preview.yml'
   push:
     branches:
@@ -36,6 +38,9 @@ jobs:
           node --check site/v59-student-home-preview.js
           node --check site/v59b-student-practice-preview.js
           node --check site/v59c-student-quiz-result-preview.js
+          node --check site/v59d-student-experience-preview.js
 
       - name: Verify preview isolation
-        run: node site/tests/verify-v59-student-home-preview.cjs
+        run: |
+          node site/tests/verify-v59-student-home-preview.cjs
+          node site/tests/verify-v59d-student-experience-preview.cjs
