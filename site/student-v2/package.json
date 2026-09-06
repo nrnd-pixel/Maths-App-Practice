@@ -1,0 +1,1 @@
+{"name":"maths-student-ui-v2-test","private":true,"version":"0.1.0","scripts":{"dev":"node preview-server.cjs","build":"node build.cjs","check":"node --check app.js"}}
