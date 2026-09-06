@@ -160,6 +160,7 @@ window.addEventListener('load', () => {
     stagedScripts.push('./v59-student-home-preview.js');
     stagedScripts.push('./v59b-student-practice-preview.js');
     stagedScripts.push('./v59c-student-quiz-result-preview.js');
+    stagedScripts.push('./v59d-student-experience-preview.js');
   }
 
   stagedScripts.forEach(src => {
