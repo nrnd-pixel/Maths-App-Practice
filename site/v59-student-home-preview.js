@@ -18,6 +18,9 @@
   const BANNER_ID = 'v59-student-home-preview-banner';
   let timer = 0;
   let observer = null;
+  let suspended = false;
+  let rendering = false;
+  let lastSignature = '';
 
   const text = (node, fallback = '') => String(node?.textContent || fallback).replace(/\s+/g, ' ').trim();
   const html = value => String(value ?? '')
@@ -46,6 +49,7 @@
       body.v59-preview-home-ready #start .v40-learning-hub-hero,
       body.v59-preview-home-ready #start .v40c3-home-dashboard,
       body.v59-preview-home-ready #start .v40c-session-panel.v40c-authenticated{display:none!important}
+      #${SHELL_ID}[hidden]{display:none!important}
       #${SHELL_ID}{--v59-ink:#17264b;--v59-muted:#61708a;--v59-line:#e2eaf5;--v59-blue:#2163d9;--v59-purple:#6840d8;--v59-green:#119270;color:var(--v59-ink);font-family:ui-rounded,"Trebuchet MS",Inter,system-ui,sans-serif;display:grid;gap:17px;padding:2px 0 88px}
       #${SHELL_ID} *{box-sizing:border-box}
       #${SHELL_ID} button{font:inherit}
@@ -169,6 +173,10 @@
     };
   }
 
+  function modelSignature(model){
+    return JSON.stringify(model);
+  }
+
   function initials(name){
     return String(name || 'Student').split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]?.toUpperCase() || '').join('') || 'S';
   }
@@ -180,36 +188,69 @@
     return true;
   }
 
+  function suspendPreview(){
+    suspended = true;
+    document.documentElement.dataset.v59StudentHomePreviewState = 'handoff';
+    document.body.classList.remove('v59-preview-home-ready');
+    const shell = document.getElementById(SHELL_ID);
+    if (shell) shell.hidden = true;
+  }
+
+  function resumePreview(){
+    suspended = false;
+    lastSignature = '';
+    document.documentElement.dataset.v59StudentHomePreviewState = 'home';
+    const shell = document.getElementById(SHELL_ID);
+    if (shell) shell.hidden = false;
+    schedule();
+  }
+
+  function handoff(work){
+    suspendPreview();
+    let ok = false;
+    try { ok = work() !== false; } catch { ok = false; }
+    if (!ok) resumePreview();
+    return ok;
+  }
+
   function openLearn(){
-    if (delegate('#start .v57c-learn')) return;
-    delegate('[data-v40-nav="learn"]');
+    if (delegate('#start .v57c-learn')) return true;
+    return delegate('[data-v40-nav="learn"]');
   }
 
   function runAction(action){
-    if (action === 'continue') delegate('#start .v57c-primary');
-    else if (action === 'assignments') delegate('#start .v57c-assignments') || delegate('#my-assignments-btn');
-    else if (action === 'progress') delegate('#start .v57c-progress') || delegate('#my-progress-btn');
-    else if (action === 'learn') openLearn();
-    else if (action === 'recommend') delegate('#start .v57c-recommend') || openLearn();
-    else if (action === 'recent') delegate('#start .v57c-result') || delegate('#start .v57c-progress') || delegate('#my-progress-btn');
-    else if (action === 'badges') document.querySelector(`#${SHELL_ID} .v59-achievement`)?.scrollIntoView?.({behavior:'smooth', block:'center'});
-    else if (action === 'logout') delegate('#v40c-student-logout');
-    else if (action === 'home') window.scrollTo({top:0, behavior:'smooth'});
+    if (action === 'home') {
+      window.scrollTo({top:0, behavior:'smooth'});
+      return;
+    }
+    if (action === 'badges') {
+      document.querySelector(`#${SHELL_ID} .v59-achievement`)?.scrollIntoView?.({behavior:'smooth', block:'center'});
+      return;
+    }
+    if (action === 'continue') handoff(() => delegate('#start .v57c-primary'));
+    else if (action === 'assignments') handoff(() => delegate('#start .v57c-assignments') || delegate('#my-assignments-btn'));
+    else if (action === 'progress') handoff(() => delegate('#start .v57c-progress') || delegate('#my-progress-btn'));
+    else if (action === 'learn') handoff(openLearn);
+    else if (action === 'recommend') handoff(() => delegate('#start .v57c-recommend') || openLearn());
+    else if (action === 'recent') handoff(() => delegate('#start .v57c-result') || delegate('#start .v57c-progress') || delegate('#my-progress-btn'));
+    else if (action === 'logout') handoff(() => delegate('#v40c-student-logout'));
   }
 
   function render(){
     const start = document.getElementById('start');
     const dashboard = document.querySelector('#start .v40c3-home-dashboard');
-    if (!start) return false;
+    if (!start || suspended) return false;
 
     if (!signedIn()) {
       document.body.classList.remove('v59-preview-home-ready');
       document.getElementById(SHELL_ID)?.remove();
+      lastSignature = '';
       return false;
     }
 
     if (!dashboard?.querySelector('.v57c-continue-card')) return false;
     const model = readModel();
+    const signature = modelSignature(model);
     let shell = document.getElementById(SHELL_ID);
     if (!shell) {
       shell = document.createElement('section');
@@ -218,65 +259,78 @@
       dashboard.insertAdjacentElement('beforebegin', shell);
     }
 
+    if (lastSignature === signature && shell.innerHTML.trim()) {
+      shell.hidden = false;
+      document.body.classList.add('v59-preview-home-ready');
+      return true;
+    }
+
     const classLine = [model.year ? `Year ${model.year}` : '', model.className ? `Class ${model.className}` : ''].filter(Boolean).join(' · ');
     const meta = model.continueMeta.length ? model.continueMeta : ['Uses your existing V5.8 learning data'];
     const missionMarkup = model.missions.length
       ? model.missions.map(mission => `<div class="v59-mission-row"><div class="v59-mission-icon">${html(mission.icon)}</div><div class="v59-mission-main"><strong>${html(mission.title)}</strong><span>${html(mission.progress || 'Keep going')}</span></div></div>`).join('')
       : '<p>Your weekly missions are loading from the existing V5.8 gamification system.</p>';
 
-    shell.innerHTML = `
-      <div class="v59-top">
-        <div class="v59-avatar" aria-hidden="true">${html(initials(model.name))}</div>
-        <div class="v59-welcome"><h1>Hello, ${html(model.name)}!</h1><p>${html(classLine || 'Signed in student')} · V5.9 preview</p></div>
-        <button type="button" class="v59-logout" data-v59-action="logout" aria-label="Sign out">↪</button>
-      </div>
-
-      <div class="v59-level">
-        <strong>${html(model.levelTitle)}</strong>
-        <span class="v59-streak">${html(model.streak)}</span>
-        <span class="v59-xp">${html(model.xpLabel)}</span>
-        <div class="v59-track" role="progressbar" aria-label="XP progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${model.levelProgress}"><span style="width:${model.levelProgress}%"></span></div>
-      </div>
-
-      <article class="v59-hero">
-        <div class="v59-hero-copy">
-          <div class="v59-kicker">Continue Learning</div>
-          <h2>${html(model.continueTitle)}</h2>
-          <p>${html(model.continueText)}</p>
-          <div class="v59-meta">${meta.map(item => `<span>${html(item)}</span>`).join('')}</div>
-          <button type="button" class="v59-main-cta" data-v59-action="continue">Continue</button>
+    rendering = true;
+    try {
+      shell.innerHTML = `
+        <div class="v59-top">
+          <div class="v59-avatar" aria-hidden="true">${html(initials(model.name))}</div>
+          <div class="v59-welcome"><h1>Hello, ${html(model.name)}!</h1><p>${html(classLine || 'Signed in student')} · V5.9 preview</p></div>
+          <button type="button" class="v59-logout" data-v59-action="logout" aria-label="Sign out">↪</button>
         </div>
-      </article>
 
-      <section>
-        <div class="v59-section-head"><h2>Choose Practice</h2><span>Existing V5.8 engine</span></div>
-        <div class="v59-quick">
-          <button type="button" class="v59-tile" data-v59-action="learn"><span class="v59-tile-icon">✏️</span>Practice<small>Mixed, Topic and Past Paper Practice</small></button>
-          <button type="button" class="v59-tile" data-v59-action="progress"><span class="v59-tile-icon">📈</span>Progress<small>Open your existing learning dashboard</small></button>
-          <button type="button" class="v59-tile" data-v59-action="assignments"><span class="v59-tile-icon">📚</span>Assignments<small>Teacher-assigned Practice</small></button>
+        <div class="v59-level">
+          <strong>${html(model.levelTitle)}</strong>
+          <span class="v59-streak">${html(model.streak)}</span>
+          <span class="v59-xp">${html(model.xpLabel)}</span>
+          <div class="v59-track" role="progressbar" aria-label="XP progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${model.levelProgress}"><span style="width:${model.levelProgress}%"></span></div>
         </div>
-      </section>
 
-      <div class="v59-grid">
-        <article class="v59-card"><div class="v59-card-kicker">Teacher work</div><h3>${html(model.assignmentTitle)}</h3><p>${html(model.assignmentText)}</p><button type="button" data-v59-action="assignments">My Assignments</button></article>
-        <article class="v59-card"><div class="v59-card-kicker">Recommended next</div><h3>${html(model.recommendationTitle)}</h3><p>${html(model.recommendationText)}</p><button type="button" data-v59-action="recommend">Open Recommendation</button></article>
-        <article class="v59-card"><div class="v59-card-kicker">Recent Practice</div><h3>${html(model.recentTitle)}</h3><p>${html(model.recentText)}</p><button type="button" data-v59-action="recent">View Progress</button></article>
-        <article class="v59-card v59-achievement"><div class="v59-card-kicker">Latest Achievement</div><h3>${html(model.achievementTitle)}</h3><p>${html(model.achievementText)}</p>${model.achievementMeta ? `<p style="margin-top:7px;font-weight:800">${html(model.achievementMeta)}</p>` : ''}<button type="button" data-v59-action="badges">Achievements</button></article>
-        <article class="v59-card v59-missions"><div class="v59-card-kicker">Weekly Missions</div><h3>${html(model.missionsTitle)}${model.missionsMeta ? ` · ${html(model.missionsMeta)}` : ''}</h3>${missionMarkup}</article>
-      </div>
+        <article class="v59-hero">
+          <div class="v59-hero-copy">
+            <div class="v59-kicker">Continue Learning</div>
+            <h2>${html(model.continueTitle)}</h2>
+            <p>${html(model.continueText)}</p>
+            <div class="v59-meta">${meta.map(item => `<span>${html(item)}</span>`).join('')}</div>
+            <button type="button" class="v59-main-cta" data-v59-action="continue">Continue</button>
+          </div>
+        </article>
 
-      <nav class="v59-bottom" aria-label="V5.9 student preview navigation">
-        <button type="button" data-v59-action="home"><span>🏠</span>Home</button>
-        <button type="button" data-v59-action="learn"><span>✏️</span>Practice</button>
-        <button type="button" data-v59-action="progress"><span>📊</span>Progress</button>
-        <button type="button" data-v59-action="badges"><span>🏅</span>Badges</button>
-      </nav>`;
+        <section>
+          <div class="v59-section-head"><h2>Choose Practice</h2><span>Existing V5.8 engine</span></div>
+          <div class="v59-quick">
+            <button type="button" class="v59-tile" data-v59-action="learn"><span class="v59-tile-icon">✏️</span>Practice<small>Mixed, Topic and Past Paper Practice</small></button>
+            <button type="button" class="v59-tile" data-v59-action="progress"><span class="v59-tile-icon">📈</span>Progress<small>Open your existing learning dashboard</small></button>
+            <button type="button" class="v59-tile" data-v59-action="assignments"><span class="v59-tile-icon">📚</span>Assignments<small>Teacher-assigned Practice</small></button>
+          </div>
+        </section>
 
-    shell.querySelectorAll('[data-v59-action]').forEach(button => {
-      button.addEventListener('click', () => runAction(button.dataset.v59Action));
-    });
-    document.body.classList.add('v59-preview-home-ready');
-    return true;
+        <div class="v59-grid">
+          <article class="v59-card"><div class="v59-card-kicker">Teacher work</div><h3>${html(model.assignmentTitle)}</h3><p>${html(model.assignmentText)}</p><button type="button" data-v59-action="assignments">My Assignments</button></article>
+          <article class="v59-card"><div class="v59-card-kicker">Recommended next</div><h3>${html(model.recommendationTitle)}</h3><p>${html(model.recommendationText)}</p><button type="button" data-v59-action="recommend">Open Recommendation</button></article>
+          <article class="v59-card"><div class="v59-card-kicker">Recent Practice</div><h3>${html(model.recentTitle)}</h3><p>${html(model.recentText)}</p><button type="button" data-v59-action="recent">View Progress</button></article>
+          <article class="v59-card v59-achievement"><div class="v59-card-kicker">Latest Achievement</div><h3>${html(model.achievementTitle)}</h3><p>${html(model.achievementText)}</p>${model.achievementMeta ? `<p style="margin-top:7px;font-weight:800">${html(model.achievementMeta)}</p>` : ''}<button type="button" data-v59-action="badges">Achievements</button></article>
+          <article class="v59-card v59-missions"><div class="v59-card-kicker">Weekly Missions</div><h3>${html(model.missionsTitle)}${model.missionsMeta ? ` · ${html(model.missionsMeta)}` : ''}</h3>${missionMarkup}</article>
+        </div>
+
+        <nav class="v59-bottom" aria-label="V5.9 student preview navigation">
+          <button type="button" data-v59-action="home"><span>🏠</span>Home</button>
+          <button type="button" data-v59-action="learn"><span>✏️</span>Practice</button>
+          <button type="button" data-v59-action="progress"><span>📊</span>Progress</button>
+          <button type="button" data-v59-action="badges"><span>🏅</span>Badges</button>
+        </nav>`;
+
+      shell.querySelectorAll('[data-v59-action]').forEach(button => {
+        button.addEventListener('click', () => runAction(button.dataset.v59Action));
+      });
+      lastSignature = signature;
+      shell.hidden = false;
+      document.body.classList.add('v59-preview-home-ready');
+      return true;
+    } finally {
+      rendering = false;
+    }
   }
 
   function banner(){
@@ -289,25 +343,44 @@
   }
 
   function schedule(attempt = 0){
+    if (suspended) return;
     if (timer) window.clearTimeout(timer);
     timer = window.setTimeout(() => {
       timer = 0;
+      if (suspended) return;
       banner();
       const ok = render();
-      if (!ok && attempt < 40) schedule(attempt + 1);
+      if (!ok && !suspended && attempt < 40) schedule(attempt + 1);
     }, attempt ? 180 : 40);
+  }
+
+  function previewNode(node){
+    if (!node) return false;
+    const element = node.nodeType === 1 ? node : node.parentElement;
+    return !!element?.closest?.(`#${SHELL_ID},#${BANNER_ID}`);
+  }
+
+  function previewOnlyMutation(mutation){
+    if (previewNode(mutation.target)) return true;
+    const changed = [...mutation.addedNodes, ...mutation.removedNodes];
+    return changed.length > 0 && changed.every(previewNode);
   }
 
   function watch(){
     if (observer || typeof MutationObserver === 'undefined') return;
     const start = document.getElementById('start');
     if (!start) return;
-    observer = new MutationObserver(() => schedule());
+    observer = new MutationObserver(mutations => {
+      if (rendering || suspended) return;
+      if (mutations.every(previewOnlyMutation)) return;
+      schedule();
+    });
     observer.observe(start, {subtree:true, childList:true, attributes:true, attributeFilter:['class','data-v57c-rendered','data-xp','data-level']});
   }
 
   function wire(){
     document.documentElement.dataset.v59StudentHomePreview = 'true';
+    document.documentElement.dataset.v59StudentHomePreviewState = 'home';
     markNoIndex();
     injectStyles();
     banner();
@@ -315,7 +388,12 @@
     ['v57c:home-updated','v571a:gamification-updated','v571b:achievements-updated','v572:missions-updated'].forEach(name => window.addEventListener(name, () => schedule()));
     window.addEventListener('pageshow', () => schedule());
     document.addEventListener('click', event => {
-      if (event.target?.closest?.('#v40c-student-logout,[data-v40-nav="home"],.back-home')) schedule();
+      if (event.target?.closest?.('[data-v40-nav="home"],.back-home')) {
+        window.setTimeout(resumePreview, 0);
+      }
+      if (event.target?.closest?.('#v40c-student-logout') && !event.target?.closest?.(`#${SHELL_ID}`)) {
+        suspendPreview();
+      }
     }, true);
     schedule();
   }
