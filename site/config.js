@@ -157,6 +157,7 @@ window.addEventListener('load', () => {
   ];
 
   if (new URLSearchParams(window.location.search).get('v59-student-home-preview') === '1') {
+    // V5.9 preview layers remain test-only and presentation/delegation focused.
     stagedScripts.push('./v59-student-home-preview.js');
     stagedScripts.push('./v59b-student-practice-preview.js');
     stagedScripts.push('./v59c-student-quiz-result-preview.js');
