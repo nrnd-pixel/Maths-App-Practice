@@ -6,6 +6,7 @@ on:
     paths:
       - 'site/config.js'
       - 'site/v59-student-home-preview.js'
+      - 'site/v59b-student-practice-preview.js'
       - 'site/student-v59-preview/**'
       - 'site/tests/verify-v59-student-home-preview.cjs'
       - '.github/workflows/v59-student-home-preview.yml'
@@ -29,8 +30,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Syntax check preview module
-        run: node --check site/v59-student-home-preview.js
+      - name: Syntax check preview modules
+        run: |
+          node --check site/v59-student-home-preview.js
+          node --check site/v59b-student-practice-preview.js
 
       - name: Verify preview isolation
         run: node site/tests/verify-v59-student-home-preview.cjs
