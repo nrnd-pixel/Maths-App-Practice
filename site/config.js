@@ -153,7 +153,8 @@ window.addEventListener('load', () => {
     './v58c-parent-friendly-student-report.js',
     './v58c-parent-summary-workspace-shortcut.js',
     './v58d-content-workflow-consolidation.js',
-    './v58-stable-release-checkpoint.js'
+    './v58-stable-release-checkpoint.js',
+    './v59a-home-reskin-style.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
