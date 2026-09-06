@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - maintenance/v58-stability
+      - development/v582-bootstrap-consolidation
   pull_request:
     branches:
       - main
@@ -53,3 +54,6 @@ jobs:
 
       - name: Verify V5.8 stable release checkpoint
         run: node site/tests/verify-v5.8-stable-release-checkpoint.cjs
+
+      - name: Verify V5.8.2 bootstrap consolidation
+        run: node site/tests/verify-v5.8.2-bootstrap-consolidation.cjs
