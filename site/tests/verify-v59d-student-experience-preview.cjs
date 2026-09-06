@@ -89,7 +89,7 @@ ok(config.indexOf("./v59d-student-experience-preview.js") > config.indexOf("./v5
   'student-progress-topics',
   'student-progress-strengths',
   'student-progress-focus',
-  '#my-progress-btn',
+  'my-progress-btn',
   'v571a-gamification-card',
   'v571b-latest-achievement',
   'v572-weekly-missions-card',
