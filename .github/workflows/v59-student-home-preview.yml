@@ -1,0 +1,36 @@
+name: V5.9 Student Home Preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'site/config.js'
+      - 'site/v59-student-home-preview.js'
+      - 'site/student-v59-preview/**'
+      - 'site/tests/verify-v59-student-home-preview.cjs'
+      - '.github/workflows/v59-student-home-preview.yml'
+  push:
+    branches:
+      - 'feature/v59-student-home-preview'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-v59-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax check preview module
+        run: node --check site/v59-student-home-preview.js
+
+      - name: Verify preview isolation
+        run: node site/tests/verify-v59-student-home-preview.cjs
