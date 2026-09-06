@@ -47,8 +47,22 @@ window.MATH_APP_CONFIG = {
  * Keep configuration and the AI Help compatibility boundary here, but delegate
  * staged application loading to one bootstrap entry point. The bootstrap owns
  * the established module manifest and preserves its exact execution order.
+ *
+ * The base HTML still contains historical V4.0 presentation text. Neutralise
+ * that text immediately, before the staged modules begin, so students never
+ * need to see internal release identities while the app is starting.
  */
 document.title = 'Math Practice';
+
+(() => {
+  const badge = document.querySelector('#start .brand .badge');
+  if (badge) badge.textContent = 'Maths Practice • Starting';
+
+  const note = document.querySelector('#start > .info');
+  if (note) {
+    note.innerHTML = '<strong>Maths Practice:</strong> Getting your learning space ready…';
+  }
+})();
 
 window.addEventListener('load', () => {
   const script = document.createElement('script');
