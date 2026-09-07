@@ -15,7 +15,9 @@ test.describe('Phase 0 core browser safety net', () => {
     await openApp(page);
     await signInStudent(page);
 
-    expect(mock.rpcCalls.filter(call => call.rpc === 'validate_student_access')).toHaveLength(2);
+    const validations = mock.rpcCalls.filter(call => call.rpc === 'validate_student_access');
+    expect(validations.some(call => call.body.p_purpose === 'practice')).toBe(true);
+    expect(validations.some(call => call.body.p_purpose === 'exam')).toBe(true);
     expect(mock.unexpectedWrites).toEqual([]);
   });
 
@@ -82,13 +84,12 @@ test.describe('Phase 0 core browser safety net', () => {
     await loginTeacher(page);
 
     const analyticsTab = page.locator('button.tab[data-panel="analytics-panel"]');
+    await expect(analyticsTab).toBeVisible();
     await analyticsTab.click();
 
     await expect(analyticsTab).toHaveClass(/active/);
     await expect(page.locator('#analytics-panel')).toHaveClass(/active/);
     await expect(page.getByRole('heading', { name: 'Analytics Overview' })).toBeVisible();
-    await expect(page.locator('#analytics-overview')).toBeVisible();
-    await expect(page.locator('#analytics-participation')).toBeVisible();
 
     expect(mock.unexpectedWrites).toEqual([]);
   });

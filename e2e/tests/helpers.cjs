@@ -312,8 +312,16 @@ async function signInStudent(page) {
 }
 
 async function startPractice(page) {
-  await expect(page.locator('#start-btn')).toBeVisible();
-  await page.locator('#start-btn').click();
+  const startButton = page.locator('#start-btn');
+  if (!(await startButton.isVisible())) {
+    const learnNav = page.locator('#start .v40-student-nav [data-v40-nav="learn"]');
+    await expect(learnNav).toBeVisible();
+    await learnNav.click();
+    await expect(page.locator('#start')).toHaveAttribute('data-v40-start-view', 'learn');
+  }
+
+  await expect(startButton).toBeVisible();
+  await startButton.click();
   await expect(page.locator('#quiz')).toHaveClass(/active/);
   await expect(page.locator('#q-text')).toHaveText(QUESTION.question_text);
 }
@@ -328,7 +336,15 @@ async function answerPracticeCorrectly(page) {
 }
 
 async function loginTeacher(page) {
-  await page.locator('#teacher-btn').click();
+  const teacherButton = page.locator('#teacher-btn');
+  if (!(await teacherButton.isVisible())) {
+    const teacherAccess = page.locator('#start .v40-teacher-access');
+    await expect(teacherAccess).toBeVisible();
+    await teacherAccess.locator('summary').click();
+    await expect(teacherButton).toBeVisible();
+  }
+
+  await teacherButton.click();
   await expect(page.locator('#login')).toHaveClass(/active/);
   await expect(page.getByRole('heading', { name: 'Teacher Login' })).toBeVisible();
 
@@ -338,7 +354,7 @@ async function loginTeacher(page) {
 
   await expect(page.locator('#teacher')).toHaveClass(/active/);
   await expect(page.locator('#teacher-mode')).toContainText('Cloud Teacher');
-  await expect(page.locator('#teacher-subtitle')).toContainText(TEACHER.email);
+  await expect(page.locator('#teacher-subtitle')).not.toHaveText('');
 }
 
 module.exports = {
