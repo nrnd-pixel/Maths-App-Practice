@@ -76,6 +76,11 @@ assert.equal(
 assert.equal(versionApi.CURRENT_RELEASE.label, `V${independentlyDerivedVersion}`);
 assert.equal(versionApi.CURRENT_RELEASE.title, `Math Practice V${independentlyDerivedVersion}`);
 assert.equal(versionApi.CURRENT_RELEASE.badge, `Version ${independentlyDerivedVersion} • Stable Release`);
+assert.doesNotMatch(
+  versionSource,
+  /(?:Math Practice\s+V|Version\s+|\blabel:\s*['"`]V)5(?:\.|['"`])/,
+  'version.js must derive the numeric V5.x release from config.js rather than hardcoding a second current-version value.'
+);
 
 // There must be exactly one authoritative CURRENT_RELEASE definition in the browser codebase.
 const topLevelJs = fs.readdirSync(siteRoot).filter(name => name.endsWith('.js')).sort();
@@ -114,7 +119,7 @@ for (const name of [...activeRuntimeNames].sort()) {
 
   for (const pattern of [
     /document\.title\s*=\s*['"`]\s*Math Practice\s+V\d/,
-    /(?:badge|versionBadge)\.textContent\s*=\s*['"`]\s*Version\s+\d/,
+    /\.textContent\s*=\s*['"`]\s*Version\s+\d/,
     /\bconst\s+(?:TITLE|BADGE)\s*=\s*['"`]\s*(?:Math Practice\s+V|Version\s+)\d/,
   ]) {
     if (pattern.test(source)) forbiddenLiteralAssignments.push({ name, pattern: String(pattern) });
@@ -163,4 +168,5 @@ console.log(`- ${stagedScripts.length} staged config scripts inspected`);
 console.log(`- ${activeRuntimeNames.size} active runtime scripts scanned for hardcoded title/badge identity`);
 console.log(`- identity writers delegate to site/version.js: ${identityWriters.sort().join(', ')}`);
 console.log('- exactly one CURRENT_RELEASE definition exists in site/version.js');
+console.log('- version.js contains no hardcoded numeric V5.x current-version value');
 console.log('- index.html title, badge and introduction bootstrap versions match config.js');
