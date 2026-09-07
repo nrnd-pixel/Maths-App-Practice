@@ -1,7 +1,7 @@
 /* Phase 4 — shared browser-side gamification core.
    Consolidates shared constants, access helpers, normalizers, cache/date helpers,
-   DOM utilities and the V5.7.1A/B/V5.7.2 presentation styles. Supabase RPC
-   contracts and V5.7.3+ behavior remain unchanged. */
+   DOM utilities and presentation styles for the V5.7.1A–V5.7.4 gamification
+   feature. Supabase RPC contracts remain unchanged. */
 (() => {
   'use strict';
 
@@ -18,7 +18,12 @@
   const RPC = Object.freeze({
     xp:'get_student_gamification_v571a',
     achievements:'get_student_gamification_achievements_v571b',
-    missions:'get_student_weekly_missions_v572'
+    missions:'get_student_weekly_missions_v572',
+    classChallengeV573:'get_student_class_challenge_v573',
+    teacherV573:'get_teacher_class_gamification_v573',
+    classChallengeV574:'get_student_class_challenge_v574',
+    teacherV574:'get_teacher_class_gamification_v574',
+    updateChallengeV574:'update_teacher_class_challenge_v574'
   });
 
   const IDS = Object.freeze({
@@ -26,7 +31,18 @@
     achievementCard:'v571b-latest-achievement',
     achievementToast:'v571b-achievement-toast',
     missionsCard:'v572-weekly-missions-card',
-    missionsToast:'v572-weekly-missions-toast'
+    missionsToast:'v572-weekly-missions-toast',
+    legacyClassChallengeCard:'v573-class-challenge-card',
+    classChallengeCard:'v574-class-challenge-card',
+    classChallengeToast:'v574-class-challenge-toast',
+    teacherTrigger:'v573-open-class-motivation',
+    teacherOverlay:'v573-class-motivation-overlay',
+    teacherClass:'v573-teacher-class',
+    teacherContent:'v573-teacher-content',
+    settingsTrigger:'v574-class-challenge-settings',
+    settingsOverlay:'v574-class-challenge-settings-overlay',
+    settingsClass:'v574-settings-class',
+    settingsContent:'v574-settings-content'
   });
 
   const LEVELS = Object.freeze([
@@ -221,6 +237,130 @@
     });
   }
 
+  function normalizeClassChallengeV573(payload){
+    const activeStudents=integer(payload?.class?.active_students ?? payload?.challenge?.active_students);
+    const questions=integer(payload?.challenge?.questions_completed);
+    const target=Math.max(1,integer(payload?.challenge?.target_questions || Math.max(10,activeStudents*10)));
+    const contributors=integer(payload?.challenge?.contributors);
+    const percent=clamp(integer(payload?.challenge?.progress_percent ?? Math.round(100*questions/target)),0,100);
+    return Object.freeze({
+      class:Object.freeze({
+        class_id:trim(payload?.class?.class_id),
+        class_name:trim(payload?.class?.class_name) || 'Your class',
+        year_level:integer(payload?.class?.year_level),
+        active_students:activeStudents
+      }),
+      week:Object.freeze({
+        start_date:trim(payload?.week?.start_date) || null,
+        end_date:trim(payload?.week?.end_date) || null,
+        today:trim(payload?.week?.today) || null,
+        timezone:trim(payload?.week?.timezone) || 'Asia/Brunei'
+      }),
+      challenge:Object.freeze({
+        title:trim(payload?.challenge?.title) || 'Class Question Quest',
+        description:trim(payload?.challenge?.description) || 'Work together to complete Practice questions this week.',
+        questions_completed:questions,
+        target_questions:target,
+        contributors,
+        progress_percent:percent,
+        complete:payload?.challenge?.complete===true || questions>=target
+      }),
+      rules:Object.freeze({
+        questions_per_active_student:Math.max(1,integer(payload?.rules?.questions_per_active_student || 10)),
+        week_starts:trim(payload?.rules?.week_starts) || 'Monday',
+        timezone:trim(payload?.rules?.timezone) || 'Asia/Brunei',
+        exam_activity_counts:payload?.rules?.exam_activity_counts===true,
+        student_rankings:payload?.rules?.student_rankings===true
+      })
+    });
+  }
+
+  function normalizeTeacherStudent(row){
+    return Object.freeze({
+      roster_student_id:trim(row?.roster_student_id),
+      student_id:trim(row?.student_id),
+      student_name:trim(row?.student_name) || 'Student',
+      xp_total:integer(row?.xp_total),
+      level_number:Math.max(1,integer(row?.level_number || 1)),
+      level_title:trim(row?.level_title) || 'Maths Starter',
+      current_streak:integer(row?.current_streak),
+      weekly_questions:integer(row?.weekly_questions),
+      weekly_practice_days:integer(row?.weekly_practice_days),
+      weekly_challenges:integer(row?.weekly_challenges),
+      missions_completed:clamp(integer(row?.missions_completed),0,3),
+      all_missions_complete:row?.all_missions_complete===true || integer(row?.missions_completed)>=3
+    });
+  }
+
+  function normalizeTeacherPayload(payload){
+    const challenge=normalizeClassChallengeV573(payload);
+    const students=(Array.isArray(payload?.students)?payload.students:[]).map(normalizeTeacherStudent)
+      .sort((a,b)=>a.student_name.localeCompare(b.student_name,undefined,{numeric:true,sensitivity:'base'}) || a.student_id.localeCompare(b.student_id,undefined,{numeric:true,sensitivity:'base'}));
+    const summary=payload?.summary || {};
+    return Object.freeze({
+      class:challenge.class,
+      week:challenge.week,
+      challenge:challenge.challenge,
+      summary:Object.freeze({
+        active_students:integer(summary.active_students ?? students.length),
+        active_this_week:integer(summary.active_this_week),
+        all_missions_complete:integer(summary.all_missions_complete),
+        active_streaks:integer(summary.active_streaks),
+        average_xp:integer(summary.average_xp),
+        level_distribution:Object.freeze({...summary.level_distribution})
+      }),
+      students:Object.freeze(students),
+      rules:challenge.rules
+    });
+  }
+
+  function normalizeClassChallengeV574(payload){
+    const active=integer(payload?.class?.active_students ?? payload?.summary?.active_students);
+    const questions=integer(payload?.challenge?.questions_completed);
+    const perStudent=Math.max(1,integer(payload?.settings?.questions_per_active_student ?? payload?.rules?.questions_per_active_student ?? 10));
+    const target=Math.max(1,integer(payload?.challenge?.target_questions || active*perStudent || 10));
+    const percent=clamp(integer(payload?.challenge?.progress_percent ?? Math.round(100*questions/target)),0,100);
+    const enabled=payload?.challenge?.enabled!==false && payload?.settings?.challenge_enabled!==false;
+    return Object.freeze({
+      class:Object.freeze({
+        class_id:trim(payload?.class?.class_id),
+        class_name:trim(payload?.class?.class_name)||'Your class',
+        year_level:integer(payload?.class?.year_level),
+        active_students:active
+      }),
+      week:Object.freeze({
+        start_date:trim(payload?.week?.start_date)||null,
+        end_date:trim(payload?.week?.end_date)||null,
+        today:trim(payload?.week?.today)||null,
+        timezone:trim(payload?.week?.timezone)||'Asia/Brunei'
+      }),
+      challenge:Object.freeze({
+        enabled,
+        questions_completed:questions,
+        target_questions:target,
+        contributors:integer(payload?.challenge?.contributors),
+        progress_percent:percent,
+        complete:enabled && (payload?.challenge?.complete===true || questions>=target)
+      }),
+      settings:Object.freeze({
+        challenge_enabled:enabled,
+        questions_per_active_student:perStudent,
+        allowed:Object.freeze((Array.isArray(payload?.settings?.allowed_questions_per_active_student)?payload.settings.allowed_questions_per_active_student:[5,10,15,20]).map(integer).filter(Boolean)),
+        updated_at:trim(payload?.settings?.updated_at)||null
+      })
+    });
+  }
+
+  function phaseLabel(model){
+    if (!model?.challenge?.enabled) return 'Paused';
+    if (model.challenge.complete) return 'Challenge complete';
+    const pct=integer(model.challenge.progress_percent);
+    if (pct>=75) return 'Final push';
+    if (pct>=50) return 'Halfway there';
+    if (pct>=25) return 'Building momentum';
+    return 'Getting started';
+  }
+
   function dateLabel(value){
     if (!value) return '';
     const text=trim(value);
@@ -324,6 +464,85 @@
       html[data-theme="dark"] #start .v572-mission.complete{background:color-mix(in srgb,#16805d 13%,var(--card))}
       @media(max-width:560px){#start .v572-mission{grid-template-columns:34px minmax(0,1fr);gap:9px}#start .v572-mission-icon{width:34px;height:34px}.v572-progress-text{grid-column:2;justify-self:start}#start .v572-week-meta{justify-content:flex-start}}
       @media(prefers-reduced-motion:reduce){#${IDS.missionsToast}{animation:none}}
+
+      html.v574-class-challenge-ready #start #${IDS.legacyClassChallengeCard}{display:none!important}
+      #start #${IDS.classChallengeCard}{border:1px solid color-mix(in srgb,#0d9a91 38%,var(--border));border-radius:20px;padding:16px;background:linear-gradient(135deg,color-mix(in srgb,#e7fbf8 72%,var(--card)),var(--card));display:grid;gap:12px;box-shadow:0 8px 24px rgba(20,120,115,.06)}
+      #start .v574-challenge-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+      #start .v574-kicker{font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.065em;color:#087e77}
+      #start .v574-challenge-head h3{margin:2px 0 3px;font-size:19px;line-height:1.25}
+      #start .v574-challenge-head p{margin:0;font-size:10px;color:var(--muted);line-height:1.45}
+      #start .v574-week{font-size:10px;font-weight:850;border:1px solid var(--border);border-radius:999px;padding:5px 8px;background:var(--card)}
+      #start .v574-progress-head{display:flex;justify-content:space-between;gap:8px;align-items:end;flex-wrap:wrap}
+      #start .v574-progress-head strong{font-size:14px}#start .v574-phase{font-size:10px;font-weight:950;color:#087e77;text-transform:uppercase;letter-spacing:.04em}
+      #start .v574-bar{height:11px;border-radius:999px;overflow:hidden;background:color-mix(in srgb,var(--border) 72%,transparent)}
+      #start .v574-bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#109a92,#3ac5a8);transition:width .3s ease}
+      #start .v574-milestones{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:9px;color:var(--muted);text-align:center}
+      #start .v574-milestones span:first-child{text-align:left}#start .v574-milestones span:last-child{text-align:right}
+      #start .v574-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:10px}
+      #start .v574-foot p{margin:0;font-size:10px;color:var(--muted);line-height:1.45;max-width:70ch}
+      #start .v574-foot button{border:1px solid var(--primary);border-radius:10px;padding:8px 11px;background:var(--primary);color:#fff;font:inherit;font-size:10px;font-weight:900;cursor:pointer}
+      html[data-theme="dark"] #start #${IDS.classChallengeCard}{background:linear-gradient(135deg,color-mix(in srgb,#15968d 14%,var(--card)),var(--card))}
+      #${IDS.classChallengeToast}{position:fixed;right:18px;bottom:18px;z-index:99999;width:min(340px,calc(100vw - 36px));border:1px solid rgba(16,154,146,.35);border-radius:18px;padding:14px 15px;background:var(--card,#fff);box-shadow:0 18px 45px rgba(0,0,0,.18);display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+      #${IDS.classChallengeToast} .v574-toast-icon{font-size:32px}#${IDS.classChallengeToast} strong{display:block;font-size:13px}#${IDS.classChallengeToast} span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+
+      #${IDS.teacherTrigger}{white-space:nowrap}
+      #${IDS.teacherOverlay}{position:fixed;inset:0;z-index:128;background:rgba(15,23,42,.72);overflow:auto;padding:18px}
+      #${IDS.teacherOverlay}.hidden{display:none!important}
+      #${IDS.teacherOverlay} .v573-sheet{width:min(1180px,100%);margin:0 auto;background:var(--card);color:var(--text);border-radius:20px;box-shadow:0 28px 90px rgba(0,0,0,.28);padding:22px}
+      #${IDS.teacherOverlay} .v573-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+      #${IDS.teacherOverlay} .v573-head h2{margin:0 0 4px;font-size:24px}
+      #${IDS.teacherOverlay} .v573-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+      #${IDS.teacherOverlay} .v573-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+      #${IDS.teacherOverlay} .v573-controls{display:grid;grid-template-columns:minmax(210px,.8fr) auto;gap:10px;align-items:end;margin:16px 0}
+      #${IDS.teacherOverlay} .v573-controls label{margin:0}
+      #${IDS.teacherOverlay} .v573-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:12px 0}
+      #${IDS.teacherOverlay} .v573-stat{border:1px solid var(--border);border-radius:13px;padding:11px;background:color-mix(in srgb,var(--soft) 18%,var(--card))}
+      #${IDS.teacherOverlay} .v573-stat strong{display:block;font-size:21px;margin-bottom:3px}
+      #${IDS.teacherOverlay} .v573-stat span{font-size:10px;color:var(--muted);line-height:1.3}
+      #${IDS.teacherOverlay} .v573-class-challenge{border:1px solid color-mix(in srgb,#14a0a8 35%,var(--border));border-radius:15px;padding:13px 14px;background:color-mix(in srgb,#e9fbfb 45%,var(--card));display:grid;gap:8px}
+      #${IDS.teacherOverlay} .v573-class-challenge-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+      #${IDS.teacherOverlay} .v573-class-challenge h3{margin:0;font-size:16px}
+      #${IDS.teacherOverlay} .v573-class-challenge p{margin:0;color:var(--muted);font-size:10px}
+      #${IDS.teacherOverlay} .v573-bar{height:10px;border-radius:999px;overflow:hidden;background:color-mix(in srgb,var(--border) 72%,transparent)}
+      #${IDS.teacherOverlay} .v573-bar>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#16a0a8,#36c0a8);transition:width .3s ease}
+      #${IDS.teacherOverlay} .v573-filters{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 8px}
+      #${IDS.teacherOverlay} .v573-filter{min-height:34px;padding:6px 10px;font-size:11px;border:1px solid var(--border);background:var(--card)}
+      #${IDS.teacherOverlay} .v573-filter[aria-pressed="true"]{border-color:var(--primary);color:var(--primary);background:color-mix(in srgb,var(--soft) 40%,var(--card))}
+      #${IDS.teacherOverlay} .v573-tablewrap{overflow:auto;border:1px solid var(--border);border-radius:13px}
+      #${IDS.teacherOverlay} table{width:100%;border-collapse:collapse;background:var(--card)}
+      #${IDS.teacherOverlay} th,#${IDS.teacherOverlay} td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle;font-size:11px;white-space:nowrap}
+      #${IDS.teacherOverlay} th{background:color-mix(in srgb,var(--soft) 35%,var(--card));color:var(--muted);font-size:10px}
+      #${IDS.teacherOverlay} td.v573-name{white-space:normal;min-width:170px}
+      #${IDS.teacherOverlay} tr.v573-nudge td{background:color-mix(in srgb,#fff7e8 35%,var(--card))}
+      #${IDS.teacherOverlay} .v573-pill{display:inline-block;padding:3px 7px;border:1px solid var(--border);border-radius:999px;font-size:9px;font-weight:900}
+      #${IDS.teacherOverlay} .v573-mission-ok{color:#147a58;border-color:color-mix(in srgb,#25a875 35%,var(--border))}
+      #${IDS.teacherOverlay} .v573-empty,#${IDS.teacherOverlay} .v573-loading{padding:22px;text-align:center;color:var(--muted);font-size:12px}
+      #${IDS.teacherOverlay} .v573-note{margin:9px 0 0;color:var(--muted);font-size:10px;line-height:1.45}
+      #${IDS.teacherOverlay} .v574-managed-note{margin-top:7px;padding:7px 9px;border:1px solid color-mix(in srgb,#0d9a91 28%,var(--border));border-radius:10px;font-size:10px;color:var(--muted)}
+      html[data-theme="dark"] #${IDS.teacherOverlay} .v573-class-challenge{background:color-mix(in srgb,#15969d 12%,var(--card))}
+      @media(max-width:900px){#${IDS.teacherOverlay} .v573-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+      @media(max-width:650px){#${IDS.teacherOverlay}{padding:8px}#${IDS.teacherOverlay} .v573-sheet{padding:15px;border-radius:16px}#${IDS.teacherOverlay} .v573-controls{grid-template-columns:1fr}#${IDS.teacherOverlay} .v573-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+      #${IDS.settingsTrigger}{white-space:nowrap}
+      #${IDS.settingsOverlay}{position:fixed;inset:0;z-index:131;background:rgba(15,23,42,.72);overflow:auto;padding:18px}
+      #${IDS.settingsOverlay}.hidden{display:none!important}
+      #${IDS.settingsOverlay} .v574-sheet{width:min(760px,100%);margin:0 auto;background:var(--card);color:var(--text);border-radius:20px;box-shadow:0 28px 90px rgba(0,0,0,.28);padding:22px}
+      #${IDS.settingsOverlay} .v574-settings-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+      #${IDS.settingsOverlay} .v574-settings-head h2{margin:0 0 4px;font-size:23px}
+      #${IDS.settingsOverlay} .v574-settings-head p{margin:0;font-size:11px;color:var(--muted);line-height:1.45}
+      #${IDS.settingsOverlay} .v574-settings-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+      #${IDS.settingsOverlay} .v574-controls{display:grid;grid-template-columns:minmax(200px,1fr) auto;gap:10px;align-items:end;margin:16px 0}
+      #${IDS.settingsOverlay} .v574-settings-card{border:1px solid var(--border);border-radius:16px;padding:14px;display:grid;gap:12px;background:color-mix(in srgb,var(--soft) 18%,var(--card))}
+      #${IDS.settingsOverlay} .v574-toggle-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+      #${IDS.settingsOverlay} .v574-toggle-copy strong{display:block;font-size:13px}#${IDS.settingsOverlay} .v574-toggle-copy span{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+      #${IDS.settingsOverlay} .v574-toggle{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:900}
+      #${IDS.settingsOverlay} .v574-target-grid{display:grid;grid-template-columns:minmax(210px,1fr) minmax(180px,.7fr);gap:12px;align-items:end}
+      #${IDS.settingsOverlay} .v574-preview{border:1px solid color-mix(in srgb,#0d9a91 35%,var(--border));border-radius:14px;padding:12px;background:color-mix(in srgb,#e7fbf8 48%,var(--card));display:grid;gap:6px}
+      #${IDS.settingsOverlay} .v574-preview strong{font-size:20px}#${IDS.settingsOverlay} .v574-preview span{font-size:10px;color:var(--muted)}
+      #${IDS.settingsOverlay} .v574-save-row{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+      #${IDS.settingsOverlay} .v574-message{font-size:11px;color:var(--muted);min-height:16px}
+      #${IDS.settingsOverlay} .v574-message.ok{color:#16805d;font-weight:850}#${IDS.settingsOverlay} .v574-message.err{color:#b42318;font-weight:850}
+      @media(max-width:620px){#${IDS.settingsOverlay}{padding:8px}#${IDS.settingsOverlay} .v574-sheet{padding:15px;border-radius:16px}#${IDS.settingsOverlay} .v574-controls,#${IDS.settingsOverlay} .v574-target-grid{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
     return true;
@@ -333,7 +552,9 @@
     CACHE_MS,STYLE_ID,DASHBOARD_SELECTOR,RPC,IDS,LEVELS,
     trim,html,integer,clamp,signedIn,dashboard,passivePracticeAccess,createCache,
     levelForXp,normalizeXpPayload,normalizeBadge,normalizeAchievementsPayload,
-    normalizeMission,normalizeMissionsPayload,dateLabel,weekLabel,injectStyles
+    normalizeMission,normalizeMissionsPayload,normalizeClassChallengeV573,
+    normalizeTeacherStudent,normalizeTeacherPayload,normalizeClassChallengeV574,
+    phaseLabel,dateLabel,weekLabel,injectStyles
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
