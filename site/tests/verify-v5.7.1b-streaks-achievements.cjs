@@ -62,8 +62,8 @@ assert.match(studentSource,/FIRST_PRACTICE_BADGE_SELECTOR/);
 assert.match(studentSource,/v571b-badge/);
 assert.match(studentSource,/data-badge-id/);
 
-// Checkpoint 1 uses the consolidated modules and keeps release identity ownership elsewhere.
-assert.match(config,/\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'/);
+// Consolidated modules load in the stable student/teacher order and identity stays elsewhere.
+assert.match(config,/\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/gamification-teacher\.js'/);
 assert.doesNotMatch(config,/['"]\.\/v571b-streaks-achievements\.js['"]/);
 assert.doesNotMatch(studentSource,/document\.title|Version 5\.7|Stable Release/);
 
