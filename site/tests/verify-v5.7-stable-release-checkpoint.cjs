@@ -16,7 +16,7 @@ const v57b = read('v57b-teacher-assignment-management.js');
 const v57c = read('v57c-student-continue-learning-home.js');
 const v57d = read('v57d-past-paper-analytics-actions.js');
 const v57d1 = read('v57d1-focus-plan-copy-fallback.js');
-const releaseDoc = read('RELEASE-CHECKPOINT-V5.7.md');
+const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v57-stable-release-checkpoint.js'});
 

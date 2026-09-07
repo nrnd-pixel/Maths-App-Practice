@@ -58,7 +58,7 @@ The synchronized production database is healthy and its migration history at V5.
 
 - `20260829181613 v51b3_exam_publication_bulk_cleanup`
 
-See `DATABASE-MIGRATIONS-V5.1.txt` for the V5.1 migration record and deployment guidance.
+See the repository-root `CHANGELOG.md` for the consolidated V5.1 migration record and deployment guidance.
 
 ## Production content state at V5.1 release preparation
 
@@ -90,7 +90,7 @@ V5.1 preserves the established production boundaries:
 
 ## Release validation
 
-`DEPLOY-AND-TEST-V5.1.md` records the V5.1 one-pass acceptance coverage. The accepted V5.1 RC passed GitHub V5 Regression Safety and Netlify validation without changing runtime application files. The final stable-release stamp changes release identity/presentation and matching regression assertions only.
+The repository-root `CHANGELOG.md` now contains the consolidated V5.1 deploy/test acceptance record. The accepted V5.1 RC passed GitHub V5 Regression Safety and Netlify validation without changing runtime application files. The final stable-release stamp changes release identity/presentation and matching regression assertions only.
 
 Before merging the final stable-release stamp:
 

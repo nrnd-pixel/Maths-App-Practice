@@ -13,7 +13,7 @@ const v55b = read('v55b-full-paper-practice.js');
 const v55c = read('v55c-resume-past-paper-practice.js');
 const v55c1 = read('v55c1-resume-button-bridge.js');
 const v55d = read('v55d-past-paper-result-attribution.js');
-const releaseDoc = read('RELEASE-CHECKPOINT-V5.5.md');
+const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v55-stable-release-checkpoint.js'});
 

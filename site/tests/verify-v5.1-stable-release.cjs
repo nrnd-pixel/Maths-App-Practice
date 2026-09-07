@@ -4,6 +4,7 @@ const assert = require('assert');
 
 const site = path.join(__dirname,'..');
 const read = name => fs.readFileSync(path.join(site,name),'utf8');
+const changelog = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 const readme = read('README.md');
 const config = read('config.js');
@@ -11,8 +12,8 @@ const release = read('v40-release.js');
 const polish = read('v50-production-polish.js');
 const audit = read('v50-release-audit-rc3.js');
 const checkpoint = read('v54-stable-release-checkpoint.js');
-const migrations = read('DATABASE-MIGRATIONS-V5.1.txt');
-const checklist = read('DEPLOY-AND-TEST-V5.1.md');
+const migrations = changelog;
+const checklist = changelog;
 
 // Preserve the signed-off V5.1 release history and migration/checklist record.
 assert.match(readme,/^# Maths Practice V5\.1/m);
@@ -58,5 +59,5 @@ assert(!release.includes('V5.1 Release Candidate:'),'Historical stable release m
 console.log('Stable Release history + current checkpoint checks passed.');
 console.log('- accepted V5.1 release history and C1/C2 loader wiring remain recoverable');
 console.log('- V5.4 production identity, release audit and final checkpoint are aligned');
-console.log('- production migration/checklist record is retained');
+console.log('- production migration/checklist record is retained in CHANGELOG.md');
 console.log('- release presentation remains free of application data writes');

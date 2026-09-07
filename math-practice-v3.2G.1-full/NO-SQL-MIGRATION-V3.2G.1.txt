@@ -1,4 +1,0 @@
-Maths Practice V3.2G.1 does not require a Supabase SQL migration.
-
-Deploy the V3.2G.1 web files after preserving the working config.js.
-The Analytics area reads the existing V3.2F.3 teacher-authorized data and does not alter student submissions or database permissions.
