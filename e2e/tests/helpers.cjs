@@ -226,6 +226,11 @@ async function installSupabaseMock(page) {
         return;
       }
 
+      if (rpc === 'get_student_practice_questions_v53d3') {
+        await fulfillJson(route, [QUESTION], 200, { 'content-range': '0-0/1' });
+        return;
+      }
+
       if (rpc === 'submit_practice_session_v3') {
         state.practiceSubmissions += 1;
         await fulfillJson(route, {
@@ -249,8 +254,9 @@ async function installSupabaseMock(page) {
         return;
       }
 
-      // Other feature-layer reads are deliberately isolated from production.
-      // Empty data lets optional panels render without weakening the core tests.
+      // Default all otherwise-unhandled RPCs to an empty successful response.
+      // This keeps optional/new feature-layer reads isolated from production
+      // without making the E2E safety net brittle every time a read RPC is added.
       await fulfillJson(route, []);
       return;
     }
@@ -264,11 +270,6 @@ async function installSupabaseMock(page) {
         200,
         { 'content-range': '0-0/1' },
       );
-      return;
-    }
-
-    if (path === '/rest/v1/questions' && method === 'GET') {
-      await fulfillJson(route, [QUESTION], 200, { 'content-range': '0-0/1' });
       return;
     }
 
