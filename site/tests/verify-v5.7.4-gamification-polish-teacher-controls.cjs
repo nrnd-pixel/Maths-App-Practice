@@ -61,9 +61,15 @@ assert(teacherSource.includes('Save Changes'), 'Teacher settings save workflow m
 assert(teacherSource.includes('Teacher-controlled challenge'), 'Managed teacher challenge presentation must remain available.');
 assert(!/scheduleTeacherPatch|patchTeacherFromCurrentClass|patchTimer/.test(teacherSource), 'Old delayed cross-file teacher patch scheduler must be removed.');
 
-// Server contract is untouched.
+// Server contract is untouched. The V574 student RPC deliberately starts with the
+// complete V573 payload and merges only challenge/rules additions, so Home does not
+// need a second direct V573 network read.
 assert(sql.includes('create table if not exists public.class_gamification_settings_v574'));
 assert(sql.includes('check (questions_per_active_student in (5,10,15,20))'));
+assert(sql.includes('v_base := public.get_student_class_challenge_v573(p_access_token);'), 'V574 student RPC must continue to wrap the complete V573 payload.');
+assert(/return\s+v_base\s*\|\|\s*jsonb_build_object/.test(sql), 'V574 must retain all top-level V573 payload fields before adding overrides.');
+assert(sql.includes("'challenge', coalesce(v_base->'challenge','{}'::jsonb) || jsonb_build_object("), 'V574 must merge challenge fields onto V573 rather than replace the challenge object wholesale.');
+assert(sql.includes("'rules', coalesce(v_base->'rules','{}'::jsonb) || jsonb_build_object("), 'V574 must merge rules fields onto V573 rather than replace the rules object wholesale.');
 assert(sql.includes("if not public.is_teacher() then raise exception 'Teacher access required'; end if;"));
 assert(sql.includes('revoke all on table public.class_gamification_settings_v574 from public, anon, authenticated'));
 assert(sql.includes('grant execute on function public.get_student_class_challenge_v574(text) to anon,authenticated'));
@@ -84,5 +90,6 @@ assert(config.includes('Student reads remain aggregate'));
 console.log('V5.7.4 gamification polish + teacher controls regression passed from consolidated modules.');
 console.log('- polished student class challenge and teacher settings UI are retained');
 console.log('- final student challenge card keeps the shared v574-class-challenge-card DOM contract');
+console.log('- V574 student RPC remains a complete V573 payload wrapper, avoiding a duplicate Home read');
 console.log('- old cross-file teacher DOM patch scheduler is no longer active');
 console.log('- V5.7.4 Supabase settings/RPC contract remains unchanged');
