@@ -62,7 +62,7 @@
       [checks.full_available_practice,'V5.5B — Session scope','Quick Session and All Available Questions are loaded.'],
       [checks.resume_practice,'V5.5C — Resume Practice','Same-device resume and the Next-button checkpoint bridge are loaded.'],
       [checks.result_attribution,'V5.5D — Result attribution','Past-paper year/paper attribution for completed Practice work is loaded.'],
-      [identityReady(),'V5.5 checkpoint identity','Current app title/badge plus the V5.5 checkpoint release note are active.']
+      [identityReady(),'V5.5 stable-release identity','V5.5 title, badge and release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length;
