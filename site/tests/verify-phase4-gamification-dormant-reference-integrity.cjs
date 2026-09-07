@@ -19,6 +19,14 @@ function listCjsFiles(dir){
   return files.sort();
 }
 
+function mentionsDormantBrowserFile(source,dormant){
+  // Verifiers may mention a dormant filename as a plain string or inside a regex
+  // literal where the final .js dot is escaped. Both are genuine references and
+  // must participate in the exhaustive allowlist audit.
+  const regexLiteralForm=dormant.replace(/\.js$/, '\\.js');
+  return source.includes(dormant) || source.includes(regexLiteralForm);
+}
+
 const verifierFiles=listCjsFiles(testsRoot);
 const readVerifier=name=>fs.readFileSync(path.join(testsRoot,name),'utf8');
 
@@ -40,7 +48,7 @@ for(const file of verifierFiles){
   const source=fs.readFileSync(file,'utf8');
   const name=path.basename(file);
   for(const dormant of dormantBrowserFiles){
-    if(!source.includes(dormant)) continue;
+    if(!mentionsDormantBrowserFile(source,dormant)) continue;
     hits.push({name,dormant});
     if(!allowedReferenceFiles.has(name)) unexpected.push({name,dormant});
   }
@@ -108,5 +116,5 @@ assert.match(v58b,/button\.id=IDS\.teacherTrigger/);
 
 console.log('Phase 4 gamification dormant-reference integrity checks passed.');
 console.log(`- ${verifierFiles.length} site/tests .cjs verifier files scanned recursively`);
-console.log(`- ${hits.length} exact dormant V573/V574 filename reference(s) found, all confined to ${actualReferenceFiles.length} negative/reference-only guards`);
+console.log(`- ${hits.length} dormant V573/V574 filename reference(s) found (plain or regex-literal form), all confined to ${actualReferenceFiles.length} negative/reference-only guards`);
 console.log('- V5.8B Class Motivation verification now follows gamification-core.js + gamification-teacher.js ownership');
