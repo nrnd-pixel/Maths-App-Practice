@@ -9,9 +9,11 @@
   window.__v50ProductionPolishInstalled = true;
 
   const STYLE_ID = 'v50rc3-production-polish-style';
-  const TITLE = 'Math Practice V5.4';
-  const BADGE = 'Version 5.4 • Stable Release';
   const UPDATE_EVENT = 'v50rc3-production-polish-updated';
+  const currentRelease = () => window.MathAppVersion?.CURRENT_RELEASE || Object.freeze({
+    title:'Math Practice',
+    badge:'Current Version'
+  });
 
   const byId = id => document.getElementById(id);
 
@@ -100,9 +102,7 @@
   }
 
   function applyBranding(){
-    document.title = TITLE;
-    const badge = document.querySelector('#start .brand .badge');
-    if (badge) badge.textContent = BADGE;
+    window.MathAppVersion?.applyIdentity?.();
   }
 
   function polishProductionSetup(){
@@ -232,10 +232,11 @@
     const examPrivacy = document.querySelector('#exam-result-code-box .help');
     const tabs = teacherTabs();
     const items = tabItems();
+    const release = currentRelease();
 
     const checks = {
       stable_release_branding:
-        document.title === TITLE && String(badge?.textContent || '').trim() === BADGE,
+        document.title === release.title && String(badge?.textContent || '').trim() === release.badge,
       production_setup_control:
         !packagedProduction() || (!!setup && setup.classList.contains('hidden') && setup.getAttribute('aria-hidden') === 'true'),
       reviewed_work_wording:

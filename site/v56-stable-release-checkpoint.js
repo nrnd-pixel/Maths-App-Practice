@@ -9,8 +9,10 @@
   if (ROOT.__v56StableReleaseCheckpointInstalled) return;
   ROOT.__v56StableReleaseCheckpointInstalled = true;
 
-  const TITLE = 'Math Practice V5.6';
-  const BADGE = 'Version 5.6 • Stable Release';
+  const currentRelease = () => ROOT.MathAppVersion?.CURRENT_RELEASE || Object.freeze({
+    title:'Math Practice',
+    badge:'Current Version'
+  });
   const AUDIT_ID = 'v56-stable-release-audit';
   const RELEASE_NOTE = `
     <strong>V5.6 Stable Release:</strong>
@@ -33,18 +35,17 @@
 
   function identityReady(){
     if (typeof document === 'undefined') return false;
+    const release = currentRelease();
     const badge = document.querySelector('#start .brand .badge');
     const note = document.querySelector('#start > .info');
-    return document.title === TITLE
-      && String(badge?.textContent || '').trim() === BADGE
+    return document.title === release.title
+      && String(badge?.textContent || '').trim() === release.badge
       && /V5\.6 Stable Release:/.test(String(note?.textContent || ''));
   }
 
   function applyIdentity(){
     if (typeof document === 'undefined') return false;
-    document.title = TITLE;
-    const badge = document.querySelector('#start .brand .badge');
-    if (badge) badge.textContent = BADGE;
+    ROOT.MathAppVersion?.applyIdentity?.();
     const note = document.querySelector('#start > .info');
     if (note) note.innerHTML = RELEASE_NOTE;
     return identityReady();
@@ -112,11 +113,12 @@
   function getStatus(){
     const checks = moduleChecks();
     const modulesReady = Object.values(checks).every(Boolean);
+    const release = currentRelease();
     return Object.freeze({
       ready:identityReady() && modulesReady,
       version:'5.6',
-      title:TITLE,
-      badge:BADGE,
+      title:release.title,
+      badge:release.badge,
       checks
     });
   }

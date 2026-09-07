@@ -9,28 +9,34 @@ const read = rel => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
 
 const config = read('site/config.js');
 const release = read('site/v40-release.js');
+const versionSource = read('site/version.js');
 const polish = read('site/v50-production-polish.js');
 const auditRc3 = read('site/v50-release-audit-rc3.js');
 const checkpoint = read('site/v54-stable-release-checkpoint.js');
 
+new vm.Script(versionSource,{filename:'version.js'});
 new vm.Script(polish,{filename:'v50-production-polish.js'});
 new vm.Script(auditRc3,{filename:'v50-release-audit-rc3.js'});
 new vm.Script(checkpoint,{filename:'v54-stable-release-checkpoint.js'});
 
-// Historical V5.1 bootstrap/release presenter remains recoverable, while the signed-off
-// production-polish layer and final checkpoint expose the current V5.4 stable identity.
-assert.match(config,/document\.title = 'Math Practice V5\.1'/);
-assert.match(release,/document\.title = 'Math Practice V5\.1'/);
-assert.match(release,/Version 5\.1 • Stable Release/);
+// Historical V5.1/V5.4 release layers remain recoverable, while current title/badge
+// ownership is centralized in the config-derived version source.
+assert.match(config,/const MATH_APP_STAGED_SCRIPTS = Object\.freeze\(\[/);
+assert.match(config,/\.\/version\.js'/);
+assert.doesNotMatch(config,/document\.title\s*=\s*['"]Math Practice V5\./);
+assert.match(versionSource,/const CURRENT_RELEASE = buildRelease\(deriveCurrentVersion\(stagedScripts\)\)/);
+assert.match(release,/MathAppVersion\?\.applyIdentity/);
 assert.match(release,/V5\.1 Stable Release:/);
-assert.doesNotMatch(release,/Version 5\.1 • Release Candidate|V5\.1 Release Candidate:/);
-assert.match(polish,/const TITLE = 'Math Practice V5\.4'/);
-assert.match(polish,/const BADGE = 'Version 5\.4 • Stable Release'/);
+assert.doesNotMatch(release,/document\.title\s*=\s*['"]Math Practice V5\.|badge\.textContent\s*=\s*['"]Version 5\./);
+assert.match(polish,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(polish,/MathAppVersion\?\.applyIdentity/);
 assert.match(polish,/phase:'V5\.4Stable'/);
 assert.match(polish,/stable_release_branding/);
-assert.match(checkpoint,/const TITLE = 'Math Practice V5\.4'/);
-assert.match(checkpoint,/const BADGE = 'Version 5\.4 • Stable Release'/);
+assert.match(checkpoint,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(checkpoint,/MathAppVersion\?\.applyIdentity/);
 assert.match(checkpoint,/V5\.4 Stable Release:/);
+assert.doesNotMatch(polish,/const TITLE = 'Math Practice V5\.|const BADGE = 'Version 5\./);
+assert.doesNotMatch(checkpoint,/const TITLE = 'Math Practice V5\.|const BADGE = 'Version 5\./);
 
 // Loader order keeps RC2 security first, then production polish and the read-only audit extension.
 assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*v50-production-polish\.js\?v=51stable-1[\s\S]*v50-release-audit\.js\?v=50rc2-1[\s\S]*v50-release-audit-rc3\.js\?v=51stable-1/);
@@ -102,8 +108,8 @@ assert.doesNotMatch(checkpoint,/localStorage|sessionStorage/);
 assert.doesNotMatch(checkpoint,/grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt/i);
 
 console.log('Stable UX & production-polish verification passed.');
-console.log('- historical V5.1 bootstrap remains recoverable while V5.4 Stable Release is the final production identity');
+console.log('- current title/badge are sourced from config-derived version.js');
 console.log('- packaged production hides the connection editor while local/dev setup remains available');
 console.log('- Reviewed Work and result-code privacy language covers both Practice and Exam');
 console.log('- Teacher tabs have keyboard semantics and narrow-screen horizontal navigation');
-console.log('- status feedback is announced accessibly and the V5.4 stable audit presentation remains read-only');
+console.log('- status feedback is announced accessibly and the retained V5.4 audit presentation remains read-only');

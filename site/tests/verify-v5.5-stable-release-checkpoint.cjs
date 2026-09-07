@@ -17,9 +17,10 @@ const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v55-stable-release-checkpoint.js'});
 
-// V5.5 is now the explicit stable presentation identity.
-assert.match(checkpoint,/const TITLE = 'Math Practice V5\.5'/);
-assert.match(checkpoint,/const BADGE = 'Version 5\.5 • Stable Release'/);
+// Historical V5.5 checkpoint identity delegates the current title/badge to version.js.
+assert.match(checkpoint,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(checkpoint,/MathAppVersion\?\.applyIdentity/);
+assert.doesNotMatch(checkpoint,/const TITLE = 'Math Practice V5\.5'|const BADGE = 'Version 5\.5/);
 assert.match(checkpoint,/V5\.5 Stable Release:/);
 assert.match(checkpoint,/V5\.5 Release Audit/);
 
@@ -86,13 +87,13 @@ assert.doesNotMatch(checkpoint,/localStorage|sessionStorage/,
 assert.doesNotMatch(checkpoint,/grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt|get_student_questions|exam_paper_settings/i,
   'V5.5 stable checkpoint must not alter grading, retrieval, submission or Exam publication behavior.');
 
-// Checkpoint record is anchored to the accepted V5.5D production baseline.
+// Historical checkpoint record remains preserved in the consolidated changelog.
 assert.match(releaseDoc,/ab90f2b2e5d2078346794a6cd977ec542ea02fd0/);
 for (const phrase of ['V5.5A','V5.5B','V5.5C','V5.5D','No Supabase migration','Version 5.5 • Stable Release']) {
   assert(releaseDoc.includes(phrase),`V5.5 release checkpoint record is missing: ${phrase}`);
 }
 
 console.log('V5.5 Stable Release checkpoint checks passed.');
-console.log('- V5.5 title, badge, release note and Release Audit identity aligned');
+console.log('- historical V5.5 checkpoint uses the shared current title/badge source');
 console.log('- accepted V5.5A-D Past Paper Practice chain retained');
 console.log('- checkpoint remains presentation/audit-only with no database or student-behavior changes');

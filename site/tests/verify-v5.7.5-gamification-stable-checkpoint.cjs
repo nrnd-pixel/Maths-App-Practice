@@ -17,8 +17,9 @@ const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v575-gamification-stable-checkpoint.js'});
 
-assert.match(checkpoint,/const TITLE = 'Math Practice V5\.7\.5'/);
-assert.match(checkpoint,/const BADGE = 'Version 5\.7\.5 • Gamified Practice Release'/);
+assert.match(checkpoint,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(checkpoint,/MathAppVersion\?\.applyIdentity/);
+assert.doesNotMatch(checkpoint,/const TITLE = 'Math Practice V5\.7\.5'|const BADGE = 'Version 5\.7\.5/);
 assert.match(checkpoint,/V5\.7\.5 Gamified Practice Release:/);
 assert.match(checkpoint,/V5\.7\.5 Release Audit/);
 
@@ -99,5 +100,5 @@ for (const phrase of [
 
 console.log('V5.7.5 Gamification Stable Release checkpoint checks passed.');
 console.log('- XP, levels, streaks, badges, weekly missions and cooperative class challenge retained');
-console.log('- teacher motivation and challenge controls retained without leaderboard behavior');
+console.log('- checkpoint branding is sourced from the shared current release identity');
 console.log('- checkpoint remains presentation/audit-only with no network or data writes');

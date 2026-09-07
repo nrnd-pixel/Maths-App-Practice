@@ -11,17 +11,22 @@ const release = read('v40-release.js');
 const polish = read('v50-production-polish.js');
 const audit = read('v50-release-audit-rc3.js');
 const checkpoint = read('v54-stable-release-checkpoint.js');
+const versionSource = read('version.js');
 
 new vm.Script(checkpoint,{filename:'v54-stable-release-checkpoint.js'});
+new vm.Script(versionSource,{filename:'version.js'});
 
-// Final release identity is explicitly V5.4 and is applied after the established start shell.
-assert.match(polish,/const TITLE = 'Math Practice V5\.4'/);
-assert.match(polish,/const BADGE = 'Version 5\.4 • Stable Release'/);
+// Historical V5.4 checkpoint presentation now delegates current app identity to
+// the single config-derived version source instead of hardcoding title/badge values.
+assert.match(config,/\.\/version\.js'/);
+assert.match(polish,/MathAppVersion\?\.applyIdentity/);
+assert.match(checkpoint,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(checkpoint,/MathAppVersion\?\.applyIdentity/);
+assert.doesNotMatch(polish,/const TITLE = 'Math Practice V5\.4'|const BADGE = 'Version 5\.4/);
+assert.doesNotMatch(checkpoint,/const TITLE = 'Math Practice V5\.4'|const BADGE = 'Version 5\.4/);
 assert.match(polish,/phase:'V5\.4Stable'/);
 assert.match(audit,/V5\.4 Release Audit/);
 assert.match(audit,/stable V5\.4 baseline/);
-assert.match(checkpoint,/const TITLE = 'Math Practice V5\.4'/);
-assert.match(checkpoint,/const BADGE = 'Version 5\.4 • Stable Release'/);
 assert.match(checkpoint,/V5\.4 Stable Release:/);
 assert.match(config,/\.\/v40-start-shell\.js'[\s\S]*\.\/v54-stable-release-checkpoint\.js'/,
   'V5.4 checkpoint must load after the established start shell.');
@@ -66,6 +71,6 @@ assert.doesNotMatch(checkpoint,/grade_practice_response|request_practice_hint|fi
   'Stable checkpoint must not alter grading, retrieval, submission or Exam publication behavior.');
 
 console.log('V5.4 Stable Release checkpoint checks passed.');
-console.log('- final V5.4 title, badge, release note and Release Audit identity aligned');
+console.log('- historical V5.4 checkpoint now uses the shared current title/badge source');
 console.log('- accepted V5.4A–G runtime chain retained');
 console.log('- checkpoint remains presentation-only with no database or student-behavior changes');

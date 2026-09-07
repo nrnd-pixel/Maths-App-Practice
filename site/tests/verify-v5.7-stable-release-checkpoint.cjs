@@ -20,9 +20,10 @@ const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v57-stable-release-checkpoint.js'});
 
-// V5.7 becomes the explicit stable presentation identity.
-assert.match(checkpoint,/const TITLE = 'Math Practice V5\.7'/);
-assert.match(checkpoint,/const BADGE = 'Version 5\.7 • Stable Release'/);
+// Historical V5.7 checkpoint identity delegates the current title/badge to version.js.
+assert.match(checkpoint,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(checkpoint,/MathAppVersion\?\.applyIdentity/);
+assert.doesNotMatch(checkpoint,/const TITLE = 'Math Practice V5\.7'|const BADGE = 'Version 5\.7/);
 assert.match(checkpoint,/V5\.7 Stable Release:/);
 assert.match(checkpoint,/V5\.7 Release Audit/);
 
@@ -86,8 +87,8 @@ assert.match(checkpoint,/v56-stable-release-audit/);
 assert.match(checkpoint,/v55-stable-release-audit/);
 assert.match(checkpoint,/v50-release-audit-root/);
 
-// Stable checkpoint remains presentation/audit-only and outruns older identity bursts finitely.
-assert.match(checkpoint,/\[0,100,300,900,1800,2600,3200\]/,'Checkpoint reapply burst must stay finite and finish after V5.6.1 rollout identity work.');
+// Stable checkpoint remains presentation/audit-only and retains its finite refresh burst.
+assert.match(checkpoint,/\[0,100,300,900,1800,2600,3200\]/,'Checkpoint reapply burst must stay finite.');
 assert.doesNotMatch(checkpoint,/MutationObserver/,'V5.7 stable checkpoint must not add a DOM observer.');
 assert.doesNotMatch(checkpoint,/cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(|fetch\(/,
   'V5.7 stable checkpoint must not make network/data calls.');
@@ -96,7 +97,7 @@ assert.doesNotMatch(checkpoint,/localStorage|sessionStorage/,
 assert.doesNotMatch(checkpoint,/grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt|get_student_questions|create_teacher_past_paper_assignments|update_teacher_past_paper_assignment|reassign_teacher_past_paper_assignment/i,
   'V5.7 stable checkpoint must not alter grading, retrieval, submission, assignment writes or Exam behavior.');
 
-// Checkpoint record is anchored to the accepted V5.7D production baseline.
+// Historical checkpoint record remains preserved in the consolidated changelog.
 assert.match(releaseDoc,/4a5759ed81a89449531ae061b1de6e4f722dc86b/);
 for (const phrase of [
   'V5.7A',
@@ -113,6 +114,6 @@ for (const phrase of [
 }
 
 console.log('V5.7 Stable Release checkpoint checks passed.');
-console.log('- V5.7 title, badge, release note and Release Audit identity aligned');
+console.log('- historical V5.7 checkpoint uses the shared current title/badge source');
 console.log('- accepted V5.7A-D continuity, assignment-management and analytics-action chain retained');
 console.log('- checkpoint remains presentation/audit-only with no database or student-behavior changes');

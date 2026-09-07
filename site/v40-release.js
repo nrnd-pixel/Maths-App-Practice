@@ -14,12 +14,8 @@
   }
 
   function applyV51StableRelease(){
-    document.title = 'Math Practice V5.1';
-
-    const versionBadge = document.querySelector('#start .brand .badge');
-    if (versionBadge){
-      versionBadge.textContent = 'Version 5.1 • Stable Release';
-    }
+    // Release identity is owned by version.js and derived from config.js's staged list.
+    window.MathAppVersion?.applyIdentity?.();
 
     const releaseNote = document.querySelector('#start > .info');
     if (releaseNote){

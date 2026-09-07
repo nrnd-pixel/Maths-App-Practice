@@ -10,12 +10,14 @@ const audit = fs.readFileSync(path.join(siteRoot, 'v50-release-audit.js'), 'utf8
 const rc3Audit = fs.readFileSync(path.join(siteRoot, 'v50-release-audit-rc3.js'), 'utf8');
 const polish = fs.readFileSync(path.join(siteRoot, 'v50-production-polish.js'), 'utf8');
 const checkpoint = fs.readFileSync(path.join(siteRoot, 'v54-stable-release-checkpoint.js'), 'utf8');
+const versionSource = fs.readFileSync(path.join(siteRoot, 'version.js'), 'utf8');
 const sql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50rc1_functional_audit.sql'), 'utf8');
 
 new vm.Script(audit, { filename: 'v50-release-audit.js' });
 new vm.Script(rc3Audit, { filename: 'v50-release-audit-rc3.js' });
 new vm.Script(polish, { filename: 'v50-production-polish.js' });
 new vm.Script(checkpoint, { filename: 'v54-stable-release-checkpoint.js' });
+new vm.Script(versionSource, { filename: 'version.js' });
 
 assert.match(release, /v50-teacher-operations\.js\?v=50d2-1', 'data-v50-teacher-operations'/,
   'Existing D2 loader must remain stable.');
@@ -49,15 +51,17 @@ assert.doesNotMatch(audit, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0
 assert.doesNotMatch(audit, /grade_practice_response|request_practice_hint|finalize_exam_attempt/i,
   'Release Audit must not introduce grading, hints or Exam finalization logic.');
 
-// V5.4 stable presentation extends the established audit only through presentation-only polish/checkpoint APIs.
+// Historical V5.4 audit presentation remains, but current title/badge ownership is centralized.
 assert.match(rc3Audit, /V50ProductionPolish\?\.getAudit/);
 assert.match(rc3Audit, /V5\.4 Release Audit/);
 assert.match(rc3Audit, /Stable-release identity/);
 assert.match(rc3Audit, /RC3 — UX & production polish/);
 assert.match(rc3Audit, /V5\.4 production-polish checks pass/);
-assert.match(polish, /const TITLE = 'Math Practice V5\.4'/);
-assert.match(polish, /const BADGE = 'Version 5\.4 • Stable Release'/);
+assert.match(polish, /MathAppVersion\?\.applyIdentity/);
+assert.match(checkpoint, /MathAppVersion\?\.CURRENT_RELEASE/);
 assert.match(checkpoint, /V5\.4 Stable Release:/);
+assert.doesNotMatch(polish, /const TITLE = 'Math Practice V5\.4'|const BADGE = 'Version 5\.4/);
+assert.doesNotMatch(checkpoint, /const TITLE = 'Math Practice V5\.4'|const BADGE = 'Version 5\.4/);
 assert.doesNotMatch(rc3Audit, /cloud\.rpc\(|cloud\.from\(|fetch\(/,
   'Stable audit presentation must not make data requests.');
 assert.doesNotMatch(rc3Audit, /localStorage|sessionStorage/,
@@ -100,17 +104,16 @@ assert.match(sql, /legacy_registered_exam_attempts_missing_class_id/i);
 assert.match(sql, /Historical warning only/i,
   'Legacy class-ID drift must be reported without rewriting historical Exam rows.');
 
-// Historical V5.1 presenter remains recoverable while the final production identity is V5.4.
-assert.match(release, /Math Practice V5\.1/);
-assert.match(release, /Version 5\.1 • Stable Release/);
+// Historical V5.1 presenter remains recoverable, while its title/badge writes now use version.js.
+assert.match(release, /function applyV51StableRelease\(\)/);
+assert.match(release, /MathAppVersion\?\.applyIdentity/);
 assert.match(release, /V5\.1 Stable Release:/);
 assert.doesNotMatch(release, /Version 5\.1 • Release Candidate|V5\.1 Release Candidate:/);
-assert.match(polish, /Math Practice V5\.4/);
-assert.match(checkpoint, /Version 5\.4 • Stable Release/);
+assert.match(polish, /MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(checkpoint, /MathAppVersion\?\.CURRENT_RELEASE/);
 
-console.log('Release-audit verification passed for the V5.4 stable checkpoint.');
-console.log('- established RC1/RC2 audit logic remains read-only and visible inside the V5.4 stable release audit');
+console.log('Release-audit verification passed for the V5.4 historical checkpoint.');
+console.log('- established RC1/RC2 audit logic remains read-only and visible inside the retained release audit');
 console.log('- every active Exam paper still requires explicit settings before RC1 passes');
 console.log('- pending-review cache repair remains derived-only and non-destructive');
-console.log('- stable audit presentation consumes only local production-polish/checkpoint status');
-console.log('- historical V5.1 presenter remains recoverable while V5.4 Stable Release is the final production identity');
+console.log('- current app title/badge are delegated to the shared config-derived version source');

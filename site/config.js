@@ -41,9 +41,8 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* Historical V5.1 bootstrap title; stable-release checkpoint layers apply the
-   current release identity once the staged modules are loaded. */
-document.title = 'Math Practice V5.1';
+/* Current release title/badge identity is applied by version.js after the staged
+   runtime list below is available. */
 
 /* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
    V5.6.1 keeps the student entry Practice-first. V5.7A adds secure cross-device
@@ -103,63 +102,74 @@ document.title = 'Math Practice V5.1';
    completion result for a newly started teacher assignment.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
+
+/* Phase 2: the current displayed release is derived from this exact staged list. */
+const MATH_APP_STAGED_SCRIPTS = Object.freeze([
+  './version.js',
+  './v38-ai-help.js',
+  './v38-ai-admin.js',
+  './v38-ai-polish.js',
+  './v39-student-polish.js',
+  './v39-practice-polish.js',
+  './v39-dashboard-polish.js',
+  './v39-state-polish.js',
+  './v40-student-platform.js',
+  './v40-student-nav.js',
+  './v40-student-session.js',
+  './v40-learn-setup.js',
+  './v40-learning-priorities.js',
+  './v40-platform-polish.js',
+  './v40-release.js',
+  './v40-start-shell.js',
+  './v54-stable-release-checkpoint.js',
+  './v55a-past-paper-practice.js',
+  './v55a1-practice-type-guard.js',
+  './v55b-full-paper-practice.js',
+  './v55c-resume-past-paper-practice.js',
+  './v55c1-resume-button-bridge.js',
+  './v55d-past-paper-result-attribution.js',
+  './v55-stable-release-checkpoint.js',
+  './v56a-question-bank-response-filter.js',
+  './v56a1-bulk-practice-confirmation-bridge.js',
+  './v56b-teacher-assigned-past-paper-practice.js',
+  './v56c-student-past-paper-progress.js',
+  './v56d-teacher-past-paper-analytics.js',
+  './v56-stable-release-checkpoint.js',
+  './v561-practice-first-student-experience.js',
+  './v57a-cross-device-past-paper-resume.js',
+  './v57a1-cross-device-local-bridge.js',
+  './v57a2-stale-local-checkpoint-cleanup.js',
+  './v57b-teacher-assignment-management.js',
+  './v57c-student-continue-learning-home.js',
+  './v57d-past-paper-analytics-actions.js',
+  './v57d1-focus-plan-copy-fallback.js',
+  './v57-stable-release-checkpoint.js',
+  './v571a-gamification-foundation.js',
+  './v571b-streaks-achievements.js',
+  './v572-weekly-missions.js',
+  './v573-class-challenges-teacher-gamification.js',
+  './v574-gamification-polish-teacher-controls.js',
+  './v575-gamification-stable-checkpoint.js',
+  './v576-classroom-feedback-support.js',
+  './v5761-feedback-trigger-position.js',
+  './v5763-teacher-feedback-header-icon.js',
+  './v58a-student-first-use-experience.js',
+  './v58b-teacher-workspace-consolidation.js',
+  './v58c-parent-friendly-student-report.js',
+  './v58c-parent-summary-workspace-shortcut.js',
+  './v58d-content-workflow-consolidation.js',
+  './v581a-practice-cloud-result-reconciliation.js',
+  './v58-stable-release-checkpoint.js'
+]);
+
+Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{
+  value:MATH_APP_STAGED_SCRIPTS,
+  writable:false,
+  configurable:false
+});
+
 window.addEventListener('load', () => {
-  [
-    './v38-ai-help.js',
-    './v38-ai-admin.js',
-    './v38-ai-polish.js',
-    './v39-student-polish.js',
-    './v39-practice-polish.js',
-    './v39-dashboard-polish.js',
-    './v39-state-polish.js',
-    './v40-student-platform.js',
-    './v40-student-nav.js',
-    './v40-student-session.js',
-    './v40-learn-setup.js',
-    './v40-learning-priorities.js',
-    './v40-platform-polish.js',
-    './v40-release.js',
-    './v40-start-shell.js',
-    './v54-stable-release-checkpoint.js',
-    './v55a-past-paper-practice.js',
-    './v55a1-practice-type-guard.js',
-    './v55b-full-paper-practice.js',
-    './v55c-resume-past-paper-practice.js',
-    './v55c1-resume-button-bridge.js',
-    './v55d-past-paper-result-attribution.js',
-    './v55-stable-release-checkpoint.js',
-    './v56a-question-bank-response-filter.js',
-    './v56a1-bulk-practice-confirmation-bridge.js',
-    './v56b-teacher-assigned-past-paper-practice.js',
-    './v56c-student-past-paper-progress.js',
-    './v56d-teacher-past-paper-analytics.js',
-    './v56-stable-release-checkpoint.js',
-    './v561-practice-first-student-experience.js',
-    './v57a-cross-device-past-paper-resume.js',
-    './v57a1-cross-device-local-bridge.js',
-    './v57a2-stale-local-checkpoint-cleanup.js',
-    './v57b-teacher-assignment-management.js',
-    './v57c-student-continue-learning-home.js',
-    './v57d-past-paper-analytics-actions.js',
-    './v57d1-focus-plan-copy-fallback.js',
-    './v57-stable-release-checkpoint.js',
-    './v571a-gamification-foundation.js',
-    './v571b-streaks-achievements.js',
-    './v572-weekly-missions.js',
-    './v573-class-challenges-teacher-gamification.js',
-    './v574-gamification-polish-teacher-controls.js',
-    './v575-gamification-stable-checkpoint.js',
-    './v576-classroom-feedback-support.js',
-    './v5761-feedback-trigger-position.js',
-    './v5763-teacher-feedback-header-icon.js',
-    './v58a-student-first-use-experience.js',
-    './v58b-teacher-workspace-consolidation.js',
-    './v58c-parent-friendly-student-report.js',
-    './v58c-parent-summary-workspace-shortcut.js',
-    './v58d-content-workflow-consolidation.js',
-    './v581a-practice-cloud-result-reconciliation.js',
-    './v58-stable-release-checkpoint.js'
-  ].forEach(src => {
+  MATH_APP_STAGED_SCRIPTS.forEach(src => {
     const script = document.createElement('script');
     script.src = src;
     script.async = false;
