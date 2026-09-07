@@ -8,9 +8,8 @@ const read = name => fs.readFileSync(path.join(site,name),'utf8');
 
 const config = read('config.js');
 const checkpoint = read('v575-gamification-stable-checkpoint.js');
-const v571a = read('v571a-gamification-foundation.js');
-const v571b = read('v571b-streaks-achievements.js');
-const v572 = read('v572-weekly-missions.js');
+const core = read('gamification-core.js');
+const student = read('gamification-student.js');
 const v573 = read('v573-class-challenges-teacher-gamification.js');
 const v574 = read('v574-gamification-polish-teacher-controls.js');
 const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
@@ -38,23 +37,32 @@ for (const phrase of [
 }
 
 for (const loader of [
-  './v571a-gamification-foundation.js',
-  './v571b-streaks-achievements.js',
-  './v572-weekly-missions.js',
+  './gamification-core.js',
+  './gamification-student.js',
   './v573-class-challenges-teacher-gamification.js',
   './v574-gamification-polish-teacher-controls.js',
   './v575-gamification-stable-checkpoint.js'
 ]) {
   assert(config.includes(loader),`V5.7.5 loader missing: ${loader}`);
 }
-assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/v571a-gamification-foundation\.js'/,
-  'Gamification must remain layered on top of the accepted V5.7 stable checkpoint.');
+for (const retiredLoader of [
+  './v571a-gamification-foundation.js',
+  './v571b-streaks-achievements.js',
+  './v572-weekly-missions.js'
+]) {
+  assert(!config.includes(retiredLoader),`Checkpoint 1 must not actively load retired student layer: ${retiredLoader}`);
+}
+assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'/,
+  'Consolidated student gamification must remain layered on top of the accepted V5.7 stable checkpoint.');
 assert.match(config,/\.\/v574-gamification-polish-teacher-controls\.js'[\s\S]*\.\/v575-gamification-stable-checkpoint\.js'/,
   'V5.7.5 checkpoint must load after V5.7.4.');
 
-assert.match(v571a,/__v571aGamificationFoundationInstalled/);
-assert.match(v571b,/__v571bStreaksAchievementsInstalled/);
-assert.match(v572,/__v572WeeklyMissionsInstalled/);
+assert.match(core,/get_student_gamification_v571a/);
+assert.match(core,/get_student_gamification_achievements_v571b/);
+assert.match(core,/get_student_weekly_missions_v572/);
+assert.match(student,/__v571aGamificationFoundationInstalled/);
+assert.match(student,/__v571bStreaksAchievementsInstalled/);
+assert.match(student,/__v572WeeklyMissionsInstalled/);
 assert.match(v573,/__v573ClassChallengesTeacherGamificationInstalled/);
 assert.match(v574,/__v574GamificationPolishTeacherControlsInstalled/);
 for (const marker of [
@@ -99,6 +107,6 @@ for (const phrase of [
 }
 
 console.log('V5.7.5 Gamification Stable Release checkpoint checks passed.');
-console.log('- XP, levels, streaks, badges, weekly missions and cooperative class challenge retained');
-console.log('- checkpoint branding is sourced from the shared current release identity');
+console.log('- accepted V5.7.1A/B/V5.7.2 behavior is now supplied by the consolidated student modules');
+console.log('- V5.7.3/V5.7.4 and the checkpoint source remain unchanged');
 console.log('- checkpoint remains presentation/audit-only with no network or data writes');
