@@ -113,14 +113,17 @@ for (const name of [...activeRuntimeNames].sort()) {
   assert.ok(fs.existsSync(full), `Active runtime script is missing: ${name}`);
   const source = fs.readFileSync(full, 'utf8');
 
-  const writesTitle = /document\.title\s*=/.test(source);
+  // A document title can legitimately be changed temporarily for printing/reporting.
+  // Count only title writes that are clearly using the shared release identity; hardcoded
+  // versioned title writes are rejected separately below.
+  const writesSharedReleaseTitle = /document\.title\s*=\s*(?:CURRENT_RELEASE|currentRelease\(\)|release)\.title/.test(source);
   const startBadgeVariables = [...source.matchAll(
     /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*document\.querySelector\(\s*['"]#start \.brand \.badge['"]\s*\)/g
   )].map(match => match[1]);
-  const writesBadge = startBadgeVariables.some(variable =>
+  const writesReleaseBadge = startBadgeVariables.some(variable =>
     new RegExp(`\\b${variable}\\.textContent\\s*=`).test(source)
   );
-  if (writesTitle || writesBadge) identityWriters.push(name);
+  if (writesSharedReleaseTitle || writesReleaseBadge) identityWriters.push(name);
 
   for (const pattern of [
     /document\.title\s*=\s*['"`]\s*Math Practice\s+V\d/,
@@ -130,11 +133,11 @@ for (const name of [...activeRuntimeNames].sort()) {
     if (pattern.test(source)) forbiddenLiteralAssignments.push({ name, pattern: String(pattern) });
   }
 
-  if ((writesTitle || writesBadge) && name !== 'version.js') {
+  if (writesReleaseBadge && name !== 'version.js') {
     assert.match(
       source,
       /MathAppVersion/,
-      `${name} writes release identity but does not delegate to the shared MathAppVersion source.`
+      `${name} writes the start-screen release badge but does not delegate to the shared MathAppVersion source.`
     );
   }
 }
@@ -170,8 +173,8 @@ for (const [surface, matches] of [
 console.log('Phase 2 version-source integrity checks passed.');
 console.log(`- config-derived current release: ${independentlyDerivedVersion}`);
 console.log(`- ${stagedScripts.length} staged config scripts inspected`);
-console.log(`- ${activeRuntimeNames.size} active runtime scripts scanned for hardcoded title/badge identity`);
-console.log(`- identity writers delegate to site/version.js: ${identityWriters.sort().join(', ')}`);
+console.log(`- ${activeRuntimeNames.size} active runtime scripts scanned for hardcoded release title/badge identity`);
+console.log(`- shared release identity writers: ${identityWriters.sort().join(', ')}`);
 console.log('- exactly one CURRENT_RELEASE definition exists in site/version.js');
 console.log('- version.js contains no hardcoded numeric V5.x current-version value');
 console.log('- index.html title, badge and introduction bootstrap versions match config.js');
