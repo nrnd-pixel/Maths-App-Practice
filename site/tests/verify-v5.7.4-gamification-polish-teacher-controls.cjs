@@ -56,7 +56,10 @@ assert(!/validateStudentAccess\(['"]exam['"]\)/.test(source), 'Gamification must
 assert(coreSource.includes("classChallengeCard:'v574-class-challenge-card'"), 'Shared core must preserve the final polished V574 student card id.');
 assert(/document\.getElementById\(IDS\.classChallengeCard\)/.test(studentSource), 'Student renderer must look up the shared V574 challenge-card id.');
 assert(/card\.id=IDS\.classChallengeCard/.test(studentSource), 'Student renderer must assign the shared V574 challenge-card id when creating the card.');
-assert(teacherSource.includes('v574-class-challenge-settings'), 'Teacher class-challenge settings trigger must remain intact.');
+// The V574 teacher settings trigger follows the same shared-ID ownership pattern.
+assert(coreSource.includes("settingsTrigger:'v574-class-challenge-settings'"), 'Shared core must preserve the V574 teacher settings-trigger id.');
+assert(/document\.getElementById\(IDS\.settingsTrigger\)/.test(teacherSource), 'Teacher module must look up the shared V574 settings-trigger id.');
+assert(/button\.id=IDS\.settingsTrigger/.test(teacherSource), 'Teacher module must assign the shared V574 settings-trigger id when creating the button.');
 assert(teacherSource.includes('Save Changes'), 'Teacher settings save workflow must remain available.');
 assert(teacherSource.includes('Teacher-controlled challenge'), 'Managed teacher challenge presentation must remain available.');
 assert(!/scheduleTeacherPatch|patchTeacherFromCurrentClass|patchTimer/.test(teacherSource), 'Old delayed cross-file teacher patch scheduler must be removed.');
@@ -90,6 +93,7 @@ assert(config.includes('Student reads remain aggregate'));
 console.log('V5.7.4 gamification polish + teacher controls regression passed from consolidated modules.');
 console.log('- polished student class challenge and teacher settings UI are retained');
 console.log('- final student challenge card keeps the shared v574-class-challenge-card DOM contract');
+console.log('- teacher settings trigger keeps the shared v574-class-challenge-settings DOM contract');
 console.log('- V574 student RPC remains a complete V573 payload wrapper, avoiding a duplicate Home read');
 console.log('- old cross-file teacher DOM patch scheduler is no longer active');
 console.log('- V5.7.4 Supabase settings/RPC contract remains unchanged');
