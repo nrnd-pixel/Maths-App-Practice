@@ -44,7 +44,7 @@ test.describe('Phase 0 core browser safety net', () => {
     expect(mock.unexpectedWrites).toEqual([]);
   });
 
-  test('student can start Practice and answer a real rendered question', async ({ page }) => {
+  test('student can start Practice and answer through authoritative grading', async ({ page }) => {
     const mock = await installSupabaseMock(page);
     await openApp(page);
     await signInStudent(page);
@@ -57,11 +57,14 @@ test.describe('Phase 0 core browser safety net', () => {
     expect(
       mock.rpcCalls.some(call => call.rpc === 'get_student_practice_questions_v53d3'),
     ).toBe(true);
+    expect(
+      mock.rpcCalls.some(call => call.rpc === 'grade_practice_response_v53b'),
+    ).toBe(true);
     expect(mock.restReads.filter(path => path === '/rest/v1/questions')).toEqual([]);
     expect(mock.unexpectedWrites).toEqual([]);
   });
 
-  test('student can submit Practice and see the saved result', async ({ page }) => {
+  test('student can submit Practice through the current V53B submission RPC', async ({ page }) => {
     const mock = await installSupabaseMock(page);
     await openApp(page);
     await signInStudent(page);
@@ -77,6 +80,12 @@ test.describe('Phase 0 core browser safety net', () => {
     await expect(page.locator('#result-code')).not.toHaveText('');
 
     expect(mock.practiceSubmissions).toBe(1);
+    expect(
+      mock.rpcCalls.some(call => call.rpc === 'submit_practice_session_v53b'),
+    ).toBe(true);
+    expect(
+      mock.rpcCalls.some(call => call.rpc === 'submit_practice_session_v3'),
+    ).toBe(false);
     expect(mock.unexpectedWrites).toEqual([]);
   });
 
