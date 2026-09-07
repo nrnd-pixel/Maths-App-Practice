@@ -41,9 +41,69 @@ window.MATH_APP_CONFIG = {
   };
 })();
 
-/* Stable V3.9/V4.x/V5.x foundation plus signed-off checkpoints and maintenance
-   layers. The authoritative displayed release identity is derived by version.js
-   from this exact staged list, rather than being hardcoded by a checkpoint. */
+/* Current release title/badge identity is applied by version.js after the staged
+   runtime list below is available. */
+
+/* Stable V3.9/V4.x/V5.x foundation plus signed-off V5.4, V5.5 and V5.6 checkpoints.
+   V5.6.1 keeps the student entry Practice-first. V5.7A adds secure cross-device
+   Past Paper Practice checkpoints over the accepted V5.5C same-device fallback.
+   V5.7A manual-test hardening keeps background checkpoint refreshes passive and
+   preserves the explicit in-quiz cloud-save confirmation.
+   V5.7B adds teacher assignment scheduling, close/reopen, reassign-as-new and
+   student completion management without changing student grading or Exam Mode.
+   V5.7C makes signed-in Home Practice-first: resume saved Past Paper work, surface
+   teacher assignments, recommended Practice and the latest Practice result without
+   requiring Exam access. V5.7D turns Past Paper Analytics into safe teacher actions:
+   prepare targeted cohorts in the existing assignment form, open assignment
+   management, or copy a teaching focus plan. V5.7D.1 hardens focus-plan copying
+   with synchronous and selectable in-app fallbacks for restricted clipboard contexts.
+   V5.7D performs no automatic assignment writes. V5.7E consolidates the accepted
+   V5.7A-D sequence as the V5.7 stable release identity and audit checkpoint; the
+   checkpoint itself makes no network or data writes. V5.7.1A adds a read-only
+   student XP + level card on top of the accepted Continue Learning Home, derived
+   from verified saved Practice activity and excluding Exam activity. V5.7.1B adds
+   a gentle Practice streak and achievement badges derived from the same saved,
+   non-Exam learning evidence; no streak/badge write path is introduced. V5.7.2 adds
+   three weekly Practice missions that reset each Monday in Brunei time and are
+   derived from saved non-Exam activity without a mission write path. V5.7.3 adds
+   a cooperative class question challenge plus an alphabetical teacher motivation
+   view for XP, streaks and weekly missions. It deliberately adds no leaderboard,
+   class-v-class competition or gamification write path. V5.7.4 polishes the class
+   challenge and adds teacher-only controls to enable/pause it and choose a target
+   of 5, 10, 15 or 20 questions per active student. Student reads remain aggregate,
+   Exam activity is excluded and XP rules are unchanged. V5.7.5 consolidates the
+   accepted gamification sequence as a presentation/audit-only stable checkpoint;
+   it adds no network calls, data writes or learning-rule changes. V5.7.6 adds an
+   in-app student feedback form and secure teacher Feedback Inbox so classroom
+   problems and suggestions can be captured without exposing access tokens, answers
+   or grading data. V5.7.6.1 keeps that workflow unchanged while moving the student
+   feedback trigger to a compact top-right Home icon. V5.7.6.3 mirrors that compact
+   presentation for teachers by placing a proxy Feedback Inbox icon beside the
+   Teacher Dashboard title without adding network calls. V5.8A adds a lightweight
+   first-use Home card for students who have not yet earned the existing First
+   Practice achievement. It prepares the established Mixed Practice controls for
+   five questions and forwards to the existing Start Practice flow; assignments,
+   saved Past Paper checkpoints, grading, XP and achievement ownership are unchanged.
+   V5.8B adds a task-grouped Teacher Workspace launcher over the established teacher
+   tools. It delegates to existing tabs and overlay triggers only; no analytics,
+   assignment, reporting, content, feedback or data authority is duplicated.
+   V5.8C adds a teacher-only parent/family progress summary derived entirely from
+   the established Student Performance Report snapshot, with a printable Practice-
+   focused view and no new reporting calculation, persistence or parent account.
+   V5.8D consolidates the established content tools into a source-aware teacher route:
+   Import, Validate, Review, Practice availability, topical publication and Audit.
+   It is navigation/presentation only; Exam publication remains in Exam Settings and
+   is intentionally not promoted while Exam Mode is deferred. V5.8 Stable then
+   consolidates the accepted V5.8A-D sequence as the authoritative V5.8 release
+   identity and audit checkpoint without adding network calls or data writes.
+   V5.8.1A reconciles the Results screen against the saved cloud result so post-save
+   browser/localStorage failures cannot mislabel a successful submission as a local
+   backup, and it keeps stale pre-assignment results from being presented as the
+   completion result for a newly started teacher assignment.
+   Legacy release-label-only scripts remain archived in the repository; current
+   staged loading remains coordinated by v40-release.js. */
+
+/* Phase 2: the current displayed release is derived from this exact staged list. */
 const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './version.js',
   './v38-ai-help.js',
