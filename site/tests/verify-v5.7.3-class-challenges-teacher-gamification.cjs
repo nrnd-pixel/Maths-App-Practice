@@ -56,8 +56,8 @@ assert.doesNotMatch(source,/correct_answer|correctAnswer|service_role/i);
 assert.doesNotMatch(source,/cloud\.from\(/);
 assert.doesNotMatch(source,/document\.title|Version 5\.7|Stable Release/);
 
-// Config preserves stable identity and layers V5.7.3 after weekly missions.
-assert.match(config,/\.\/v571a-gamification-foundation\.js'[\s\S]*\.\/v571b-streaks-achievements\.js'[\s\S]*\.\/v572-weekly-missions\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'/);
+// V5.7.3 source remains untouched; only its upstream student loader is consolidated.
+assert.match(config,/\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'/);
 assert.match(config,/no leaderboard/i);
 
 // Server functions are read-only, Brunei-week scoped and exclude Exam activity.
@@ -81,4 +81,4 @@ assert.match(sql,/revoke all on function public\.get_teacher_class_gamification_
 console.log('V5.7.3 Class Challenges + Teacher Gamification checks passed.');
 console.log('- cooperative target is 10 Practice questions per active class student');
 console.log('- teacher roster view is alphabetical and offers encouragement filters, not rankings');
-console.log('- student aggregate and teacher details remain read-only and exclude Exam activity');
+console.log('- V5.7.3 remains unchanged while consuming the consolidated student compatibility API');

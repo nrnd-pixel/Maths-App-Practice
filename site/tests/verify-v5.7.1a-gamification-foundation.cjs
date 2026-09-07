@@ -3,17 +3,24 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// Keep the Phase 4 Checkpoint 1 integrity guard inside the maintained CI path
+// without changing the consolidated workflow for a mapping-only feature checkpoint.
+require('./verify-phase4-gamification-checkpoint1-integrity.cjs');
+
 const site = path.join(__dirname,'..');
 const read = name => fs.readFileSync(path.join(site,name),'utf8');
 
-const source = read('v571a-gamification-foundation.js');
+const coreSource = read('gamification-core.js');
+const studentSource = read('gamification-student.js');
+const source = `${coreSource}\n${studentSource}`;
 const config = read('config.js');
 const sql = fs.readFileSync(path.join(site,'..','supabase','v571a_student_gamification_foundation.sql'),'utf8');
 
-new vm.Script(source,{filename:'v571a-gamification-foundation.js'});
-const api = require(path.join(site,'v571a-gamification-foundation.js'));
+new vm.Script(coreSource,{filename:'gamification-core.js'});
+new vm.Script(studentSource,{filename:'gamification-student.js'});
+const api = require(path.join(site,'gamification-student.js')).xp;
 
-// Starter level bands are deliberate and match the approved Phase 1 concept.
+// Starter level bands remain unchanged from the accepted V5.7.1A behavior.
 assert.deepEqual(api.levelForXp(0),{number:1,title:'Maths Starter',start_xp:0,next_level_xp:100,progress_percent:0});
 assert.equal(api.levelForXp(99).number,1);
 assert.equal(api.levelForXp(100).number,2);
@@ -25,7 +32,7 @@ assert.equal(api.levelForXp(899).number,4);
 assert.deepEqual(api.levelForXp(900),{number:5,title:'Maths Master',start_xp:900,next_level_xp:null,progress_percent:100});
 assert.equal(api.levelForXp(340).progress_percent,36);
 
-// Payload normalization is defensive and does not trust arbitrary level labels/counts.
+// Payload normalization remains defensive and does not trust arbitrary level labels/counts.
 const normalized = api.normalizePayload({
   xp:{total:340},
   level:{number:3,title:'Problem Solver',start_xp:250,next_level_xp:500,progress_percent:36},
@@ -38,25 +45,26 @@ assert.equal(normalized.level.title,'Problem Solver');
 assert.equal(normalized.activity.first_try_correct,20);
 assert.equal(normalized.rules.completed_assignment_xp,20);
 
-// Client is a passive, read-only Home enhancement.
+// Consolidation keeps the client passive, read-only and Practice-only.
 assert.match(source,/get_student_gamification_v571a/);
-assert.match(source,/V57CStudentContinueLearningHome\?\.passivePracticeAccess/);
-assert.match(source,/V57ACrossDevicePastPaperResume\?\.passivePracticeAccess/);
+assert.match(coreSource,/V57CStudentContinueLearningHome\?\.passivePracticeAccess/);
+assert.match(coreSource,/V57ACrossDevicePastPaperResume\?\.passivePracticeAccess/);
 assert.doesNotMatch(source,/validateStudentAccess\(['"]exam['"]\)/);
 assert.doesNotMatch(source,/correct_answer|correctAnswer|service_role/i);
-assert.doesNotMatch(source,/cloud\.from\(|insert\(|update\(|delete\(/);
-assert.match(source,/v57c:home-updated/);
-assert.match(source,/How XP works/);
-assert.match(source,/First Try correct/);
-assert.match(source,/Second Try correct/);
-assert.match(source,/Past Paper bonus/);
-assert.match(source,/Assignment bonus/);
+assert.doesNotMatch(source,/cloud\.from\(|\.insert\(|\.update\(|\.delete\(/);
+assert.match(studentSource,/v571a:gamification-updated/);
+assert.match(studentSource,/How XP works/);
+assert.match(studentSource,/First Try correct/);
+assert.match(studentSource,/Second Try correct/);
+assert.match(studentSource,/Past Paper bonus/);
+assert.match(studentSource,/Assignment bonus/);
 
-// The V5.7 stable checkpoint remains the identity owner; gamification loads after it.
-assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/v571a-gamification-foundation\.js'/);
-assert.doesNotMatch(source,/document\.title|Version 5\.7|Stable Release/);
+// Checkpoint 1 loads the shared core/student modules after V5.7 and before V5.7.3.
+assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'/);
+assert.doesNotMatch(config,/['"]\.\/v571a-gamification-foundation\.js['"]/);
+assert.doesNotMatch(studentSource,/document\.title|Version 5\.7|Stable Release/);
 
-// Server XP is token-gated, derived from saved Practice, excludes Exam and performs no writes.
+// Server XP contract is untouched: token-gated, saved-Practice-derived, non-Exam and read-only.
 assert.match(sql,/security definer/i);
 assert.match(sql,/student_access_tickets/);
 assert.match(sql,/extensions\.digest/);
@@ -73,7 +81,7 @@ assert.doesNotMatch(sql,/correct_answer_snapshot|explanation_snapshot|final_answ
 assert.match(sql,/revoke all on function public\.get_student_gamification_v571a\(text\) from public/i);
 assert.match(sql,/grant execute on function public\.get_student_gamification_v571a\(text\) to anon, authenticated/i);
 
-console.log('V5.7.1A Gamification Foundation checks passed.');
-console.log('- XP + starter levels match approved rules and boundaries');
-console.log('- Home enhancement stays passive, Practice-only and answer-key free');
-console.log('- server summary is derived/read-only, token-gated and duplicate-award safe');
+console.log('V5.7.1A Gamification Foundation checks passed from consolidated student gamification.');
+console.log('- XP + starter levels retain the accepted rules and boundaries');
+console.log('- shared access remains passive, Practice-only and answer-key free');
+console.log('- server summary contract remains derived/read-only and unchanged');

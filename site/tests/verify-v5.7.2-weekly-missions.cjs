@@ -6,12 +6,15 @@ const vm = require('node:vm');
 const site = path.join(__dirname,'..');
 const read = name => fs.readFileSync(path.join(site,name),'utf8');
 
-const source = read('v572-weekly-missions.js');
+const coreSource = read('gamification-core.js');
+const studentSource = read('gamification-student.js');
+const source = `${coreSource}\n${studentSource}`;
 const config = read('config.js');
 const sql = fs.readFileSync(path.join(site,'..','supabase','v572_student_weekly_missions.sql'),'utf8');
 
-new vm.Script(source,{filename:'v572-weekly-missions.js'});
-const api = require(path.join(site,'v572-weekly-missions.js'));
+new vm.Script(coreSource,{filename:'gamification-core.js'});
+new vm.Script(studentSource,{filename:'gamification-student.js'});
+const api = require(path.join(site,'gamification-student.js')).missions;
 
 const model = api.normalizePayload({
   week:{start_date:'2026-08-31',end_date:'2026-09-06',today:'2026-09-03',timezone:'Asia/Brunei'},
@@ -51,20 +54,25 @@ const completed = api.normalizePayload({
 assert.equal(completed.summary.completed,3);
 assert.equal(completed.summary.all_complete,true);
 
-// Client remains a passive, read-only Home enhancement layered after achievements.
+// Client remains passive/read-only while direct orchestration replaces the internal achievement-event dependency.
 assert.match(source,/get_student_weekly_missions_v572/);
-assert.match(source,/V571BStreaksAchievements\?\.passivePracticeAccess/);
-assert.match(source,/v571b:achievements-updated/);
-assert.match(source,/This Week\\'s Missions|This Week's Missions/);
+assert.match(coreSource,/V57CStudentContinueLearningHome\?\.passivePracticeAccess/);
+assert.match(studentSource,/v572:missions-updated/);
+assert.match(studentSource,/This Week\\'s Missions|This Week's Missions/);
+assert.match(studentSource,/return loadMissions\(force\)/);
+assert.doesNotMatch(studentSource,/addEventListener\(['"]v571b:achievements-updated/);
 assert.doesNotMatch(source,/validateStudentAccess\(['"]exam['"]\)/);
 assert.doesNotMatch(source,/correct_answer|correctAnswer|service_role/i);
-assert.doesNotMatch(source,/cloud\.from\(|insert\(|update\(|delete\(/);
-assert.doesNotMatch(source,/document\.title|Version 5\.7|Stable Release/);
+assert.doesNotMatch(source,/cloud\.from\(|\.insert\(|\.update\(|\.delete\(/);
+assert.doesNotMatch(studentSource,/document\.title|Version 5\.7|Stable Release/);
 
-// Config preserves stable identity ownership and loads missions after V5.7.1A/B.
-assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/v571a-gamification-foundation\.js'[\s\S]*\.\/v571b-streaks-achievements\.js'[\s\S]*\.\/v572-weekly-missions\.js'/);
+// Config keeps the consolidated student module before untouched V5.7.3/V5.7.4 consumers.
+assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'[\s\S]*\.\/v574-gamification-polish-teacher-controls\.js'/);
+assert.doesNotMatch(config,/['"]\.\/v572-weekly-missions\.js['"]/);
+assert.match(studentSource,/Object\.defineProperty\(window,'V572WeeklyMissions'/);
+assert.match(studentSource,/openLearn,openAssignments/);
 
-// Server missions are token-gated, Brunei-week scoped, Practice-only and read-only.
+// Server mission contract is untouched: token-gated, Brunei-week scoped, Practice-only and read-only.
 assert.match(sql,/security definer/i);
 assert.match(sql,/student_access_tickets/);
 assert.match(sql,/extensions\.digest/);
@@ -82,7 +90,7 @@ assert.doesNotMatch(sql,/correct_answer_snapshot|explanation_snapshot|final_answ
 assert.match(sql,/revoke all on function public\.get_student_weekly_missions_v572\(text\) from public/i);
 assert.match(sql,/grant execute on function public\.get_student_weekly_missions_v572\(text\) to anon, authenticated/i);
 
-console.log('V5.7.2 Weekly Missions checks passed.');
-console.log('- three weekly missions use approved Practice-first targets');
-console.log('- missions reset Monday in Brunei time and exclude Exam activity');
-console.log('- Home enhancement stays passive, read-only and answer-key free');
+console.log('V5.7.2 Weekly Missions checks passed from consolidated student gamification.');
+console.log('- three weekly missions retain the accepted Practice-first targets');
+console.log('- direct student orchestration replaces the old achievements listener chain');
+console.log('- V5.7.3 compatibility API/event contracts and server RPC remain unchanged');
