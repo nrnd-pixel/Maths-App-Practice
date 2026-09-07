@@ -56,7 +56,7 @@
   }
 
   function auditCard(pass,title,detail){
-    return `<article class="v50rc-check ${pass?'pass':'fail'}"><strong>${pass?'✅ ':''}${esc(title)}</strong><div>${esc(detail)}</div></article>`;
+    return `<article class="v50rc-check ${pass?'pass':'fail'}"><strong>${pass?'✅':'❌'} ${esc(title)}</strong><div>${esc(detail)}</div></article>`;
   }
 
   function auditMarkup(){
