@@ -3,6 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// Keep the Phase 4 Checkpoint 1 integrity guard inside the maintained CI path
+// without changing the consolidated workflow for a mapping-only feature checkpoint.
+require('./verify-phase4-gamification-checkpoint1-integrity.cjs');
+
 const site = path.join(__dirname,'..');
 const read = name => fs.readFileSync(path.join(site,name),'utf8');
 
