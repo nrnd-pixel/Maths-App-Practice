@@ -101,6 +101,9 @@ document.title = 'Math Practice V5.1';
    browser/localStorage failures cannot mislabel a successful submission as a local
    backup, and it keeps stale pre-assignment results from being presented as the
    completion result for a newly started teacher assignment.
+   V5.9B is a test-only adaptive diagnostic pilot. The staged module remains dormant
+   unless ?adaptivePilot=2 is present, and the server-side pilot gate separately
+   restricts it to allow-listed students and the three approved pilot questions.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
