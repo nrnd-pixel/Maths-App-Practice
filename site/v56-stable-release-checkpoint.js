@@ -62,7 +62,7 @@
       [checks.teacher_assignment,'V5.6B — Teacher-assigned Past Paper Practice','Teacher Past Paper assignment and student assignment flow are loaded.'],
       [checks.student_progress,'V5.6C — Student Past Paper Progress','Paper-level student progress, result links and same-device resume indicators are loaded.'],
       [checks.teacher_analytics,'V5.6D — Teacher Past Paper Analytics','Read-only class/paper progress, weak-question and topic/skill analytics are loaded.'],
-      [identityReady(),'V5.6 checkpoint identity','Current app title/badge plus the V5.6 checkpoint release note are active.']
+      [identityReady(),'V5.6 stable-release identity','V5.6 title, badge and consolidated release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length && checks.v55_foundation;
