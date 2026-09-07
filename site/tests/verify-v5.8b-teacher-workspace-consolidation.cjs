@@ -12,7 +12,8 @@ const operations=fs.readFileSync(path.join(root,'v50-teacher-operations.js'),'ut
 const classReport=fs.readFileSync(path.join(root,'v50-teacher-class-report.js'),'utf8');
 const archive=fs.readFileSync(path.join(root,'v50-report-archive.js'),'utf8');
 const pastPaper=fs.readFileSync(path.join(root,'v56d-teacher-past-paper-analytics.js'),'utf8');
-const motivation=fs.readFileSync(path.join(root,'v573-class-challenges-teacher-gamification.js'),'utf8');
+const gamificationCore=fs.readFileSync(path.join(root,'gamification-core.js'),'utf8');
+const gamificationTeacher=fs.readFileSync(path.join(root,'gamification-teacher.js'),'utf8');
 const feedback=fs.readFileSync(path.join(root,'v5763-teacher-feedback-header-icon.js'),'utf8');
 
 function assert(condition,message){ if(!condition) throw new Error(message); }
@@ -41,7 +42,8 @@ for(const panel of ['analytics-panel','classes-panel','review-panel','access-pan
 }
 assert(actionCenter.includes('v42-action-center'),'Action Center target changed');
 assert(pastPaper.includes("const TRIGGER_ID = 'v56d-open-past-paper-analytics'"),'Past Paper Analytics trigger changed');
-assert(motivation.includes("const TEACHER_TRIGGER_ID = 'v573-open-class-motivation'"),'Class Motivation trigger changed');
+assert(gamificationCore.includes("teacherTrigger:'v573-open-class-motivation'"),'Class Motivation trigger id changed');
+assert(gamificationTeacher.includes('button.id=IDS.teacherTrigger'),'Consolidated teacher gamification must own the Class Motivation trigger');
 assert(launchReadiness.includes("const PANEL_ID = 'launch-readiness-panel'"),'Launch Readiness panel changed');
 assert(operations.includes("const PANEL_ID = 'teacher-operations-panel'"),'Teacher Operations panel changed');
 assert(classReport.includes("const TRIGGER_ID = 'v50c1-open-class-report'"),'Class Report trigger changed');
