@@ -1,0 +1,182 @@
+name: Consolidated CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature-v5.0
+  push:
+    branches:
+      - 'development/**'
+      - 'maintenance/**'
+      - feature-v5.0
+      - feature-v5.0b1-regression-safety
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: consolidated-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Full regression and core browser flows
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run maintained verifier suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          verifiers=(
+            "site/tests/verify-v5.1.cjs"
+            "site/tests/verify-v5.0-accessibility.cjs"
+            "site/tests/verify-v5.0-reporting.cjs"
+            "site/tests/verify-v5.0-launch-readiness.cjs"
+            "site/tests/verify-v5.0-launch-reset-hotfix.cjs"
+            "site/tests/verify-v5.0-teacher-operations.cjs"
+            "site/tests/verify-v5.0-roster-edit.cjs"
+            "site/tests/verify-v5.0-release-audit.cjs"
+            "site/tests/verify-v5.0-security-audit.cjs"
+            "site/tests/verify-v5.0-rc2-empty-result-code-audit.cjs"
+            "site/tests/verify-v5.1-production-polish.cjs"
+            "site/tests/verify-v5.1a-paper-profile-validator.cjs"
+            "site/tests/verify-v5.1a2-bulk-question-image-upload.cjs"
+            "site/tests/verify-v5.1a2-bulk-image-cleanup.cjs"
+            "site/tests/verify-v5.1a2-image-safety.cjs"
+            "site/tests/verify-v5.1a4-paper-package-preview.cjs"
+            "site/tests/verify-v5.1a4-package-status.cjs"
+            "site/tests/verify-v5.1a5-one-confirmation-paper-import.cjs"
+            "site/tests/verify-v5.1a6-post-import-integrity.cjs"
+            "site/tests/verify-v5.1b1-question-bank-qa.cjs"
+            "site/tests/verify-v5.1b1-question-bank-qa-loader.cjs"
+            "site/tests/verify-v5.1b2a-bulk-activate-deactivate.cjs"
+            "site/tests/verify-v5.1b2a-bulk-status-loader.cjs"
+            "site/tests/verify-v5.1b2b-bulk-metadata.cjs"
+            "site/tests/verify-v5.1b2b-bulk-metadata-loader.cjs"
+            "site/tests/verify-v5.1b2c-question-review-workflow.cjs"
+            "site/tests/verify-v5.1b2c-question-review-loader.cjs"
+            "site/tests/verify-v5.1b2d-correction-audit-history.cjs"
+            "site/tests/verify-v5.1b2d-correction-audit-history-loader.cjs"
+            "site/tests/verify-v5.1b2e-multipart-question-management.cjs"
+            "site/tests/verify-v5.1b2e-multipart-question-management-loader.cjs"
+            "site/tests/verify-v5.1b3-exam-publication-safety.cjs"
+            "site/tests/verify-v5.1b3-exam-publication-safety-loader.cjs"
+            "site/tests/verify-v5.1c1-student-exam-paper-library.cjs"
+            "site/tests/verify-v5.1c1-student-exam-paper-library-loader.cjs"
+            "site/tests/verify-v5.1c2-student-exam-resume-progress.cjs"
+            "site/tests/verify-v5.1c2-student-exam-resume-progress-loader.cjs"
+            "site/tests/verify-v5.1-stable-release.cjs"
+            "site/tests/verify-v5.2a-topical-exercise-foundation.cjs"
+            "site/tests/verify-v5.2a-topical-activation-guard.cjs"
+            "site/tests/verify-v5.2b-teacher-topical-library.cjs"
+            "site/tests/verify-v5.2b1-question-bank-performance.cjs"
+            "site/tests/verify-v5.2b1-question-bank-observer-gate.cjs"
+            "site/tests/verify-v5.2b1-large-import-timeout-recovery.cjs"
+            "site/tests/verify-v5.2c-topical-publication.cjs"
+            "site/tests/verify-v5.2c-student-topical-library.cjs"
+            "site/tests/verify-v5.2c-topical-hint-bridge.cjs"
+            "site/tests/verify-v5.2c-loader.cjs"
+            "site/tests/verify-v5.2c1-topical-library-mount.cjs"
+            "site/tests/verify-v5.2c2-topical-result-ux.cjs"
+            "site/tests/verify-v5.3a-practice-eligibility.cjs"
+            "site/tests/verify-v5.3b-unified-practice-retrieval.cjs"
+            "site/tests/verify-v5.3c-two-mode-student-ui.cjs"
+            "site/tests/verify-v5.3d1-teacher-practice-pool-alignment.cjs"
+            "site/tests/verify-v5.3d2-practice-recommendation-alignment.cjs"
+            "site/tests/verify-v5.3d3-practice-selection-quality.cjs"
+            "site/tests/verify-v5.3d4-student-recommendation-alignment.cjs"
+            "site/tests/verify-v5.3d5-practice-selection-intelligence.cjs"
+            "site/tests/verify-v5.3d6-resource-bank-status-clarity.cjs"
+            "site/tests/verify-v5.4a-resource-bank-visibility.cjs"
+            "site/tests/verify-v5.4b-practice-eligibility-controls.cjs"
+            "site/tests/verify-v5.4c-compact-question-bank.cjs"
+            "site/tests/verify-v5.4d-topical-resource-simplification.cjs"
+            "site/tests/verify-v5.4e-bulk-practice-eligibility.cjs"
+            "site/tests/verify-v5.4f-bulk-selection-scope-safety.cjs"
+            "site/tests/verify-v5.4g-paged-manual-bulk-selection.cjs"
+            "site/tests/verify-v5.4-stable-release-checkpoint.cjs"
+            "site/tests/verify-v5.5a-past-paper-practice.cjs"
+            "site/tests/verify-v5.5a1-practice-type-guard.cjs"
+            "site/tests/verify-v5.5b-full-paper-practice.cjs"
+            "site/tests/verify-v5.5c-resume-past-paper-practice.cjs"
+            "site/tests/verify-v5.5c1-resume-button-bridge.cjs"
+            "site/tests/verify-v5.5d-past-paper-result-attribution.cjs"
+            "site/tests/verify-v5.5-stable-release-checkpoint.cjs"
+            "site/tests/verify-v5.6a-question-bank-response-filter.cjs"
+            "site/tests/verify-v5.6a1-bulk-practice-confirmation-bridge.cjs"
+            "site/tests/verify-v5.6b-teacher-assigned-past-paper-practice.cjs"
+            "site/tests/verify-v5.6c-student-past-paper-progress.cjs"
+            "site/tests/verify-v5.6d-teacher-past-paper-analytics.cjs"
+            "site/tests/verify-v5.6-stable-release-checkpoint.cjs"
+            "site/tests/verify-v5.6.1-practice-first-student-experience.cjs"
+            "site/tests/verify-v5.7a-cross-device-past-paper-resume.cjs"
+            "site/tests/verify-v5.7b-teacher-assignment-management.cjs"
+            "site/tests/verify-v5.7c-student-continue-learning-home.cjs"
+            "site/tests/verify-v5.7d-past-paper-analytics-actions.cjs"
+            "site/tests/verify-v5.7d1-focus-plan-copy-fallback.cjs"
+            "site/tests/verify-v5.7-stable-release-checkpoint.cjs"
+            "site/tests/verify-v5.7.1a-gamification-foundation.cjs"
+            "site/tests/verify-v5.7.1b-streaks-achievements.cjs"
+            "site/tests/verify-v5.7.2-weekly-missions.cjs"
+            "site/tests/verify-v5.7.3-class-challenges-teacher-gamification.cjs"
+            "site/tests/verify-v5.7.4-gamification-polish-teacher-controls.cjs"
+            "site/tests/verify-v5.7.5-gamification-stable-checkpoint.cjs"
+            "site/tests/verify-v5.7.6-classroom-feedback-support.cjs"
+            "site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs"
+            "site/tests/verify-v5.8a-student-first-use-experience.cjs"
+            "site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs"
+            "site/tests/verify-v5.8c-parent-friendly-student-report.cjs"
+            "site/tests/verify-v5.8d-content-workflow-consolidation.cjs"
+            "site/tests/verify-v5.8-intervention-workflow.cjs"
+            "site/tests/verify-v5.8-stable-release-checkpoint.cjs"
+          )
+
+          echo "Running ${#verifiers[@]} maintained verifier scripts..."
+          for verifier in "${verifiers[@]}"; do
+            echo "==> ${verifier}"
+            node "${verifier}"
+          done
+
+      - name: Install E2E dependencies
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run core browser tests
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npm test
+
+      - name: Upload Playwright report on failure
+        if: ${{ failure() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main')) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Playwright traces on failure
+        if: ${{ failure() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main')) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 7
