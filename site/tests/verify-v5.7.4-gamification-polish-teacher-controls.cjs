@@ -1,12 +1,20 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const vm = require('node:vm');
 
 const ROOT = path.resolve(__dirname, '..');
-const mod = require(path.join(ROOT, 'v574-gamification-polish-teacher-controls.js'));
-const source = fs.readFileSync(path.join(ROOT, 'v574-gamification-polish-teacher-controls.js'), 'utf8');
+const coreSource = fs.readFileSync(path.join(ROOT, 'gamification-core.js'), 'utf8');
+const studentSource = fs.readFileSync(path.join(ROOT, 'gamification-student.js'), 'utf8');
+const teacherSource = fs.readFileSync(path.join(ROOT, 'gamification-teacher.js'), 'utf8');
+const source = `${coreSource}\n${studentSource}\n${teacherSource}`;
 const config = fs.readFileSync(path.join(ROOT, 'config.js'), 'utf8');
 const sql = fs.readFileSync(path.resolve(ROOT, '..', 'supabase', 'v574_gamification_polish_teacher_controls.sql'), 'utf8');
+
+new vm.Script(coreSource,{filename:'gamification-core.js'});
+new vm.Script(studentSource,{filename:'gamification-student.js'});
+new vm.Script(teacherSource,{filename:'gamification-teacher.js'});
+const mod = require(path.join(ROOT, 'gamification-teacher.js')).v574;
 
 assert.equal(mod.RPC_STUDENT, 'get_student_class_challenge_v574');
 assert.equal(mod.RPC_TEACHER, 'get_teacher_class_gamification_v574');
@@ -37,12 +45,19 @@ const paused = mod.normalize({
 assert.equal(paused.challenge.enabled, false);
 assert.equal(mod.phaseLabel(paused), 'Paused');
 
+// Browser behavior remains the accepted V5.7.4 design, now supplied by shared core + student/teacher modules.
 assert(source.includes('5,10,15,20') || source.includes('[5,10,15,20]'), 'UI should restrict target presets to 5/10/15/20');
-assert(source.includes('no student rankings') || source.includes('no student rankings'.replace('student ','')) || /no student rankings/i.test(source), 'Student copy should preserve non-ranking design');
-assert(!/leaderboard\s*=|rank_students|xp_rank/i.test(source), 'V5.7.4 must not introduce ranking logic');
+assert(studentSource.includes('no student rankings') || /no student rankings/i.test(studentSource), 'Student copy should preserve non-ranking design');
+assert(!/leaderboard\s*=|rank_students|xp_rank/i.test(source), 'Checkpoint 2 must not introduce ranking logic');
 assert(!/correct_answer|correctAnswer|service_role/i.test(source), 'Browser source must not expose protected grading content or service-role material');
-assert(!/validateStudentAccess\(['"]exam['"]\)/.test(source), 'V5.7.4 must not request Exam access');
+assert(!/validateStudentAccess\(['"]exam['"]\)/.test(source), 'Gamification must not request Exam access');
+assert(studentSource.includes('v574-class-challenge-card'), 'Polished V574 student card id must remain intact.');
+assert(teacherSource.includes('v574-class-challenge-settings'), 'Teacher class-challenge settings trigger must remain intact.');
+assert(teacherSource.includes('Save Changes'), 'Teacher settings save workflow must remain available.');
+assert(teacherSource.includes('Teacher-controlled challenge'), 'Managed teacher challenge presentation must remain available.');
+assert(!/scheduleTeacherPatch|patchTeacherFromCurrentClass|patchTimer/.test(teacherSource), 'Old delayed cross-file teacher patch scheduler must be removed.');
 
+// Server contract is untouched.
 assert(sql.includes('create table if not exists public.class_gamification_settings_v574'));
 assert(sql.includes('check (questions_per_active_student in (5,10,15,20))'));
 assert(sql.includes("if not public.is_teacher() then raise exception 'Teacher access required'; end if;"));
@@ -51,10 +66,18 @@ assert(sql.includes('grant execute on function public.get_student_class_challeng
 assert(sql.includes('grant execute on function public.update_teacher_class_challenge_v574(uuid,boolean,integer) to authenticated,service_role'));
 assert(!/correct_answer|answer_key|explanation/i.test(sql), 'V5.7.4 SQL should not return answer-key content');
 
-const v573 = config.indexOf("'./v573-class-challenges-teacher-gamification.js'");
-const v574 = config.indexOf("'./v574-gamification-polish-teacher-controls.js'");
-assert(v573 >= 0 && v574 > v573, 'V5.7.4 must load after V5.7.3');
+// V573/V574 browser patch files are dormant; consolidated modules load before untouched V575.
+const core = config.indexOf("'./gamification-core.js'");
+const student = config.indexOf("'./gamification-student.js'");
+const teacher = config.indexOf("'./gamification-teacher.js'");
+const v575 = config.indexOf("'./v575-gamification-stable-checkpoint.js'");
+assert(core >= 0 && student > core && teacher > student && v575 > teacher, 'Gamification modules must load core -> student -> teacher -> V575.');
+assert(!config.includes("'./v573-class-challenges-teacher-gamification.js'"), 'V573 browser patch file must be dormant.');
+assert(!config.includes("'./v574-gamification-polish-teacher-controls.js'"), 'V574 browser patch file must be dormant.');
 assert(config.includes('XP rules are unchanged'));
 assert(config.includes('Student reads remain aggregate'));
 
-console.log('V5.7.4 gamification polish + teacher controls regression passed.');
+console.log('V5.7.4 gamification polish + teacher controls regression passed from consolidated modules.');
+console.log('- polished student class challenge and teacher settings UI are retained');
+console.log('- old cross-file teacher DOM patch scheduler is no longer active');
+console.log('- V5.7.4 Supabase settings/RPC contract remains unchanged');
