@@ -35,4 +35,5 @@ assert(!source.includes('exam_paper_settings'),'Topical Practice must remain sep
 assert(!source.includes('update({active'),'Student topical mode must never activate topical questions');
 
 console.log('V5.2C student topical library checks passed.');
+require('./verify-phase3-doc-reference-integrity.cjs');
 require('./verify-v5.2c-topical-sql.cjs');
