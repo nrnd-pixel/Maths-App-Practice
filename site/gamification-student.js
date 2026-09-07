@@ -1,8 +1,8 @@
-/* Phase 4 Checkpoint 1 — consolidated student gamification.
-   Replaces the active V5.7.1A -> V5.7.1B -> V5.7.2 browser patch chain with one
-   coordinated student lifecycle while preserving the accepted DOM contracts,
-   legacy window APIs, installation flags and compatibility events for V5.7.3+ and
-   V5.8A. Supabase contracts are unchanged. */
+/* Phase 4 Checkpoint 2 — consolidated student gamification.
+   Coordinates XP/levels, streaks/achievements, weekly missions and the polished
+   cooperative class challenge in one direct student lifecycle. Historical DOM
+   contracts, V571A/B/V572 compatibility APIs and V571A/B/V572/V573 events remain
+   available for downstream features. Supabase contracts are unchanged. */
 (() => {
   'use strict';
 
@@ -29,9 +29,11 @@
   const xpCache=CORE.createCache(CACHE_MS);
   const achievementsCache=CORE.createCache(CACHE_MS);
   const missionsCache=CORE.createCache(CACHE_MS);
+  const classChallengeCache=CORE.createCache(CACHE_MS);
   let xpLoading=false;
   let achievementsLoading=false;
   let missionsLoading=false;
+  let classChallengeLoading=false;
   let retryTimer=0;
   let installed=false;
 
@@ -301,6 +303,78 @@
     return true;
   }
 
+  function maybeCelebrateClassChallenge(model){
+    if (!model?.challenge?.complete || typeof window==='undefined') return;
+    const key=`v574:class-complete:${model.class.class_id}:${model.week.start_date||'week'}`;
+    try {
+      if (window.sessionStorage.getItem(key)==='1') return;
+      window.sessionStorage.setItem(key,'1');
+    } catch {}
+    document.getElementById(IDS.classChallengeToast)?.remove();
+    const toast=document.createElement('div');
+    toast.id=IDS.classChallengeToast;
+    toast.setAttribute('role','status');
+    toast.innerHTML='<div class="v574-toast-icon">🎉</div><div><strong>Class challenge complete!</strong><span>Great teamwork — your class reached this week\'s Practice target.</span></div>';
+    document.body.appendChild(toast);
+    window.setTimeout(()=>toast.remove(),5000);
+  }
+
+  function emitClassChallengeCompatibility(model){
+    if (typeof window==='undefined') return;
+    const c=model.challenge;
+    window.dispatchEvent(new CustomEvent('v573:class-challenge-updated',{
+      detail:{complete:c.complete,progress:c.progress_percent,questions:c.questions_completed,target:c.target_questions}
+    }));
+  }
+
+  function renderClassChallenge(payload){
+    if (!signedIn()) return false;
+    const model=CORE.normalizeClassChallengeV574(payload);
+    const root=dashboard();
+    if (!root?.querySelector('.v57c-continue-card')) return false;
+    document.documentElement.classList.add('v574-class-challenge-ready');
+
+    let card=document.getElementById(IDS.classChallengeCard);
+    if (!model.challenge.enabled){
+      card?.remove();
+      emitClassChallengeCompatibility(model);
+      return true;
+    }
+
+    const missions=document.getElementById(IDS.missionsCard);
+    const achievement=document.getElementById(IDS.achievementCard);
+    const fallback=root.querySelector('.v57c-secondary');
+    const anchor=missions || achievement || fallback;
+    if (!anchor) return false;
+    if (!card){ card=document.createElement('article'); card.id=IDS.classChallengeCard; }
+    if (missions){
+      if (missions.nextElementSibling!==card) missions.insertAdjacentElement('afterend',card);
+    } else if (card.nextElementSibling!==anchor){
+      anchor.insertAdjacentElement('beforebegin',card);
+    }
+
+    const c=model.challenge;
+    const remaining=Math.max(0,c.target_questions-c.questions_completed);
+    const classLabel=model.class.year_level?`${model.class.class_name} · Year ${model.class.year_level}`:model.class.class_name;
+    const footer=c.complete
+      ? `Target reached! ${c.contributors} classmates contributed this week.`
+      : `${remaining} question${remaining===1?'':'s'} to go. ${c.contributors} of ${model.class.active_students} classmates have contributed so far.`;
+
+    card.innerHTML=`
+      <div class="v574-challenge-head">
+        <div><div class="v574-kicker">Cooperative Class Challenge</div><h3>${c.complete?'🎉':'🤝'} ${html(model.class.class_name)} Class Question Quest</h3><p>${html(classLabel)} · Work together — no student rankings.</p></div>
+        <span class="v574-week">${html(CORE.weekLabel(model))}</span>
+      </div>
+      <div class="v574-progress-head"><strong>${c.questions_completed} / ${c.target_questions} Practice questions</strong><span class="v574-phase">${html(CORE.phaseLabel(model))} · ${c.progress_percent}%</span></div>
+      <div class="v574-bar" role="progressbar" aria-label="Class challenge progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${c.progress_percent}"><span style="width:${c.progress_percent}%"></span></div>
+      <div class="v574-milestones"><span>Start</span><span>25%</span><span>50%</span><span>Goal</span></div>
+      <div class="v574-foot"><p>${html(footer)} Current target: ${model.settings.questions_per_active_student} questions × each active student.</p><button type="button" data-v574-action="learn">Keep Practising</button></div>`;
+
+    maybeCelebrateClassChallenge(model);
+    emitClassChallengeCompatibility(model);
+    return true;
+  }
+
   function openLearn(){
     const learn=document.querySelector('[data-v40-nav="learn"]');
     if (learn){ learn.click(); return true; }
@@ -377,24 +451,50 @@
     } finally { missionsLoading=false; }
   }
 
-  // Direct orchestration replaces the former v571a -> v571b -> v572 listener chain.
+  async function loadClassChallenge(force=false){
+    if (classChallengeLoading || !signedIn()) return false;
+    const root=dashboard();
+    if (!root?.querySelector('.v57c-continue-card')) return false;
+    if (!force && classChallengeCache.isFresh()) return renderClassChallenge(classChallengeCache.peek());
+    const access=passivePracticeAccess();
+    if (!access?.access_token) return false;
+    classChallengeLoading=true;
+    try {
+      // V574 wraps the V573 student RPC and returns the same aggregate evidence plus
+      // the teacher-configurable challenge state, so one request replaces both layers.
+      const data=await rpc(RPC.classChallengeV574,access.access_token);
+      if (!signedIn()) return false;
+      classChallengeCache.set(data);
+      return renderClassChallenge(data);
+    } catch(error){
+      console.warn('V5.7.4 class challenge could not be refreshed.',error);
+      return classChallengeCache.peek() ? renderClassChallenge(classChallengeCache.peek()) : false;
+    } finally { classChallengeLoading=false; }
+  }
+
+  // Direct orchestration replaces the former V571A -> V571B -> V572 -> V573/V574
+  // listener/patch chain. The legacy events are outputs only, not internal triggers.
   async function refresh(force=false){
     if (!signedIn()) return false;
     const xpOk=await loadXp(force);
     if (!xpOk) return false;
     const achievementsOk=await loadAchievements(force);
     if (!achievementsOk) return false;
-    return loadMissions(force);
+    const missionsOk=await loadMissions(force);
+    if (!missionsOk) return false;
+    return loadClassChallenge(force);
   }
 
   function renderCached(){
     const xp=xpCache.peek();
     const achievements=achievementsCache.peek();
     const missions=missionsCache.peek();
+    const classChallenge=classChallengeCache.peek();
     let ok=false;
     if (xp) ok=renderXp(xp) || ok;
     if (achievements && document.getElementById(IDS.xpCard)) ok=renderAchievements(achievements) || ok;
     if (missions) ok=renderMissions(missions) || ok;
+    if (classChallenge) ok=renderClassChallenge(classChallenge) || ok;
     return ok;
   }
 
@@ -428,7 +528,15 @@
     document.getElementById(IDS.missionsToast)?.remove();
   }
 
+  function clearClassChallenge(){
+    classChallengeCache.clear();
+    document.getElementById(IDS.classChallengeCard)?.remove();
+    document.getElementById(IDS.classChallengeToast)?.remove();
+    document.documentElement?.classList?.remove('v574-class-challenge-ready');
+  }
+
   function clear(){
+    clearClassChallenge();
     clearMissions();
     clearAchievements();
     clearXp();
@@ -453,9 +561,10 @@
       if (signedIn() && document.getElementById('start')?.classList.contains('active')) scheduleRefresh(false);
     });
     document.addEventListener('click',event=>{
-      const action=event.target?.closest?.('[data-v572-action]')?.dataset?.v572Action;
-      if (action==='learn'){ event.preventDefault(); openLearn(); }
-      if (action==='assignments'){ event.preventDefault(); openAssignments(); }
+      const missionAction=event.target?.closest?.('[data-v572-action]')?.dataset?.v572Action;
+      if (missionAction==='learn'){ event.preventDefault(); openLearn(); }
+      if (missionAction==='assignments'){ event.preventDefault(); openAssignments(); }
+      if (event.target?.closest?.('[data-v574-action="learn"]')){ event.preventDefault(); openLearn(); }
       if (event.target?.closest?.('[data-v40-nav="home"],.back-home')) scheduleRefresh(true);
       if (event.target?.closest?.('#v40c-student-logout')) clear();
     },true);
@@ -477,15 +586,29 @@
     progressPercent,weekLabel:CORE.weekLabel,missionProgressText,passivePracticeAccess,
     render:renderMissions,load:loadMissions,clear:clearMissions,openLearn,openAssignments
   });
+  const classChallengeApi=Object.freeze({
+    RPC_NAME:RPC.classChallengeV574,
+    RPC_V573:RPC.classChallengeV573,
+    normalize:CORE.normalizeClassChallengeV574,
+    normalizeV573:CORE.normalizeClassChallengeV573,
+    phaseLabel:CORE.phaseLabel,
+    weekLabel:CORE.weekLabel,
+    passivePracticeAccess,
+    render:renderClassChallenge,
+    load:loadClassChallenge,
+    clear:clearClassChallenge,
+    openLearn
+  });
   const api=Object.freeze({
     FIRST_PRACTICE_BADGE_SELECTOR,xp:xpApi,achievements:achievementsApi,missions:missionsApi,
-    passivePracticeAccess,refresh,renderCached,clear,hasFirstPracticeAchievement
+    classChallenge:classChallengeApi,passivePracticeAccess,refresh,renderCached,clear,
+    hasFirstPracticeAchievement,openLearn,openAssignments
   });
 
   if (typeof module!=='undefined' && module.exports) module.exports=api;
   if (typeof window!=='undefined'){
     Object.defineProperty(window,'GamificationStudent',{value:api,writable:false,configurable:false});
-    // Preserve the public APIs consumed by V5.7.3 and any other accepted downstream layer.
+    // Preserve the public APIs retained from Checkpoint 1.
     Object.defineProperty(window,'V571AGamificationFoundation',{value:xpApi,writable:false,configurable:false});
     Object.defineProperty(window,'V571BStreaksAchievements',{value:achievementsApi,writable:false,configurable:false});
     Object.defineProperty(window,'V572WeeklyMissions',{value:missionsApi,writable:false,configurable:false});
