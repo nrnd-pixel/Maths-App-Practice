@@ -158,7 +158,8 @@ window.addEventListener('load', () => {
     './v58c-parent-summary-workspace-shortcut.js',
     './v58d-content-workflow-consolidation.js',
     './v581a-practice-cloud-result-reconciliation.js',
-    './v58-stable-release-checkpoint.js'
+    './v58-stable-release-checkpoint.js',
+    './v59-adaptive-diagnostic-pilot.js'
   ].forEach(src => {
     const script = document.createElement('script');
     script.src = src;
