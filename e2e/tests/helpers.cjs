@@ -296,7 +296,8 @@ async function openApp(page) {
   await expect(page.locator('#start')).toHaveClass(/active/);
   await expect(page.locator('#cloud-status')).toContainText('Cloud Connected');
   await expect(page.locator('#v40c-student-signin')).toBeVisible();
-  await expect(page.locator('#student-access-note')).toContainText('Protected access');
+  await expect(page.locator('#student-access-note')).toBeVisible();
+  await expect(page.locator('#student-pin-wrap')).toBeVisible();
 }
 
 async function signInStudent(page) {
