@@ -31,9 +31,13 @@ assert.match(moduleSource,/Resolved/);
 assert.match(moduleSource,/If a problem is visual, showing your teacher a screenshot can also help/);
 
 // V5.7.6 is a feature layer after the accepted V5.7.5 stable checkpoint.
+// The checkpoint keeps its historical V5.7.5 note but delegates the current
+// visible title/badge to the Phase 2 shared version source.
 assert.match(config,/\.\/v575-gamification-stable-checkpoint\.js'[\s\S]*\.\/v576-classroom-feedback-support\.js'[\s\S]*\.\/v5761-feedback-trigger-position\.js'/);
-assert.match(stable,/Math Practice V5\.7\.5/);
-assert.doesNotMatch(moduleSource,/document\.title\s*=/,'V5.7.6 must not replace the accepted V5.7.5 release identity.');
+assert.match(stable,/MathAppVersion/);
+assert.match(stable,/V5\.7\.5 Gamified Practice Release:/);
+assert.doesNotMatch(stable,/const TITLE = 'Math Practice V5\.7\.5'/);
+assert.doesNotMatch(moduleSource,/document\.title\s*=/,'V5.7.6 must not replace the accepted shared release identity.');
 
 // V5.7.6.1 presents a compact top-right proxy icon while leaving the original
 // feedback trigger in its V5.7C host. This prevents two MutationObservers from
@@ -105,4 +109,4 @@ console.log('- student feedback is token-gated and contains safe diagnostic cont
 console.log('- compact feedback icon no longer reparents the original trigger');
 console.log('- PIN reset now clears temporary failed-login lockout for that Student ID');
 console.log('- teacher inbox is authenticated with acknowledge/resolve workflow');
-console.log('- V5.7.5 release identity and learning/Exam boundaries remain unchanged');
+console.log('- V5.7.5 historical checkpoint remains intact while current identity comes from the shared version source');
