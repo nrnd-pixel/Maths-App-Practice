@@ -51,7 +51,11 @@ assert(studentSource.includes('no student rankings') || /no student rankings/i.t
 assert(!/leaderboard\s*=|rank_students|xp_rank/i.test(source), 'Checkpoint 2 must not introduce ranking logic');
 assert(!/correct_answer|correctAnswer|service_role/i.test(source), 'Browser source must not expose protected grading content or service-role material');
 assert(!/validateStudentAccess\(['"]exam['"]\)/.test(source), 'Gamification must not request Exam access');
-assert(studentSource.includes('v574-class-challenge-card'), 'Polished V574 student card id must remain intact.');
+// The polished V574 id is a shared DOM contract owned by gamification-core.js;
+// gamification-student.js must use that shared id for both lookup and creation.
+assert(coreSource.includes("classChallengeCard:'v574-class-challenge-card'"), 'Shared core must preserve the final polished V574 student card id.');
+assert(/document\.getElementById\(IDS\.classChallengeCard\)/.test(studentSource), 'Student renderer must look up the shared V574 challenge-card id.');
+assert(/card\.id=IDS\.classChallengeCard/.test(studentSource), 'Student renderer must assign the shared V574 challenge-card id when creating the card.');
 assert(teacherSource.includes('v574-class-challenge-settings'), 'Teacher class-challenge settings trigger must remain intact.');
 assert(teacherSource.includes('Save Changes'), 'Teacher settings save workflow must remain available.');
 assert(teacherSource.includes('Teacher-controlled challenge'), 'Managed teacher challenge presentation must remain available.');
@@ -79,5 +83,6 @@ assert(config.includes('Student reads remain aggregate'));
 
 console.log('V5.7.4 gamification polish + teacher controls regression passed from consolidated modules.');
 console.log('- polished student class challenge and teacher settings UI are retained');
+console.log('- final student challenge card keeps the shared v574-class-challenge-card DOM contract');
 console.log('- old cross-file teacher DOM patch scheduler is no longer active');
 console.log('- V5.7.4 Supabase settings/RPC contract remains unchanged');
