@@ -1,0 +1,95 @@
+const { test, expect } = require('@playwright/test');
+const {
+  STUDENT,
+  installSupabaseMock,
+  openApp,
+  signInStudent,
+  startPractice,
+  answerPracticeCorrectly,
+  loginTeacher,
+} = require('./helpers.cjs');
+
+test.describe('Phase 0 core browser safety net', () => {
+  test('student can sign in with Student ID and PIN', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
+
+    expect(mock.rpcCalls.filter(call => call.rpc === 'validate_student_access')).toHaveLength(2);
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+
+  test('student can start Practice and answer a real rendered question', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
+    await startPractice(page);
+    await answerPracticeCorrectly(page);
+
+    await expect(page.locator('#first-score')).toContainText('First try: 1');
+    await expect(page.locator('#mastery-score')).toContainText('Mastered: 1');
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+
+  test('student can submit Practice and see the saved result', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
+    await startPractice(page);
+    await answerPracticeCorrectly(page);
+
+    await page.locator('#next-btn').click();
+
+    await expect(page.locator('#result')).toHaveClass(/active/);
+    await expect(page.getByRole('heading', { name: 'Practice Complete' })).toBeVisible();
+    await expect(page.locator('#result-score')).toContainText('1/1');
+    await expect(page.locator('#res-sync')).toHaveText('Cloud ✓');
+    await expect(page.locator('#result-code')).not.toHaveText('');
+
+    expect(mock.practiceSubmissions).toBe(1);
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+
+  test('student sign-in session survives reload without retaining the PIN', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
+
+    await page.reload();
+
+    await expect(page.locator('#cloud-status')).toContainText('Cloud Connected');
+    await expect(page.locator('.v40c-session-panel')).toHaveClass(/v40c-authenticated/);
+    await expect(page.locator('.v40c-session-identity-text')).toContainText(STUDENT.name);
+    await expect(page.locator('#student-pin')).toHaveValue('');
+    await expect(page.locator('#student-pin')).toBeDisabled();
+
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+
+  test('teacher can log in to the Teacher Dashboard', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await loginTeacher(page);
+
+    await expect(page.getByRole('heading', { name: 'Teacher Dashboard' })).toBeVisible();
+    await expect(page.locator('#signout-btn')).toBeVisible();
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+
+  test('teacher can view the Analytics tab after login', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await loginTeacher(page);
+
+    const analyticsTab = page.locator('button.tab[data-panel="analytics-panel"]');
+    await analyticsTab.click();
+
+    await expect(analyticsTab).toHaveClass(/active/);
+    await expect(page.locator('#analytics-panel')).toHaveClass(/active/);
+    await expect(page.getByRole('heading', { name: 'Analytics Overview' })).toBeVisible();
+    await expect(page.locator('#analytics-overview')).toBeVisible();
+    await expect(page.locator('#analytics-participation')).toBeVisible();
+
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+});
