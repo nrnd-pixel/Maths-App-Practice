@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const {
   STUDENT,
+  REQUIRED_STUDENT_READ_RPCS,
   installSupabaseMock,
   openApp,
   signInStudent,
@@ -8,6 +9,10 @@ const {
   answerPracticeCorrectly,
   loginTeacher,
 } = require('./helpers.cjs');
+
+const HOME_READ_RPCS = REQUIRED_STUDENT_READ_RPCS.filter(
+  rpc => rpc !== 'get_student_practice_questions_v53d3',
+);
 
 test.describe('Phase 0 core browser safety net', () => {
   test('student can sign in with Student ID and PIN', async ({ page }) => {
@@ -21,6 +26,24 @@ test.describe('Phase 0 core browser safety net', () => {
     expect(mock.unexpectedWrites).toEqual([]);
   });
 
+  test('student Home loads through the maintained RPC read contract', async ({ page }) => {
+    const mock = await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
+
+    await expect.poll(
+      () => HOME_READ_RPCS.filter(
+        rpc => mock.rpcCalls.some(call => call.rpc === rpc),
+      ),
+      { timeout: 12_000 },
+    ).toEqual(HOME_READ_RPCS);
+
+    expect(
+      mock.unhandledRpcCalls.filter(call => REQUIRED_STUDENT_READ_RPCS.includes(call.rpc)),
+    ).toEqual([]);
+    expect(mock.unexpectedWrites).toEqual([]);
+  });
+
   test('student can start Practice and answer a real rendered question', async ({ page }) => {
     const mock = await installSupabaseMock(page);
     await openApp(page);
@@ -30,6 +53,11 @@ test.describe('Phase 0 core browser safety net', () => {
 
     await expect(page.locator('#first-score')).toContainText('First try: 1');
     await expect(page.locator('#mastery-score')).toContainText('Mastered: 1');
+
+    expect(
+      mock.rpcCalls.some(call => call.rpc === 'get_student_practice_questions_v53d3'),
+    ).toBe(true);
+    expect(mock.restReads.filter(path => path === '/rest/v1/questions')).toEqual([]);
     expect(mock.unexpectedWrites).toEqual([]);
   });
 
