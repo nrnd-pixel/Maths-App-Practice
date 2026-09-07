@@ -21,4 +21,4 @@ Applied Supabase migration `v581c_past_paper_server_inference_live_alignment`:
 - 0 in-progress attempts with an already-completed qualifying full session
 - 0 remaining reset assignment-start boundaries
 
-A single pre-hotfix reset boundary for 6A-MIKAYLA was restored from her cloud checkpoint before the final audit.
+A single pre-hotfix reset boundary for 6A-MIKAYLA was restored from her cloud checkpoint before the final audit. A newly completed 6A-ZAFRAN session was safely re-attributed to `past_paper / 2025 / Paper 1` so it is analytics-compatible.
