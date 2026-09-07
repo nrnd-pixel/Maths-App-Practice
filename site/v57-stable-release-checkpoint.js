@@ -9,8 +9,10 @@
   if (ROOT.__v57StableReleaseCheckpointInstalled) return;
   ROOT.__v57StableReleaseCheckpointInstalled = true;
 
-  const TITLE = 'Math Practice V5.7';
-  const BADGE = 'Version 5.7 • Stable Release';
+  const currentRelease = () => ROOT.MathAppVersion?.CURRENT_RELEASE || Object.freeze({
+    title:'Math Practice',
+    badge:'Current Version'
+  });
   const AUDIT_ID = 'v57-stable-release-audit';
   const RELEASE_NOTE = `
     <strong>V5.7 Stable Release:</strong>
@@ -37,25 +39,24 @@
 
   function identityReady(){
     if (typeof document === 'undefined') return false;
+    const release = currentRelease();
     const badge = document.querySelector('#start .brand .badge');
     const note = document.querySelector('#start > .info');
-    return document.title === TITLE
-      && String(badge?.textContent || '').trim() === BADGE
+    return document.title === release.title
+      && String(badge?.textContent || '').trim() === release.badge
       && /V5\.7 Stable Release:/.test(String(note?.textContent || ''));
   }
 
   function applyIdentity(){
     if (typeof document === 'undefined') return false;
-    document.title = TITLE;
-    const badge = document.querySelector('#start .brand .badge');
-    if (badge) badge.textContent = BADGE;
+    ROOT.MathAppVersion?.applyIdentity?.();
     const note = document.querySelector('#start > .info');
     if (note) note.innerHTML = RELEASE_NOTE;
     return identityReady();
   }
 
   function auditCard(pass,title,detail){
-    return `<article class="v50rc-check ${pass?'pass':'fail'}"><strong>${pass?'✅':'❌'} ${esc(title)}</strong><div>${esc(detail)}</div></article>`;
+    return `<article class="v50rc-check ${pass?'pass':'fail'}"><strong>${pass?'✅ ':''}${esc(title)}</strong><div>${esc(detail)}</div></article>`;
   }
 
   function auditMarkup(){
@@ -66,7 +67,7 @@
       [checks.continue_learning_home,'V5.7C — Continue Learning Home','Saved Practice, teacher work, recommendations and recent Practice are prioritised on the signed-in Home screen.'],
       [checks.analytics_actions,'V5.7D — Past Paper Analytics Actions','Prepared cohorts, assignment management, teaching focus plans and the selectable copy fallback are loaded.'],
       [checks.practice_first_foundation,'Practice-first foundation','The accepted V5.6 stable checkpoint and V5.6.1 Practice-first student entry remain active.'],
-      [identityReady(),'V5.7 stable-release identity','V5.7 title, badge and consolidated release note are active.']
+      [identityReady(),'V5.7 checkpoint identity','Current app title/badge plus the V5.7 checkpoint release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length;
@@ -119,11 +120,12 @@
   function getStatus(){
     const checks = moduleChecks();
     const modulesReady = Object.values(checks).every(Boolean);
+    const release = currentRelease();
     return Object.freeze({
       ready:identityReady() && modulesReady,
       version:'5.7',
-      title:TITLE,
-      badge:BADGE,
+      title:release.title,
+      badge:release.badge,
       checks
     });
   }
@@ -131,7 +133,7 @@
   function scheduleApply(){
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
     /* Final passes run after the V5.6 stable identity burst and V5.6.1 rollout
-       notice so V5.7 is the authoritative presentation identity. */
+       notice so the current config-derived identity remains authoritative. */
     [0,100,300,900,1800,2600,3200].forEach(delay => window.setTimeout(apply,delay));
     document.addEventListener('click',event => {
       const control = event.target?.closest?.('[data-panel="release-audit-panel"]');
