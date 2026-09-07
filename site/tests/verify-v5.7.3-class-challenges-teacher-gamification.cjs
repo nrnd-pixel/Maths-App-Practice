@@ -3,8 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-// Checkpoint 2 integrity is exercised from this maintained CI verifier.
+// Checkpoint 2 integrity and the exhaustive verifier-reference audit are exercised
+// from this maintained CI verifier.
 require('./verify-phase4-gamification-checkpoint2-integrity.cjs');
+require('./verify-phase4-gamification-dormant-reference-integrity.cjs');
 
 const site = path.join(__dirname,'..');
 const read = name => fs.readFileSync(path.join(site,name),'utf8');
