@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Math Practice V5.8.1 • Student Question Demo</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#d8e0ec;--primary:#2563eb;--primary2:#1d4ed8;--soft:#eaf2ff;--success:#16713d;--successbg:#ecfdf3;--danger:#b42318;--dangerbg:#fff1f0;--warn:#9a4a08;--warnbg:#fff7e8;--shadow:0 14px 42px rgba(32,57,96,.11);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(180deg,#eaf3ff 0,var(--bg) 340px);color:var(--text)}button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}.shell{width:min(860px,calc(100% - 20px));margin:18px auto 36px}.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:clamp(18px,4vw,34px);box-shadow:var(--shadow)}.header,.row,.buttons{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.header{justify-content:space-between;align-items:flex-start}.brand{display:flex;gap:13px;align-items:center}.logo{width:58px;height:58px;border-radius:17px;background:var(--soft);display:grid;place-items:center;font-size:29px}h1,h2,h3,p{margin-top:0}h1{margin-bottom:4px}.muted,.help{color:var(--muted)}.help{font-size:12px}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;background:var(--soft);color:var(--primary)}.notice{margin:16px 0;border:1px solid #efd099;border-radius:14px;padding:12px 13px;background:var(--warnbg);color:var(--warn);font-size:13px;line-height:1.5}.login{max-width:670px;margin:5vh auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:7px;font-weight:760}input{width:100%;min-height:50px;border:1px solid var(--border);border-radius:13px;padding:12px 13px;background:#fff;color:var(--text)}button{min-height:44px;border:0;border-radius:13px;padding:10px 15px;font-weight:820}.primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary2)}.secondary{background:#eef2f7;color:var(--text)}.outline{background:#fff;color:var(--text);border:1px solid var(--border)}.buttons{margin-top:14px}.session{display:none}.session.active{display:block}.studentbar{border:1px solid var(--border);border-radius:17px;padding:13px 14px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.studentbar strong{display:block;color:var(--success);margin-bottom:2px}.progress{height:11px;background:#e7ebf0;border-radius:999px;overflow:hidden;margin:18px 0 7px}.progress>div{height:100%;width:0;background:var(--primary);transition:.2s}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:5px;color:var(--muted);font-size:12px}.qmeta{display:flex;gap:7px;flex-wrap:wrap;margin-top:22px}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;background:#f2f4f7;color:#475467;font-size:11px;font-weight:800}.question{font-size:clamp(22px,4vw,30px);line-height:1.45;font-weight:800;margin:14px 0 18px}.answerbox{border:1px solid var(--border);background:#fbfcfe;border-radius:18px;padding:16px}.answerbox input{font-size:20px;font-weight:700}.feedback{margin-top:12px;border-radius:13px;padding:13px 14px;line-height:1.5}.feedback.correct{background:var(--successbg);color:var(--success)}.feedback.try{background:var(--warnbg);color:var(--warn)}.feedback.incorrect{background:var(--dangerbg);color:var(--danger)}.feedback strong{display:block;margin-bottom:4px}.score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.stat{border:1px solid var(--border);border-radius:15px;padding:14px;text-align:center;background:#f8fafc}.stat strong{display:block;font-size:25px}.stat span{font-size:11px;color:var(--muted)}.finish{text-align:center;padding:20px 0}.finish .big{font-size:56px;font-weight:900;color:var(--primary);margin:5px 0}.smallnote{margin-top:16px;color:var(--muted);font-size:12px;line-height:1.5}
+@media(max-width:620px){.shell{width:calc(100% - 12px);margin:6px auto 22px}.card{border-radius:18px;padding:18px 15px}.grid{grid-template-columns:1fr}.score{grid-template-columns:1fr}.header{gap:10px}.studentbar{align-items:stretch;flex-direction:column}.question{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<section id="gate" class="card login">
+  <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Student Question Demo</p><span class="badge">V5.8.1 · Safe Viewer Mode</span></div></div><span class="badge">● Demo Ready</span></div>
+  <div class="notice"><strong>Safe demo.</strong> This uses a static snapshot of real Year 6 Practice questions from the current question bank. Answers, hints and scoring stay in this browser only. No Supabase connection or school record is created.</div>
+  <form id="login-form">
+    <div class="grid"><label>Student Viewer ID<input id="viewer-id" autocomplete="username" placeholder="VIEW-STUDENT-01" required></label><label>PIN<input id="viewer-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="2468" required></label></div>
+    <div class="buttons"><button class="primary" type="submit">Sign in to Student Demo</button><a class="outline" href="../demo/" style="text-decoration:none;display:inline-flex;align-items:center;padding:10px 15px;border-radius:13px;font-weight:820">Back to Full Demo</a></div>
+    <div id="login-error" class="feedback incorrect hidden">Student Viewer ID or PIN not recognised.</div>
+  </form>
+  <div class="smallnote"><strong>Student Viewer:</strong> VIEW-STUDENT-01 &nbsp;•&nbsp; <strong>PIN:</strong> 2468</div>
+</section>
+
+<section id="session" class="card session">
+  <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Practice Mode</h1><p class="muted">2025 Paper 1 · Year 6 sample</p></div></div><button id="logout" class="outline" type="button">Log out</button></div>
+  <div class="studentbar"><div><strong>✓ Signed in as Demo Student</strong><div class="help">Year 6 · Student Viewer · Fictional progress</div></div><span class="badge">Viewer Mode</span></div>
+
+  <div id="quiz">
+    <div class="progress"><div id="bar"></div></div>
+    <div class="meta"><span id="progress-text">Question 1 of 10</span><span id="score-text">First try 0 · Mastery 0</span></div>
+    <div class="qmeta"><span class="pill" id="source-pill"></span><span class="pill" id="topic-pill"></span><span class="pill" id="marks-pill"></span></div>
+    <div id="question" class="question"></div>
+    <div class="answerbox">
+      <label>Your answer<input id="answer" autocomplete="off" inputmode="text" placeholder="Type your answer"></label>
+      <div class="buttons"><button id="check" class="primary" type="button">Check Answer</button><button id="hint" class="secondary" type="button">Show Hint</button><button id="next" class="secondary hidden" type="button">Next Question</button></div>
+      <div id="feedback" class="feedback hidden"></div>
+    </div>
+    <div class="smallnote">You get up to two attempts, like Practice Mode. A hint is shown after an incorrect first attempt. Nothing is saved after you close or refresh this page.</div>
+  </div>
+
+  <div id="finish" class="finish hidden">
+    <h2>Demo Practice Complete</h2>
+    <div id="finish-score" class="big">0/10</div>
+    <p class="muted">This result is only for the current browser session.</p>
+    <div class="score"><div class="stat"><strong id="first-stat">0</strong><span>First-try correct</span></div><div class="stat"><strong id="mastery-stat">0</strong><span>Mastered after 2 tries</span></div><div class="stat"><strong id="hints-stat">0</strong><span>Hints shown</span></div></div>
+    <div class="buttons" style="justify-content:center"><button id="restart" class="primary" type="button">Try Again</button><a class="outline" href="../demo/" style="text-decoration:none;display:inline-flex;align-items:center;padding:10px 15px;border-radius:13px;font-weight:820">Back to Full Demo</a></div>
+  </div>
+</section>
+</div>
+<script>
+(() => {
+  'use strict';
+  const questions = [
+    {n:'1',topic:'Whole Numbers',marks:2,q:'Evaluate: 875 296 + 23 401',answers:['898697','898,697'],hint:'Line up the digits by place value before adding.',explanation:'875,296 + 23,401 = 898,697.',answer:'898697'},
+    {n:'10',topic:'Percentages',marks:2,q:'Express 85% as a fraction in its simplest form.',answers:['17/20'],hint:'Write 85% as 85/100, then simplify.',explanation:'85/100 ÷ 5/5 = 17/20.',answer:'17/20'},
+    {n:'11',topic:'Whole Numbers',marks:2,q:'Multiply 40 by 32.',answers:['1280','1,280'],hint:'You can calculate 4 × 32 first, then multiply the result by 10.',explanation:'4 × 32 = 128, so 40 × 32 = 1,280.',answer:'1280'},
+    {n:'12',topic:'Decimals',marks:2,q:'Write 67 tenths and 5 thousandths as a decimal.',answers:['6.705'],hint:'Convert 67 tenths and 5 thousandths separately, then add them.',explanation:'67 tenths = 6.7 and 5 thousandths = 0.005. Therefore 6.7 + 0.005 = 6.705.',answer:'6.705'},
+    {n:'13',topic:'Whole Numbers',marks:2,q:'The price of a handphone is $1898. Round off the price to the nearest hundred dollars.',answers:['1900','1,900','$1900','$1,900'],hint:'Look at the tens digit to decide whether 1,898 rounds up or down to the nearest hundred.',explanation:'1,898 lies between 1,800 and 1,900. The tens digit is 9, so it rounds up to $1,900.',answer:'$1,900'},
+    {n:'16',topic:'Whole Numbers',marks:2,q:'Divide 7680 by 30.',answers:['256'],hint:'Divide both 7,680 and 30 by 10 first.',explanation:'7,680 ÷ 30 = 768 ÷ 3 = 256.',answer:'256'},
+    {n:'17',topic:'Algebra',marks:2,q:'Evaluate 8w ÷ 4, given that w = 3.',answers:['6'],hint:'Replace w with 3 before calculating.',explanation:'8w ÷ 4 = 8 × 3 ÷ 4 = 24 ÷ 4 = 6.',answer:'6'},
+    {n:'18',topic:'Rates & Ratio',marks:2,q:'Afif can fold five paper planes in 8 minutes. How many paper planes can Afif fold in 40 minutes?',answers:['25','25 paper planes'],hint:'Compare 40 minutes with 8 minutes. How many times as long is it?',explanation:'40 ÷ 8 = 5, so the time is 5 times as long. 5 × 5 = 25 paper planes.',answer:'25'},
+    {n:'19',topic:'Factors & Multiples',marks:2,q:'Find the sum of the 7th and 9th multiples of 8.',answers:['128'],hint:'Find 7 × 8 and 9 × 8 first.',explanation:'The 7th multiple of 8 is 56 and the 9th is 72. Their sum is 56 + 72 = 128.',answer:'128'},
+    {n:'20',topic:'Fractions',marks:2,q:'A fruit seller had 90 pears. He sold 3/5 of his pears. How many pears did he have left?',answers:['36','36 pears'],hint:'First find 3/5 of 90, then subtract that amount from 90.',explanation:'3/5 of 90 = 54 pears sold. 90 − 54 = 36 pears left.',answer:'36'}
+  ];
+  let index=0, attempt=0, first=0, mastery=0, hints=0, complete=false;
+  const $ = id => document.getElementById(id);
+  const normalise = value => String(value || '').trim().toLowerCase().replace(/\s+/g,' ').replace(/,/g,'');
+  const isCorrect = (value,q) => q.answers.some(a => normalise(a)===normalise(value));
+  function render(){
+    const q=questions[index]; attempt=0; complete=false;
+    $('bar').style.width=`${(index/questions.length)*100}%`;
+    $('progress-text').textContent=`Question ${index+1} of ${questions.length}`;
+    $('score-text').textContent=`First try ${first} · Mastery ${mastery}`;
+    $('source-pill').textContent=`2025 Paper 1 · Q${q.n}`;
+    $('topic-pill').textContent=q.topic;
+    $('marks-pill').textContent=`${q.marks} marks`;
+    $('question').textContent=q.q;
+    $('answer').value=''; $('answer').disabled=false; $('check').disabled=false;
+    $('feedback').className='feedback hidden'; $('feedback').innerHTML='';
+    $('next').classList.add('hidden'); $('hint').classList.remove('hidden');
+    $('answer').focus();
+  }
+  function finishQuestion(correct){
+    complete=true; $('answer').disabled=true; $('check').disabled=true; $('next').classList.remove('hidden'); $('hint').classList.add('hidden');
+    if(correct) mastery += 1;
+    $('score-text').textContent=`First try ${first} · Mastery ${mastery}`;
+  }
+  function check(){
+    if(complete) return;
+    const q=questions[index], value=$('answer').value;
+    if(!String(value).trim()) return;
+    attempt += 1;
+    const correct=isCorrect(value,q);
+    if(correct){
+      if(attempt===1) first += 1;
+      $('feedback').className='feedback correct';
+      $('feedback').innerHTML=`<strong>✓ Correct</strong>${q.explanation}`;
+      finishQuestion(true); return;
+    }
+    if(attempt===1){
+      hints += 1;
+      $('feedback').className='feedback try';
+      $('feedback').innerHTML=`<strong>Not quite — try once more.</strong>Hint: ${q.hint}`;
+      $('answer').select(); return;
+    }
+    $('feedback').className='feedback incorrect';
+    $('feedback').innerHTML=`<strong>Answer: ${q.answer}</strong>${q.explanation}`;
+    finishQuestion(false);
+  }
+  function next(){
+    index += 1;
+    if(index>=questions.length){
+      $('quiz').classList.add('hidden'); $('finish').classList.remove('hidden');
+      $('finish-score').textContent=`${mastery}/${questions.length}`;
+      $('first-stat').textContent=first; $('mastery-stat').textContent=mastery; $('hints-stat').textContent=hints;
+      return;
+    }
+    render();
+  }
+  $('login-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    if($('viewer-id').value.trim().toUpperCase()==='VIEW-STUDENT-01' && $('viewer-pin').value==='2468'){
+      $('gate').classList.add('hidden'); $('session').classList.add('active'); render();
+    }else $('login-error').classList.remove('hidden');
+  });
+  $('check').addEventListener('click',check);
+  $('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); complete?next():check();}});
+  $('hint').addEventListener('click',()=>{
+    if(complete) return; const q=questions[index]; hints += 1; $('feedback').className='feedback try'; $('feedback').innerHTML=`<strong>Hint</strong>${q.hint}`; $('hint').classList.add('hidden');
+  });
+  $('next').addEventListener('click',next);
+  $('restart').addEventListener('click',()=>{index=0;attempt=0;first=0;mastery=0;hints=0;complete=false;$('finish').classList.add('hidden');$('quiz').classList.remove('hidden');render();});
+  $('logout').addEventListener('click',()=>{location.reload();});
+})();
+</script>
+</body>
+</html>
