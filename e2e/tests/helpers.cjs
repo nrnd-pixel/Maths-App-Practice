@@ -23,8 +23,12 @@ const TEACHER = Object.freeze({
   password: 'E2E-password-123!',
 });
 
+// This mirrors the safe display-only row returned by
+// get_student_practice_questions_v53d3. Correct answers, hints and explanations
+// deliberately do not travel with the question payload; those remain owned by
+// the authoritative grading/hint RPCs.
 const QUESTION = Object.freeze({
-  id: 'e2e-question-1',
+  id: '00000000-0000-4000-8000-000000000001',
   year_level: 6,
   strand: 'number',
   topic: 'Whole Numbers',
@@ -32,20 +36,22 @@ const QUESTION = Object.freeze({
   skill: 'Add small whole numbers',
   difficulty: 'foundation',
   marks: 1,
-  source_type: 'practice',
-  source: 'Phase 0 E2E fixture',
-  question_number: 'E2E1',
   exam_year: null,
   paper: null,
+  question_number: 'E2E1',
+  parent_question_number: null,
+  part_label: null,
+  part_order: null,
+  group_prompt: null,
+  source_type: 'practice',
+  source: 'Phase 0 E2E fixture',
   question_text: 'What is 3 + 4?',
-  answer: '7',
-  accepted_answers: ['7'],
-  hint: 'Add three and four.',
-  explanation: '3 + 4 = 7.',
   image_url: '',
   response_type: 'number',
-  response_config: { tolerance: 0 },
+  response_config: {},
   active: true,
+  practice_seen_count: 0,
+  practice_last_seen_at: null,
 });
 
 const RESULT_CODE = 'E2E1-E2E2-E2E3-E2E4';
@@ -66,6 +72,12 @@ const REQUIRED_STUDENT_READ_RPCS = Object.freeze([
   'get_available_exam_papers',
   'get_student_past_paper_checkpoints_v57a',
   'get_student_past_paper_completion_watermarks_v57a',
+]);
+
+const AUTHORITATIVE_PRACTICE_RPCS = Object.freeze([
+  'grade_practice_response_v53b',
+  'request_practice_hint_v53b',
+  'submit_practice_session_v53b',
 ]);
 
 function studentIdentity() {
@@ -150,11 +162,7 @@ function weeklyMissionsPayload() {
       today: '2026-09-07',
       timezone: 'Asia/Brunei',
     },
-    summary: {
-      completed: 0,
-      total: 3,
-      all_complete: false,
-    },
+    summary: { completed: 0, total: 3, all_complete: false },
     missions: [
       {
         id: 'question_quest',
@@ -286,24 +294,15 @@ function recommendationPayload() {
 }
 
 function emptyPracticeAssignmentsPayload() {
-  return {
-    student: studentIdentity(),
-    assignments: [],
-  };
+  return { student: studentIdentity(), assignments: [] };
 }
 
 function checkpointPayload() {
-  return {
-    student: studentIdentity(),
-    checkpoints: [],
-  };
+  return { student: studentIdentity(), checkpoints: [] };
 }
 
 function completionWatermarksPayload() {
-  return {
-    student: studentIdentity(),
-    completions: [],
-  };
+  return { student: studentIdentity(), completions: [] };
 }
 
 function studentReadRpcPayload(rpc) {
@@ -394,11 +393,7 @@ function practiceReviewPayload() {
       pending_review_count: 0,
       completed_at: '2026-09-07T03:30:00.000Z',
     },
-    summary: {
-      pending_count: 0,
-      marks_awarded: 1,
-      marks_possible: 1,
-    },
+    summary: { pending_count: 0, marks_awarded: 1, marks_possible: 1 },
     answers: [
       {
         id: 'e2e-answer-1',
@@ -420,10 +415,50 @@ function practiceReviewPayload() {
   };
 }
 
+function responseValue(response) {
+  if (response == null) return '';
+  if (typeof response === 'string' || typeof response === 'number') return String(response);
+  if (response.value != null) return String(response.value);
+  if (response.display != null) return String(response.display);
+  return '';
+}
+
+function gradePayload(state, body) {
+  const questionId = String(body.p_question_id || QUESTION.id);
+  const attempt = (state.gradeAttempts.get(questionId) || 0) + 1;
+  state.gradeAttempts.set(questionId, attempt);
+  const correct = responseValue(body.p_response).trim() === '7';
+
+  if (correct) {
+    return {
+      correct: true,
+      first_try: attempt === 1,
+      completed: true,
+      attempt_number: attempt,
+      manual_review: false,
+      correct_answer: '7',
+      explanation: '3 + 4 = 7.',
+      hint: null,
+    };
+  }
+
+  return {
+    correct: false,
+    first_try: false,
+    completed: attempt >= 2,
+    attempt_number: attempt,
+    manual_review: false,
+    correct_answer: attempt >= 2 ? '7' : null,
+    explanation: attempt >= 2 ? '3 + 4 = 7.' : null,
+    hint: 'Add three and four.',
+  };
+}
+
 async function installSupabaseMock(page) {
   const state = {
     teacherSignedIn: false,
     practiceSubmissions: 0,
+    gradeAttempts: new Map(),
     unexpectedWrites: [],
     rpcCalls: [],
     unhandledRpcCalls: [],
@@ -447,7 +482,6 @@ async function installSupabaseMock(page) {
         await fulfillJson(route, { message: 'Invalid login credentials' }, 400);
         return;
       }
-
       state.teacherSignedIn = true;
       await fulfillJson(route, {
         access_token: 'e2e-access-token',
@@ -524,7 +558,17 @@ async function installSupabaseMock(page) {
         return;
       }
 
-      if (rpc === 'submit_practice_session_v3') {
+      if (rpc === 'grade_practice_response_v53b') {
+        await fulfillJson(route, gradePayload(state, body));
+        return;
+      }
+
+      if (rpc === 'request_practice_hint_v53b') {
+        await fulfillJson(route, { hint: 'Add three and four.' });
+        return;
+      }
+
+      if (rpc === 'submit_practice_session_v53b') {
         state.practiceSubmissions += 1;
         await fulfillJson(route, {
           result_code: RESULT_CODE,
@@ -547,14 +591,17 @@ async function installSupabaseMock(page) {
         return;
       }
 
-      // Keep genuinely optional/unknown read RPCs isolated, but record them so
-      // Phase 0 can expose route drift instead of silently pretending they were
-      // part of the maintained fixture contract.
+      // Unknown read RPCs remain isolated from production but are recorded so a
+      // changed frontend contract is visible instead of silently becoming part
+      // of the maintained fixture.
       state.unhandledRpcCalls.push({ rpc, body });
       await fulfillJson(route, []);
       return;
     }
 
+    // Teacher tooling still uses selected PostgREST reads. Keep these separate
+    // from the student Practice contract so /rest/v1/questions cannot creep back
+    // into the student E2E path unnoticed.
     if (path === '/rest/v1/teacher_profiles' && method === 'GET') {
       state.restReads.push(path);
       const accept = request.headers().accept || '';
@@ -579,8 +626,6 @@ async function installSupabaseMock(page) {
       return;
     }
 
-    // A core smoke flow should never mutate a production-like table directly.
-    // Record and reject unexpected writes so the test can expose the regression.
     state.unexpectedWrites.push({ method, path, body: requestJson(request) });
     await fulfillJson(route, { message: `Unexpected E2E write: ${method} ${path}` }, 409);
   });
@@ -660,6 +705,7 @@ module.exports = {
   QUESTION,
   RESULT_CODE,
   REQUIRED_STUDENT_READ_RPCS,
+  AUTHORITATIVE_PRACTICE_RPCS,
   installSupabaseMock,
   openApp,
   signInStudent,
