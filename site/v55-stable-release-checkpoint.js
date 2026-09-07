@@ -9,8 +9,10 @@
   if (ROOT.__v55StableReleaseCheckpointInstalled) return;
   ROOT.__v55StableReleaseCheckpointInstalled = true;
 
-  const TITLE = 'Math Practice V5.5';
-  const BADGE = 'Version 5.5 • Stable Release';
+  const currentRelease = () => ROOT.MathAppVersion?.CURRENT_RELEASE || Object.freeze({
+    title:'Math Practice',
+    badge:'Current Version'
+  });
   const AUDIT_ID = 'v55-stable-release-audit';
   const RELEASE_NOTE = `
     <strong>V5.5 Stable Release:</strong>
@@ -33,18 +35,17 @@
 
   function identityReady(){
     if (typeof document === 'undefined') return false;
+    const release = currentRelease();
     const badge = document.querySelector('#start .brand .badge');
     const note = document.querySelector('#start > .info');
-    return document.title === TITLE
-      && String(badge?.textContent || '').trim() === BADGE
+    return document.title === release.title
+      && String(badge?.textContent || '').trim() === release.badge
       && /V5\.5 Stable Release:/.test(String(note?.textContent || ''));
   }
 
   function applyIdentity(){
     if (typeof document === 'undefined') return false;
-    document.title = TITLE;
-    const badge = document.querySelector('#start .brand .badge');
-    if (badge) badge.textContent = BADGE;
+    ROOT.MathAppVersion?.applyIdentity?.();
     const note = document.querySelector('#start > .info');
     if (note) note.innerHTML = RELEASE_NOTE;
     return identityReady();
@@ -61,7 +62,7 @@
       [checks.full_available_practice,'V5.5B — Session scope','Quick Session and All Available Questions are loaded.'],
       [checks.resume_practice,'V5.5C — Resume Practice','Same-device resume and the Next-button checkpoint bridge are loaded.'],
       [checks.result_attribution,'V5.5D — Result attribution','Past-paper year/paper attribution for completed Practice work is loaded.'],
-      [identityReady(),'V5.5 stable-release identity','V5.5 title, badge and release note are active.']
+      [identityReady(),'V5.5 checkpoint identity','Current app title/badge plus the V5.5 checkpoint release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length;
@@ -110,11 +111,12 @@
   function getStatus(){
     const checks = moduleChecks();
     const modulesReady = Object.values(checks).every(Boolean);
+    const release = currentRelease();
     return Object.freeze({
       ready:identityReady() && modulesReady,
       version:'5.5',
-      title:TITLE,
-      badge:BADGE,
+      title:release.title,
+      badge:release.badge,
       checks
     });
   }
