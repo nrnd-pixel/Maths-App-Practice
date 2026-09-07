@@ -9,8 +9,10 @@
   if (ROOT.__v575GamificationStableCheckpointInstalled) return;
   ROOT.__v575GamificationStableCheckpointInstalled = true;
 
-  const TITLE = 'Math Practice V5.7.5';
-  const BADGE = 'Version 5.7.5 • Gamified Practice Release';
+  const currentRelease = () => ROOT.MathAppVersion?.CURRENT_RELEASE || Object.freeze({
+    title:'Math Practice',
+    badge:'Current Version'
+  });
   const AUDIT_ID = 'v575-gamification-stable-audit';
   const RELEASE_NOTE = `
     <strong>V5.7.5 Gamified Practice Release:</strong>
@@ -34,18 +36,17 @@
 
   function identityReady(){
     if (typeof document === 'undefined') return false;
+    const release = currentRelease();
     const badge = document.querySelector('#start .brand .badge');
     const note = document.querySelector('#start > .info');
-    return document.title === TITLE
-      && String(badge?.textContent || '').trim() === BADGE
+    return document.title === release.title
+      && String(badge?.textContent || '').trim() === release.badge
       && /V5\.7\.5 Gamified Practice Release:/.test(String(note?.textContent || ''));
   }
 
   function applyIdentity(){
     if (typeof document === 'undefined') return false;
-    document.title = TITLE;
-    const badge = document.querySelector('#start .brand .badge');
-    if (badge) badge.textContent = BADGE;
+    ROOT.MathAppVersion?.applyIdentity?.();
     const note = document.querySelector('#start > .info');
     if (note) note.innerHTML = RELEASE_NOTE;
     return identityReady();
@@ -63,7 +64,7 @@
       [checks.weekly_missions,'V5.7.2 — Weekly Missions','Three weekly Practice missions reset on Monday in Brunei time and use saved Practice evidence.'],
       [checks.class_challenge,'V5.7.3 — Cooperative Class Challenge','Students see aggregate teamwork progress only; teachers get an alphabetical motivation view without leaderboards.'],
       [checks.teacher_controls,'V5.7.4 — Gamification Polish + Teacher Controls','Teachers can enable/pause the class challenge and choose 5, 10, 15 or 20 questions per active student.'],
-      [identityReady(),'V5.7.5 release identity','V5.7.5 title, badge and consolidated gamified Practice release note are active.']
+      [identityReady(),'V5.7.5 checkpoint identity','Current app title/badge plus the V5.7.5 gamified Practice release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length && checks.v57_foundation;
@@ -116,19 +117,20 @@
   function getStatus(){
     const checks = moduleChecks();
     const modulesReady = Object.values(checks).every(Boolean);
+    const release = currentRelease();
     return Object.freeze({
       ready:identityReady() && modulesReady,
       version:'5.7.5',
-      title:TITLE,
-      badge:BADGE,
+      title:release.title,
+      badge:release.badge,
       checks
     });
   }
 
   function scheduleApply(){
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    /* Run after the V5.7 stable identity burst so this checkpoint is the final
-       presentation identity while leaving all functional gamification layers intact. */
+    /* Run after the V5.7 stable identity burst while keeping the config-derived
+       current app title and badge authoritative. */
     [0,120,420,1100,2200,3400,4300].forEach(delay => window.setTimeout(apply,delay));
     document.addEventListener('click',event => {
       const control = event.target?.closest?.('[data-panel="release-audit-panel"]');
