@@ -114,7 +114,12 @@ for (const name of [...activeRuntimeNames].sort()) {
   const source = fs.readFileSync(full, 'utf8');
 
   const writesTitle = /document\.title\s*=/.test(source);
-  const writesBadge = /(?:badge|versionBadge)\.textContent\s*=/.test(source);
+  const startBadgeVariables = [...source.matchAll(
+    /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*document\.querySelector\(\s*['"]#start \.brand \.badge['"]\s*\)/g
+  )].map(match => match[1]);
+  const writesBadge = startBadgeVariables.some(variable =>
+    new RegExp(`\\b${variable}\\.textContent\\s*=`).test(source)
+  );
   if (writesTitle || writesBadge) identityWriters.push(name);
 
   for (const pattern of [
