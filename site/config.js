@@ -97,6 +97,10 @@ document.title = 'Math Practice V5.1';
    is intentionally not promoted while Exam Mode is deferred. V5.8 Stable then
    consolidates the accepted V5.8A-D sequence as the authoritative V5.8 release
    identity and audit checkpoint without adding network calls or data writes.
+   V5.8.1A reconciles the Results screen against the saved cloud result so post-save
+   browser/localStorage failures cannot mislabel a successful submission as a local
+   backup, and it keeps stale pre-assignment results from being presented as the
+   completion result for a newly started teacher assignment.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 window.addEventListener('load', () => {
@@ -153,6 +157,7 @@ window.addEventListener('load', () => {
     './v58c-parent-friendly-student-report.js',
     './v58c-parent-summary-workspace-shortcut.js',
     './v58d-content-workflow-consolidation.js',
+    './v581a-practice-cloud-result-reconciliation.js',
     './v58-stable-release-checkpoint.js'
   ].forEach(src => {
     const script = document.createElement('script');
