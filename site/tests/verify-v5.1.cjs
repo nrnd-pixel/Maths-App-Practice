@@ -40,6 +40,7 @@ function recordsFromCsv(file) {
 const html = read('site/index.html');
 const config = read('site/config.js');
 const release = read('site/v40-release.js');
+const versionSource = read('site/version.js');
 const session = read('site/v40-student-session.js');
 const assignments = read('site/v43-multi-recipient-practice-assignments.js');
 const deadlineMonitor = read('site/v48-teacher-deadline-monitoring.js');
@@ -65,7 +66,7 @@ for (const name of browserJs) {
 // 2) Loader integrity: every staged local module referenced by config/release exists.
 const configRefs = [...config.matchAll(/['"]\.\/([^'"]+\.js)['"]/g)].map(match => match[1]);
 const releaseRefs = [...release.matchAll(/loadScriptOnce\('([^'?]+\.js)(?:\?[^']*)?'/g)].map(match => match[1]);
-assert.ok(configRefs.length >= 15, 'The active V3.8–V4.0 functional loader set is incomplete.');
+assert.ok(configRefs.length >= 15, 'The active V3.8–V5.x functional loader set is incomplete.');
 assert.ok(releaseRefs.length >= 25, 'The established V4.1+ loader set is incomplete.');
 for (const ref of [...configRefs, ...releaseRefs]) {
   assert.ok(fs.existsSync(path.join(siteRoot, ref)), `Missing staged browser module: ${ref}`);
@@ -79,13 +80,15 @@ for (const retired of ['v38-release.js', 'v381-release.js', 'v39-release.js']) {
   assert.ok(!configRefs.includes(retired), `${retired} must not be loaded by the active config bootstrap.`);
 }
 
-// 3) Final visible identity is the signed-off V5.1 Stable Release.
-assert.match(config, /Math Practice V5\.1/);
-assert.match(release, /Math Practice V5\.1/);
-assert.match(release, /Version 5\.1 • Stable Release/);
-assert.match(release, /V5\.1 Stable Release:/);
-assert.doesNotMatch(release, /Version 5\.1 • Release Candidate|V5\.1 Release Candidate:/,
-  'Final V5.1 must not regress to Release Candidate branding.');
+// 3) Current visible identity is owned by version.js and derived from config.js's staged runtime list.
+assert.match(config, /const MATH_APP_STAGED_SCRIPTS = Object\.freeze\(\[/);
+assert.match(config, /\.\/version\.js'/);
+assert.match(versionSource, /const CURRENT_RELEASE = buildRelease\(deriveCurrentVersion\(stagedScripts\)\)/);
+assert.match(release, /MathAppVersion\?\.applyIdentity/);
+assert.match(release, /V5\.1 Stable Release:/,
+  'Historical V5.1 release-note content must remain recoverable.');
+assert.doesNotMatch(release, /document\.title\s*=\s*['"]Math Practice V5\.|badge\.textContent\s*=\s*['"]Version 5\./,
+  'Historical release presenter must not own the current displayed version identity.');
 assert.match(release, /v49-student-topic-progress\.js/);
 assert.match(release, /v50-student-progress-overview\.js/);
 assert.match(release, /v51-paper-profile-validator\.js/);
@@ -183,7 +186,7 @@ console.log('V5.1 regression safety verification passed.');
 console.log(`- ${inlineScripts.length} inline application script block(s) compiled`);
 console.log(`- ${browserJs.length} browser JS files compiled`);
 console.log(`- ${configRefs.length + releaseRefs.length} staged loader references resolved`);
-console.log('- V5.1 Stable Release identity is active and Release Candidate branding is rejected');
+console.log('- current displayed release identity is config-derived through version.js');
 console.log('- Legacy V3.8/V3.8.1/V3.9 release-label scripts remain archived but are no longer actively loaded');
 console.log('- Browser-secret, student-session and Practice/Exam boundaries verified');
 console.log('- AI Help remains Practice-only at the server boundary');
