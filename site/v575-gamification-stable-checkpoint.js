@@ -64,7 +64,7 @@
       [checks.weekly_missions,'V5.7.2 — Weekly Missions','Three weekly Practice missions reset on Monday in Brunei time and use saved Practice evidence.'],
       [checks.class_challenge,'V5.7.3 — Cooperative Class Challenge','Students see aggregate teamwork progress only; teachers get an alphabetical motivation view without leaderboards.'],
       [checks.teacher_controls,'V5.7.4 — Gamification Polish + Teacher Controls','Teachers can enable/pause the class challenge and choose 5, 10, 15 or 20 questions per active student.'],
-      [identityReady(),'V5.7.5 checkpoint identity','Current app title/badge plus the V5.7.5 gamified Practice release note are active.']
+      [identityReady(),'V5.7.5 release identity','V5.7.5 title, badge and consolidated gamified Practice release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length && checks.v57_foundation;
@@ -129,8 +129,8 @@
 
   function scheduleApply(){
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    /* Run after the V5.7 stable identity burst while keeping the config-derived
-       current app title and badge authoritative. */
+    /* Run after the V5.7 stable identity burst so this checkpoint is the final
+       presentation identity while leaving all functional gamification layers intact. */
     [0,120,420,1100,2200,3400,4300].forEach(delay => window.setTimeout(apply,delay));
     document.addEventListener('click',event => {
       const control = event.target?.closest?.('[data-panel="release-audit-panel"]');
