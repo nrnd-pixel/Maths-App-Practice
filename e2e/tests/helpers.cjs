@@ -8,6 +8,15 @@ const STUDENT = Object.freeze({
   className: '6A',
 });
 
+const STUDENT_META = Object.freeze({
+  roster_student_id: 'e2e-roster-student-1',
+  class_id: 'e2e-class-1',
+  student_id: STUDENT.id,
+  student_name: STUDENT.name,
+  year_level: STUDENT.year,
+  class_name: STUDENT.className,
+});
+
 const TEACHER = Object.freeze({
   id: 'teacher-e2e-user',
   email: 'teacher.e2e@example.invalid',
@@ -40,6 +49,284 @@ const QUESTION = Object.freeze({
 });
 
 const RESULT_CODE = 'E2E1-E2E2-E2E3-E2E4';
+
+const REQUIRED_STUDENT_READ_RPCS = Object.freeze([
+  'get_student_practice_questions_v53d3',
+  'get_student_gamification_v571a',
+  'get_student_gamification_achievements_v571b',
+  'get_student_weekly_missions_v572',
+  'get_student_class_challenge_v573',
+  'get_student_class_challenge_v574',
+  'get_student_learning_dashboard',
+  'get_student_motivation',
+  'get_student_motivation_messages',
+  'get_student_practice_recommendation_v53d4',
+  'get_student_practice_assignments_v56b',
+  'get_student_assignments',
+  'get_available_exam_papers',
+  'get_student_past_paper_checkpoints_v57a',
+  'get_student_past_paper_completion_watermarks_v57a',
+]);
+
+function studentIdentity() {
+  return {
+    student_name: STUDENT.name,
+    student_id: STUDENT.id,
+    year_level: STUDENT.year,
+    class_name: STUDENT.className,
+  };
+}
+
+function gamificationPayload() {
+  return {
+    student: studentIdentity(),
+    xp: {
+      total: 0,
+      answer_xp: 0,
+      session_bonus_xp: 0,
+      past_paper_bonus_xp: 0,
+      assignment_bonus_xp: 0,
+    },
+    level: {
+      number: 1,
+      title: 'Maths Starter',
+      start_xp: 0,
+      next_level_xp: 100,
+      progress_percent: 0,
+    },
+    activity: {
+      first_try_correct: 0,
+      second_try_correct: 0,
+      completed_sessions: 0,
+      completed_past_papers: 0,
+      completed_assignments: 0,
+    },
+    rules: {
+      first_try_correct_xp: 10,
+      second_try_correct_xp: 6,
+      completed_session_xp: 10,
+      past_paper_extra_xp: 20,
+      completed_assignment_xp: 20,
+    },
+  };
+}
+
+function achievementsPayload() {
+  return {
+    streak: {
+      current: 0,
+      longest: 0,
+      days_this_week: 0,
+      meaningful_days: 0,
+      today_qualified: false,
+      today_questions: 0,
+      last_qualified_day: null,
+    },
+    badges: [
+      {
+        id: 'first_practice',
+        title: 'First Practice',
+        description: 'Complete your first Practice session.',
+        icon: '🌱',
+        earned: false,
+        earned_at: null,
+      },
+    ],
+    latest_badge: null,
+    rules: {
+      meaningful_questions_per_day: 5,
+      past_paper_completes_day: true,
+      assignment_completes_day: true,
+      timezone: 'Asia/Brunei',
+    },
+  };
+}
+
+function weeklyMissionsPayload() {
+  return {
+    week: {
+      start_date: '2026-09-07',
+      end_date: '2026-09-13',
+      today: '2026-09-07',
+      timezone: 'Asia/Brunei',
+    },
+    summary: {
+      completed: 0,
+      total: 3,
+      all_complete: false,
+    },
+    missions: [
+      {
+        id: 'question_quest',
+        title: 'Question Quest',
+        description: 'Complete 10 Practice questions this week.',
+        icon: '🎯',
+        progress: 0,
+        raw_progress: 0,
+        target: 10,
+        unit: 'questions',
+        complete: false,
+        action: 'learn',
+      },
+      {
+        id: 'practice_days',
+        title: 'Keep It Going',
+        description: 'Complete meaningful Practice on 2 different days this week.',
+        icon: '🔥',
+        progress: 0,
+        raw_progress: 0,
+        target: 2,
+        unit: 'days',
+        complete: false,
+        action: 'learn',
+      },
+      {
+        id: 'challenge_complete',
+        title: 'Challenge Complete',
+        description: 'Finish a teacher assignment or a Past Paper Practice this week.',
+        icon: '🏁',
+        progress: 0,
+        raw_progress: 0,
+        target: 1,
+        unit: 'challenge',
+        complete: false,
+        action: 'challenge',
+        assignment_completions: 0,
+        past_paper_completions: 0,
+      },
+    ],
+    rules: {
+      question_target: 10,
+      practice_day_target: 2,
+      meaningful_questions_per_day: 5,
+      challenge_target: 1,
+      week_starts: 'Monday',
+      timezone: 'Asia/Brunei',
+      exam_activity_counts: false,
+    },
+  };
+}
+
+function classChallengePayload(enabled = true) {
+  return {
+    class: {
+      class_id: STUDENT_META.class_id,
+      class_name: STUDENT.className,
+      year_level: STUDENT.year,
+      active_students: 1,
+    },
+    week: {
+      start_date: '2026-09-07',
+      end_date: '2026-09-13',
+      today: '2026-09-07',
+      timezone: 'Asia/Brunei',
+    },
+    challenge: {
+      title: 'Class Question Quest',
+      description: enabled
+        ? 'Work together to complete Practice questions this week.'
+        : 'Your teacher has paused this class challenge.',
+      questions_completed: 0,
+      target_questions: 10,
+      contributors: 0,
+      progress_percent: 0,
+      complete: false,
+      enabled,
+    },
+    rules: {
+      questions_per_active_student: 10,
+      week_starts: 'Monday',
+      timezone: 'Asia/Brunei',
+      exam_activity_counts: false,
+      student_rankings: false,
+      teacher_configurable: true,
+    },
+  };
+}
+
+function learningDashboardPayload() {
+  return {
+    student: studentIdentity(),
+    summary: {
+      completed_sessions: 0,
+      scored_responses: 0,
+      pending_review: 0,
+    },
+    topics: [],
+    recent: [],
+  };
+}
+
+function motivationPayload() {
+  return {
+    student: studentIdentity(),
+    streak: { current: 0, longest: 0 },
+    weekly_goal: { completed_days: 0, goal_days: 3 },
+    summary: { message: '', status: 'new' },
+  };
+}
+
+function motivationMessagesPayload() {
+  return {
+    student: studentIdentity(),
+    unread_count: 0,
+    messages: [],
+  };
+}
+
+function recommendationPayload() {
+  return {
+    student: studentIdentity(),
+    recommended_count: 0,
+    practice_scope: 'mixed',
+    focus_strand: null,
+    focus_topic: null,
+    reason: '',
+  };
+}
+
+function emptyPracticeAssignmentsPayload() {
+  return {
+    student: studentIdentity(),
+    assignments: [],
+  };
+}
+
+function checkpointPayload() {
+  return {
+    student: studentIdentity(),
+    checkpoints: [],
+  };
+}
+
+function completionWatermarksPayload() {
+  return {
+    student: studentIdentity(),
+    completions: [],
+  };
+}
+
+function studentReadRpcPayload(rpc) {
+  const builders = {
+    get_student_practice_questions_v53d3: () => [QUESTION],
+    get_student_gamification_v571a: gamificationPayload,
+    get_student_gamification_achievements_v571b: achievementsPayload,
+    get_student_weekly_missions_v572: weeklyMissionsPayload,
+    get_student_class_challenge_v573: () => classChallengePayload(true),
+    get_student_class_challenge_v574: () => classChallengePayload(false),
+    get_student_learning_dashboard: learningDashboardPayload,
+    get_student_motivation: motivationPayload,
+    get_student_motivation_messages: motivationMessagesPayload,
+    get_student_practice_recommendation_v53d4: recommendationPayload,
+    get_student_practice_assignments_v56b: emptyPracticeAssignmentsPayload,
+    get_student_assignments: () => [],
+    get_available_exam_papers: () => [],
+    get_student_past_paper_checkpoints_v57a: checkpointPayload,
+    get_student_past_paper_completion_watermarks_v57a: completionWatermarksPayload,
+  };
+  const build = builders[rpc];
+  return build ? { handled: true, body: build() } : { handled: false, body: null };
+}
 
 function corsHeaders(extra = {}) {
   return {
@@ -139,6 +426,8 @@ async function installSupabaseMock(page) {
     practiceSubmissions: 0,
     unexpectedWrites: [],
     rpcCalls: [],
+    unhandledRpcCalls: [],
+    restReads: [],
   };
 
   await page.route('**://*.supabase.co/**', async route => {
@@ -214,8 +503,8 @@ async function installSupabaseMock(page) {
           message: 'Access granted',
           access_mode: 'student_pin',
           registered: true,
-          roster_student_id: 'e2e-roster-student-1',
-          class_id: 'e2e-class-1',
+          roster_student_id: STUDENT_META.roster_student_id,
+          class_id: STUDENT_META.class_id,
           student_name: STUDENT.name,
           student_id: STUDENT.id,
           year_level: STUDENT.year,
@@ -226,8 +515,12 @@ async function installSupabaseMock(page) {
         return;
       }
 
-      if (rpc === 'get_student_practice_questions_v53d3') {
-        await fulfillJson(route, [QUESTION], 200, { 'content-range': '0-0/1' });
+      const studentFixture = studentReadRpcPayload(rpc);
+      if (studentFixture.handled) {
+        const headers = Array.isArray(studentFixture.body)
+          ? { 'content-range': studentFixture.body.length ? `0-${studentFixture.body.length - 1}/${studentFixture.body.length}` : '*/0' }
+          : {};
+        await fulfillJson(route, studentFixture.body, 200, headers);
         return;
       }
 
@@ -254,14 +547,16 @@ async function installSupabaseMock(page) {
         return;
       }
 
-      // Default all otherwise-unhandled RPCs to an empty successful response.
-      // This keeps optional/new feature-layer reads isolated from production
-      // without making the E2E safety net brittle every time a read RPC is added.
+      // Keep genuinely optional/unknown read RPCs isolated, but record them so
+      // Phase 0 can expose route drift instead of silently pretending they were
+      // part of the maintained fixture contract.
+      state.unhandledRpcCalls.push({ rpc, body });
       await fulfillJson(route, []);
       return;
     }
 
     if (path === '/rest/v1/teacher_profiles' && method === 'GET') {
+      state.restReads.push(path);
       const accept = request.headers().accept || '';
       const profile = { user_id: TEACHER.id };
       await fulfillJson(
@@ -274,6 +569,7 @@ async function installSupabaseMock(page) {
     }
 
     if (path.startsWith('/rest/v1/') && (method === 'GET' || method === 'HEAD')) {
+      state.restReads.push(path);
       await fulfillJson(route, [], 200, { 'content-range': '*/0' });
       return;
     }
@@ -363,6 +659,7 @@ module.exports = {
   TEACHER,
   QUESTION,
   RESULT_CODE,
+  REQUIRED_STUDENT_READ_RPCS,
   installSupabaseMock,
   openApp,
   signInStudent,
