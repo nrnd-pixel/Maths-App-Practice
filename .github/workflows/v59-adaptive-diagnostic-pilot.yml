@@ -1,4 +1,4 @@
-name: V5.9A Adaptive Diagnostic Pilot
+name: V5.9B Interactive Adaptive Diagnostic Pilot
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   verify:
-    name: Verify test-only adaptive diagnostic pilot
+    name: Verify test-only interactive adaptive pilot
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -26,5 +26,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Verify V5.9A adaptive diagnostic pilot
+      - name: Verify V5.9B interactive adaptive diagnostic pilot
         run: node site/tests/verify-v5.9-adaptive-diagnostic-pilot.cjs
