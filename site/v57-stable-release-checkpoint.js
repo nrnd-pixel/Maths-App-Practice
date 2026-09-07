@@ -67,7 +67,7 @@
       [checks.continue_learning_home,'V5.7C — Continue Learning Home','Saved Practice, teacher work, recommendations and recent Practice are prioritised on the signed-in Home screen.'],
       [checks.analytics_actions,'V5.7D — Past Paper Analytics Actions','Prepared cohorts, assignment management, teaching focus plans and the selectable copy fallback are loaded.'],
       [checks.practice_first_foundation,'Practice-first foundation','The accepted V5.6 stable checkpoint and V5.6.1 Practice-first student entry remain active.'],
-      [identityReady(),'V5.7 checkpoint identity','Current app title/badge plus the V5.7 checkpoint release note are active.']
+      [identityReady(),'V5.7 stable-release identity','V5.7 title, badge and consolidated release note are active.']
     ];
     const passed = rows.filter(row => row[0]).length;
     const ready = passed === rows.length;
@@ -133,7 +133,7 @@
   function scheduleApply(){
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
     /* Final passes run after the V5.6 stable identity burst and V5.6.1 rollout
-       notice so the current config-derived identity remains authoritative. */
+       notice so V5.7 is the authoritative presentation identity. */
     [0,100,300,900,1800,2600,3200].forEach(delay => window.setTimeout(apply,delay));
     document.addEventListener('click',event => {
       const control = event.target?.closest?.('[data-panel="release-audit-panel"]');
