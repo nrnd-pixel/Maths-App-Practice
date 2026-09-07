@@ -1,0 +1,29 @@
+name: V5.8.1B Checkpoint Attribution
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'site/DATABASE-MIGRATIONS-V5.8.1B.txt'
+      - 'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs'
+      - '.github/workflows/v581b-checkpoint-attribution.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify V5.8.1B checkpoint and attribution invariants
+        run: node site/tests/verify-v5.8.1b-checkpoint-attribution.cjs
