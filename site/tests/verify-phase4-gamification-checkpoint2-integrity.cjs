@@ -75,8 +75,11 @@ for(const globalName of ['V573ClassChallengesTeacherGamification','V574Gamificat
 // The V574 teacher RPC already wraps V573 server-side, so the consolidated teacher
 // view now has one RPC/render path instead of V573 render + delayed V574 DOM patch.
 assert.match(teacherSource,/teacherRpc\(classId,RPC\.teacherV574\)/);
-assert.doesNotMatch(teacherSource,/querySelector\?*\.??\(['"]\.v573-class-challenge['"]\)/,
-  'Consolidated teacher code must not find another module\'s challenge card for patching.');
+assert.doesNotMatch(
+  teacherSource,
+  /querySelector(?:\?\.)?\(\s*['"]\.v573-class-challenge['"]\s*\)/,
+  'Consolidated teacher code must not find another module\'s challenge card for patching.'
+);
 assert.doesNotMatch(teacherSource,/scheduleTeacherPatch|patchTimer|patchTeacherFromCurrentClass/,
   'The old delayed teacher DOM-patch scheduler must be gone.');
 assert.match(teacherSource,/function patchTeacherChallenge\(payload\)[\s\S]*return renderTeacher\(payload\)/,
@@ -89,19 +92,23 @@ const teacher=require(path.join(site,'gamification-teacher.js'));
 const squash=value=>String(value).replace(/\s+/g,' ').trim();
 
 const enabledPayload={
-  class:{class_id:'c1',class_name:'6A',year_level:6,active_students:23},
+  class:{class_id:'c1',class_name:'6A',year_level:6,active_students:3},
   week:{start_date:'2026-08-31',end_date:'2026-09-06'},
-  challenge:{enabled:true,questions_completed:120,target_questions:230,contributors:8,progress_percent:52,complete:false},
+  challenge:{enabled:true,questions_completed:25,target_questions:30,contributors:2,progress_percent:83,complete:false},
   settings:{challenge_enabled:true,questions_per_active_student:10,allowed_questions_per_active_student:[5,10,15,20]},
-  summary:{active_students:23,active_this_week:2,all_missions_complete:1,active_streaks:2,average_xp:310},
-  students:[]
+  summary:{active_students:3,active_this_week:2,all_missions_complete:1,active_streaks:2,average_xp:310},
+  students:[
+    {student_id:'S3',student_name:'Zara',xp_total:120,level_number:2,level_title:'Number Explorer',current_streak:0,weekly_questions:0,weekly_practice_days:0,weekly_challenges:0,missions_completed:0},
+    {student_id:'S1',student_name:'Aisyah',xp_total:520,level_number:4,level_title:'Maths Challenger',current_streak:4,weekly_questions:15,weekly_practice_days:2,weekly_challenges:1,missions_completed:3,all_missions_complete:true},
+    {student_id:'S2',student_name:'Hadi',xp_total:290,level_number:3,level_title:'Problem Solver',current_streak:2,weekly_questions:10,weekly_practice_days:1,weekly_challenges:0,missions_completed:1}
+  ]
 };
 const expectedEnabled=`
   <div class="v573-class-challenge">
-    <div class="v573-class-challenge-head"><div><div class="v573-kicker">Cooperative Class Challenge</div><h3>🤝 6A · Class Question Quest</h3></div><strong>120 / 230 questions · 52%</strong></div>
-    <div class="v573-bar" role="progressbar" aria-label="Class challenge progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="52"><span style="width:52%"></span></div>
-    <p>8 of 23 students have contributed questions this week. Target = 10 questions × each active student.</p>
-    <div class="v574-managed-note">Teacher-controlled challenge · Halfway there. Use <strong>⚙ Class Challenge</strong> to adjust or pause it.</div>
+    <div class="v573-class-challenge-head"><div><div class="v573-kicker">Cooperative Class Challenge</div><h3>🤝 6A · Class Question Quest</h3></div><strong>25 / 30 questions · 83%</strong></div>
+    <div class="v573-bar" role="progressbar" aria-label="Class challenge progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="83"><span style="width:83%"></span></div>
+    <p>2 of 3 students have contributed questions this week. Target = 10 questions × each active student.</p>
+    <div class="v574-managed-note">Teacher-controlled challenge · Final push. Use <strong>⚙ Class Challenge</strong> to adjust or pause it.</div>
   </div>`;
 assert.equal(squash(teacher.teacherChallengeMarkup(enabledPayload)),squash(expectedEnabled),
   'Enabled teacher challenge card must render exactly like the accepted V574 patch result.');
@@ -120,9 +127,9 @@ const expectedPaused=`
 assert.equal(squash(teacher.teacherChallengeMarkup(pausedPayload)),squash(expectedPaused),
   'Paused teacher challenge card must render exactly like the accepted V574 patch result.');
 
-// Exercise the actual renderTeacher path with a minimal DOM sink. The challenge
-// section above must be embedded directly alongside the unchanged V573 summary,
-// filters/table contract rather than patched afterwards.
+// Exercise the actual renderTeacher path with a minimal DOM sink. The final managed
+// challenge must be embedded directly beside the unchanged V573 summary/filter/table
+// output rather than patched after the first render.
 const content={innerHTML:''};
 const priorDocument=global.document;
 global.document={getElementById:id=>id==='v573-teacher-content'?content:null};
@@ -142,8 +149,14 @@ for(const retained of [
   'Needs a nudge',
   'Active this week',
   'All missions complete',
+  '<th>Student</th><th>XP</th><th>Level</th><th>Streak</th><th>Questions this week</th><th>Practice days</th><th>Weekly missions</th>',
+  'Aisyah',
+  'Hadi',
+  'Zara',
   'Motivation data is read-only and based on saved Practice evidence.'
 ]) assert.ok(content.innerHTML.includes(retained),`Teacher view lost accepted V573 output: ${retained}`);
+assert.ok(content.innerHTML.indexOf('Aisyah')<content.innerHTML.indexOf('Hadi'));
+assert.ok(content.innerHTML.indexOf('Hadi')<content.innerHTML.indexOf('Zara'));
 
 // Dormant originals stay available as rollback/reference files, but their cross-file
 // patch mechanism is not active anymore.
@@ -171,4 +184,5 @@ console.log('- V573/V574 active loaders replaced by gamification-teacher.js');
 console.log('- class challenge is the fourth direct student load with V573 compatibility event retained');
 console.log('- exact V575 V573/V574 flags and public compatibility globals are preserved');
 console.log('- V574 teacher challenge patching is now one direct render path with equivalent enabled/paused markup');
+console.log('- full teacher summary/filter/table output remains intact and alphabetical');
 console.log('- one shared style block covers the consolidated student + teacher gamification feature');
