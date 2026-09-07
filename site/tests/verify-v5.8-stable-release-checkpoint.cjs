@@ -14,7 +14,7 @@ const v58c = read('v58c-parent-friendly-student-report.js');
 const v58d = read('v58d-content-workflow-consolidation.js');
 const v575 = read('v575-gamification-stable-checkpoint.js');
 const v576 = read('v576-classroom-feedback-support.js');
-const releaseDoc = read('RELEASE-CHECKPOINT-V5.8.md');
+const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v58-stable-release-checkpoint.js'});
 

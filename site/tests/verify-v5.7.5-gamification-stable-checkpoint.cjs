@@ -13,7 +13,7 @@ const v571b = read('v571b-streaks-achievements.js');
 const v572 = read('v572-weekly-missions.js');
 const v573 = read('v573-class-challenges-teacher-gamification.js');
 const v574 = read('v574-gamification-polish-teacher-controls.js');
-const releaseDoc = read('RELEASE-CHECKPOINT-V5.7.5.md');
+const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v575-gamification-stable-checkpoint.js'});
 

@@ -2,8 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const site = path.join(__dirname,'..');
-const migration = fs.readFileSync(path.join(site,'DATABASE-MIGRATIONS-V5.8.1.txt'),'utf8');
+const migration = fs.readFileSync(path.join(__dirname,'..','..','supabase','v581_past_paper_assignment_completion.sql'),'utf8');
 
 // Submission contract must retain Past Paper attribution rather than coercing it to mixed.
 assert.match(migration,/\('mixed','strand_topic','past_paper'\)/,
