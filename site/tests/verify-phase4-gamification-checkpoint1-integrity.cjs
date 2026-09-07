@@ -95,7 +95,8 @@ const firstPracticeSelector='#v571b-latest-achievement .v571b-badge[data-badge-i
 assert.ok(studentSource.includes(firstPracticeSelector),'Consolidated student runtime must explicitly preserve the exact V5.8A first-Practice selector.');
 assert.ok(v58aSource.includes(firstPracticeSelector),'V5.8A must still use the exact preserved first-Practice selector in this checkpoint.');
 assert.match(coreSource,/achievementCard:'v571b-latest-achievement'/,'Shared DOM constants must retain the historical achievement card id.');
-assert.match(studentSource,/class=\\"v571b-badge \$\{earned\?'earned':'locked'\}\\" data-badge-id=\\"\$\{html\(badge\.id\)\}\\"/,'Achievement rendering must retain the historical badge class and data-badge-id output path.');
+assert.match(studentSource,/class="v571b-badge \$\{earned\?'earned':'locked'\}"/,'Achievement rendering must retain the historical v571b-badge earned/locked class output.');
+assert.match(studentSource,/data-badge-id="\$\{html\(badge\.id\)\}"/,'Achievement rendering must retain the historical data-badge-id output path used by V5.8A.');
 
 console.log('Phase 4 Checkpoint 1 gamification integrity checks passed.');
 console.log('- V571A/V571B/V572 active loaders replaced by gamification-core.js + gamification-student.js');
