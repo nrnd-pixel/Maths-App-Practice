@@ -3,8 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-// Keep the Phase 4 Checkpoint 1 integrity guard inside the maintained CI path
-// without changing the consolidated workflow for a mapping-only feature checkpoint.
+// Keep the Phase 4 Checkpoint 1 integrity guard inside the maintained CI path.
 require('./verify-phase4-gamification-checkpoint1-integrity.cjs');
 
 const site = path.join(__dirname,'..');
@@ -59,8 +58,8 @@ assert.match(studentSource,/Second Try correct/);
 assert.match(studentSource,/Past Paper bonus/);
 assert.match(studentSource,/Assignment bonus/);
 
-// Checkpoint 1 loads the shared core/student modules after V5.7 and before V5.7.3.
-assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'/);
+// Consolidated gamification loads after V5.7 and before the V5.7.5 checkpoint.
+assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/gamification-teacher\.js'[\s\S]*\.\/v575-gamification-stable-checkpoint\.js'/);
 assert.doesNotMatch(config,/['"]\.\/v571a-gamification-foundation\.js['"]/);
 assert.doesNotMatch(studentSource,/document\.title|Version 5\.7|Stable Release/);
 

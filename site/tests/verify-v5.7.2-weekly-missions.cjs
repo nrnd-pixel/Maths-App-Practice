@@ -54,20 +54,21 @@ const completed = api.normalizePayload({
 assert.equal(completed.summary.completed,3);
 assert.equal(completed.summary.all_complete,true);
 
-// Client remains passive/read-only while direct orchestration replaces the internal achievement-event dependency.
+// Client remains passive/read-only while direct orchestration replaces internal event dependencies.
 assert.match(source,/get_student_weekly_missions_v572/);
 assert.match(coreSource,/V57CStudentContinueLearningHome\?\.passivePracticeAccess/);
 assert.match(studentSource,/v572:missions-updated/);
 assert.match(studentSource,/This Week\\'s Missions|This Week's Missions/);
-assert.match(studentSource,/return loadMissions\(force\)/);
+assert.match(studentSource,/const missionsOk=await loadMissions\(force\)/);
+assert.match(studentSource,/return loadClassChallenge\(force\)/);
 assert.doesNotMatch(studentSource,/addEventListener\(['"]v571b:achievements-updated/);
 assert.doesNotMatch(source,/validateStudentAccess\(['"]exam['"]\)/);
 assert.doesNotMatch(source,/correct_answer|correctAnswer|service_role/i);
 assert.doesNotMatch(source,/cloud\.from\(|\.insert\(|\.update\(|\.delete\(/);
 assert.doesNotMatch(studentSource,/document\.title|Version 5\.7|Stable Release/);
 
-// Config keeps the consolidated student module before untouched V5.7.3/V5.7.4 consumers.
-assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'[\s\S]*\.\/v574-gamification-polish-teacher-controls\.js'/);
+// Config keeps student gamification before the consolidated teacher module.
+assert.match(config,/\.\/v57-stable-release-checkpoint\.js'[\s\S]*\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/gamification-teacher\.js'/);
 assert.doesNotMatch(config,/['"]\.\/v572-weekly-missions\.js['"]/);
 assert.match(studentSource,/Object\.defineProperty\(window,'V572WeeklyMissions'/);
 assert.match(studentSource,/openLearn,openAssignments/);
@@ -92,5 +93,5 @@ assert.match(sql,/grant execute on function public\.get_student_weekly_missions_
 
 console.log('V5.7.2 Weekly Missions checks passed from consolidated student gamification.');
 console.log('- three weekly missions retain the accepted Practice-first targets');
-console.log('- direct student orchestration replaces the old achievements listener chain');
-console.log('- V5.7.3 compatibility API/event contracts and server RPC remain unchanged');
+console.log('- weekly missions remain the third direct student step before class challenge');
+console.log('- server RPC remains unchanged, read-only and Practice-first');

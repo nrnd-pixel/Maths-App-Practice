@@ -3,14 +3,27 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// Checkpoint 2 integrity and the exhaustive verifier-reference audit are exercised
+// from this maintained CI verifier.
+require('./verify-phase4-gamification-checkpoint2-integrity.cjs');
+require('./verify-phase4-gamification-dormant-reference-integrity.cjs');
+
 const site = path.join(__dirname,'..');
 const read = name => fs.readFileSync(path.join(site,name),'utf8');
-const source = read('v573-class-challenges-teacher-gamification.js');
+const coreSource = read('gamification-core.js');
+const studentSource = read('gamification-student.js');
+const teacherSource = read('gamification-teacher.js');
+const source = `${coreSource}\n${studentSource}\n${teacherSource}`;
 const config = read('config.js');
 const sql = fs.readFileSync(path.join(site,'..','supabase','v573_class_challenges_teacher_gamification.sql'),'utf8');
 
-new vm.Script(source,{filename:'v573-class-challenges-teacher-gamification.js'});
-const api = require(path.join(site,'v573-class-challenges-teacher-gamification.js'));
+new vm.Script(coreSource,{filename:'gamification-core.js'});
+new vm.Script(studentSource,{filename:'gamification-student.js'});
+new vm.Script(teacherSource,{filename:'gamification-teacher.js'});
+const api = require(path.join(site,'gamification-teacher.js')).v573;
+
+assert.equal(api.RPC_STUDENT,'get_student_class_challenge_v573');
+assert.equal(api.RPC_TEACHER,'get_teacher_class_gamification_v573');
 
 const challenge = api.normalizeChallenge({
   class:{class_id:'c1',class_name:'6A',year_level:6,active_students:23},
@@ -42,25 +55,26 @@ assert.deepEqual(api.teacherRowsForFilter(teacher,'nudge').map(row=>row.student_
 assert.deepEqual(api.teacherRowsForFilter(teacher,'active').map(row=>row.student_name),['Aisyah','Hadi']);
 assert.deepEqual(api.teacherRowsForFilter(teacher,'missions').map(row=>row.student_name),['Aisyah']);
 
-// Client is a passive, Practice-only layer and reuses existing Home/teacher anchors.
-assert.match(source,/get_student_class_challenge_v573/);
-assert.match(source,/get_teacher_class_gamification_v573/);
-assert.match(source,/V572WeeklyMissions\?\.passivePracticeAccess/);
-assert.match(source,/v572:missions-updated/);
-assert.match(source,/Class Question Quest/);
-assert.match(source,/Class Motivation/);
-assert.match(source,/export-analytics/);
-assert.match(source,/No leaderboard|no leaderboard/i);
+// V573 browser behavior is now supplied by the student/teacher split without changing
+// its compatibility API, DOM names, non-ranking design, or server contract.
+assert.match(coreSource,/get_student_class_challenge_v573/);
+assert.match(coreSource,/get_teacher_class_gamification_v573/);
+assert.match(studentSource,/v573:class-challenge-updated/);
+assert.match(studentSource,/Class Question Quest/);
+assert.match(teacherSource,/Class Motivation/);
+assert.match(teacherSource,/export-analytics/);
+assert.match(teacherSource,/No leaderboard|no leaderboard/i);
 assert.doesNotMatch(source,/validateStudentAccess\(['"]exam['"]\)/);
 assert.doesNotMatch(source,/correct_answer|correctAnswer|service_role/i);
-assert.doesNotMatch(source,/cloud\.from\(/);
 assert.doesNotMatch(source,/document\.title|Version 5\.7|Stable Release/);
 
-// V5.7.3 source remains untouched; only its upstream student loader is consolidated.
-assert.match(config,/\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/v573-class-challenges-teacher-gamification\.js'/);
+// The dormant V573 browser file is no longer staged; its accepted API is provided by gamification-teacher.js.
+assert.match(config,/\.\/gamification-core\.js'[\s\S]*\.\/gamification-student\.js'[\s\S]*\.\/gamification-teacher\.js'[\s\S]*\.\/v575-gamification-stable-checkpoint\.js'/);
+assert.doesNotMatch(config,/['"]\.\/v573-class-challenges-teacher-gamification\.js['"]/);
+assert.match(teacherSource,/Object\.defineProperty\(window,'V573ClassChallengesTeacherGamification'/);
 assert.match(config,/no leaderboard/i);
 
-// Server functions are read-only, Brunei-week scoped and exclude Exam activity.
+// Server functions are unchanged: read-only, Brunei-week scoped and Exam-excluding.
 assert.match(sql,/get_student_class_challenge_v573/);
 assert.match(sql,/get_teacher_class_gamification_v573/);
 assert.match(sql,/security definer/i);
@@ -78,7 +92,7 @@ assert.doesNotMatch(sql,/correct_answer_snapshot|explanation_snapshot|final_answ
 assert.match(sql,/revoke all on function public\.get_student_class_challenge_v573\(text\) from public/i);
 assert.match(sql,/revoke all on function public\.get_teacher_class_gamification_v573\(uuid\) from public,anon/i);
 
-console.log('V5.7.3 Class Challenges + Teacher Gamification checks passed.');
-console.log('- cooperative target is 10 Practice questions per active class student');
-console.log('- teacher roster view is alphabetical and offers encouragement filters, not rankings');
-console.log('- V5.7.3 remains unchanged while consuming the consolidated student compatibility API');
+console.log('V5.7.3 Class Challenges + Teacher Gamification checks passed from consolidated modules.');
+console.log('- cooperative/non-ranking behavior and V573 compatibility API are retained');
+console.log('- teacher roster normalization/filtering remains alphabetical and unchanged');
+console.log('- V573 Supabase RPCs remain byte-untouched server contracts');

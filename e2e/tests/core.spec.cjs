@@ -10,8 +10,14 @@ const {
   loginTeacher,
 } = require('./helpers.cjs');
 
+// V574's student class-challenge RPC returns the complete V573 payload and then
+// overlays the teacher-configurable V574 challenge/settings fields server-side.
+// The consolidated Home runtime therefore needs only V574; expecting a separate
+// V573 read here would reintroduce the redundant duplicate network call removed
+// by Phase 4 Checkpoint 2.
 const HOME_READ_RPCS = REQUIRED_STUDENT_READ_RPCS.filter(
-  rpc => rpc !== 'get_student_practice_questions_v53d3',
+  rpc => rpc !== 'get_student_practice_questions_v53d3'
+    && rpc !== 'get_student_class_challenge_v573',
 );
 
 test.describe('Phase 0 core browser safety net', () => {
