@@ -35,9 +35,11 @@ jobs:
           node-version: '20'
 
       - name: Run maintained verifier suite
+        id: verifiers
+        continue-on-error: true
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
           verifiers=(
             "site/tests/verify-v5.1.cjs"
             "site/tests/verify-v5.0-accessibility.cjs"
@@ -143,10 +145,19 @@ jobs:
           )
 
           echo "Running ${#verifiers[@]} maintained verifier scripts..."
+          failures=0
           for verifier in "${verifiers[@]}"; do
             echo "==> ${verifier}"
-            node "${verifier}"
+            if ! node "${verifier}"; then
+              echo "::error::${verifier} failed"
+              failures=$((failures + 1))
+            fi
           done
+
+          if [ "${failures}" -ne 0 ]; then
+            echo "::error::${failures} maintained verifier(s) failed"
+            exit 1
+          fi
 
       - name: Install E2E dependencies
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
@@ -180,3 +191,9 @@ jobs:
           path: e2e/test-results
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Fail job if maintained verifiers failed
+        if: ${{ always() && steps.verifiers.outcome == 'failure' }}
+        run: |
+          echo "One or more maintained verifier scripts failed."
+          exit 1
