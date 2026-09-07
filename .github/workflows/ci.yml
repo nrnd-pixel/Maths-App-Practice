@@ -42,6 +42,7 @@ jobs:
           set -u
           verifiers=(
             "site/tests/verify-v5.1.cjs"
+            "site/tests/verify-phase2-version-source-integrity.cjs"
             "site/tests/verify-v5.0-accessibility.cjs"
             "site/tests/verify-v5.0-reporting.cjs"
             "site/tests/verify-v5.0-launch-readiness.cjs"
