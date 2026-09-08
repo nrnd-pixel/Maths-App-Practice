@@ -3,8 +3,14 @@ const path=require('path');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const action=read('assignment-interventions.js');
-const groups=action;
+const interventions=read('assignment-interventions.js');
+const v44bMarker='/* V4.4B — Shared Focus Group Intervention.';
+const v44cMarker='/* V4.4C — Intervention Follow-Through.';
+const v44bStart=interventions.indexOf(v44bMarker);
+const v44cStart=interventions.indexOf(v44cMarker);
+if(v44bStart<0||v44cStart<=v44bStart)throw new Error('Consolidated V44 section boundaries are missing or out of order');
+const action=interventions.slice(0,v44bStart);
+const groups=interventions.slice(v44bStart,v44cStart);
 const release=read('v40-release.js');
 const assignmentsCore=read('assignments-core.js');
 
