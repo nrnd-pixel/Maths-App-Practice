@@ -1,0 +1,62 @@
+name: Phase 4 Assignments Checkpoint 2 Verifier Fix
+on:
+  push:
+    branches:
+      - development/phase4-teacher-assignments-v44-v48-checkpoint-2
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fix exact stale loader expectations and guard false-positive
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          edits={
+            'site/tests/verify-v5.1.cjs':[
+              (r"assert.match(release, /assignment-deadlines\\.js\\?v=48a-2/);",r"assert.match(release, /loadScriptOnce\\('assignment-deadlines\\.js', 'data-assignment-deadlines'\\)/);"),
+              (r"assert.match(release, /assignment-deadlines\\.js\\?v=48c-4/);",r"assert.match(release, /loadScriptOnce\\('assignment-deadlines\\.js', 'data-assignment-deadlines'\\)/);"),
+            ],
+            'site/tests/verify-v5.0-reporting.cjs':[
+              (r"assert.match(release, /assignment-intervention-history\\.js\\?v=47a-1', 'data-v47a-intervention-history'/,\n  'Existing V4.7 history loader key must remain stable.');",r"assert.match(release, /loadScriptOnce\\('assignment-intervention-history\\.js', 'data-assignment-intervention-history'\\)/,\n  'Consolidated V4.7 history owner must remain staged.');"),
+            ],
+            'site/tests/verify-v5.0-security-audit.cjs':[
+              (r"assert.match(release,/assignment-intervention-history\\.js\\?v=47a-1/,'V4.7 history loader must remain stable.');",r"assert.match(release,/loadScriptOnce\\('assignment-intervention-history\\.js', 'data-assignment-intervention-history'\\)/,'Consolidated V4.7 history owner must remain staged.');"),
+            ],
+            'site/tests/verify-v5.0-rc2-empty-result-code-audit.cjs':[
+              (r"assert.match(release,/assignment-interventions\\.js\\?v=44a-\\d+', 'data-v44a-action-center-practice'/,\n  'The established V44 action-center loader identity must remain unchanged across asset revisions.');",r"assert.match(release,/loadScriptOnce\\('assignment-interventions\\.js', 'data-assignment-interventions'\\)/,\n  'The consolidated V44 intervention owner must remain staged.');"),
+              (r"assert.match(release,/assignment-intervention-history\\.js\\?v=47a-1/,\n  'The established V47 history loader must remain unchanged.');",r"assert.match(release,/loadScriptOnce\\('assignment-intervention-history\\.js', 'data-assignment-intervention-history'\\)/,\n  'The consolidated V47 history owner must remain staged.');"),
+            ],
+            'site/tests/verify-v5.3d2-practice-recommendation-alignment.cjs':[
+              (r"expect(release.includes(\"loadScriptOnce('assignment-interventions.js?v=44a-2', 'data-v44a-action-center-practice')\"),'Action Center alignment asset must be cache-busted without changing its loader key');",r"expect(release.includes(\"loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions')\"),'Consolidated V44 intervention owner must remain staged');"),
+              (r"expect(release.includes(\"loadScriptOnce('assignment-interventions.js?v=44b-2', 'data-v44b-shared-focus-groups')\"),'Shared Focus alignment asset must be cache-busted without changing its loader key');",r"expect(release.includes(\"loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions')\"),'Shared Focus behavior must remain inside the consolidated V44 owner');"),
+            ],
+          }
+          for file,repls in edits.items():
+            p=Path(file); s=p.read_text(); original=s
+            for old,new in repls:
+              if old not in s: raise SystemExit(f'Expected exact text not found in {file}: {old}')
+              s=s.replace(old,new,1)
+            p.write_text(s)
+            print('updated',file)
+
+          p=Path('site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs')
+          s=p.read_text()
+          old="assert.doesNotMatch(v46, /analyticsVisibleRows\\s*=|analyticsContext\\s*=|teacherResults\\s*=/,\n  'Queue export must not mutate analytics evidence');"
+          new="assert.doesNotMatch(v46, /(?:^|[;\\n])\\s*(?:analyticsVisibleRows|analyticsContext|teacherResults)\\s*=(?!=)/m,\n  'Queue export must not assign over analytics evidence');"
+          if old not in s: raise SystemExit('Expected V46 mutation guard not found')
+          p.write_text(s.replace(old,new,1))
+          print('updated',p)
+          PY
+      - name: Remove temporary workflow and commit
+        run: |
+          rm .github/workflows/phase4-assignments-ckpt2-verifier-fix-temp.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Fix consolidated intervention verifier expectations'
+          git push origin HEAD:development/phase4-teacher-assignments-v44-v48-checkpoint-2
