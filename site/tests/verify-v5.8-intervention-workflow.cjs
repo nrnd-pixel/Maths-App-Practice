@@ -8,31 +8,21 @@ const read = name => fs.readFileSync(path.join(siteRoot, name), 'utf8');
 const release = read('v40-release.js');
 const workspace = read('v58b-teacher-workspace-consolidation.js');
 const actionCenter = read('v42-teacher-action-center.js');
-const singleAssign = read('v44-action-center-practice.js');
-const groupAssign = read('v44-shared-focus-groups.js');
-const followThrough = read('v44-intervention-follow-through.js');
+const interventions = read('assignment-interventions.js');
 const queue = read('v45-intervention-queue.js');
-const outcomes = read('v45-intervention-outcomes.js');
-const history = read('v47-intervention-history.js');
-const followUp = read('v47-follow-up-from-history.js');
-const classOverview = read('v47-class-intervention-overview.js');
-const deadlines = read('v48-teacher-deadline-monitoring.js');
-const deadlineFollowUp = read('v48-deadline-follow-up.js');
+const queueSupport = read('assignment-intervention-queue-support.js');
+const historyRuntime = read('assignment-intervention-history.js');
+const deadlinesRuntime = read('assignment-deadlines.js');
 const topicProgress = read('v49-student-topic-progress.js');
 
-// 1) The established intervention chain must remain loaded in dependency order.
+// 1) The established intervention chain must remain loaded in phase order.
 const chain = [
   'v42-teacher-action-center.js',
-  'v44-action-center-practice.js',
-  'v44-shared-focus-groups.js',
-  'v44-intervention-follow-through.js',
+  'assignment-interventions.js',
   'v45-intervention-queue.js',
-  'v45-intervention-outcomes.js',
-  'v47-intervention-history.js',
-  'v47-follow-up-from-history.js',
-  'v47-class-intervention-overview.js',
-  'v48-teacher-deadline-monitoring.js',
-  'v48-deadline-follow-up.js',
+  'assignment-intervention-queue-support.js',
+  'assignment-intervention-history.js',
+  'assignment-deadlines.js',
   'v49-student-topic-progress.js'
 ];
 let previous = -1;
@@ -57,81 +47,66 @@ assert.match(actionCenter, /function noActivityLearners\(/);
 assert.doesNotMatch(actionCenter, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/,
   'Action Center must remain presentation-only over already-loaded Analytics data.');
 
-// 4) Targeted Practice preparation must remain deliberate: prefill the established
-// V4.3 builder but never create an assignment directly from Action Center code.
-assert.match(singleAssign, /Assign Practice/);
-assert.match(singleAssign, /#v43b-student-options/);
-assert.match(singleAssign, /#v43b-strand/);
-assert.match(singleAssign, /#v43b-topic/);
-assert.match(singleAssign, /#v43b-count/);
-assert.doesNotMatch(singleAssign, /create_teacher_practice_assignments_v43b|cloud\.rpc\(|cloud\.from\(/,
-  'Single-learner intervention bridge must not own assignment creation or database access.');
+// 4) V44 preparation remains deliberate: prefill V43B but never create directly.
+assert.match(interventions, /Assign Practice/);
+assert.match(interventions, /#v43b-student-options/);
+assert.match(interventions, /#v43b-strand/);
+assert.match(interventions, /#v43b-topic/);
+assert.match(interventions, /#v43b-count/);
+assert.match(interventions, /group\.learners\.length >= 2/);
+assert.match(interventions, /String\(cls\.id\),lower\(strand\),lower\(topic\)/);
+assert.doesNotMatch(interventions, /create_teacher_practice_assignments_v43b|cloud\.rpc\(|\.insert\(|\.update\(|\.delete\(/,
+  'V44 intervention bridges must remain prefill/read-only and must not create assignments themselves.');
 
-assert.match(groupAssign, /group\.learners\.length >= 2/);
-assert.match(groupAssign, /String\(cls\.id\),lower\(strand\),lower\(topic\)/);
-assert.match(groupAssign, /#v43b-student-options/);
-assert.doesNotMatch(groupAssign, /create_teacher_practice_assignments_v43b|cloud\.rpc\(|cloud\.from\(/,
-  'Shared-focus grouping must prefill only and must not create assignments itself.');
+// 5) Follow-through must detect existing work and suppress duplicate prompting.
+assert.match(interventions, /Practice: \$\{item\.status\.label\}/);
+assert.match(interventions, /assignButton\.classList\.add\('hidden'\)/);
+assert.match(interventions, /Review Practice/);
+assert.match(interventions, /\.v43b-toggle\[data-id\]/);
+assert.match(interventions, /v44c-highlight-strong/);
 
-// 5) Follow-through must detect matching existing work and suppress duplicate-assignment
-// prompting while an intervention is outstanding.
-assert.match(followThrough, /Practice: \$\{item\.status\.label\}/);
-assert.match(followThrough, /assignButton\.classList\.add\('hidden'\)/);
-assert.match(followThrough, /Review Practice/);
-assert.doesNotMatch(followThrough, /\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
-  'Intervention follow-through must remain read-only.');
-
-// 6) Queue states remain a workflow view of already-rendered intervention status.
+// 6) External V45A queue states remain a workflow view of V44 status.
 for (const state of ['needs-assignment', 'outstanding', 'completed']) {
   assert.ok(queue.includes(state), `Intervention queue must retain ${state} state`);
 }
 assert.doesNotMatch(queue, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/,
   'Intervention queue must remain presentation-only.');
 
-// 7) Completed outcomes must report the recorded Practice result, not invent a new
-// improvement score or write learning data.
-assert.match(outcomes, /Completed Practice outcome:/);
-assert.match(outcomes, /Outcome: \$\{mastery\}% mastery/);
-assert.match(outcomes, /practice_session_id/);
-assert.doesNotMatch(outcomes, /\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
-  'Completed intervention outcomes must remain read-only.');
+// 7) V45B completed outcomes and V46 export remain read-only over recorded evidence.
+assert.match(queueSupport, /Completed Practice outcome:/);
+assert.match(queueSupport, /Outcome: \$\{mastery\}% mastery/);
+assert.match(queueSupport, /practice_session_id/);
+assert.match(queueSupport, /v45bOutcomeSession/);
+assert.match(queueSupport, /Export queue CSV/);
+assert.match(queueSupport, /v45-queue-filter\[aria-pressed="true"\]/);
+assert.doesNotMatch(queueSupport, /\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
+  'Completed outcomes/export must remain read-only and must not mutate assignment or analytics data.');
 
-// 8) Learner history and follow-up must reuse the existing assignment/result records.
-assert.match(history, /Practice intervention history/);
-assert.match(history, /practice_assignments/);
-assert.match(history, /practice_assignment_attempts/);
-assert.doesNotMatch(history, /\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
-  'Intervention history must remain read-only.');
+// 8) V47 history and follow-up reuse existing assignment/result records and builder.
+assert.match(historyRuntime, /Practice intervention history/);
+assert.match(historyRuntime, /practice_assignments/);
+assert.match(historyRuntime, /practice_assignment_attempts/);
+assert.match(historyRuntime, /Assign again/);
+assert.match(historyRuntime, /#v43b-student-options/);
+assert.match(historyRuntime, /This creates a new assignment only after you review the settings and click Assign Practice/);
+assert.match(historyRuntime, /Class intervention overview/);
+assert.match(historyRuntime, /No new mastery or intervention threshold is applied/);
+assert.doesNotMatch(historyRuntime, /create_teacher_practice_assignments_v43b|\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
+  'V47 history/follow-up must remain read-only except deliberate V43B prefill.');
 
-assert.match(followUp, /Assign again/);
-assert.match(followUp, /#v43b-student-options/);
-assert.match(followUp, /This creates a new assignment only after you review the settings and click Assign Practice/);
-assert.doesNotMatch(followUp, /create_teacher_practice_assignments_v43b|\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
-  'History follow-up must only prefill the established assignment builder.');
-
-// 9) Class overview must summarize the same queue states and introduce no new thresholds.
-assert.match(classOverview, /Class intervention overview/);
-assert.match(classOverview, /Counts follow the current Analytics filters/);
-assert.match(classOverview, /No new mastery or intervention threshold is applied/);
-assert.doesNotMatch(classOverview, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/,
-  'Class intervention overview must stay read-only over the existing queue.');
-
-// 10) Deadline monitoring stays guidance-only. The follow-up write is restricted to the
-// existing assignment target date and emits the established assignment-changed event.
-assert.match(deadlines, /Target dates remain guidance only and do not block access/);
-assert.match(deadlines, /\.eq\('class_id',cls\.id\)/);
-assert.match(deadlines, /DUE_SOON_MS = 48 \* 60 \* 60 \* 1000/);
-assert.doesNotMatch(deadlines, /\.insert\(|\.update\(|\.delete\(|cloud\.rpc\(/,
-  'Deadline monitor itself must remain read-only.');
-
-assert.match(deadlineFollowUp, /closes_at:value/);
-assert.match(deadlineFollowUp, /cloud\.from\('practice_assignments'\)[\s\S]*?\.update\(payload\)/);
-assert.match(deadlineFollowUp, /math-practice-assignments-changed/);
-assert.match(deadlineFollowUp, /Target only — access stays open/);
-assert.doesNotMatch(deadlineFollowUp, /practice_assignment_attempts[\s\S]*?\.update\(|practice_sessions[\s\S]*?\.update\(/,
+// 9) Deadline monitoring stays guidance-only. V48C writes only target-date metadata
+// and emits the established assignment-changed event.
+assert.match(deadlinesRuntime, /Target dates remain guidance only and do not block access/);
+assert.match(deadlinesRuntime, /\.eq\('class_id',cls\.id\)/);
+assert.match(deadlinesRuntime, /DUE_SOON_MS = 48 \* 60 \* 60 \* 1000/);
+assert.match(deadlinesRuntime, /closes_at:value/);
+assert.match(deadlinesRuntime, /cloud\.from\('practice_assignments'\)[\s\S]*?\.update\(payload\)/);
+assert.match(deadlinesRuntime, /math-practice-assignments-changed/);
+assert.match(deadlinesRuntime, /Target only — access stays open/);
+assert.doesNotMatch(deadlinesRuntime, /practice_assignment_attempts[\s\S]*?\.update\(|practice_sessions[\s\S]*?\.update\(/,
   'Deadline target editing must not alter attempts or Practice results.');
 
-// 11) Student topic progress remains a read-only drill-down over the secure My Progress UI.
+// 10) Student topic progress remains a read-only drill-down over secure My Progress.
 assert.match(topicProgress, /Read-only drill-down/);
 assert.match(topicProgress, /View topic progress/);
 assert.match(topicProgress, /Current mastery/);
@@ -139,10 +114,13 @@ assert.match(topicProgress, /Existing improvement milestone/);
 assert.doesNotMatch(topicProgress, /cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(/,
   'Student topic progress must not create a second progress data path.');
 
+// Phase 4 checkpoint guards run through this maintained CI verifier.
+require('./verify-phase4-teacher-assignments-checkpoint2-integrity.cjs');
+require('./verify-phase4-teacher-assignments-checkpoint2-dormant-reference-integrity.cjs');
+
 console.log('V5.8 intervention workflow regression passed.');
-console.log(`- ${chain.length} established intervention modules retained in loader order`);
+console.log(`- ${chain.length} phase-preserving intervention owners/dependencies retained in loader order`);
 console.log('- Action Center remains the single teacher entry point from V5.8 Teacher Workspace');
-console.log('- Individual/shared-focus assignment actions remain prefill-only');
-console.log('- Outstanding/completed intervention states, outcomes and history remain read-only views');
+console.log('- V44/V47 assignment actions remain prefill-only; V45B/V46 remain read/export-only');
 console.log('- Deadline editing remains limited to assignment target dates');
 console.log('- Student topic progress remains presentation-only over existing secure evidence');
