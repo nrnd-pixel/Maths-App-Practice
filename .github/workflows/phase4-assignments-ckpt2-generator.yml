@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   generate:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,66 +19,42 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          {
-            cat site/v44-action-center-practice.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V44B */\n\n'
-            cat site/v44-shared-focus-groups.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V44C */\n\n'
-            cat site/v44-intervention-follow-through.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V44C clarity */\n\n'
-            cat site/v44-intervention-highlight-clarity.js
-          } > site/assignment-interventions.js
-
-          {
-            cat site/v45-intervention-outcomes.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V46A */\n\n'
-            cat site/v46-intervention-export.js
-          } > site/assignment-intervention-queue-support.js
-
-          {
-            cat site/v47-intervention-history.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V47B */\n\n'
-            cat site/v47-follow-up-from-history.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V47C */\n\n'
-            cat site/v47-class-intervention-overview.js
-          } > site/assignment-intervention-history.js
-
-          {
-            cat site/v48-teacher-deadline-monitoring.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V48B */\n\n'
-            cat site/v48-student-deadline-experience.js
-            printf '\n\n/* Phase 4 checkpoint 2 boundary: V48C */\n\n'
-            cat site/v48-deadline-follow-up.js
-          } > site/assignment-deadlines.js
-
+          { cat site/v44-action-center-practice.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V44B */\n\n'; cat site/v44-shared-focus-groups.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V44C */\n\n'; cat site/v44-intervention-follow-through.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V44C clarity */\n\n'; cat site/v44-intervention-highlight-clarity.js; } > site/assignment-interventions.js
+          { cat site/v45-intervention-outcomes.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V46A */\n\n'; cat site/v46-intervention-export.js; } > site/assignment-intervention-queue-support.js
+          { cat site/v47-intervention-history.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V47B */\n\n'; cat site/v47-follow-up-from-history.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V47C */\n\n'; cat site/v47-class-intervention-overview.js; } > site/assignment-intervention-history.js
+          { cat site/v48-teacher-deadline-monitoring.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V48B */\n\n'; cat site/v48-student-deadline-experience.js; printf '\n\n/* Phase 4 checkpoint 2 boundary: V48C */\n\n'; cat site/v48-deadline-follow-up.js; } > site/assignment-deadlines.js
       - name: Preserve loader phases while retiring historical owners
-        shell: python
+        shell: bash
         run: |
+          python - <<'PY'
           from pathlib import Path
           p=Path('site/v40-release.js')
           s=p.read_text()
           old="""    loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice');
-    loadScriptOnce('v44-shared-focus-groups.js?v=44b-2', 'data-v44b-shared-focus-groups');
-    loadScriptOnce('v44-intervention-follow-through.js?v=44c-1', 'data-v44c-intervention-follow-through');
-    loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');
-    loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
-    loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
-    loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
-    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
-    loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
-    loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
-    loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');
-    loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
-    loadScriptOnce('v48-deadline-follow-up.js?v=48c-4', 'data-v48c-deadline-follow-up');"""
+              loadScriptOnce('v44-shared-focus-groups.js?v=44b-2', 'data-v44b-shared-focus-groups');
+              loadScriptOnce('v44-intervention-follow-through.js?v=44c-1', 'data-v44c-intervention-follow-through');
+              loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');
+              loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
+              loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
+              loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
+              loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
+              loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
+              loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
+              loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');
+              loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
+              loadScriptOnce('v48-deadline-follow-up.js?v=48c-4', 'data-v48c-deadline-follow-up');"""
+          # Dedent the continuation lines to the exact 4-space loader indentation.
+          old='\n'.join(line[10:] if i else line for i,line in enumerate(old.splitlines()))
           new="""    loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions');
-    loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
-    loadScriptOnce('assignment-intervention-queue-support.js', 'data-assignment-intervention-queue-support');
-    loadScriptOnce('assignment-intervention-history.js', 'data-assignment-intervention-history');
-    loadScriptOnce('assignment-deadlines.js', 'data-assignment-deadlines');"""
+              loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
+              loadScriptOnce('assignment-intervention-queue-support.js', 'data-assignment-intervention-queue-support');
+              loadScriptOnce('assignment-intervention-history.js', 'data-assignment-intervention-history');
+              loadScriptOnce('assignment-deadlines.js', 'data-assignment-deadlines');"""
+          new='\n'.join(line[10:] if i else line for i,line in enumerate(new.splitlines()))
           if old not in s:
               raise SystemExit('Expected V44-V48 loader block not found exactly')
           p.write_text(s.replace(old,new,1))
-
+          PY
       - name: Remove generator workflow and commit generated implementation
         shell: bash
         run: |
@@ -87,6 +62,6 @@ jobs:
           rm .github/workflows/phase4-assignments-ckpt2-generator.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add site/assignment-interventions.js site/assignment-intervention-queue-support.js site/assignment-intervention-history.js site/assignment-deadlines.js site/v40-release.js .github/workflows/phase4-assignments-ckpt2-generator.yml
+          git add -A
           git commit -m 'Phase 4: consolidate assignment intervention and deadline runtime'
           git push origin HEAD:development/phase4-teacher-assignments-v44-v48-checkpoint-2
