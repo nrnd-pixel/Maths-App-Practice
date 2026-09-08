@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
@@ -51,12 +52,34 @@ for (const [file, expected] of Object.entries(protectedBlobs)) {
   assert.equal(gitObject(file), expected, `${file} must remain byte-identical to approved main`);
 }
 
+const expectedSupabaseTree = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 assert.equal(
   gitObject('supabase'),
-  '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456',
+  expectedSupabaseTree,
   'The complete Supabase tree, including every SQL migration, must remain byte-identical to approved main',
 );
 
+const sqlFiles = [];
+const walkSql = dir => {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walkSql(full);
+    else if (entry.isFile() && entry.name.endsWith('.sql')) {
+      sqlFiles.push(path.relative(repoRoot, full).replace(/\\/g, '/'));
+    }
+  }
+};
+walkSql(path.join(repoRoot, 'supabase'));
+sqlFiles.sort();
+assert.ok(sqlFiles.length > 0, 'Supabase SQL audit table must be non-empty');
+
 console.log('Phase 4 teacher assignments checkpoint 2 protected SHA audit passed.');
 console.log(`- ${Object.keys(protectedBlobs).length} protected runtime files match exact approved-main Git blob SHAs`);
-console.log('- complete Supabase tree matches exact approved-main Git tree SHA');
+console.log(`- complete Supabase tree matches exact approved-main Git tree SHA ${expectedSupabaseTree}`);
+console.log(`- ${sqlFiles.length} Supabase SQL files are covered by that exact tree match`);
+console.log('PROTECTED_RUNTIME_SHA_TABLE_BEGIN');
+for (const [file, expected] of Object.entries(protectedBlobs)) console.log(`${file}\t${expected}`);
+console.log('PROTECTED_RUNTIME_SHA_TABLE_END');
+console.log('SUPABASE_SQL_SHA_TABLE_BEGIN');
+for (const file of sqlFiles) console.log(`${file}\t${gitObject(file)}`);
+console.log('SUPABASE_SQL_SHA_TABLE_END');
