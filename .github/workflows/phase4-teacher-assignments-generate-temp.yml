@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: development/phase4-teacher-assignments-v44-v48-checkpoint2
-      - name: Generate phase-preserving modules
+      - name: Generate phase-preserving modules and loader update
         shell: bash
         run: |
           set -euo pipefail
@@ -33,15 +33,48 @@ jobs:
           concat_module site/assignment-intervention-queue-support.js site/v45-intervention-outcomes.js site/v46-intervention-export.js
           concat_module site/assignment-intervention-history.js site/v47-intervention-history.js site/v47-follow-up-from-history.js site/v47-class-intervention-overview.js
           concat_module site/assignment-deadlines.js site/v48-teacher-deadline-monitoring.js site/v48-student-deadline-experience.js site/v48-deadline-follow-up.js
-      - name: Commit generated checkpoint modules if needed
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('site/v40-release.js')
+          s=p.read_text()
+          old_lines=[
+              "    loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice');",
+              "    loadScriptOnce('v44-shared-focus-groups.js?v=44b-2', 'data-v44b-shared-focus-groups');",
+              "    loadScriptOnce('v44-intervention-follow-through.js?v=44c-1', 'data-v44c-intervention-follow-through');",
+              "    loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');",
+              "    loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');",
+              "    loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');",
+              "    loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');",
+              "    loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');",
+              "    loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');",
+              "    loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');",
+              "    loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');",
+              "    loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');",
+              "    loadScriptOnce('v48-deadline-follow-up.js?v=48c-4', 'data-v48c-deadline-follow-up');",
+          ]
+          new_lines=[
+              "    loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions');",
+              "    loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');",
+              "    loadScriptOnce('assignment-intervention-queue-support.js', 'data-assignment-intervention-queue-support');",
+              "    loadScriptOnce('assignment-intervention-history.js', 'data-assignment-intervention-history');",
+              "    loadScriptOnce('assignment-deadlines.js', 'data-assignment-deadlines');",
+          ]
+          old='\n'.join(old_lines)
+          new='\n'.join(new_lines)
+          if old in s:
+              p.write_text(s.replace(old,new,1))
+          elif new not in s:
+              raise SystemExit('expected V44-V48 loader block not found')
+          PY
+      - name: Commit generated checkpoint files if needed
         shell: bash
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add site/assignment-interventions.js site/assignment-intervention-queue-support.js site/assignment-intervention-history.js site/assignment-deadlines.js
+          git add site/assignment-interventions.js site/assignment-intervention-queue-support.js site/assignment-intervention-history.js site/assignment-deadlines.js site/v40-release.js
           if git diff --cached --quiet; then
             echo 'Generated files already current.'
             exit 0
           fi
-          git commit -m 'Phase 4: consolidate teacher intervention and deadline runtime [generated-checkpoint2]'
+          git commit -m 'Phase 4: stage teacher intervention checkpoint modules [generated-checkpoint2]'
           git push origin HEAD:development/phase4-teacher-assignments-v44-v48-checkpoint2
