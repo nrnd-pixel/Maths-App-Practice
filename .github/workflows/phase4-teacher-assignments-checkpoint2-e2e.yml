@@ -1,0 +1,51 @@
+name: Phase 4 Teacher Assignments Checkpoint 2 E2E
+
+on:
+  push:
+    branches:
+      - development/phase4-teacher-assignments-v44-v48-checkpoint-2-tests
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase4-teacher-assignments-checkpoint2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Full staged Playwright A-L and regression suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact branch head
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+      - name: Run full staged Playwright suite
+        working-directory: e2e
+        run: npm test
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: teacher-assignments-checkpoint2-playwright-report
+          path: e2e/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: teacher-assignments-checkpoint2-test-results
+          path: e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 7
