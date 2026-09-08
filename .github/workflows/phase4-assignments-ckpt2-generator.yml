@@ -30,30 +30,25 @@ jobs:
           from pathlib import Path
           p=Path('site/v40-release.js')
           s=p.read_text()
-          old="""    loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice');
-              loadScriptOnce('v44-shared-focus-groups.js?v=44b-2', 'data-v44b-shared-focus-groups');
-              loadScriptOnce('v44-intervention-follow-through.js?v=44c-1', 'data-v44c-intervention-follow-through');
-              loadScriptOnce('v44-intervention-highlight-clarity.js?v=44c-clarity-1', 'data-v44c-intervention-highlight-clarity');
-              loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
-              loadScriptOnce('v45-intervention-outcomes.js?v=45b-1', 'data-v45b-intervention-outcomes');
-              loadScriptOnce('v46-intervention-export.js?v=46a-1', 'data-v46a-intervention-export');
-              loadScriptOnce('v47-intervention-history.js?v=47a-1', 'data-v47a-intervention-history');
-              loadScriptOnce('v47-follow-up-from-history.js?v=47b-1', 'data-v47b-follow-up-from-history');
-              loadScriptOnce('v47-class-intervention-overview.js?v=47c-1', 'data-v47c-class-intervention-overview');
-              loadScriptOnce('v48-teacher-deadline-monitoring.js?v=48a-2', 'data-v48a-teacher-deadline-monitoring');
-              loadScriptOnce('v48-student-deadline-experience.js?v=48b-2', 'data-v48b-student-deadline-experience');
-              loadScriptOnce('v48-deadline-follow-up.js?v=48c-4', 'data-v48c-deadline-follow-up');"""
-          # Dedent the continuation lines to the exact 4-space loader indentation.
-          old='\n'.join(line[10:] if i else line for i,line in enumerate(old.splitlines()))
+          first="    loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice');"
+          last="    loadScriptOnce('v48-deadline-follow-up.js?v=48c-4', 'data-v48c-deadline-follow-up');"
+          start=s.index(first)
+          finish=s.index(last,start)+len(last)
+          old=s[start:finish]
+          required=[
+            'v44-action-center-practice.js','v44-shared-focus-groups.js','v44-intervention-follow-through.js','v44-intervention-highlight-clarity.js',
+            'v45-intervention-queue.js','v45-intervention-outcomes.js','v46-intervention-export.js',
+            'v47-intervention-history.js','v47-follow-up-from-history.js','v47-class-intervention-overview.js',
+            'v48-teacher-deadline-monitoring.js','v48-student-deadline-experience.js','v48-deadline-follow-up.js'
+          ]
+          missing=[name for name in required if name not in old]
+          if missing: raise SystemExit(f'Loader range missing expected entries: {missing}')
           new="""    loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions');
-              loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
-              loadScriptOnce('assignment-intervention-queue-support.js', 'data-assignment-intervention-queue-support');
-              loadScriptOnce('assignment-intervention-history.js', 'data-assignment-intervention-history');
-              loadScriptOnce('assignment-deadlines.js', 'data-assignment-deadlines');"""
-          new='\n'.join(line[10:] if i else line for i,line in enumerate(new.splitlines()))
-          if old not in s:
-              raise SystemExit('Expected V44-V48 loader block not found exactly')
-          p.write_text(s.replace(old,new,1))
+    loadScriptOnce('v45-intervention-queue.js?v=45a-1', 'data-v45a-intervention-queue');
+    loadScriptOnce('assignment-intervention-queue-support.js', 'data-assignment-intervention-queue-support');
+    loadScriptOnce('assignment-intervention-history.js', 'data-assignment-intervention-history');
+    loadScriptOnce('assignment-deadlines.js', 'data-assignment-deadlines');"""
+          p.write_text(s[:start]+new+s[finish:])
           PY
       - name: Remove generator workflow and commit generated implementation
         shell: bash
