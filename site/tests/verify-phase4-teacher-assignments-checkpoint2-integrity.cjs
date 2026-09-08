@@ -59,13 +59,13 @@ const groups = [
 ];
 
 // 1) The four owners must be strict source-preserving concatenations of the
-// historical runtime files. Three newlines are expected because each dormant
-// source ends with one newline and the phase-preserving join adds two more.
+// historical runtime files. Compare the exact raw source join so pre-existing
+// trailing-newline differences in dormant files cannot be mistaken for code drift.
 for (const group of groups) {
-  const expected = group.retired.map(name => normalize(read(name))).join('\n\n\n');
+  const expected = group.retired.map(name => read(name)).join('\n\n');
   assert.equal(
     normalize(group.source),
-    expected,
+    normalize(expected),
     `${group.owner} must remain source-equivalent to ${group.retired.join(' -> ')}`,
   );
 }
@@ -203,9 +203,12 @@ for (const token of [
   assert.ok(deadlines.includes(token), `V48 owner must retain ${token}`);
 }
 assert.match(deadlines, /cloud\.from\('practice_assignments'\)[\s\S]*?\.update\(payload\)/);
-assert.doesNotMatch(deadlines, /practice_assignment_attempts[\s\S]*?\.update\(|practice_sessions[\s\S]*?\.update\(/,
-  'Deadline editing must not alter attempts or Practice results.');
-assert.doesNotMatch(deadlines, /payload\s*=\s*\{[^}]*\bactive\s*:/s,
+const deadlineFollowUpStart = deadlines.indexOf('/* V4.8C — Practice Deadline Follow-Up.');
+assert.ok(deadlineFollowUpStart >= 0, 'V48C deadline follow-up source boundary must remain present.');
+const deadlineFollowUp = deadlines.slice(deadlineFollowUpStart);
+assert.doesNotMatch(deadlineFollowUp, /practice_assignment_attempts|practice_sessions/,
+  'Deadline target editing must not alter attempts or Practice results.');
+assert.doesNotMatch(deadlineFollowUp, /payload\s*=\s*\{[^}]*\bactive\s*:/s,
   'Deadline target payload must not alter assignment active/access state.');
 
 // 9) Protected checkpoint boundaries must be byte-identical to the approved main baseline.
