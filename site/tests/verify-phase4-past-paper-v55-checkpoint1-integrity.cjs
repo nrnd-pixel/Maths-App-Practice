@@ -8,6 +8,8 @@ const config=read('config.js');
 const core=read('past-paper-core.js');
 const resume=read('past-paper-resume.js');
 const results=read('past-paper-results.js');
+const retiredV55b=read('v55b-full-paper-practice.js');
+const v53d5=read('v53d5-practice-selection-intelligence.js');
 const stable=read('v55-stable-release-checkpoint.js');
 const v56b=read('v56b-teacher-assigned-past-paper-practice.js');
 const v56c=read('v56c-student-past-paper-progress.js');
@@ -87,6 +89,25 @@ assert.match(core,/state\.v55a_practice_type = practiceType/);
 assert.match(core,/state\.v55a_exam_year = selectedYear\(\)/);
 assert.match(core,/state\.v55a_paper = selectedPaper\(\)/);
 assert.match(core,/state\.v55b_paper_scope = 'all_available'/);
+
+// The accepted V55B source-order algorithm itself must remain character-for-character
+// identical. Runtime ownership is separately guarded below because V53D5 can assign
+// the global shuffle function after the staged V55 script has been queued.
+function orderingBlock(source){
+  const start=source.indexOf('  function questionOrderKey(item){');
+  const sortStart=source.indexOf('  function sortSourceOrder(items){',start);
+  const end=source.indexOf('\n\n  function ',sortStart+1);
+  assert.ok(start>=0&&sortStart>start&&end>sortStart,'Could not isolate V55B source-order functions');
+  return source.slice(start,end);
+}
+assert.equal(orderingBlock(core),orderingBlock(retiredV55b),
+  'Consolidated questionOrderKey/sortSourceOrder must be character-for-character identical to retired V55B.');
+assert.match(v53d5,/function installSelection\(\)[\s\S]*shuffle = smartShuffle[\s\S]*ROOT\.shuffle = smartShuffle/,
+  'V53D5 must still be recognized as an earlier global shuffle owner.');
+assert.match(core,/function selectionStackSettled\(\)[\s\S]*__v53d5PracticeSelectionInstalled[\s\S]*__v53d5PracticeSelectionRpcBridge/,
+  'Core must wait until V53D5 selection/RPC ownership is settled before capturing shuffle.');
+assert.match(core,/if \(!selectionStackSettled\(\)\) return false;/,
+  'Core wrapper installation must not race V53D5 global shuffle installation.');
 
 // Resume is a separate outer wrapper and retains the exact temporal contracts V57A consumes.
 assert.match(resume,/if \(!ROOT\.__phase4PastPaperCoreWrappersInstalled\) return false/,
@@ -174,6 +195,7 @@ assert.doesNotMatch(active,/cloud\.from\('practice_sessions'\)|cloud\.from\('ses
 console.log('Phase 4 Past Paper V55 Checkpoint 1 integrity checks passed.');
 console.log('- six historical V55 loaders retired; core -> resume -> results staged in order');
 console.log('- historical V55 globals, flags, DOM and V55C storage/helper API retained');
+console.log('- V55B source-order algorithm remains character-for-character identical; wrapper waits for settled V53D5 ownership');
 console.log('- resume remains outside core; local-resume short circuit and synchronous next boundary retained');
 console.log('- local finish cleanup remains finally-protected; result attribution remains outside resume');
 console.log('- untouched V57A/V58.1A function-level wrapper composition remains compatible');
