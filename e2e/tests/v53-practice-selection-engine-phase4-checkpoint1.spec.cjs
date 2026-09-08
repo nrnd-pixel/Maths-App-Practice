@@ -109,20 +109,30 @@ test.describe('Phase 4 V53 deterministic Practice selection engine',()=>{
     await page.evaluate(()=>window.__installCloud());
     await waitForD5(page);
 
-    const atReady=await page.evaluate(()=>({fn:window.shuffle,assignments:window.__shuffleAssignments.length}));
-    await page.waitForTimeout(650);
-    const after=await page.evaluate(()=>({fn:window.shuffle,assignments:window.__shuffleAssignments.length}));
-
-    expect(after.assignments).toBe(atReady.assignments);
-    expect(await page.evaluate(([a,b])=>a===b,[atReady.fn,after.fn]).catch(()=>false)).toBe(false);
-    // Function handles cannot be round-tripped through evaluate arguments; identity is
-    // therefore also checked in-page with a stable sentinel captured at readiness.
-    const stable=await page.evaluate(async()=>{
-      window.__readyShuffle=window.shuffle;
-      await new Promise(resolve=>setTimeout(resolve,350));
-      return window.shuffle===window.__readyShuffle;
+    // Capture the actual final-owner function inside the browser realm. Function
+    // identity cannot be meaningfully serialized through Playwright, so both the
+    // identity check and the setter-count check remain in-page for the full wait.
+    const stability=await page.evaluate(async()=>{
+      const readyShuffle=window.shuffle;
+      const readyAssignments=window.__shuffleAssignments.length;
+      const readyAt=performance.now();
+      await new Promise(resolve=>setTimeout(resolve,1200));
+      return {
+        sameOwner:window.shuffle===readyShuffle,
+        readyAssignments,
+        finalAssignments:window.__shuffleAssignments.length,
+        waitedMs:performance.now()-readyAt,
+        markers:{
+          d3:window.cloud.__v53d3PracticeSelectionRpcBridge,
+          d5:window.cloud.__v53d5PracticeSelectionRpcBridge
+        }
+      };
     });
-    expect(stable).toBe(true);
+
+    expect(stability.waitedMs).toBeGreaterThanOrEqual(1100);
+    expect(stability.markers).toEqual({d3:true,d5:true});
+    expect(stability.sameOwner).toBe(true);
+    expect(stability.finalAssignments).toBe(stability.readyAssignments);
   });
 
   test('C - D4 recommendation routing is always underneath D5 previousRpc',async({page})=>{
