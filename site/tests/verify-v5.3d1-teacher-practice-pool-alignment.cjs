@@ -14,6 +14,7 @@ const studentSource=read('assignments-student.js');
 const studentSql=fs.readFileSync(path.resolve(root,'../supabase/v53d1_practice_assignment_resource_alignment.sql'),'utf8');
 const teacherSql=fs.readFileSync(path.resolve(root,'../supabase/v53d1_teacher_assignment_creation_alignment.sql'),'utf8');
 const release=read('v40-release.js');
+const claritySource=read('practice-ui-resource-clarity.js');
 const api=require('../assignments-core.js');
 
 function expect(condition,message){if(!condition)throw new Error(message);}
@@ -66,7 +67,9 @@ expect(!/grant execute[^;]+to anon/i.test(teacherSql),'teacher creation RPCs mus
 
 expect(release.includes("loadScriptOnce('practice-selection-engine.js'"),'consolidated V53 Practice engine must remain loaded');
 expect(!release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js"),'historical V53B source must remain dormant');
-expect(release.includes("loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1'"),'V5.3C two-mode student UI must remain loaded');
+expect(release.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity')"),'consolidated V53C/D6 UI-resource owner must remain loaded');
+expect(claritySource.includes('/* V5.3C — Two-mode student UI.'),'consolidated UI-resource owner must retain the V5.3C two-mode student UI section');
+expect(claritySource.includes("Object.defineProperty(window,'V53CTwoModeStudentUi'"),'consolidated UI-resource owner must retain the V53C compatibility API');
 expect(release.includes("loadScriptOnce('assignments-core.js', 'data-assignments-core')"),'consolidated assignment core must be loaded');
 expect(release.includes("loadScriptOnce('assignments-student.js', 'data-assignments-student')"),'consolidated assignment student runtime must be loaded');
 expect(release.includes("loadScriptOnce('assignments-teacher.js', 'data-assignments-teacher')"),'consolidated assignment teacher runtime must be loaded');
