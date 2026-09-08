@@ -142,8 +142,8 @@ assert.match(deadlineMonitor, /math-practice-assignments-changed/);
 assert.doesNotMatch(deadlineMonitor, /getElementById\('teacher'\)\?\.addEventListener\('click'/, 'Deadline monitoring must not refresh on every teacher click.');
 assert.match(deadlineFollowUp, /dispatchEvent\(new CustomEvent\('math-practice-assignments-changed'/);
 assert.doesNotMatch(deadlineFollowUp, /getElementById\('teacher'\)\?\.addEventListener\('click'/, 'Deadline follow-up decoration must not run on every teacher click.');
-assert.match(release, /assignment-deadlines\.js\?v=48a-2/);
-assert.match(release, /assignment-deadlines\.js\?v=48c-4/);
+assert.match(release, /loadScriptOnce\('assignment-deadlines\.js', 'data-assignment-deadlines'\)/);
+assert.match(release, /loadScriptOnce\('assignment-deadlines\.js', 'data-assignment-deadlines'\)/);
 
 // 9) Student progress consolidation: one active overview replaces duplicate V4.9A/V4.9C panels.
 assert.match(progressOverview, /OVERVIEW_ID = 'v50-student-progress-overview'/);

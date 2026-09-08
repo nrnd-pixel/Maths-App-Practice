@@ -18,7 +18,7 @@ new vm.Script(hardening,{filename:'v50-security-hardening.js'});
 new vm.Script(audit,{filename:'v50-release-audit.js'});
 
 // Loader stability + RC2 modules.
-assert.match(release,/assignment-intervention-history\.js\?v=47a-1/,'V4.7 history loader must remain stable.');
+assert.match(release,/loadScriptOnce\('assignment-intervention-history\.js', 'data-assignment-intervention-history'\)/,'Consolidated V4.7 history owner must remain staged.');
 assert.match(release,/v50-teacher-operations\.js\?v=50d2-1/,'D2 loader must remain stable.');
 assert.match(release,/v50-security-hardening\.js\?v=50rc2-1', 'data-v50-security-hardening'/);
 assert.match(release,/v50-release-audit\.js\?v=50rc2-1', 'data-v50-release-audit'/);

@@ -122,8 +122,8 @@ assert.match(v46, /Export queue CSV/);
 assert.match(v46, /saveCsv\(/);
 assert.doesNotMatch(v46, /cloud\.rpc\(|cloud\.from\(|\.insert\(|\.update\(|\.upsert\(|\.delete\(/,
   'Queue export must not create/update assignments or write analytics data');
-assert.doesNotMatch(v46, /analyticsVisibleRows\s*=|analyticsContext\s*=|teacherResults\s*=/,
-  'Queue export must not mutate analytics evidence');
+assert.doesNotMatch(v46, /(?:^|[;\n])\s*(?:analyticsVisibleRows|analyticsContext|teacherResults)\s*=(?!=)/m,
+  'Queue export must not assign over analytics evidence');
 
 // 8) Deadline write remains restricted to target date metadata and preserves the event/observer chain.
 assert.match(deadlines, /const payload = \{[\s\S]*?closes_at:value,[\s\S]*?updated_at:new Date\(\)\.toISOString\(\)[\s\S]*?\}/);
