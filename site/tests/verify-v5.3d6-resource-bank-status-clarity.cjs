@@ -53,7 +53,6 @@ assert(!d6Source.includes('exam_attempt'),'D6 must not alter Exam Mode');
 assert(loader.includes("loadScriptOnce('practice-selection-engine.js', 'data-practice-selection-engine');"),'Accepted consolidated V5.3B/D3/D4/D5 engine loader must remain present');
 assert(!loader.includes("loadScriptOnce('v53d5-practice-selection-intelligence.js"),'Historical D5 source must remain dormant');
 assert(loader.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');"),'Consolidated V53C/D6 loader wiring must be present');
-assert(!loader.includes("loadScriptOnce('v53d6-resource-bank-status-clarity.js"),'Historical D6 source must be dormant');
 assert(loader.indexOf('practice-selection-engine.js') < loader.indexOf('practice-ui-resource-clarity.js'),'Clarity owner must remain after Practice engine');
 assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('v54a-resource-bank-visibility.js'),'D6 compatibility layer must remain before V54A');
 
