@@ -64,7 +64,8 @@ expect(!teacherSql.includes('q.active=true')&&!teacherSql.includes('q.active = t
 expect(teacherSql.includes('to authenticated,service_role'),'teacher creation RPCs must remain signed-in teacher routes');
 expect(!/grant execute[^;]+to anon/i.test(teacherSql),'teacher creation RPCs must not be executable by anon');
 
-expect(release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1'"),'V5.3B unified Practice bridge must remain loaded');
+expect(release.includes("loadScriptOnce('practice-selection-engine.js'"),'consolidated V53 Practice engine must remain loaded');
+expect(!release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js"),'historical V53B source must remain dormant');
 expect(release.includes("loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1'"),'V5.3C two-mode student UI must remain loaded');
 expect(release.includes("loadScriptOnce('assignments-core.js', 'data-assignments-core')"),'consolidated assignment core must be loaded');
 expect(release.includes("loadScriptOnce('assignments-student.js', 'data-assignments-student')"),'consolidated assignment student runtime must be loaded');
