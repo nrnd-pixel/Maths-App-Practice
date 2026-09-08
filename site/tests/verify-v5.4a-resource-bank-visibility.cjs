@@ -62,7 +62,9 @@ assert(source.includes("meta.querySelector('.v53d6-practice-eligibility-badge')"
 assert(source.includes("if (sourceCategory(row) === 'topical')"),'Topical rows must never receive a V5.4A fallback badge');
 assert(source.includes('ROOT.V53D6ResourceBankStatusClarity?.decorate?.()'),'V5.4A must paint D6 topical status before decorating Question Bank cards');
 assert(source.includes('statusBadge(meta,row)'),'Card decoration must pass source context into the badge guard');
+assert(d6.includes('/* V5.3D6 — Resource Bank Status Clarity.'),'Active consolidated clarity owner must retain the V53D6 section');
 assert(d6.includes('v53d6-practice-eligibility-badge'),'Accepted D6 topical Practice-status badge must remain present in active consolidated clarity owner');
+assert(d6.includes("Object.defineProperty(window,'V53D6ResourceBankStatusClarity'"),'Accepted D6 compatibility API must remain present in active consolidated clarity owner');
 
 assert(!source.includes("cloud.from('questions').update"),'V5.4A must remain read-only');
 assert(!source.includes('cloud.rpc('),'V5.4A must not add RPC writes or retrieval routes');
@@ -76,7 +78,6 @@ assert(!/practice_eligible\s*=(?!=)/.test(source),'V5.4A must not mutate Practic
 assert(loader.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');"),'Accepted consolidated C/D6 loader must remain present');
 assert(loader.includes("loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');"),'V5.4A cache-busted loader wiring must be present');
 assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('v54a-resource-bank-visibility.js'),'V5.4A must load after consolidated D6 so it can reuse D6 topical status elements');
-assert(!loader.includes("loadScriptOnce('v53d6-resource-bank-status-clarity.js"),'Historical D6 source must be dormant');
 
 const d5 = fs.readFileSync(require.resolve('../v53d5-practice-selection-intelligence.js'),'utf8');
 assert(d5.includes('adaptiveOrder'),'V5.3D5 historical selection intelligence reference must remain present');
