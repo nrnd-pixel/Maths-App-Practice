@@ -3,9 +3,9 @@ const path=require('path');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const featureSource=read('v55c-resume-past-paper-practice.js');
+const featureSource=read('past-paper-resume.js');
 const config=read('config.js');
-const feature=require(path.join(root,'v55c-resume-past-paper-practice.js'));
+const feature=require(path.join(root,'past-paper-resume.js'));
 
 function expect(condition,message){
   if(!condition) throw new Error(message);
@@ -79,7 +79,10 @@ expect(featureSource.includes('checkpointCurrentBoundary();'),'progress must be 
 expect(featureSource.includes('const pool = await getQuestions();'),'resume must re-fetch the current authorized Practice bank');
 expect(featureSource.includes('applyCheckpointToItems(snapshot, items)'),'resume must validate saved question IDs against current eligible questions');
 expect(featureSource.includes("removeCheckpoint(found.key)"),'changed or replaced saved sessions must be discardable');
-expect(config.includes("'./v55c-resume-past-paper-practice.js'"),'V5.5C script must be loaded by config');
-expect(config.indexOf("'./v55b-full-paper-practice.js'") < config.indexOf("'./v55c-resume-past-paper-practice.js'"),'V5.5C must load after V5.5B');
+expect(featureSource.includes('if (await restoreFromCheckpoint(found)) return;'),'explicit resume must short-circuit without entering fresh-start core');
+expect(featureSource.includes('const wrappedNextQuestion = function(...args)'),'nextQuestion wrapper must remain synchronous for V57A');
+expect(featureSource.includes('} finally {'),'finishPractice cleanup must remain finally-protected');
+expect(config.includes("'./past-paper-resume.js'"),'consolidated V5.5C resume must be loaded by config');
+expect(config.indexOf("'./past-paper-core.js'") < config.indexOf("'./past-paper-resume.js'"),'resume must load after and outside the Past Paper core');
 
 console.log('V5.5C Resume Past Paper Practice regression passed.');
