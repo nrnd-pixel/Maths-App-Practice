@@ -94,6 +94,13 @@ jobs:
               "assert.deepEqual(Array.from(cohorts.assigned,row=>row.roster_student_id),['s3','s4']);"
           )
 
+          # V5.8B must verify the active consolidated V56D owner, not the retired browser source.
+          replace_once(
+              'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs',
+              "const pastPaper=fs.readFileSync(path.join(root,'v56d-teacher-past-paper-analytics.js'),'utf8');",
+              "const pastPaper=fs.readFileSync(path.join(root,'past-paper-analytics.js'),'utf8');"
+          )
+
           # Restore exact historical V57A formatting; do not relax source-equivalence protection.
           replace_once(
               'site/past-paper-cross-device.js',
@@ -108,6 +115,7 @@ jobs:
           node site/tests/verify-phase4-past-paper-v56-v57-dormant-reference-integrity.cjs
           node site/tests/verify-v5.5c1-resume-button-bridge.cjs
           node site/tests/verify-v5.7d-past-paper-analytics-actions.cjs
+          node site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs
       - name: Commit and push implementation fixes
         run: |
           git config user.name 'nrnd-pixel'
@@ -115,6 +123,7 @@ jobs:
           git add e2e/tests/past-paper-phase4-v56-v57.spec.cjs \
                   site/past-paper-cross-device.js \
                   site/tests/verify-v5.5c1-resume-button-bridge.cjs \
-                  site/tests/verify-v5.7d-past-paper-analytics-actions.cjs
+                  site/tests/verify-v5.7d-past-paper-analytics-actions.cjs \
+                  site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs
           git commit -m 'Phase 4 Past Paper: finalize A-J and verifier gates'
           git push origin HEAD:tech-debt-phase-4-past-paper-v56-v57-v58-checkpoint-1
