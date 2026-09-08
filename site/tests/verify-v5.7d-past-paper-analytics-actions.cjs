@@ -1,13 +1,21 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const root = path.resolve(__dirname,'..');
-const modulePath = path.join(root,'v57d-past-paper-analytics-actions.js');
+const modulePath = path.join(root,'past-paper-analytics-actions.js');
 const configPath = path.join(root,'config.js');
-const source = fs.readFileSync(modulePath,'utf8');
+const combined = fs.readFileSync(modulePath,'utf8');
+const d1Marker='/* V5.7D.1 — Focus Plan Copy Fallback.';
+const d1Start=combined.indexOf(d1Marker);
+assert.ok(d1Start>0,'Consolidated analytics-actions owner must contain V57D followed by V57D1');
+const source=combined.slice(0,d1Start);
 const config = fs.readFileSync(configPath,'utf8');
-const api = require(modulePath);
+const sandbox={module:{exports:{}},exports:{},console};
+vm.createContext(sandbox);
+new vm.Script(source,{filename:'past-paper-analytics-actions.v57d.js'}).runInContext(sandbox);
+const api=sandbox.module.exports;
 
 const students = [
   {roster_student_id:'s1',student_name:'Student One',student_id:'S1',progress_status:'not_started',session_count:0,teacher_assignment:null,questions_practised:0,available_questions:39},
@@ -18,17 +26,16 @@ const students = [
 ];
 
 assert.equal(api.paperKey(2025,' Paper 1 '),'2025|paper 1');
-assert.equal(api.unassignedCandidate(students[0]),true,'not-started learner without assignment should be targetable');
-assert.equal(api.unassignedCandidate(students[4]),false,'fully covered learner should not be in unassigned-incomplete cohort');
-assert.equal(api.supportCandidate(students[1]),true,'low recent metrics without unfinished assignment should be support candidate');
-assert.equal(api.supportCandidate(students[2]),false,'unfinished teacher assignment must exclude duplicate support assignment preparation');
-assert.equal(api.supportCandidate(students[3]),true,'completed assignment may be prepared for deliberate re-practice');
-assert.equal(api.supportCandidate(students[4]),false,'secure recent performance should not be support candidate');
-
+assert.equal(api.unassignedCandidate(students[0]),true);
+assert.equal(api.unassignedCandidate(students[4]),false);
+assert.equal(api.supportCandidate(students[1]),true);
+assert.equal(api.supportCandidate(students[2]),false);
+assert.equal(api.supportCandidate(students[3]),true);
+assert.equal(api.supportCandidate(students[4]),false);
 const cohorts = api.cohortsFromData({students});
-assert.deepEqual(cohorts.unassigned.map(row=>row.roster_student_id),['s1','s2']);
-assert.deepEqual(cohorts.support.map(row=>row.roster_student_id),['s2','s4']);
-assert.deepEqual(cohorts.assigned.map(row=>row.roster_student_id),['s3','s4']);
+assert.deepEqual(Array.from(cohorts.unassigned,row=>row.roster_student_id),['s1','s2']);
+assert.deepEqual(Array.from(cohorts.support,row=>row.roster_student_id),['s2','s4']);
+assert.deepEqual(Array.from(cohorts.assigned,row=>row.roster_student_id),['s3','s4']);
 
 const plan = api.focusPlanText({
   class:{class_name:'6A'},selected:{exam_year:2025,paper:'Paper 1'},
@@ -45,30 +52,32 @@ assert.match(plan,/Student Two/);
 assert.match(plan,/Q12/);
 assert.match(plan,/Fractions/);
 
-assert.match(source,/Preparation only:/,'teacher must be told that analytics actions do not auto-create assignments');
+assert.match(source,/Preparation only:/);
 assert.match(source,/data-v57d-prepare="unassigned"/);
 assert.match(source,/data-v57d-prepare="support"/);
 assert.match(source,/V57BTeacherAssignmentManagement/);
+assert.match(source,/api\.openOverlay\(\)/,'V57D must delegate management to untouched V57B.');
 assert.match(source,/v56b-past-paper-assignment-admin/);
 assert.match(source,/v56b-audience/);
 assert.match(source,/v56b-student-options/);
 assert.match(source,/v56b-paper/);
 assert.match(source,/get_teacher_past_paper_analytics_v56d/);
-assert.doesNotMatch(source,/create_teacher_past_paper_assignments_v56b/,'V5.7D must never directly create assignments');
-assert.doesNotMatch(source,/update_teacher_past_paper_assignment_v57b|reassign_teacher_past_paper_assignment_v57b/,'V5.7D must leave assignment writes to existing explicit management controls');
-assert.doesNotMatch(source,/cloud\.from\(/,'V5.7D should not write tables directly');
-assert.doesNotMatch(source,/v56b-save[^\n]{0,100}\.click\(/,'V5.7D must not click the final Assign button automatically');
-assert.doesNotMatch(source,/correct_answer|correctAnswer|service_role/i,'analytics actions must not expose answer keys or privileged credentials');
-assert.doesNotMatch(source,/localStorage|sessionStorage/,'V5.7D does not need browser persistence');
+assert.doesNotMatch(combined,/create_teacher_past_paper_assignments_v56b/,'Analytics actions must never directly create assignments');
+assert.doesNotMatch(combined,/update_teacher_past_paper_assignment_v57b|reassign_teacher_past_paper_assignment_v57b/,'Analytics actions must leave assignment writes to explicit management controls');
+assert.doesNotMatch(combined,/cloud\.from\(/);
+assert.doesNotMatch(source,/v56b-save[^\n]{0,100}\.click\(/,'V57D must not click the final Assign button automatically');
+assert.doesNotMatch(combined,/correct_answer|correctAnswer|service_role/i);
+assert.doesNotMatch(combined,/localStorage|sessionStorage/);
 
-const v56d = config.indexOf("'./v56d-teacher-past-paper-analytics.js'");
+const analyticsIndex = config.indexOf("'./past-paper-analytics.js'");
 const v57b = config.indexOf("'./v57b-teacher-assignment-management.js'");
 const v57c = config.indexOf("'./v57c-student-continue-learning-home.js'");
-const v57d = config.indexOf("'./v57d-past-paper-analytics-actions.js'");
-assert.ok(v56d>=0 && v57b>v56d && v57c>v57b && v57d>v57c,'V5.7D must load after analytics, assignment management and Continue Learning Home');
+const actionsIndex = config.indexOf("'./past-paper-analytics-actions.js'");
+assert.ok(analyticsIndex>=0 && v57b>analyticsIndex && v57c>v57b && actionsIndex>v57c,
+  'Consolidated analytics actions must load at the former V57D phase after analytics, V57B and V57C');
 assert.match(config,/performs no automatic assignment\s+writes/i);
 
 console.log('V5.7D Past Paper Analytics Actions regression passed.');
 console.log('- unassigned and support cohorts use safe non-duplicate rules');
 console.log('- actions prepare the existing assignment form instead of writing automatically');
-console.log('- assignment manager and copyable teaching focus plan are available');
+console.log('- untouched V57B assignment manager remains the delegated management owner');

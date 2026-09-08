@@ -4,12 +4,12 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const site = path.join(__dirname,'..');
-const source = fs.readFileSync(path.join(site,'v56c-student-past-paper-progress.js'),'utf8');
+const source = fs.readFileSync(path.join(site,'past-paper-progress.js'),'utf8');
 const config = fs.readFileSync(path.join(site,'config.js'),'utf8');
 const sql = fs.readFileSync(path.join(site,'..','supabase','v56c_student_past_paper_progress.sql'),'utf8');
 
-new vm.Script(source,{filename:'v56c-student-past-paper-progress.js'});
-const api = require(path.join(site,'v56c-student-past-paper-progress.js'));
+new vm.Script(source,{filename:'past-paper-progress.js'});
+const api = require(path.join(site,'past-paper-progress.js'));
 
 assert.equal(api.RPC_NAME,'get_student_past_paper_progress_v56c');
 assert.equal(api.paperKey(2025,' Paper 1 '),'2025|paper 1');
@@ -17,14 +17,12 @@ assert.equal(api.progressPercent(0,39),0);
 assert.equal(api.progressPercent(18,39),46);
 assert.equal(api.progressPercent(100,39),100);
 assert.equal(api.progressPercent(4,0),0);
-
 assert.equal(api.serverStatus({progress_status:'completed'}),'completed');
 assert.equal(api.serverStatus({progress_status:'in_progress'}),'in_progress');
 assert.equal(api.serverStatus({progress_status:'unexpected'}),'not_started');
 assert.equal(api.statusLabel('completed'),'Completed');
 assert.equal(api.statusLabel('in_progress'),'In progress');
 assert.equal(api.statusLabel('not_started'),'Not started');
-
 assert.equal(api.assignmentLabel(null),'');
 assert.equal(api.assignmentLabel({status:'not_started'}),'Teacher assigned');
 assert.equal(api.assignmentLabel({status:'in_progress'}),'Teacher assigned · in progress');
@@ -35,15 +33,8 @@ const mockStorage = {store:{
   b:{version:1,studentId:'ST-2',studentName:'Student Two',yearLevel:6,examYear:2024,paper:'Paper 1',savedAt:'2026-09-02T07:00:00Z',questionIds:['a'],nextIndex:1}
 }};
 const originalApi = globalThis.V55CResumePastPaperPractice;
-globalThis.V55CResumePastPaperPractice = {
-  readStore: storage => storage.store,
-  pruneStore: store => store
-};
-const resume = api.resumeForPaper(
-  {exam_year:2024,paper:'Paper 1'},
-  {student_id:'ST-1',student_name:'Student One'},
-  mockStorage
-);
+globalThis.V55CResumePastPaperPractice = {readStore: storage => storage.store,pruneStore: store => store};
+const resume = api.resumeForPaper({exam_year:2024,paper:'Paper 1'},{student_id:'ST-1',student_name:'Student One'},mockStorage);
 assert.equal(resume.studentId,'ST-1');
 assert.equal(api.clientStatus({progress_status:'completed'},resume),'in_progress');
 assert.equal(api.paperAction({progress_status:'completed'},resume),'continue');
@@ -74,9 +65,9 @@ assert.match(sql,/roster_student_id=v_ticket\.roster_student_id/);
 assert.match(sql,/revoke all on function public\.get_student_past_paper_progress_v56c\(text\) from public/);
 assert.match(sql,/grant execute on function public\.get_student_past_paper_progress_v56c\(text\) to anon,authenticated,service_role/);
 
-const v56bIndex = config.indexOf("'./v56b-teacher-assigned-past-paper-practice.js'");
-const v56cIndex = config.indexOf("'./v56c-student-past-paper-progress.js'");
-assert.ok(v56bIndex >= 0,'V5.6B must remain loaded');
-assert.ok(v56cIndex > v56bIndex,'V5.6C must load after V5.6B');
+const assignmentsIndex = config.indexOf("'./past-paper-assignments.js'");
+const progressIndex = config.indexOf("'./past-paper-progress.js'");
+assert.ok(assignmentsIndex >= 0,'Past Paper assignments must remain loaded');
+assert.ok(progressIndex > assignmentsIndex,'Past Paper progress must load after assignments');
 
 console.log('V5.6C student Past Paper progress regression passed.');
