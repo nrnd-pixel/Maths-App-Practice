@@ -1,9 +1,10 @@
-name: Phase 4 Teacher Assignments Checkpoint 2 E2E
+name: Phase 4 Teacher Assignments Checkpoint 2 Validation
 
 on:
   push:
     branches:
-      - development/phase4-teacher-assignments-v44-v48-checkpoint-2-tests
+      - tech-debt-phase-4-teacher-assignments-v44-v47-v48-checkpoint-2
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,25 +15,52 @@ concurrency:
 
 jobs:
   validate:
-    name: Full staged Playwright A-L and regression suite
+    name: Maintained verifiers, protected SHA audit, and full staged Playwright A-L
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Check out exact branch head
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Run maintained verifier suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t verifiers < <(
+            sed -n '/^[[:space:]]*verifiers=(/,/^[[:space:]]*)/p' .github/workflows/ci.yml \
+              | grep -o '"site/tests/verify-[^"]*\.cjs"' \
+              | tr -d '"'
+          )
+          if [ "${#verifiers[@]}" -eq 0 ]; then
+            echo "::error::Could not discover the maintained verifier list from Consolidated CI"
+            exit 1
+          fi
+          echo "Running ${#verifiers[@]} maintained verifier scripts..."
+          for verifier in "${verifiers[@]}"; do
+            echo "==> ${verifier}"
+            node "${verifier}"
+          done
+
+      - name: Run Checkpoint 2 protected SHA audit
+        run: node site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs
+
       - name: Install E2E dependencies
         working-directory: e2e
         run: npm install --no-audit --no-fund
+
       - name: Install Playwright Chromium
         working-directory: e2e
         run: npx playwright install --with-deps chromium
+
       - name: Run full staged Playwright suite
         working-directory: e2e
         run: npm test
+
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -41,6 +69,7 @@ jobs:
           path: e2e/playwright-report
           if-no-files-found: ignore
           retention-days: 7
+
       - name: Upload traces on failure
         if: failure()
         uses: actions/upload-artifact@v4
