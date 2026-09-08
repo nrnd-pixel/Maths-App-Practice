@@ -80,8 +80,8 @@ assert.match(engine,/function installFinalShuffle\s*\(/,'one final D5 shuffle in
 
 // B owns multipart grouping exactly once in the coordinated installer.
 assert.match(engine,/function installMultipartKeyOnce\s*\(/,'single multipart installer must exist');
-assert.equal((engine.match(/multipartKey\s*=\s*unifiedMultipartKey/g)||[]).length,1,'lexical multipartKey assignment must have one B-owned site');
-assert.equal((engine.match(/ROOT\.multipartKey\s*=\s*unifiedMultipartKey/g)||[]).length,1,'ROOT multipartKey assignment must have one B-owned site');
+assert.equal((engine.match(/^\s*multipartKey\s*=\s*unifiedMultipartKey\s*;/gm)||[]).length,1,'lexical multipartKey assignment must have one B-owned site');
+assert.equal((engine.match(/^\s*ROOT\.multipartKey\s*=\s*unifiedMultipartKey\s*;/gm)||[]).length,1,'ROOT multipartKey assignment must have one B-owned site');
 
 // Routing isolation contracts retained from the historical B/D3 modules.
 for(const token of [
