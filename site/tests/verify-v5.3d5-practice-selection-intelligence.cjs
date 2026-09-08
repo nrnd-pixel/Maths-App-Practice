@@ -4,10 +4,13 @@ const path = require('path');
 
 const modulePath = path.join(__dirname,'..','practice-selection-engine.js');
 const source = fs.readFileSync(modulePath,'utf8');
-const d5Source = source.slice(
-  source.indexOf('// V5.3D5 — adaptive Mixed Practice selection'),
-  source.indexOf('// Compatibility API publication happens immediately')
-);
+const d5LogicStart = source.indexOf('// V5.3D5 — adaptive Mixed Practice selection');
+const d5LogicEnd = source.indexOf('// Compatibility API publication happens immediately');
+const d5InstallStart = source.indexOf('function installD5BridgeAndFinalize()');
+const d5InstallEnd = source.indexOf('\n  function installRpcChain()', d5InstallStart);
+assert(d5LogicStart >= 0 && d5LogicEnd > d5LogicStart,'D5 adaptive logic section must remain identifiable');
+assert(d5InstallStart >= 0 && d5InstallEnd > d5InstallStart,'D5 coordinated installer section must remain identifiable');
+const d5Source = `${source.slice(d5LogicStart,d5LogicEnd)}\n${source.slice(d5InstallStart,d5InstallEnd)}`;
 
 globalThis.V53D3PracticeSelection = {
   orderPracticeItems(items){ return [...items].reverse(); },
@@ -116,10 +119,10 @@ const multipart = {
 assert.strictEqual(api.itemHistory(multipart).seenCount,3,'Multipart history must use the highest sibling exposure count');
 assert.strictEqual(api.itemHistory(multipart).lastSeenMs,Date.parse('2026-08-20T00:00:00Z'));
 
-assert(source.includes("previousRpc('get_student_practice_recommendation'"),'D5 must reuse the accepted D4 recommendation contract through its captured previousRpc');
+assert(d5Source.includes("previousRpc('get_student_practice_recommendation'"),'D5 must reuse the accepted D4 recommendation contract through its captured previousRpc');
 assert(source.includes('get_student_practice_questions_v53d3'),'D5 must compose with the accepted D3 retrieval route');
 assert(d5Source.includes('const broadMixed = isBroadMixedState(currentState())'),'D5 must load recommendation context only for true broad Mixed Practice');
-assert(source.includes('accessToken && broadMixed'),'Explicit Practice filters must not pay the extra recommendation-RPC cost');
+assert(d5Source.includes('accessToken && broadMixed'),'Explicit Practice filters must not pay the extra recommendation-RPC cost');
 assert(!d5Source.includes('grade_practice_response'),'D5 must not change grading');
 assert(!d5Source.includes('submit_practice_session'),'D5 must not change Practice submission');
 assert(!d5Source.includes('request_practice_hint'),'D5 must not change hints');
