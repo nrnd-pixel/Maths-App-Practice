@@ -42,7 +42,8 @@ assert(!source.includes('submit_practice_session'),'D6 must not touch Practice s
 assert(!source.includes('get_student_questions'),'D6 must not alter question retrieval');
 assert(!source.includes('exam_attempt'),'D6 must not alter Exam Mode');
 
-assert(loader.includes("loadScriptOnce('v53d5-practice-selection-intelligence.js?v=53d5-1', 'data-v53d5-practice-selection-intelligence');"),'Accepted V5.3D5 loader must remain present');
+assert(loader.includes("loadScriptOnce('practice-selection-engine.js', 'data-practice-selection-engine');"),'Accepted consolidated V5.3B/D3/D4/D5 engine loader must remain present');
+assert(!loader.includes("loadScriptOnce('v53d5-practice-selection-intelligence.js"),'Historical D5 source must remain dormant');
 assert(loader.includes("loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');"),'D6 loader wiring must be present');
 
 console.log('V5.3D6 resource-bank status clarity checks passed.');

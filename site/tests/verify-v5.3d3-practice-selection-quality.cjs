@@ -5,11 +5,12 @@ const path = require('node:path');
 const siteRoot = path.resolve(__dirname,'..');
 const repoRoot = path.resolve(siteRoot,'..');
 const read = rel => fs.readFileSync(path.join(repoRoot,rel),'utf8');
-const selection = require('../v53d3-practice-selection-quality.js');
+const engine = require('../practice-selection-engine.js');
+const selection = engine.V53D3PracticeSelection;
 
 const sql = read('supabase/v53d3_practice_question_history.sql');
 const release = read('site/v40-release.js');
-const v53b = read('site/v53b-unified-practice-retrieval.js');
+const engineText = read('site/practice-selection-engine.js');
 const assignmentsCore = read('site/assignments-core.js');
 
 const ordinary = selection.routeRpc('get_student_questions',{
@@ -81,18 +82,18 @@ assert.match(sql,/set search_path to ''/i);
 assert.match(sql,/revoke all on function public\.get_student_practice_questions_v53d3\(text,smallint\) from public/i);
 assert.match(sql,/grant execute on function public\.get_student_practice_questions_v53d3\(text,smallint\) to anon, authenticated/i);
 
-assert.match(release,/v53b-unified-practice-retrieval\.js\?v=53b-1/,
-  'V5.3B rollback bridge must remain loaded.');
+assert.match(release,/practice-selection-engine\.js', 'data-practice-selection-engine'/,
+  'Consolidated V53 Practice engine must be wired into the release loader.');
+assert.doesNotMatch(release,/loadScriptOnce\('v53d3-practice-selection-quality\.js/,
+  'Historical D3 source must remain dormant.');
 assert.match(release,/assignments-core\.js', 'data-assignments-core'/,
   'Accepted V5.3D1 assignment alignment must remain loaded through the consolidated core.');
-assert.match(release,/v53d3-practice-selection-quality\.js\?v=53d3-1', 'data-v53d3-practice-selection-quality'/,
-  'D3 selection quality must be wired into the release loader.');
-assert.match(v53b,/grade_practice_response_v53b/,
-  'Accepted V5.3B grading must remain authoritative.');
+assert.match(engineText,/grade_practice_response_v53b/,
+  'Accepted V5.3B grading must remain authoritative in the engine.');
 assert.match(assignmentsCore,/start_student_practice_assignment_v53d1/,
   'Accepted V5.3D1 assignment flow must remain authoritative in assignments-core.');
 
-console.log('V5.3D3 Practice selection quality verification passed.');
+console.log('V5.3D3 Practice selection quality verification passed through consolidated engine.');
 console.log('- ordinary Practice retrieval carries per-student exposure history only');
 console.log('- unseen and less-seen questions are preferred before repeats');
 console.log('- topics are balanced within the active exposure tier');

@@ -30,7 +30,8 @@ expect(!groups.includes('.filter(question => question?.active !== false &&'),'Sh
 expect(!groups.includes('return questions.some(question =>\n      question?.active !== false &&'),'Shared Focus availability must not use the legacy active-only resource pool');
 
 expect(release.includes("loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions')"),'Consolidated V44 intervention owner must remain staged');
-expect(release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1'"),'V5.3B unified Practice retrieval must remain loaded');
+expect(release.includes("loadScriptOnce('practice-selection-engine.js'"),'consolidated V53 Practice engine must remain loaded');
+expect(!release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js"),'historical V53B source must remain dormant');
 expect(release.includes("loadScriptOnce('assignments-core.js', 'data-assignments-core')"),'Consolidated assignment core must retain V5.3D1 teacher Practice alignment');
 expect(assignmentsCore.includes("create_teacher_practice_assignments_v43b:'create_teacher_practice_assignments_v53d1'"),'V5.3D1 assignment routing must remain authoritative in the active core');
 
