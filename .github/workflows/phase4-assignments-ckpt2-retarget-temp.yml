@@ -1,0 +1,60 @@
+name: Phase 4 Assignments Checkpoint 2 Retarget
+on:
+  push:
+    branches:
+      - development/phase4-teacher-assignments-v44-v48-checkpoint-2
+permissions:
+  contents: write
+jobs:
+  retarget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Retarget dormant owner references in verifier scripts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root=Path('site/tests')
+          skip={
+            'verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs',
+            'verify-phase4-teacher-assignments-v44-v48-dormant-reference-integrity.cjs',
+          }
+          mapping={
+            'v44-action-center-practice.js':'assignment-interventions.js',
+            'v44-shared-focus-groups.js':'assignment-interventions.js',
+            'v44-intervention-follow-through.js':'assignment-interventions.js',
+            'v44-intervention-highlight-clarity.js':'assignment-interventions.js',
+            'v45-intervention-outcomes.js':'assignment-intervention-queue-support.js',
+            'v46-intervention-export.js':'assignment-intervention-queue-support.js',
+            'v47-intervention-history.js':'assignment-intervention-history.js',
+            'v47-follow-up-from-history.js':'assignment-intervention-history.js',
+            'v47-class-intervention-overview.js':'assignment-intervention-history.js',
+            'v48-teacher-deadline-monitoring.js':'assignment-deadlines.js',
+            'v48-student-deadline-experience.js':'assignment-deadlines.js',
+            'v48-deadline-follow-up.js':'assignment-deadlines.js',
+          }
+          changed=[]
+          for p in root.rglob('*.cjs'):
+            if p.name in skip: continue
+            s=p.read_text()
+            original=s
+            for old,new in mapping.items():
+              s=s.replace(old,new)
+              s=s.replace(old.replace('.',r'\.'),new.replace('.',r'\.'))
+              s=s.replace(old.replace('.',r'\\.'),new.replace('.',r'\\.'))
+            if s!=original:
+              p.write_text(s)
+              changed.append(str(p))
+          print('Retargeted',len(changed),'verifier files')
+          for p in changed: print(p)
+          PY
+      - name: Remove temporary workflow and commit
+        run: |
+          rm .github/workflows/phase4-assignments-ckpt2-retarget-temp.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Retarget intervention verifiers to consolidated owners'
+          git push origin HEAD:development/phase4-teacher-assignments-v44-v48-checkpoint-2
