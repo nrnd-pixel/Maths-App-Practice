@@ -43,8 +43,8 @@ const release = read('site/v40-release.js');
 const versionSource = read('site/version.js');
 const session = read('site/v40-student-session.js');
 const assignments = read('site/assignments-teacher.js');
-const deadlineMonitor = read('site/v48-teacher-deadline-monitoring.js');
-const deadlineFollowUp = read('site/v48-deadline-follow-up.js');
+const deadlineMonitor = read('site/assignment-deadlines.js');
+const deadlineFollowUp = read('site/assignment-deadlines.js');
 const progressOverview = read('site/v50-student-progress-overview.js');
 const aiUi = read('site/v38-ai-help.js');
 const aiEdge = read('supabase/functions/student-ai-help-v38/index.ts');
@@ -142,8 +142,8 @@ assert.match(deadlineMonitor, /math-practice-assignments-changed/);
 assert.doesNotMatch(deadlineMonitor, /getElementById\('teacher'\)\?\.addEventListener\('click'/, 'Deadline monitoring must not refresh on every teacher click.');
 assert.match(deadlineFollowUp, /dispatchEvent\(new CustomEvent\('math-practice-assignments-changed'/);
 assert.doesNotMatch(deadlineFollowUp, /getElementById\('teacher'\)\?\.addEventListener\('click'/, 'Deadline follow-up decoration must not run on every teacher click.');
-assert.match(release, /v48-teacher-deadline-monitoring\.js\?v=48a-2/);
-assert.match(release, /v48-deadline-follow-up\.js\?v=48c-4/);
+assert.match(release, /assignment-deadlines\.js\?v=48a-2/);
+assert.match(release, /assignment-deadlines\.js\?v=48c-4/);
 
 // 9) Student progress consolidation: one active overview replaces duplicate V4.9A/V4.9C panels.
 assert.match(progressOverview, /OVERVIEW_ID = 'v50-student-progress-overview'/);

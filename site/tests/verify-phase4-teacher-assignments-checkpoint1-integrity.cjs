@@ -23,7 +23,7 @@ assert.ok(pos('v42-teacher-action-center.js') < pos('assignments-core.js'));
 assert.ok(pos('assignments-core.js') < pos('assignments-student.js'));
 assert.ok(pos('assignments-student.js') < pos('assignments-teacher.js'));
 assert.ok(pos('assignments-teacher.js') < pos('v42-roster-cleanup.js'));
-assert.ok(pos('assignments-teacher.js') < pos('v44-action-center-practice.js'));
+assert.ok(pos('assignments-teacher.js') < pos('assignment-interventions.js'));
 assert.match(config,/\.\/past-paper-assignments\.js/,
   'Consolidated Past Paper assignment extension must remain staged after the V4/V5.3 foundation.');
 

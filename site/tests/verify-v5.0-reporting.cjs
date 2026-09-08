@@ -17,7 +17,7 @@ new vm.Script(studentReport, { filename: 'v50-teacher-student-report.js' });
 new vm.Script(exporter, { filename: 'v50-reporting-export.js' });
 new vm.Script(archive, { filename: 'v50-report-archive.js' });
 
-assert.match(release, /v47-intervention-history\.js\?v=47a-1', 'data-v47a-intervention-history'/,
+assert.match(release, /assignment-intervention-history\.js\?v=47a-1', 'data-v47a-intervention-history'/,
   'Existing V4.7 history loader key must remain stable.');
 assert.match(release, /v50-teacher-class-report\.js\?v=50c1-2/);
 assert.match(release, /data-v50-teacher-class-report/);
