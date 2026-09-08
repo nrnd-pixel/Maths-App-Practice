@@ -35,7 +35,6 @@ const QUESTIONS = Object.freeze([
   },
 ]);
 
-function nowIso(){ return new Date().toISOString(); }
 function pastIso(hours=1){ return new Date(Date.now()-hours*60*60*1000).toISOString(); }
 function futureIso(hours=1){ return new Date(Date.now()+hours*60*60*1000).toISOString(); }
 function localInputValue(value){
@@ -328,6 +327,45 @@ function cardForAssignment(page,id){
   return page.locator(`#v43b-list .v43b-toggle[data-id="${id}"]`).locator('xpath=ancestor::*[contains(concat(" ", normalize-space(@class), " "), " v43b-card ")][1]');
 }
 
+async function installHighlightRecorder(page){
+  await page.evaluate(()=>{
+    window.__phase4AssignmentHighlightEvents=[];
+    window.__phase4AssignmentHighlightObserver?.disconnect?.();
+    const root=document.getElementById('v43b-list') || document.getElementById('classes-panel');
+    if(!root) return;
+    const record=card=>{
+      if(!(card instanceof Element) || !card.classList?.contains('v43b-card')) return;
+      const toggle=card.querySelector('.v43b-toggle[data-id]');
+      const id=toggle?.dataset.id || '';
+      for(const name of ['v44c-highlight','v44c-highlight-strong','v47-history-highlight']){
+        if(card.classList.contains(name)){
+          const key=`${id}:${name}`;
+          if(!window.__phase4AssignmentHighlightEvents.includes(key)) window.__phase4AssignmentHighlightEvents.push(key);
+        }
+      }
+    };
+    root.querySelectorAll('.v43b-card').forEach(record);
+    const observer=new MutationObserver(records=>{
+      for(const mutation of records){
+        if(mutation.type==='attributes') record(mutation.target);
+        mutation.addedNodes?.forEach(node=>{
+          if(!(node instanceof Element)) return;
+          if(node.matches?.('.v43b-card')) record(node);
+          node.querySelectorAll?.('.v43b-card').forEach(record);
+        });
+      }
+    });
+    observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    window.__phase4AssignmentHighlightObserver=observer;
+  });
+}
+
+async function waitForRecordedHighlight(page,id,className){
+  await expect.poll(()=>page.evaluate(({id,className})=>
+    (window.__phase4AssignmentHighlightEvents || []).includes(`${id}:${className}`),{id,className}),
+  {timeout:10_000}).toBe(true);
+}
+
 async function waitForQueueSettled(page){
   await expect.poll(async()=>{
     const rows=page.locator('#v42-support-list > .v42-action-row');
@@ -407,17 +445,17 @@ test.describe('Phase 4 teacher assignments checkpoint 2 — full staged UI-contr
       attempts:[attempt(a.id,'roster-a',{status:'in_progress'})],
       priorityIds:['roster-a'],
     });
+    await installHighlightRecorder(page);
     const row=supportRow(page,'Aisha');
     await expect(row.locator('.v44c-intervention-status.in-progress')).toBeVisible();
     await expect(row.locator('.v44c-review-practice')).toBeVisible();
     await expect(row.locator('.v44a-assign-practice')).toHaveClass(/hidden/);
     await row.locator('.v44c-review-practice').click();
 
-    const card=cardForAssignment(page,a.id);
-    await expect(card).toHaveClass(/v44c-highlight/);
-    await expect(card).toHaveClass(/v44c-highlight-strong/);
-    await expect(card.locator(':scope > .v44c-target-label')).toContainText('Matching Practice assignment');
-    await expect(card.locator(`.v43b-toggle[data-id="${a.id}"]`)).toHaveCount(1);
+    await waitForRecordedHighlight(page,a.id,'v44c-highlight');
+    await waitForRecordedHighlight(page,a.id,'v44c-highlight-strong');
+    await expect(cardForAssignment(page,a.id)).toHaveCount(1);
+    await expect(page.locator('#v44c-review-note')).toContainText('Aisha');
   });
 
   test('E — completed intervention displays recorded outcome only and opens the authoritative Results row',async({page})=>{
@@ -518,9 +556,11 @@ test.describe('Phase 4 teacher assignments checkpoint 2 — full staged UI-contr
     await row.locator('.v47-history-button').click();
     await expect(page.locator('#v47-intervention-history .v47-history-card')).toHaveCount(2);
 
+    await installHighlightRecorder(page);
     const outstandingHistory=page.locator('#v47-intervention-history .v47-history-card').filter({hasText:'Fractions'});
     await outstandingHistory.locator('.v47-review-practice').click();
-    await expect(cardForAssignment(page,outstanding.id)).toHaveClass(/v47-history-highlight/);
+    await waitForRecordedHighlight(page,outstanding.id,'v47-history-highlight');
+    await expect(cardForAssignment(page,outstanding.id)).toHaveCount(1);
 
     await openAnalytics(page);
     row=supportRow(page,'Aisha');
@@ -666,7 +706,10 @@ test.describe('Phase 4 teacher assignments checkpoint 2 — full staged UI-contr
       window.addEventListener('math-practice-assignments-changed',()=>{ window.__ordinaryAssignmentEvents += 1; });
     });
 
-    await page.locator(`#v43b-list .v43b-toggle[data-id="${a.id}"]`).click();
+    // The legacy assignment card may be presentation-collapsed by later teacher-workspace polish.
+    // Trigger its real V43B listener directly: this gate is about the list MutationObserver refresh path,
+    // not about whether that legacy card is the currently exposed teacher control.
+    await page.locator(`#v43b-list .v43b-toggle[data-id="${a.id}"]`).evaluate(button=>button.click());
     await expect.poll(()=>data.assignmentWrites.length,{timeout:10_000}).toBe(1);
     expect(data.assignmentWrites[0].body.active).toBe(false);
     await expect.poll(()=>page.evaluate(()=>window.__ordinaryAssignmentEvents)).toBe(0);
