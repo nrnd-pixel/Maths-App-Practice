@@ -557,8 +557,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await page.locator('#v55a-paper-name').dispatchEvent('change');
     const localResume=page.locator('#v55c-resume-card [data-v55c-resume]');
     await expect(localResume).toHaveCount(1);
-    await page.evaluate(()=>document.getElementById('v55c-resume-card')?.classList.remove('v57a-server-shadowed'));
-    await localResume.click();
+    await page.evaluate(()=>document.querySelector('#v55c-resume-card [data-v55c-resume]')?.click());
     await expect(page.locator('#quiz')).toHaveClass(/active/);
     await expect(page.locator('#q-text')).toHaveText(Q3.question_text);
     await expect(page.locator('#path-pill')).toContainText('Resumed across devices');
@@ -589,7 +588,9 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await signInStudent(page);
     await waitForPhase4Runtime(page);
 
-    await page.locator('#my-assignments-btn').click();
+    const assignmentsHome=page.locator('#start .v57c-assignments');
+    await expect(assignmentsHome).toBeVisible();
+    await assignmentsHome.click();
     const start=page.locator('#v42b-student-practice-assignments .v42b-start-practice-assignment[data-id="'+ASSIGNMENT_ID+'"]');
     await expect(start).toBeVisible();
     await start.click();
@@ -633,7 +634,9 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await waitForPhase4Runtime(page);
     await seedLocal(page,checkpoint({nextIndex:1,savedAt:'2026-09-08T04:00:00.000Z'}),'progress-local');
 
-    await page.locator('#my-progress-btn').click();
+    const progressHome=page.locator('#start .v57c-secondary .v57c-progress');
+    await expect(progressHome).toBeVisible();
+    await progressHome.click();
     const section=page.locator('#v56c-past-paper-progress');
     await expect(section).toBeVisible();
     await expect.poll(()=>progress.calls,{timeout:5000}).toBeGreaterThan(0);
