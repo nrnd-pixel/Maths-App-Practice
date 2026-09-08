@@ -3,9 +3,9 @@ const path=require('path');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const featureSource=read('v55a-past-paper-practice.js');
+const featureSource=read('past-paper-core.js');
 const config=read('config.js');
-const feature=require(path.join(root,'v55a-past-paper-practice.js'));
+const feature=require(path.join(root,'past-paper-core.js')).V55APastPaperPractice;
 
 function expect(condition,message){
   if(!condition) throw new Error(message);
@@ -38,6 +38,6 @@ expect(featureSource.includes('baseGetQuestions'),'Past Paper Practice must filt
 expect(featureSource.includes('V53D3PracticeSelection'),'Past Paper Practice should retain repeat-avoidance ordering without weak-area recommendation bias');
 expect(!featureSource.includes('answer:'),'feature source must not add an answer-key payload');
 expect(!featureSource.includes('correct_answer'),'feature source must not request or expose correct answers');
-expect(config.includes("'./v55a-past-paper-practice.js'"),'V5.5A preview script must be loaded by config.js');
+expect(config.includes("'./past-paper-core.js'"),'consolidated Past Paper core must be loaded by config.js');
 
 console.log('V5.5A Past Paper Practice regression passed.');

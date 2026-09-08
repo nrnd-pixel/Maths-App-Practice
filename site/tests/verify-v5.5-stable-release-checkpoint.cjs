@@ -8,11 +8,9 @@ const read = name => fs.readFileSync(path.join(site,name),'utf8');
 
 const config = read('config.js');
 const checkpoint = read('v55-stable-release-checkpoint.js');
-const v55a = read('v55a-past-paper-practice.js');
-const v55b = read('v55b-full-paper-practice.js');
-const v55c = read('v55c-resume-past-paper-practice.js');
-const v55c1 = read('v55c1-resume-button-bridge.js');
-const v55d = read('v55d-past-paper-result-attribution.js');
+const core = read('past-paper-core.js');
+const resume = read('past-paper-resume.js');
+const results = read('past-paper-results.js');
 const releaseDoc = fs.readFileSync(path.join(site,'..','CHANGELOG.md'),'utf8');
 
 new vm.Script(checkpoint,{filename:'v55-stable-release-checkpoint.js'});
@@ -39,29 +37,26 @@ for (const phrase of [
   assert(checkpoint.includes(phrase),`V5.5 release note is missing: ${phrase}`);
 }
 
-// The accepted V5.5 runtime chain remains intact and the stable checkpoint loads last.
+// The accepted V5.5 behavior is now owned by core -> resume -> results; checkpoint still loads last.
 for (const loader of [
-  './v55a-past-paper-practice.js',
-  './v55a1-practice-type-guard.js',
-  './v55b-full-paper-practice.js',
-  './v55c-resume-past-paper-practice.js',
-  './v55c1-resume-button-bridge.js',
-  './v55d-past-paper-result-attribution.js',
+  './past-paper-core.js',
+  './past-paper-resume.js',
+  './past-paper-results.js',
   './v55-stable-release-checkpoint.js'
 ]) {
-  assert(config.includes(loader),`V5.5 loader missing: ${loader}`);
+  assert(config.includes(loader),`V5.5 active loader missing: ${loader}`);
 }
-assert.match(config,/\.\/v54-stable-release-checkpoint\.js'[\s\S]*\.\/v55a-past-paper-practice\.js'/,
-  'Historical V5.4 checkpoint must remain before the V5.5 feature sequence.');
-assert.match(config,/\.\/v55d-past-paper-result-attribution\.js'[\s\S]*\.\/v55-stable-release-checkpoint\.js'/,
-  'V5.5 stable checkpoint must load after the accepted V5.5D feature layer.');
+assert.match(config,/\.\/v54-stable-release-checkpoint\.js'[\s\S]*\.\/past-paper-core\.js'/,
+  'Historical V5.4 checkpoint must remain before consolidated V5.5 core.');
+assert.match(config,/\.\/past-paper-core\.js'[\s\S]*\.\/past-paper-resume\.js'[\s\S]*\.\/past-paper-results\.js'[\s\S]*\.\/v55-stable-release-checkpoint\.js'/,
+  'V5.5 core -> resume -> results must load before the stable checkpoint.');
 
-// Browser checkpoint checks correspond to the actual accepted module installation markers.
-assert.match(v55a,/__v55aPastPaperPracticeInstalled/);
-assert.match(v55b,/__v55bFullPaperPracticeInstalled/);
-assert.match(v55c,/__v55cResumePastPaperPracticeInstalled/);
-assert.match(v55c1,/__v55c1ResumeButtonBridgeInstalled/);
-assert.match(v55d,/__v55dPastPaperResultAttributionInstalled/);
+// Browser checkpoint checks correspond to the historical installation markers retained by the consolidated owners.
+assert.match(core,/__v55aPastPaperPracticeInstalled/);
+assert.match(core,/__v55bFullPaperPracticeInstalled/);
+assert.match(resume,/__v55cResumePastPaperPracticeInstalled/);
+assert.match(resume,/__v55c1ResumeButtonBridgeInstalled/);
+assert.match(results,/__v55dPastPaperResultAttributionInstalled/);
 for (const marker of [
   '__v55aPastPaperPracticeInstalled',
   '__v55bFullPaperPracticeInstalled',
@@ -93,7 +88,12 @@ for (const phrase of ['V5.5A','V5.5B','V5.5C','V5.5D','No Supabase migration','V
   assert(releaseDoc.includes(phrase),`V5.5 release checkpoint record is missing: ${phrase}`);
 }
 
+// Phase 4 V55 consolidation guards are invoked from this maintained verifier so
+// Consolidated CI cannot skip the new loader/lifecycle and exhaustive stale-reference checks.
+require('./verify-phase4-past-paper-v55-checkpoint1-integrity.cjs');
+require('./verify-phase4-past-paper-v55-dormant-reference-integrity.cjs');
+
 console.log('V5.5 Stable Release checkpoint checks passed.');
 console.log('- historical V5.5 checkpoint uses the shared current title/badge source');
-console.log('- accepted V5.5A-D Past Paper Practice chain retained');
+console.log('- accepted V5.5A-D behavior retained under core/resume/results ownership');
 console.log('- checkpoint remains presentation/audit-only with no database or student-behavior changes');
