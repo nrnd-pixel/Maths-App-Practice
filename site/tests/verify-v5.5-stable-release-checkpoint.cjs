@@ -88,6 +88,11 @@ for (const phrase of ['V5.5A','V5.5B','V5.5C','V5.5D','No Supabase migration','V
   assert(releaseDoc.includes(phrase),`V5.5 release checkpoint record is missing: ${phrase}`);
 }
 
+// Phase 4 V55 consolidation guards are invoked from this maintained verifier so
+// Consolidated CI cannot skip the new loader/lifecycle and exhaustive stale-reference checks.
+require('./verify-phase4-past-paper-v55-checkpoint1-integrity.cjs');
+require('./verify-phase4-past-paper-v55-dormant-reference-integrity.cjs');
+
 console.log('V5.5 Stable Release checkpoint checks passed.');
 console.log('- historical V5.5 checkpoint uses the shared current title/badge source');
 console.log('- accepted V5.5A-D behavior retained under core/resume/results ownership');
