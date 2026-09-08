@@ -101,6 +101,7 @@ jobs:
             "site/tests/verify-v5.3d4-student-recommendation-alignment.cjs"
             "site/tests/verify-v5.3d5-practice-selection-intelligence.cjs"
             "site/tests/verify-v5.3d6-resource-bank-status-clarity.cjs"
+            "site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs"
             "site/tests/verify-v5.4a-resource-bank-visibility.cjs"
             "site/tests/verify-v5.4b-practice-eligibility-controls.cjs"
             "site/tests/verify-v5.4c-compact-question-bank.cjs"

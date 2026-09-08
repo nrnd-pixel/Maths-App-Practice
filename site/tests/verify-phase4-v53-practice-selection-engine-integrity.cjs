@@ -14,14 +14,13 @@ function indexOfRequired(text,token,label){
   return index;
 }
 
-// Loader boundary: A stays separate, B/D3/D4/D5 are replaced by one engine,
-// C and D6 stay separate, and V54 remains downstream.
-const a=indexOfRequired(loader,"loadScriptOnce('v53a-practice-eligibility.js",'V53A loader');
+// Loader boundary after the companion-layer checkpoint: consolidated V53A stays
+// before the engine; consolidated V53C/D6 stays after it; V54 remains downstream.
+const a=indexOfRequired(loader,"loadScriptOnce('practice-eligibility-ui.js",'V53A consolidated loader');
 const consolidated=indexOfRequired(loader,"loadScriptOnce('practice-selection-engine.js'",'Practice selection engine loader');
-const c=indexOfRequired(loader,"loadScriptOnce('v53c-two-mode-student-ui.js",'V53C loader');
-const d6=indexOfRequired(loader,"loadScriptOnce('v53d6-resource-bank-status-clarity.js",'V53D6 loader');
+const clarity=indexOfRequired(loader,"loadScriptOnce('practice-ui-resource-clarity.js'",'V53C/D6 consolidated loader');
 const v54=indexOfRequired(loader,"loadScriptOnce('v54a-resource-bank-visibility.js",'V54A loader');
-assert.ok(a<consolidated && consolidated<c && c<d6 && d6<v54,'loader order must remain A -> engine -> C -> D6 -> V54');
+assert.ok(a<consolidated && consolidated<clarity && clarity<v54,'loader order must remain V53A owner -> engine -> V53C/D6 owner -> V54');
 for(const retired of [
   'v53b-unified-practice-retrieval.js',
   'v53d3-practice-selection-quality.js',

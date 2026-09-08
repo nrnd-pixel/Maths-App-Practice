@@ -9,7 +9,7 @@ const legacySqlPath=path.join(siteRoot,'..','supabase','v54b_retire_legacy_v54a_
 const loaderPath=path.join(siteRoot,'v40-release.js');
 const v54aPath=path.join(siteRoot,'v54a-resource-bank-visibility.js');
 const performancePath=path.join(siteRoot,'v52b1-question-bank-performance.js');
-const d6Path=path.join(siteRoot,'v53d6-resource-bank-status-clarity.js');
+const d6Path=path.join(siteRoot,'practice-ui-resource-clarity.js');
 
 const mod=require(modulePath);
 const source=fs.readFileSync(modulePath,'utf8');
@@ -89,9 +89,11 @@ assert(legacySql.includes('to service_role'),'Legacy writer may remain only for 
 assert.strictEqual(performance.PAGE_SIZE,50,'V5.4B must preserve the accepted 50-card Question Bank paging boundary');
 assert(v54a.includes('filterRowsByEligibility'),'Accepted V5.4A full-bank Practice filter must remain present');
 assert(v54a.includes('teacherQuestions = eligibleRows'),'Eligibility filtering must still happen before pagination');
-assert(d6.includes('v53d6-practice-eligibility-badge'),'Accepted D6 topical Practice-status badge must remain present');
+assert(d6.includes('v53d6-practice-eligibility-badge'),'Accepted D6 topical Practice-status badge must remain present in active consolidated clarity owner');
+assert(loader.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');"),'Accepted consolidated C/D6 loader must remain present');
 assert(loader.includes("loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');"),'Accepted V5.4A loader must remain present');
 assert(loader.includes("loadScriptOnce('v54b-practice-eligibility-controls.js?v=54b-1', 'data-v54b-practice-eligibility-controls');"),'V5.4B loader wiring must be present');
+assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('v54a-resource-bank-visibility.js'),'V5.4A must remain after consolidated D6');
 assert(loader.indexOf('v54a-resource-bank-visibility.js') < loader.indexOf('v54b-practice-eligibility-controls.js'),'V5.4B must load after V5.4A');
 
 console.log('V5.4B teacher Practice eligibility control checks passed.');
