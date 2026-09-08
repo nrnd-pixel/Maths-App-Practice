@@ -143,6 +143,21 @@
     return practiceType === 'past_paper';
   }
 
+  function selectionStackSettled(){
+    // v40-release.js injects V53D5 after the staged V55 files have already been
+    // queued. V53D5 assigns the global shuffle function while its RPC bridge is
+    // installing, so V55 must capture/wrap it only after that owner is settled.
+    // This preserves the historical intended chain: V53D5 -> V55A -> V55B.
+    try{
+      return ROOT.__v53d5PracticeSelectionInstalled === true
+        && typeof cloud !== 'undefined'
+        && !!cloud
+        && cloud.__v53d5PracticeSelectionRpcBridge === true;
+    } catch {
+      return false;
+    }
+  }
+
   function topicSelectionReady(){
     if (typeof document === 'undefined') return false;
     const strand = document.getElementById('strand-filter')?.value || 'all';
@@ -637,6 +652,7 @@
 
   function installWrappers(){
     if (wrappersInstalled) return true;
+    if (!selectionStackSettled()) return false;
     if (typeof startPractice !== 'function' || typeof getQuestions !== 'function' || typeof shuffle !== 'function') return false;
 
     const baseGetQuestions = getQuestions;
