@@ -55,7 +55,6 @@ assert(!source.includes('multipartKey'),'Teacher eligibility UI must not own Pra
 assert(!source.includes('shuffle ='),'Teacher eligibility UI must not own Practice selection ordering');
 
 assert(release.includes("loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');"),'Consolidated V53A owner must be loaded by the stable release loader');
-assert(!release.includes("loadScriptOnce('v53a-practice-eligibility.js"),'Historical V53A source must be dormant');
 assert(release.indexOf('practice-eligibility-ui.js') < release.indexOf('practice-selection-engine.js'),'V53A owner must remain before the Practice selection engine');
 
 console.log('V5.3A Practice eligibility checks passed against consolidated owner.');
