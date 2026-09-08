@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   generate:
-    if: ${{ !contains(github.event.head_commit.message, '[generated-checkpoint2]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,15 +67,21 @@ jobs:
     loadScriptOnce('assignment-intervention-queue-support.js', 'data-assignment-intervention-queue-support');
     loadScriptOnce('assignment-intervention-history.js', 'data-assignment-intervention-history');
     loadScriptOnce('assignment-deadlines.js', 'data-assignment-deadlines');"""
-          if old not in s:
+          if old in s:
+              s=s.replace(old,new,1)
+          elif new not in s:
               raise SystemExit('expected V44-V48 loader block not found')
-          p.write_text(s.replace(old,new,1))
+          p.write_text(s)
           PY
-      - name: Commit generated checkpoint modules
+      - name: Commit generated checkpoint modules if needed
         shell: bash
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add site/assignment-interventions.js site/assignment-intervention-queue-support.js site/assignment-intervention-history.js site/assignment-deadlines.js site/v40-release.js
+          if git diff --cached --quiet; then
+            echo 'Generated files already current.'
+            exit 0
+          fi
           git commit -m 'Phase 4: consolidate teacher intervention and deadline runtime [generated-checkpoint2]'
           git push origin HEAD:development/phase4-teacher-assignments-v44-v48-checkpoint2
