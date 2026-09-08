@@ -417,6 +417,16 @@ async function seedLocal(page,snapshot,key='fixture'){
   },{snapshot,key});
 }
 
+async function seedLocalIdentity(page,snapshot){
+  await page.evaluate(snapshot=>{
+    const api=window.V55CResumePastPaperPractice;
+    const store=api.pruneStore(api.readStore(localStorage));
+    const key=api.identityKey(snapshot.studentId,snapshot.studentName,snapshot.yearLevel,snapshot.examYear,snapshot.paper);
+    store[key]={...snapshot,version:1};
+    api.writeStore(localStorage,store);
+  },snapshot);
+}
+
 async function localStore(page){
   return page.evaluate(key=>JSON.parse(localStorage.getItem(key)||'{}'),STORAGE_KEY);
 }
@@ -620,7 +630,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await expect(page.locator('#result')).toHaveClass(/active/);
     await expect.poll(()=>assignments.completes.length,{timeout:7000}).toBe(1);
     expect(assignments.completes[0].p_attempt_id).toBe(ATTEMPT_ID);
-    await expect(page.locator('#v56b-assignment-result-note')).toContainText('Teacher Past Paper Assignment completed');
+    await expect(page.locator('.v42b-assignment-result-note')).toContainText('Teacher Practice Assignment completed');
     expect(await page.evaluate(key=>localStorage.getItem(key),ASSIGNMENT_CONTEXT_KEY)).toBeNull();
     expect(mock.practiceSubmissions).toBe(1);
   });
@@ -632,7 +642,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await openApp(page);
     await signInStudent(page);
     await waitForPhase4Runtime(page);
-    await seedLocal(page,checkpoint({nextIndex:1,savedAt:'2026-09-08T04:00:00.000Z'}),'progress-local');
+    await seedLocalIdentity(page,checkpoint({nextIndex:1,savedAt:'2026-09-08T04:00:00.000Z'}));
 
     const progressHome=page.locator('#start .v57c-secondary .v57c-progress');
     await expect(progressHome).toBeVisible();

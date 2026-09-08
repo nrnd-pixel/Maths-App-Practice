@@ -33,9 +33,9 @@ assert.equal(api.supportCandidate(students[2]),false);
 assert.equal(api.supportCandidate(students[3]),true);
 assert.equal(api.supportCandidate(students[4]),false);
 const cohorts = api.cohortsFromData({students});
-assert.deepEqual(cohorts.unassigned.map(row=>row.roster_student_id),['s1','s2']);
-assert.deepEqual(cohorts.support.map(row=>row.roster_student_id),['s2','s4']);
-assert.deepEqual(cohorts.assigned.map(row=>row.roster_student_id),['s3','s4']);
+assert.deepEqual(Array.from(cohorts.unassigned,row=>row.roster_student_id),['s1','s2']);
+assert.deepEqual(Array.from(cohorts.support,row=>row.roster_student_id),['s2','s4']);
+assert.deepEqual(Array.from(cohorts.assigned,row=>row.roster_student_id),['s3','s4']);
 
 const plan = api.focusPlanText({
   class:{class_name:'6A'},selected:{exam_year:2025,paper:'Paper 1'},

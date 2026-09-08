@@ -248,7 +248,9 @@
     const next = Math.min(total,completed+1);
     const percent = total ? Math.round(completed/total*100) : 0;
     const savedDate = new Date(found.savedAt || Date.now());
-    const saved = Number.isNaN(savedDate.getTime()) ? 'recently' : savedDate.toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const saved = Number.isNaN(savedDate.getTime()) ? 'recently' : savedDate.toLocaleString([],{
+      day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'
+    });
     const assignment = found.assignmentContext;
 
     root.innerHTML = `
