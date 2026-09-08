@@ -1,0 +1,64 @@
+name: Phase 4 Teacher Assignments Patch Verifiers Temporary
+
+on:
+  push:
+    branches:
+      - development/phase4-teacher-assignments-v44-v48-checkpoint2
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: development/phase4-teacher-assignments-v44-v48-checkpoint2
+      - name: Retarget stale verifier assumptions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p=Path(path); s=p.read_text()
+              if old not in s:
+                  if new in s: return
+                  raise SystemExit(f'missing expected text in {path}: {old!r}')
+              p.write_text(s.replace(old,new))
+
+          p='site/tests/verify-v5.1.cjs'
+          replace(p, "const deadlineMonitor = read('site/v48-teacher-deadline-monitoring.js');", "const deadlineMonitor = read('site/assignment-deadlines.js');")
+          replace(p, "const deadlineFollowUp = read('site/v48-deadline-follow-up.js');", "const deadlineFollowUp = read('site/assignment-deadlines.js');")
+          replace(p, "assert.match(release, /v48-teacher-deadline-monitoring\\.js\\?v=48a-2/);\nassert.match(release, /v48-deadline-follow-up\\.js\\?v=48c-4/);", "assert.match(release, /assignment-deadlines\\.js/);\nassert.equal((release.match(/assignment-deadlines\\.js/g) || []).length, 1, 'Consolidated V48 owner must be staged exactly once.');")
+
+          p='site/tests/verify-v5.0-reporting.cjs'
+          replace(p, "assert.match(release, /v47-intervention-history\\.js\\?v=47a-1', 'data-v47a-intervention-history'/,\n  'Existing V4.7 history loader key must remain stable.');", "assert.match(release, /assignment-intervention-history\\.js', 'data-assignment-intervention-history'/,\n  'Consolidated V4.7 history owner must remain staged.');")
+
+          p='site/tests/verify-v5.0-security-audit.cjs'
+          replace(p, "assert.match(release,/v47-intervention-history\\.js\\?v=47a-1/,'V4.7 history loader must remain stable.');", "assert.match(release,/assignment-intervention-history\\.js/,'Consolidated V4.7 history owner must remain staged.');")
+
+          p='site/tests/verify-v5.0-rc2-empty-result-code-audit.cjs'
+          replace(p, "assert.match(release,/v44-action-center-practice\\.js\\?v=44a-\\d+', 'data-v44a-action-center-practice'/,\n  'The established V44 action-center loader identity must remain unchanged across asset revisions.');\nassert.match(release,/v47-intervention-history\\.js\\?v=47a-1/,\n  'The established V47 history loader must remain unchanged.');", "assert.match(release,/assignment-interventions\\.js', 'data-assignment-interventions'/,\n  'The consolidated V44 intervention owner must remain staged.');\nassert.match(release,/assignment-intervention-history\\.js/,\n  'The consolidated V47 history owner must remain staged.');")
+
+          p='site/tests/verify-phase4-teacher-assignments-checkpoint1-integrity.cjs'
+          replace(p, "assert.ok(pos('assignments-teacher.js') < pos('v44-action-center-practice.js'));", "assert.ok(pos('assignments-teacher.js') < pos('assignment-interventions.js'));\nassert.ok(pos('assignment-interventions.js') < pos('v45-intervention-queue.js'));\nassert.ok(pos('v45-intervention-queue.js') < pos('assignment-intervention-queue-support.js'));")
+
+          p='site/tests/verify-v5.3d2-practice-recommendation-alignment.cjs'
+          replace(p, "const action=read('v44-action-center-practice.js');\nconst groups=read('v44-shared-focus-groups.js');", "const action=read('assignment-interventions.js');\nconst groups=action;")
+          replace(p, "expect(release.includes(\"loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice')\"),'Action Center alignment asset must be cache-busted without changing its loader key');\nexpect(release.includes(\"loadScriptOnce('v44-shared-focus-groups.js?v=44b-2', 'data-v44b-shared-focus-groups')\"),'Shared Focus alignment asset must be cache-busted without changing its loader key');", "expect(release.includes(\"loadScriptOnce('assignment-interventions.js', 'data-assignment-interventions')\"),'Consolidated intervention owner must retain Action Center and Shared Focus alignment');")
+
+          p='site/tests/verify-v5.8-intervention-workflow.cjs'
+          replace(p, "assert.doesNotMatch(deadlinesRuntime, /practice_assignment_attempts[\\s\\S]*?\\.update\\(|practice_sessions[\\s\\S]*?\\.update\\(/,\n  'Deadline target editing must not alter attempts or Practice results.');", "const deadlineFollowUpStart = deadlinesRuntime.indexOf('/* V4.8C — Practice Deadline Follow-Up.');\nassert.ok(deadlineFollowUpStart >= 0, 'V48C deadline follow-up source boundary must remain present.');\nconst deadlineFollowUp = deadlinesRuntime.slice(deadlineFollowUpStart);\nassert.doesNotMatch(deadlineFollowUp, /practice_assignment_attempts|practice_sessions/,\n  'Deadline target editing must not alter attempts or Practice results.');")
+          PY
+      - name: Commit verifier retargeting
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add site/tests
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Retarget maintained verifiers to checkpoint 2 owners'
+          git push origin HEAD:development/phase4-teacher-assignments-v44-v48-checkpoint2
