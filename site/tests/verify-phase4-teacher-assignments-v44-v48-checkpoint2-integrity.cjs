@@ -160,6 +160,9 @@ const supabaseRoot = path.resolve(siteRoot, '..', 'supabase');
 const sqlFiles = fs.readdirSync(supabaseRoot).filter(name => name.endsWith('.sql'));
 assert.ok(sqlFiles.length > 0, 'Protected Supabase SQL set must be non-empty');
 
+// 11) The maintained V5.8 gate must also execute the exact approved-main Git-object audit.
+require('./verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs');
+
 console.log('Phase 4 teacher assignments V44-V48 checkpoint 2 integrity passed.');
 console.log('- four phase-preserving owners retain exact historical source behavior');
 console.log('- untouched V45A remains between V44 and V45B/V46');
