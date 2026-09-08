@@ -3,9 +3,9 @@ const path=require('path');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const featureSource=read('v55b-full-paper-practice.js');
+const featureSource=read('past-paper-core.js');
 const config=read('config.js');
-const feature=require(path.join(root,'v55b-full-paper-practice.js'));
+const feature=require(path.join(root,'past-paper-core.js')).V55BFullPaperPractice;
 
 function expect(condition,message){
   if(!condition) throw new Error(message);
@@ -33,14 +33,14 @@ expect(featureSource.includes("scope = next === 'all' ? 'all' : 'quick'"),'scope
 expect(featureSource.includes('Quick Session'),'student UI must expose Quick Session');
 expect(featureSource.includes('All Available Questions'),'student UI must expose All Available Questions');
 expect(featureSource.includes("scope === 'all'"),'full-paper behavior must be opt-in');
-expect(featureSource.includes("getPracticeType?.() === 'past_paper'"),'full-paper behavior must be restricted to Past Paper Practice');
+expect(featureSource.includes("function isPastPaperPractice()"),'full-paper behavior must remain restricted by the Past Paper Practice type');
 expect(featureSource.includes('sortSourceOrder(items)'),'all-available sessions must use source question-number ordering');
 expect(featureSource.includes('TEMP_COUNT_VALUE'),'full-paper wrapper must safely override the existing Practice count only for the run');
 expect(featureSource.includes("state.v55b_paper_scope = 'all_available'"),'full-paper Practice state must record its session scope');
-expect(!featureSource.includes('correct_answer'),'V5.5B must not add or request answer-key payloads');
-expect(!featureSource.includes('answer:'),'V5.5B must not add answer-key objects');
-expect(config.includes("'./v55b-full-paper-practice.js'"),'V5.5B preview script must be loaded after V5.5A guards');
-expect(config.indexOf("'./v55a1-practice-type-guard.js'") < config.indexOf("'./v55b-full-paper-practice.js'"),
-  'V5.5B must load after the V5.5A.1 Practice-type guard');
+expect(!featureSource.includes('correct_answer'),'V5.5B behavior must not add or request answer-key payloads');
+expect(!featureSource.includes('answer:'),'V5.5B behavior must not add answer-key objects');
+expect(config.includes("'./past-paper-core.js'"),'V5.5B behavior must be owned by the consolidated core');
+expect(config.indexOf("'./past-paper-core.js'") < config.indexOf("'./past-paper-resume.js'"),
+  'consolidated core must load before the separate resume layer');
 
 console.log('V5.5B Full Available Past-Paper Practice regression passed.');
