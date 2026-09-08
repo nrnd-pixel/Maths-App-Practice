@@ -3,11 +3,18 @@ const path=require('path');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const ui=read('v53d1-teacher-practice-pool-alignment.js');
+
+// Keep the new consolidation guards on the maintained CI path.
+require('./verify-phase4-teacher-assignments-checkpoint1-integrity.cjs');
+require('./verify-phase4-teacher-assignments-dormant-reference-integrity.cjs');
+
+const coreSource=read('assignments-core.js');
+const teacherSource=read('assignments-teacher.js');
+const studentSource=read('assignments-student.js');
 const studentSql=fs.readFileSync(path.resolve(root,'../supabase/v53d1_practice_assignment_resource_alignment.sql'),'utf8');
 const teacherSql=fs.readFileSync(path.resolve(root,'../supabase/v53d1_teacher_assignment_creation_alignment.sql'),'utf8');
 const release=read('v40-release.js');
-const api=require('../v53d1-teacher-practice-pool-alignment.js');
+const api=require('../assignments-core.js');
 
 function expect(condition,message){if(!condition)throw new Error(message);}
 
@@ -26,17 +33,17 @@ expect(examKey!==topicalKey,'exam and resource multipart groups must not collide
 expect(api.isPracticeEligible({practice_eligible:true,active:false})===true,'inactive topical resource rows must be eligible when staged');
 expect(api.isPracticeEligible({practice_eligible:false,active:true})===false,'explicitly ineligible rows must not appear in assignment availability');
 
-expect(ui.includes('Practice-resource logical question'),'teacher builder must label unified Practice-resource availability');
-expect(ui.includes("create_teacher_practice_assignments_v43b:'create_teacher_practice_assignments_v53d1'"),'teacher assignment creation must use the versioned unified-pool RPC');
-expect(ui.includes('topicObserver.observe(topicSelect,{childList:true})'),'topic picker must self-repair when the legacy active-only renderer overwrites its options');
-expect(ui.includes("if (event.target?.matches?.('#v43b-topic')) capturedTopicSelection=trim(event.target.value)"),'topic choice must be captured before the legacy target handler can erase it');
-expect(ui.includes('},true);'),'topic selection capture must use capture phase');
-expect(ui.includes('const desired=captured !== null ? captured : previous'),'builder must prefer the captured user topic during repair');
-expect(ui.includes("if (desired === '' || topics.includes(desired)) topicSelect.value=desired"),'builder must restore a valid captured topic after rebuilding options');
-expect(ui.includes("refreshUi(false,80);refreshUi(false,220)"),'strand/topic changes must receive post-legacy alignment passes');
-expect(ui.includes("cloud.from('practice_assignments')"),'existing assignment cards must be aligned from teacher-visible assignment metadata');
-expect(!ui.includes("cloud.from('questions').update"),'V5.3D1 must not mutate question activation or eligibility');
-expect(!ui.includes('exam_attempt'),'V5.3D1 must not change Exam Mode');
+expect(coreSource.includes("create_teacher_practice_assignments_v43b:'create_teacher_practice_assignments_v53d1'"),'teacher assignment creation must keep the versioned unified-pool RPC mapping');
+expect(coreSource.includes('__v53d1PracticeAssignmentRpcBridge'),'legacy assignment RPC names must remain bridged');
+expect(coreSource.includes("Object.defineProperty(window,'V53D1TeacherPracticePoolAlignment'"),'V53D1 compatibility API must remain exposed');
+expect(teacherSource.includes('Practice-resource logical question'),'teacher builder must label unified Practice-resource availability directly');
+expect(teacherSource.includes('core.topicOptions(cls,strand)'),'teacher topic options must use the aligned shared core directly');
+expect(teacherSource.includes("core.availableItems(cls,strand,topicSelect.value)"),'teacher availability must use the aligned shared core directly');
+expect(!coreSource.includes('topicObserver.observe'),'shared core must not patch the V43B DOM after render');
+expect(!teacherSource.includes('capturedTopicSelection'),'consolidated teacher UI must not need the old V53D1 topic self-repair loop');
+expect(studentSource.includes("cloud.rpc('get_student_practice_assignments'"),'student assignment path must retain the legacy RPC call surface for the bridge');
+expect(!coreSource.includes("cloud.from('questions').update")&&!teacherSource.includes("cloud.from('questions').update"),'assignment alignment must not mutate question activation or eligibility');
+expect(!coreSource.includes('exam_attempt')&&!teacherSource.includes('exam_attempt')&&!studentSource.includes('exam_attempt'),'assignment consolidation must not change Exam Mode');
 
 expect(studentSql.includes('get_student_practice_assignments_v53d1'),'versioned assignment listing RPC must be recorded');
 expect(studentSql.includes('start_student_practice_assignment_v53d1'),'versioned assignment start RPC must be recorded');
@@ -59,6 +66,8 @@ expect(!/grant execute[^;]+to anon/i.test(teacherSql),'teacher creation RPCs mus
 
 expect(release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1'"),'V5.3B unified Practice bridge must remain loaded');
 expect(release.includes("loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1'"),'V5.3C two-mode student UI must remain loaded');
-expect(release.includes("loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-3'"),'V5.3D1 alignment bridge must be cache-busted and loaded');
+expect(release.includes("loadScriptOnce('assignments-core.js', 'data-assignments-core')"),'consolidated assignment core must be loaded');
+expect(release.includes("loadScriptOnce('assignments-student.js', 'data-assignments-student')"),'consolidated assignment student runtime must be loaded');
+expect(release.includes("loadScriptOnce('assignments-teacher.js', 'data-assignments-teacher')"),'consolidated assignment teacher runtime must be loaded');
 
 console.log('V5.3D1 teacher Practice-pool alignment regression passed.');
