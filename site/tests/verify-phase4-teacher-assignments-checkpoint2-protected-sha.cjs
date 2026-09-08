@@ -21,6 +21,7 @@ const protectedBlobs = {
   'site/v53d3-practice-selection-quality.js': '5a59a347dd966c3cbc2317aa14c08021647f20e5',
   'site/v53d4-student-recommendation-alignment.js': '6c6d21102f0ddae7b28d4624a56e419371a7cc22',
   'site/v53d5-practice-selection-intelligence.js': '595735f995318c97e783680dda58ea5c22609c27',
+  'site/v53d6-resource-bank-status-clarity.js': '98c5c1c24480856745dd85922ed674e16bf7bfc1',
 
   'site/past-paper-core.js': '8b007f6cae55dbcb32267c97bfbc4b25e4654fe0',
   'site/past-paper-resume.js': '844cf3f514c75736079278ead84d402f39be09d1',
