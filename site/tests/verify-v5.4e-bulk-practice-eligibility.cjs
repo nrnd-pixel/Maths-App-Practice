@@ -7,14 +7,14 @@ const modulePath = path.join(root,'v54e-bulk-practice-eligibility.js');
 const sqlPath = path.resolve(root,'../supabase/v54e_bulk_practice_eligibility_controls.sql');
 const releasePath = path.join(root,'v40-release.js');
 const bulkStatusPath = path.join(root,'v51-question-bank-bulk-status.js');
-const d1Path = path.join(root,'v53d1-teacher-practice-pool-alignment.js');
+const assignmentsCorePath = path.join(root,'assignments-core.js');
 const v54bPath = path.join(root,'v54b-practice-eligibility-controls.js');
 
 const source = fs.readFileSync(modulePath,'utf8');
 const sql = fs.readFileSync(sqlPath,'utf8');
 const release = fs.readFileSync(releasePath,'utf8');
 const bulkStatus = fs.readFileSync(bulkStatusPath,'utf8');
-const d1 = fs.readFileSync(d1Path,'utf8');
+const assignmentsCore = fs.readFileSync(assignmentsCorePath,'utf8');
 const v54b = fs.readFileSync(v54bPath,'utf8');
 const api = require(modulePath);
 
@@ -79,7 +79,7 @@ assert(sql.includes('to authenticated, service_role'),'Only authenticated/servic
 
 assert(bulkStatus.includes('selected:Object.freeze(selected.slice())'),'Established bulk selector must expose its selection through buildPlan');
 assert(bulkStatus.includes('clearSelection'),'Established bulk selector must retain clear-selection behavior');
-assert(d1.includes('function logicalQuestionKey(question)'),'Accepted V5.3D1 logical identity helper must remain intact');
+assert(assignmentsCore.includes('function logicalQuestionKey(question)'),'Accepted V5.3D1 logical identity helper must remain intact in assignments-core');
 assert(v54b.includes("cloud.rpc('save_question_practice_eligibility_v54b'"),'Accepted V5.4B single-question writer must remain intact');
 
 const d = release.indexOf("v54d-topical-resource-simplification.js?v=54d-1");

@@ -10,7 +10,7 @@ const selection = require('../v53d3-practice-selection-quality.js');
 const sql = read('supabase/v53d3_practice_question_history.sql');
 const release = read('site/v40-release.js');
 const v53b = read('site/v53b-unified-practice-retrieval.js');
-const d1 = read('site/v53d1-teacher-practice-pool-alignment.js');
+const assignmentsCore = read('site/assignments-core.js');
 
 const ordinary = selection.routeRpc('get_student_questions',{
   p_access_token:'ticket',p_year_level:6,p_exam_year:null,p_paper:null
@@ -83,14 +83,14 @@ assert.match(sql,/grant execute on function public\.get_student_practice_questio
 
 assert.match(release,/v53b-unified-practice-retrieval\.js\?v=53b-1/,
   'V5.3B rollback bridge must remain loaded.');
-assert.match(release,/v53d1-teacher-practice-pool-alignment\.js\?v=53d1-3/,
-  'Accepted V5.3D1 assignment alignment must remain loaded.');
+assert.match(release,/assignments-core\.js', 'data-assignments-core'/,
+  'Accepted V5.3D1 assignment alignment must remain loaded through the consolidated core.');
 assert.match(release,/v53d3-practice-selection-quality\.js\?v=53d3-1', 'data-v53d3-practice-selection-quality'/,
   'D3 selection quality must be wired into the release loader.');
 assert.match(v53b,/grade_practice_response_v53b/,
   'Accepted V5.3B grading must remain authoritative.');
-assert.match(d1,/start_student_practice_assignment_v53d1/,
-  'Accepted V5.3D1 assignment flow must remain authoritative.');
+assert.match(assignmentsCore,/start_student_practice_assignment_v53d1/,
+  'Accepted V5.3D1 assignment flow must remain authoritative in assignments-core.');
 
 console.log('V5.3D3 Practice selection quality verification passed.');
 console.log('- ordinary Practice retrieval carries per-student exposure history only');

@@ -41,7 +41,7 @@ const html = read('site/index.html');
 const config = read('site/config.js');
 const release = read('site/v40-release.js');
 const session = read('site/v40-student-session.js');
-const assignments = read('site/v43-multi-recipient-practice-assignments.js');
+const assignments = read('site/assignments-teacher.js');
 const deadlineMonitor = read('site/v48-teacher-deadline-monitoring.js');
 const deadlineFollowUp = read('site/v48-deadline-follow-up.js');
 const progressOverview = read('site/v50-student-progress-overview.js');
@@ -119,12 +119,12 @@ assert.match(aiEdge, /Deno\.env\.get\("OPENAI_API_KEY"\)/);
 assert.match(aiCompat, /TARGET_FUNCTION_URL/);
 assert.match(aiCompat, /Origin not allowed/);
 
-// 7) Assignment write guard: the teacher Assign Practice action is disabled during creation.
-assert.match(assignments, /const button = document\.getElementById\('v43b-save'\)/);
-assert.match(assignments, /button\.disabled = true/);
-assert.match(assignments, /button\.textContent = 'Assigning…'/);
+// 7) Assignment write guard: the active teacher Assign Practice action is disabled during creation.
+assert.match(assignments, /const button=document\.getElementById\('v43b-save'\)/);
+assert.match(assignments, /button\.disabled=true/);
+assert.match(assignments, /button\.textContent='Assigning…'/);
 assert.match(assignments, /create_teacher_practice_assignments_v43b/);
-assert.match(assignments, /finally\s*\{[\s\S]*?button\.disabled = false/);
+assert.match(assignments, /finally\s*\{[\s\S]*?button\.disabled=false/);
 
 // 8) V5.0B2 runtime hardening: deadline monitoring stays class-scoped and event-driven.
 assert.match(deadlineMonitor, /\.eq\('class_id',cls\.id\)/, 'Deadline assignments must be scoped to the selected class.');

@@ -6,6 +6,7 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const action=read('v44-action-center-practice.js');
 const groups=read('v44-shared-focus-groups.js');
 const release=read('v40-release.js');
+const assignmentsCore=read('assignments-core.js');
 
 function expect(condition,message){if(!condition)throw new Error(message);}
 
@@ -24,7 +25,8 @@ expect(!groups.includes('return questions.some(question =>\n      question?.acti
 expect(release.includes("loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice')"),'Action Center alignment asset must be cache-busted without changing its loader key');
 expect(release.includes("loadScriptOnce('v44-shared-focus-groups.js?v=44b-2', 'data-v44b-shared-focus-groups')"),'Shared Focus alignment asset must be cache-busted without changing its loader key');
 expect(release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1'"),'V5.3B unified Practice retrieval must remain loaded');
-expect(release.includes("loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-3'"),'V5.3D1 teacher Practice alignment must remain loaded');
+expect(release.includes("loadScriptOnce('assignments-core.js', 'data-assignments-core')"),'Consolidated assignment core must retain V5.3D1 teacher Practice alignment');
+expect(assignmentsCore.includes("create_teacher_practice_assignments_v43b:'create_teacher_practice_assignments_v53d1'"),'V5.3D1 assignment routing must remain authoritative in the active core');
 
 expect(!action.includes("cloud.from('questions').update"),'Action Center alignment must not mutate question eligibility or activation');
 expect(!groups.includes("cloud.from('questions').update"),'Shared Focus alignment must not mutate question eligibility or activation');

@@ -10,7 +10,7 @@ const bridge = require('../v53d4-student-recommendation-alignment.js');
 const sql = read('supabase/v53d4_student_recommendation_alignment.sql');
 const release = read('site/v40-release.js');
 const d3 = read('site/v53d3-practice-selection-quality.js');
-const d1 = read('site/v53d1-teacher-practice-pool-alignment.js');
+const assignmentsCore = read('site/assignments-core.js');
 
 const routed = bridge.routeRpc('get_student_practice_recommendation',{p_access_token:'ticket'});
 assert.deepEqual(routed,{
@@ -64,8 +64,8 @@ assert.match(release,/v53d4-student-recommendation-alignment\.js\?v=53d4-1', 'da
   'D4 student recommendation alignment must be wired into the release loader.');
 assert.match(d3,/get_student_practice_questions_v53d3/,
   'Accepted D3 repeat-aware Practice selection must remain authoritative.');
-assert.match(d1,/start_student_practice_assignment_v53d1/,
-  'Accepted D1 targeted assignment flow must remain authoritative.');
+assert.match(assignmentsCore,/start_student_practice_assignment_v53d1/,
+  'Accepted D1 targeted assignment flow must remain authoritative in assignments-core.');
 
 assert.doesNotMatch(sql,/update\s+public\.questions|delete\s+from\s+public\.questions|insert\s+into\s+public\.questions/i,
   'D4 recommendation alignment must remain read-only with respect to the question bank.');

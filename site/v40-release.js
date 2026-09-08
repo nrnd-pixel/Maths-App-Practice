@@ -29,11 +29,11 @@
     loadScriptOnce('v41-signin-guard.js', 'data-v41-signin-guard');
     loadScriptOnce('v41-mastery-progress.js', 'data-v41c-mastery-progress');
     loadScriptOnce('v42-teacher-action-center.js', 'data-v42a-teacher-action-center');
-    loadScriptOnce('v42-practice-assignments.js', 'data-v42b-practice-assignments');
+    loadScriptOnce('assignments-core.js', 'data-assignments-core');
+    loadScriptOnce('assignments-student.js', 'data-assignments-student');
+    loadScriptOnce('assignments-teacher.js', 'data-assignments-teacher');
     loadScriptOnce('v42-roster-cleanup.js', 'data-v42c-roster-cleanup');
     loadScriptOnce('v42-quick-add-student.js', 'data-v42d-quick-add-student');
-    loadScriptOnce('v43-individual-practice-assignments.js', 'data-v43a-individual-practice-assignments');
-    loadScriptOnce('v43-multi-recipient-practice-assignments.js', 'data-v43b-multi-recipient-practice-assignments');
     loadScriptOnce('v43-teacher-dashboard-polish.js', 'data-v43c-teacher-dashboard-polish');
     loadScriptOnce('v43-combined-teacher-improvements.js?v=43d-1', 'data-v43d-combined-teacher-improvements');
     loadScriptOnce('v44-action-center-practice.js?v=44a-2', 'data-v44a-action-center-practice');
@@ -96,7 +96,6 @@
     loadScriptOnce('v53a-practice-eligibility.js?v=53a-1', 'data-v53a-practice-eligibility');
     loadScriptOnce('v53b-unified-practice-retrieval.js?v=53b-1', 'data-v53b-unified-practice-retrieval');
     loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1', 'data-v53c-two-mode-student-ui');
-    loadScriptOnce('v53d1-teacher-practice-pool-alignment.js?v=53d1-3', 'data-v53d1-teacher-practice-pool-alignment');
     loadScriptOnce('v53d3-practice-selection-quality.js?v=53d3-1', 'data-v53d3-practice-selection-quality');
     loadScriptOnce('v53d4-student-recommendation-alignment.js?v=53d4-1', 'data-v53d4-student-recommendation-alignment');
     loadScriptOnce('v53d5-practice-selection-intelligence.js?v=53d5-1', 'data-v53d5-practice-selection-intelligence');
