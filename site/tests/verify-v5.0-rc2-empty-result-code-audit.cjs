@@ -15,10 +15,10 @@ new vm.Script(polish,{filename:'v50-rc2-empty-result-code-polish.js'});
 
 assert.match(release,/v50-rc2-empty-result-code-polish\.js\?v=50rc2-empty-1/,
   'Release loader must include the empty-result-code audit polish.');
-assert.match(release,/v44-action-center-practice\.js\?v=44a-\d+', 'data-v44a-action-center-practice'/,
-  'The established V44 action-center loader identity must remain unchanged across asset revisions.');
-assert.match(release,/v47-intervention-history\.js\?v=47a-1/,
-  'The established V47 history loader must remain unchanged.');
+assert.match(release,/assignment-interventions\.js', 'data-assignment-interventions'/,
+  'The consolidated V44 intervention owner must remain staged.');
+assert.match(release,/assignment-intervention-history\.js/,
+  'The consolidated V47 history owner must remain staged.');
 
 assert.match(sql,/v_result_code_count integer := 0/i);
 assert.match(sql,/select count\(\*\)::integer,[\s\S]*?coalesce\(min\(length\(result_code\)\),0\)::integer,[\s\S]*?count\(distinct result_code\)/i,

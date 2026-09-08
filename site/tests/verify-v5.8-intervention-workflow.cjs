@@ -103,7 +103,10 @@ assert.match(deadlinesRuntime, /closes_at:value/);
 assert.match(deadlinesRuntime, /cloud\.from\('practice_assignments'\)[\s\S]*?\.update\(payload\)/);
 assert.match(deadlinesRuntime, /math-practice-assignments-changed/);
 assert.match(deadlinesRuntime, /Target only — access stays open/);
-assert.doesNotMatch(deadlinesRuntime, /practice_assignment_attempts[\s\S]*?\.update\(|practice_sessions[\s\S]*?\.update\(/,
+const deadlineFollowUpStart = deadlinesRuntime.indexOf('/* V4.8C — Practice Deadline Follow-Up.');
+assert.ok(deadlineFollowUpStart >= 0, 'V48C deadline follow-up source boundary must remain present.');
+const deadlineFollowUp = deadlinesRuntime.slice(deadlineFollowUpStart);
+assert.doesNotMatch(deadlineFollowUp, /practice_assignment_attempts|practice_sessions/,
   'Deadline target editing must not alter attempts or Practice results.');
 
 // 10) Student topic progress remains a read-only drill-down over secure My Progress.
