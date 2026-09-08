@@ -5,9 +5,11 @@ const path=require('node:path');
 const site=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(site,name),'utf8');
 const release=read('v40-release.js');
+const config=read('config.js');
 const core=read('assignments-core.js');
 const student=read('assignments-student.js');
 const teacher=read('assignments-teacher.js');
+const v56b=read('v56b-teacher-assigned-past-paper-practice.js');
 
 const loaders=[...release.matchAll(/loadScriptOnce\('([^'?]+\.js)(?:\?[^']*)?'/g)].map(match=>match[1]);
 const pos=name=>loaders.indexOf(name);
@@ -27,6 +29,8 @@ assert.ok(pos('assignments-core.js') < pos('assignments-student.js'));
 assert.ok(pos('assignments-student.js') < pos('assignments-teacher.js'));
 assert.ok(pos('assignments-teacher.js') < pos('v42-roster-cleanup.js'));
 assert.ok(pos('assignments-teacher.js') < pos('v44-action-center-practice.js'));
+assert.match(config,/\.\/v56b-teacher-assigned-past-paper-practice\.js/,
+  'Untouched V56B Past Paper assignment extension must remain staged after the V4/V5.3 foundation.');
 
 const rpcPairs={
   get_student_practice_assignments:'get_student_practice_assignments_v53d1',
@@ -44,6 +48,21 @@ assert.match(core,/cloud\.rpc = function\(name,args,options\)|cloud\.rpc=functio
 assert.match(core,/__v53d1PracticeAssignmentRpcBridge/);
 assert.match(core,/Object\.defineProperty\(window,'V53D1TeacherPracticePoolAlignment'/);
 assert.match(core,/ROOT\.__v53d1TeacherPracticePoolAlignmentInstalled=true/);
+
+// The later, untouched V56B bridge deliberately accepts both the legacy names and
+// the V53D1 names. This proves the earlier consolidated bridge can compose with it
+// without bypassing assigned-Past-Paper routing.
+for(const [legacy,current] of Object.entries({
+  get_student_practice_assignments:'get_student_practice_assignments_v53d1',
+  start_student_practice_assignment:'start_student_practice_assignment_v53d1',
+  complete_student_practice_assignment:'complete_student_practice_assignment_v53d1'
+})){
+  assert.ok(v56b.includes(`${legacy}:'`) && v56b.includes(`${current}:'`),
+    `Untouched V56B must recognize both ${legacy} and ${current}`);
+}
+assert.match(v56b,/get_student_practice_assignments_v53d1:'get_student_practice_assignments_v56b'/);
+assert.match(v56b,/start_student_practice_assignment_v53d1:'start_student_practice_assignment_v56b'/);
+assert.match(v56b,/complete_student_practice_assignment_v53d1:'complete_student_practice_assignment_v56b'/);
 
 // V5.3D1 Practice-resource semantics are now used directly by the teacher renderer,
 // rather than repairing V43B after render with another module's MutationObserver.
@@ -74,6 +93,8 @@ const v43bClasses=[
 for(const token of [...v43bIds,...v43bClasses]){
   assert.ok(teacher.includes(token),`Active teacher runtime must preserve V43B DOM token: ${token}`);
 }
+assert.match(teacher,/class="outline v43b-toggle" data-id="\$\{html\(assignment\.id\)\}" data-active="\$\{assignment\.active\?'true':'false'\}"/,
+  'V43B card toggle must retain the data-id/data-active contract used by downstream consumers.');
 
 const v42StudentTokens=[
   'v42b-student-practice-assignments','v42b-section-head','v42b-assignment-grid',
@@ -83,6 +104,8 @@ const v42StudentTokens=[
 for(const token of v42StudentTokens){
   assert.ok(student.includes(token),`Active student runtime must preserve V42 student DOM token: ${token}`);
 }
+assert.match(student,/class="primary v42b-start-practice-assignment" data-id="\$\{html\(assignment\.assignment_id\)\}"/,
+  'V42 student start button must retain its assignment data-id contract used by deadline decoration.');
 assert.match(student,/window\.startPracticeAssignmentV42B=startPracticeAssignment/);
 assert.match(student,/cloud\.rpc\('get_student_practice_assignments'/);
 assert.match(student,/cloud\.rpc\('start_student_practice_assignment'/);
@@ -114,7 +137,7 @@ assert.match(student,/observer\.observe\(result,\{attributes:true,attributeFilte
 console.log('Phase 4 teacher assignments Checkpoint 1 integrity checks passed.');
 console.log('- legacy V42/V43A/V43B/V53D1 browser loaders retired; core/student/teacher loaded in order');
 console.log('- exact V43B teacher and V42 student compatibility DOM tokens retained');
-console.log('- five-pair V53D1 RPC compatibility bridge and global API retained');
-console.log('- V53D1 Practice-resource alignment is direct internal logic, not post-render DOM patching');
+console.log('- five-pair V53D1 RPC compatibility bridge/global API retained and composes with untouched V56B');
+console.log('- V5.3D1 Practice-resource alignment is direct internal logic, not post-render DOM patching');
 console.log('- one renderClassAdmin compatibility hook replaces the V43A -> V43B double wrapper');
 console.log('- Practice grading/execution ownership remains outside assignment consolidation');
