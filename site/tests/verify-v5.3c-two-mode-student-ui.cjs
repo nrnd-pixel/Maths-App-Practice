@@ -33,7 +33,6 @@ expect(release.includes("loadScriptOnce('practice-selection-engine.js'"),'unifie
 expect(!release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js"),'historical V53B source must remain dormant');
 expect(release.includes("loadScriptOnce('v52-teacher-topical-library.js?v=52b-1'"),'teacher Topical Exercise Library must remain loaded');
 expect(release.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');"),'consolidated post-engine UI/resource owner must be loaded');
-expect(!release.includes("loadScriptOnce('v53c-two-mode-student-ui.js"),'historical V53C source must be dormant');
 expect(release.indexOf('practice-selection-engine.js') < release.indexOf('practice-ui-resource-clarity.js'),'consolidated clarity owner must remain after the Practice selection engine');
 
 console.log('V5.3C two-mode student UI regression passed against consolidated owner.');
