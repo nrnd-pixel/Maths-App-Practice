@@ -129,7 +129,7 @@ assert.doesNotMatch(v46, /(?:^|[;\n])\s*(?:analyticsVisibleRows|analyticsContext
 assert.match(deadlines, /const payload = \{[\s\S]*?closes_at:value,[\s\S]*?updated_at:new Date\(\)\.toISOString\(\)[\s\S]*?\}/);
 assert.match(deadlines, /math-practice-assignments-changed/);
 assert.match(deadlines, /window\.addEventListener\('math-practice-assignments-changed'/);
-assert.match(deadlines, /observer\.observe\(list,\{childList:true\}\)/);
+assert.match(deadlines, /listObserver\.observe\(list,\{childList:true\}\)/);
 assert.doesNotMatch(deadlines, /payload\s*=\s*\{[^}]*\bactive\s*:/,
   'Deadline editing must not change assignment active/access state');
 
