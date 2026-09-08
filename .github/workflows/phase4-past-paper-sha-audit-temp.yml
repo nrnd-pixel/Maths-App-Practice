@@ -1,0 +1,102 @@
+name: Phase 4 Past Paper Protected SHA Audit Temporary
+
+on:
+  push:
+    branches:
+      - development/phase4-past-paper-v56-v57-e2e
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Compare protected files at exact main and checkpoint heads
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Audit exact protected blob SHAs
+        env:
+          MAIN_SHA: 6aa168d67129a63a30eb0764a59de496faede2a5
+          CHECKPOINT_SHA: 0fa12b26b5d81dc4a94a9de213332fa4af5be55d
+        run: |
+          git fetch --no-tags origin "$MAIN_SHA" "$CHECKPOINT_SHA"
+          python - <<'PY'
+          import os, subprocess, sys
+
+          main=os.environ['MAIN_SHA']
+          branch=os.environ['CHECKPOINT_SHA']
+
+          browser=[
+            'site/past-paper-core.js',
+            'site/past-paper-resume.js',
+            'site/past-paper-results.js',
+            'site/v55-stable-release-checkpoint.js',
+            'site/v56a-question-bank-response-filter.js',
+            'site/v56a1-bulk-practice-confirmation-bridge.js',
+            'site/v561-practice-first-student-experience.js',
+            'site/v56-stable-release-checkpoint.js',
+            'site/v57b-teacher-assignment-management.js',
+            'site/v57c-student-continue-learning-home.js',
+            'site/v57-stable-release-checkpoint.js',
+            'site/gamification-core.js',
+            'site/gamification-student.js',
+            'site/gamification-teacher.js',
+            'site/v576-classroom-feedback-support.js',
+            'site/v5761-feedback-trigger-position.js',
+            'site/v5763-teacher-feedback-header-icon.js',
+            'site/v581a-practice-cloud-result-reconciliation.js',
+            'site/v58a-student-first-use-experience.js',
+            'site/v58b-teacher-workspace-consolidation.js',
+            'site/v58c-parent-friendly-student-report.js',
+            'site/v58c-parent-summary-workspace-shortcut.js',
+            'site/v58d-content-workflow-consolidation.js',
+            'site/v58-stable-release-checkpoint.js',
+          ]
+
+          sql=[
+            'supabase/v56b_teacher_assigned_past_paper_practice.sql',
+            'supabase/v56c_student_past_paper_progress.sql',
+            'supabase/v56d_teacher_past_paper_analytics.sql',
+            'supabase/v57a_cross_device_past_paper_resume.sql',
+            'supabase/v57a_completion_watermarks.sql',
+            'supabase/v57a_checkpoint_completion_cleanup.sql',
+            'supabase/v57b_teacher_assignment_management.sql',
+            'supabase/v581_past_paper_assignment_completion.sql',
+            'supabase/v58a_security_privilege_hardening.sql',
+            'supabase/v571a_student_gamification_foundation.sql',
+            'supabase/v571b_student_streaks_achievements.sql',
+            'supabase/v572_student_weekly_missions.sql',
+            'supabase/v573_class_challenges_teacher_gamification.sql',
+            'supabase/v574_gamification_polish_teacher_controls.sql',
+            'supabase/v576_classroom_feedback_support.sql',
+            'supabase/v5762_student_pin_reset_lockout_fix.sql',
+          ]
+
+          def blob(ref,path):
+              p=subprocess.run(['git','rev-parse',f'{ref}:{path}'],text=True,capture_output=True)
+              if p.returncode:
+                  return None
+              return p.stdout.strip()
+
+          mismatches=[]
+          print(f'MAIN {main}')
+          print(f'CHECKPOINT {branch}')
+          for group,paths in [('BROWSER_RUNTIME',browser),('SQL_NO_CHANGE',sql)]:
+              print(f'\n[{group}] count={len(paths)}')
+              print('path|main_blob|checkpoint_blob|status')
+              for path in paths:
+                  a=blob(main,path); b=blob(branch,path)
+                  status='MATCH' if a and a==b else 'MISMATCH'
+                  print(f'{path}|{a or "MISSING"}|{b or "MISSING"}|{status}')
+                  if status!='MATCH': mismatches.append((path,a,b))
+          print(f'\nTOTAL_PROTECTED={len(browser)+len(sql)}')
+          print(f'TOTAL_MATCHED={len(browser)+len(sql)-len(mismatches)}')
+          if mismatches:
+              print('PROTECTED SHA AUDIT FAILED')
+              for row in mismatches: print(row)
+              sys.exit(1)
+          print('PROTECTED SHA AUDIT PASSED: all protected files are byte-identical at the exact final checkpoint head.')
+          PY
