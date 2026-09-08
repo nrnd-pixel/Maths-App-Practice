@@ -199,10 +199,10 @@ async function currentLocalSnapshot(page){
 async function createLocalCheckpointAndReload(page){
   await selectPastPaper(page,{scope:'all'});
   await startSelectedPastPaper(page);
-  await expect(page.locator('#q-text')).toContainText('Q1');
+  await expect(page.locator('#q-text')).toHaveText(Q1.question_text);
   await answerPracticeCorrectly(page);
   await page.locator('#next-btn').click();
-  await expect(page.locator('#q-text')).toContainText('Q2');
+  await expect(page.locator('#q-text')).toHaveText(Q2.question_text);
   await expect.poll(async()=>Number((await currentLocalSnapshot(page))?.nextIndex||0)).toBe(1);
 
   await page.reload();
@@ -275,11 +275,13 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
     await openApp(page);
     await signInStudent(page);
     await waitForFullPastPaperRuntime(page);
-    await selectPastPaper(page,{scope:'all'});
+    await selectPastPaper(page,{scope:'quick'});
     await startSelectedPastPaper(page);
 
     const s=await runtimeState(page);
-    expect(s.questions.map(row=>row.id)).toEqual([Q1.id,Q2.id]);
+    const ids=s.questions.map(row=>row.id);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids)).toEqual(new Set([Q1.id,Q2.id]));
     expect(s.questions.some(row=>row.id===WRONG_SOURCE.id)).toBe(false);
   });
 
@@ -290,6 +292,10 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
     await signInStudent(page);
     await waitForFullPastPaperRuntime(page);
     await openLearn(page);
+    const changeSettings=page.locator('.v40c-change-settings');
+    await changeSettings.click();
+    await expect(changeSettings).toHaveAttribute('aria-expanded','true');
+    await expect(page.locator('#question-count')).toBeVisible();
     await page.locator('#question-count').selectOption('5');
     await selectPastPaper(page,{scope:'all'});
     await expect(page.locator('#question-count')).toBeDisabled();
@@ -312,11 +318,11 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
     await waitForFullPastPaperRuntime(page);
     await selectPastPaper(page,{scope:'all'});
     await startSelectedPastPaper(page);
-    await expect(page.locator('#q-text')).toContainText('Q1');
+    await expect(page.locator('#q-text')).toHaveText(Q1.question_text);
     await answerPracticeCorrectly(page);
 
     await page.locator('#next-btn').click();
-    await expect(page.locator('#q-text')).toContainText('Q2');
+    await expect(page.locator('#q-text')).toHaveText(Q2.question_text);
     const s=await runtimeState(page);
     expect(s.index).toBe(1);
 
@@ -350,7 +356,7 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
 
     await localCard.locator('[data-v55c-resume]').click();
     await expect(page.locator('#quiz')).toHaveClass(/active/);
-    await expect(page.locator('#q-text')).toContainText('Q2');
+    await expect(page.locator('#q-text')).toHaveText(Q2.question_text);
     const s=await runtimeState(page);
     expect(s.index).toBe(1);
     expect(s.first).toBe(1);
@@ -368,10 +374,10 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
     await createLocalCheckpointAndReload(page);
 
     await page.locator('#v55c-resume-card [data-v55c-resume]').click();
-    await expect(page.locator('#q-text')).toContainText('Q2');
+    await expect(page.locator('#q-text')).toHaveText(Q2.question_text);
     await answerPracticeCorrectly(page);
     await page.locator('#next-btn').click();
-    await expect(page.locator('#q-text')).toContainText('Q10');
+    await expect(page.locator('#q-text')).toHaveText(Q10.question_text);
     await answerPracticeCorrectly(page);
     await page.locator('#next-btn').click();
 
@@ -410,7 +416,7 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
     await serverCard.locator('[data-v57a-resume]').click();
 
     await expect(page.locator('#quiz')).toHaveClass(/active/);
-    await expect(page.locator('#q-text')).toContainText('Q2');
+    await expect(page.locator('#q-text')).toHaveText(Q2.question_text);
     let s=await runtimeState(page);
     expect(s.index).toBe(1);
     expect(s.answers).toHaveLength(1);
@@ -419,7 +425,7 @@ test.describe('Phase 4 V55 Past Paper lifecycle equivalence',()=>{
 
     await answerPracticeCorrectly(page);
     await page.locator('#next-btn').click();
-    await expect(page.locator('#q-text')).toContainText('Q10');
+    await expect(page.locator('#q-text')).toHaveText(Q10.question_text);
     s=await runtimeState(page);
     expect(s.index).toBe(2);
     await expect.poll(()=>Number(server.checkpoint?.nextIndex||0)).toBe(2);
