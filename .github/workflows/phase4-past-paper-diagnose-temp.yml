@@ -1,0 +1,39 @@
+name: Phase 4 Past Paper Diagnose Temporary
+on:
+  push:
+    branches:
+      - development/phase4-past-paper-v56-v57-e2e
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tech-debt-phase-4-past-paper-v56-v57-v58-checkpoint-1
+      - name: Compare consolidated source sections
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import difflib
+          def norm(s): return s.replace('\r\n','\n').rstrip()
+          cross=Path('site/past-paper-cross-device.js').read_text()
+          old=Path('site/v57a-cross-device-past-paper-resume.js').read_text()
+          m='/* V5.7A.1 — Cross-device resume bridge.'
+          part=cross[:cross.index(m)]
+          a,b=norm(part),norm(old)
+          print('v57a lengths',len(a),len(b),'equal',a==b)
+          if a!=b:
+            i=next((i for i,(x,y) in enumerate(zip(a,b)) if x!=y),min(len(a),len(b)))
+            print('first mismatch',i)
+            print('combined repr',repr(a[max(0,i-120):i+240]))
+            print('old repr',repr(b[max(0,i-120):i+240]))
+            print('tail combined',repr(a[-200:]))
+            print('tail old',repr(b[-200:]))
+          actions=Path('site/past-paper-analytics-actions.js').read_text()
+          oldd=Path('site/v57d-past-paper-analytics-actions.js').read_text()
+          dm='/* V5.7D.1 — Focus Plan Copy Fallback.'
+          da=norm(actions[:actions.index(dm)]); db=norm(oldd)
+          print('v57d lengths',len(da),len(db),'equal',da==db)
+          PY
