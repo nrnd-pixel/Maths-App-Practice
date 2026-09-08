@@ -1,0 +1,47 @@
+name: Phase 4 Past Paper E2E Temporary
+
+on:
+  push:
+    branches:
+      - development/phase4-past-paper-v56-v57-e2e
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Full staged Playwright suite including A-J
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+      - name: Run full staged Playwright suite
+        working-directory: e2e
+        run: npm test
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-past-paper-playwright-report
+          path: e2e/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-past-paper-playwright-test-results
+          path: e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 7
