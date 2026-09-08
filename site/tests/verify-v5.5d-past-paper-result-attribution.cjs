@@ -3,9 +3,9 @@ const path=require('path');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const source=read('v55d-past-paper-result-attribution.js');
+const source=read('past-paper-results.js');
 const config=read('config.js');
-const feature=require(path.join(root,'v55d-past-paper-result-attribution.js'));
+const feature=require(path.join(root,'past-paper-results.js'));
 
 function expect(condition,message){if(!condition)throw new Error(message)}
 
@@ -43,11 +43,12 @@ expect(!feature.isPastPaperState({...state,v55a_paper:''}),'missing paper must n
 const context=feature.resultContext(state);
 expect(context.student==='Arina'&&context.yearLevel===6&&context.examYear===2025&&context.paper==='Paper 1','result-page context must preserve selected paper identity');
 
-expect(source.includes('resultRecord = function'),'V5.5D must wrap the existing Practice result record instead of replacing grading');
-expect(source.includes('const baseResultRecord = resultRecord'),'V5.5D must preserve the accepted result recorder');
-expect(source.includes('const baseFinishPractice = finishPractice'),'V5.5D must preserve the accepted finish workflow');
-expect(source.includes("practice_mode:'past_paper'"),'V5.5D must persist an explicit Past Paper Practice mode');
-expect(config.includes("'./v55d-past-paper-result-attribution.js'"),'V5.5D script must be loaded by config');
-expect(config.indexOf("'./v55c1-resume-button-bridge.js'") < config.indexOf("'./v55d-past-paper-result-attribution.js'"),'V5.5D must load after V5.5C resume wiring');
+expect(source.includes('const wrappedResultRecord = function'),'consolidated results must wrap the existing Practice result record instead of replacing grading');
+expect(source.includes('const baseResultRecord = resultRecord'),'results must preserve the accepted result recorder');
+expect(source.includes('const baseFinishPractice = finishPractice'),'results must preserve and wrap the resume-produced finish workflow');
+expect(source.includes("practice_mode:'past_paper'"),'results must persist an explicit Past Paper Practice mode');
+expect(source.includes('const output = await baseFinishPractice.apply(this, args);'),'results must await lower completion before updating result presentation');
+expect(config.includes("'./past-paper-results.js'"),'consolidated V5.5D results must be loaded by config');
+expect(config.indexOf("'./past-paper-resume.js'") < config.indexOf("'./past-paper-results.js'"),'results must load after V5.5C resume wiring');
 
 console.log('V5.5D Past Paper Practice result attribution regression passed.');
