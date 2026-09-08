@@ -4,12 +4,12 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const site = path.join(__dirname,'..');
-const source = fs.readFileSync(path.join(site,'v56d-teacher-past-paper-analytics.js'),'utf8');
+const source = fs.readFileSync(path.join(site,'past-paper-analytics.js'),'utf8');
 const config = fs.readFileSync(path.join(site,'config.js'),'utf8');
 const sql = fs.readFileSync(path.join(site,'..','supabase','v56d_teacher_past_paper_analytics.sql'),'utf8');
 
-new vm.Script(source,{filename:'v56d-teacher-past-paper-analytics.js'});
-const api = require(path.join(site,'v56d-teacher-past-paper-analytics.js'));
+new vm.Script(source,{filename:'past-paper-analytics.js'});
+const api = require(path.join(site,'past-paper-analytics.js'));
 
 assert.equal(api.RPC_NAME,'get_teacher_past_paper_analytics_v56d');
 assert.equal(api.paperKey(2025,' Paper 1 '),'2025|paper 1');
@@ -35,7 +35,6 @@ const questions = api.weakQuestions([
   {question_number:'4',attempts:4,first_try_percent:55,mastery_percent:60}
 ],2);
 assert.deepEqual(questions.map(row=>row.question_number),['2','4']);
-
 const topics = api.weakTopics([
   {topic:'Fractions',attempts:5,first_try_percent:42,mastery_percent:68},
   {topic:'Whole Numbers',attempts:8,first_try_percent:75,mastery_percent:90},
@@ -65,12 +64,10 @@ assert.match(sql,/grant execute on function public\.get_teacher_past_paper_analy
 assert.doesNotMatch(sql,/correct_answer_snapshot/);
 assert.doesNotMatch(sql,/questions\.answer/);
 
-const v56cIndex = config.indexOf("'./v56c-student-past-paper-progress.js'");
-const v56dIndex = config.indexOf("'./v56d-teacher-past-paper-analytics.js'");
-assert.ok(v56cIndex >= 0,'V5.6C must remain loaded');
-assert.ok(v56dIndex > v56cIndex,'V5.6D must load after V5.6C');
+const progressIndex = config.indexOf("'./past-paper-progress.js'");
+const analyticsIndex = config.indexOf("'./past-paper-analytics.js'");
+assert.ok(progressIndex >= 0,'Past Paper progress must remain loaded');
+assert.ok(analyticsIndex > progressIndex,'Past Paper analytics must load after progress');
 
 console.log('V5.6D teacher Past Paper analytics regression passed.');
-
-// V5.6E stable consolidation is exercised through the existing V5.6D PR workflow.
 require('./verify-v5.6-stable-release-checkpoint.cjs');
