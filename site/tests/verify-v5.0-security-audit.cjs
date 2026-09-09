@@ -9,19 +9,26 @@ const read = rel => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
 
 const release = read('site/v40-release.js');
 const hardening = read('site/v50-security-hardening.js');
-const audit = read('site/v50-release-audit.js');
+const auditOwner = read('site/release-audit-ui.js');
 const sql = read('supabase/v50rc2_security_launch_audit.sql');
 const alignmentSql = read('supabase/v50rc2_security_privilege_alignment.sql');
 const triggerSql = read('supabase/v50rc2_trigger_search_path_alignment.sql');
 
+const auditStart='/* V5.0 Release Candidate Audit';
+const auditEnd='/* V5.0RC2 launch audit polish.';
+const begin=auditOwner.indexOf(auditStart), end=auditOwner.indexOf(auditEnd,begin+1);
+assert.ok(begin>=0 && end>begin,'RC1/RC2 audit section must remain in consolidated audit owner.');
+const audit=auditOwner.slice(begin,end).trimEnd();
 new vm.Script(hardening,{filename:'v50-security-hardening.js'});
-new vm.Script(audit,{filename:'v50-release-audit.js'});
+new vm.Script(auditOwner,{filename:'release-audit-ui.js'});
 
 // Loader stability + RC2 modules.
 assert.match(release,/loadScriptOnce\('assignment-intervention-history\.js', 'data-assignment-intervention-history'\)/,'Consolidated V4.7 history owner must remain staged.');
-assert.match(release,/v50-teacher-operations\.js\?v=50d2-1/,'D2 loader must remain stable.');
+assert.match(release,/loadScriptOnce\('teacher-launch-operations\.js', 'data-teacher-launch-operations'\)/,'Consolidated D1/D2/Roster owner must remain staged.');
 assert.match(release,/v50-security-hardening\.js\?v=50rc2-1', 'data-v50-security-hardening'/);
-assert.match(release,/v50-release-audit\.js\?v=50rc2-1', 'data-v50-release-audit'/);
+assert.match(release,/loadScriptOnce\('release-audit-ui\.js', 'data-release-audit-ui'\)/);
+assert.ok(release.indexOf('data-v50-security-hardening') < release.indexOf('data-release-audit-ui'),
+  'Security Hardening must remain the global owner before the late audit UI.');
 
 // Browser hardening: remove the pre-auth Student-ID-only assignment lookup from active UI.
 assert.match(hardening,/window\.refreshStudentAssignmentAccess\s*=\s*secureExamAccessNote/);
@@ -30,6 +37,8 @@ assert.doesNotMatch(hardening,/cloud\.rpc\(|cloud\.from\(|fetch\(/,
   'RC2 browser hardening must not make a replacement pre-auth data request.');
 assert.doesNotMatch(hardening,/localStorage|sessionStorage/,
   'RC2 hardening must not persist security state in browser storage.');
+assert.doesNotMatch(auditOwner,/refreshStudentAssignmentAccess\s*=/,
+  'Consolidated audit UI must not introduce a second assignment-access global replacement.');
 
 // Release Audit is read-only and reports RC1 + RC2 separately.
 assert.match(audit,/get_teacher_release_audit_v50rc1/);
@@ -148,7 +157,7 @@ for (const source of [sql,alignmentSql,triggerSql]) {
 
 console.log('V5.0RC2 security & launch-configuration verification passed.');
 console.log('- unconfigured Exam papers are hidden and blocked server-side');
-console.log('- legacy Student-ID-only Exam participation lookup is removed from active browser use');
+console.log('- frozen Security Hardening remains the sole assignment-access global replacement');
 console.log('- sensitive direct anon table access and PUBLIC/anon helper RPC exposure are closed');
 console.log('- trigger helpers use fixed search paths and remain internal-only');
 console.log('- required PIN/token/resume-token student RPCs remain available pre-login');
