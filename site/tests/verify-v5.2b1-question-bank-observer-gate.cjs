@@ -15,12 +15,12 @@ assert(source.includes('return nativeObserve(target,options)'),'Unrelated Mutati
 assert(source.includes("data-v52b1-observer-gated"),'Gated targets must expose a diagnostic marker');
 
 const gateIndex = loader.indexOf("v52b1-question-bank-observer-gate.js?v=52b1-2");
-const qaIndex = loader.indexOf("v51-question-bank-qa.js?v=51b1-1");
+const qaIndex = loader.indexOf("question-bank-selection-qa.js");
 const performanceIndex = loader.indexOf("v52b1-question-bank-performance.js?v=52b1-3");
 assert(gateIndex >= 0,'Observer gate must be loaded');
 assert(gateIndex < qaIndex,'Observer gate must load before Question Bank modules register observers');
 assert(performanceIndex > qaIndex,'Performance coordinator must still load after established Question Bank wrappers');
-assert(loader.includes("'data-v51-multipart-question-management'"),'Existing V5.1 multipart loader key must remain unchanged');
+assert(loader.includes("'data-question-bank-audit-multipart'"),'Existing V5.1 multipart loader key must remain unchanged');
 
 assert(!source.includes("cloud.from('questions')"),'Observer gate must not write question data');
 assert(!source.includes('localStorage.setItem'),'Observer gate must not write local storage');

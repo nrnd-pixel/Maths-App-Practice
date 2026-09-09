@@ -1,15 +1,16 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const source = fs.readFileSync(path.join(root,'site','v51-bulk-question-image-safety.js'),'utf8');
+const source = section('paper-import-management.js','/* V5.1A2 — persistent image-reference and stale-selection safety guard.','/* V5.1A4 — Paper Import Package Preview.');
 const loader = fs.readFileSync(path.join(root,'site','v40-release.js'),'utf8');
 
 const sandbox = {window:{},console};
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-bulk-question-image-safety.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51BulkQuestionImageSafety;
 assert(api,'V5.1A2 image safety API should be exposed');
 
@@ -52,7 +53,7 @@ assert(source.includes('MutationObserver'),'guard must stay synchronized when im
 assert(!source.includes('localStorage'));
 assert(!source.includes('sessionStorage'));
 assert(!/\.from\(\s*['\"]questions['\"]\s*\)/.test(source),'safety module must not write question rows');
-assert(loader.includes("v51-bulk-question-image-safety.js?v=51a2-1"),'V5 loader must include the V5.1A2 image safety guard');
+assert(loader.includes("paper-import-management.js"),'V5 loader must include the V5.1A2 image safety guard');
 
 console.log('V5.1A2 image safety checks passed.');
 console.log('- only permanent HTTPS remote image URLs are accepted for persistence');

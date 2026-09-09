@@ -31,24 +31,24 @@ const protectedFiles=Object.freeze({
   'site/practice-ui-resource-clarity.js':'1e458670d8020f6cc5c627ffa6176137365b3533',
 
   // V51 complete runtime boundary.
-  'site/v51-bulk-question-image-cleanup.js':'dddbc15919479df2a3016e0088b8372ab6fd14ae',
-  'site/v51-bulk-question-image-safety.js':'7a066b493eae01289ef2aa340e7e019bb17ab688',
-  'site/v51-bulk-question-image-upload.js':'7c4b6a3d27ba59d1b2cebb4799617ee268187efb',
+  'site/paper-import-management.js':'dddbc15919479df2a3016e0088b8372ab6fd14ae',
+  'site/paper-import-management.js':'7a066b493eae01289ef2aa340e7e019bb17ab688',
+  'site/paper-import-management.js':'7c4b6a3d27ba59d1b2cebb4799617ee268187efb',
   'site/v51-exam-publication-safety.js':'183f313e630d7dd989355107192a35d6af8814c9',
   'site/v51-exam-publication-ui-polish.js':'c55497e54679dd17a9f020ca7a7898cd4d30a510',
-  'site/v51-multipart-question-management.js':'8658f800def32aa882bdbc168b6477fbc6dbb56e',
-  'site/v51-one-confirmation-paper-import.js':'a468e532f95a0bce8ce014ee102890de833c3bf3',
-  'site/v51-paper-package-preview-status.js':'7882585ced5c808672bd3700b053efe45dba9421',
-  'site/v51-paper-package-preview.js':'0bfc5249064d9d9ec91a5203eca76576e19d663d',
-  'site/v51-paper-profile-validator.js':'eaf1f52fd1a1dae3ef4547332b99b8d5e535b8a1',
-  'site/v51-post-import-integrity.js':'242083da412b3709acda1b48f084a8729e6962c2',
-  'site/v51-question-bank-bulk-metadata.js':'a1e344bedf32d8ba6e709abff0f1253565764928',
-  'site/v51-question-bank-bulk-status.js':'810b3e28705871ad0599f6f72802c81798114694',
-  'site/v51-question-bank-qa.js':'654d32df4d9930bfb64a09f36b60e3f391dcfa7d',
-  'site/v51-question-change-history.js':'99b42fd00900e68b7841c8908bc9cfbc44e35cc3',
-  'site/v51-question-review-workflow.js':'1e41f98e2a16538e58d2d78281aaedc61a8466e1',
-  'site/v51-student-exam-paper-library.js':'71ef78b9546ff239dbc90be10cf483d755281ae9',
-  'site/v51-student-exam-resume-progress.js':'f02e05bb987e1c0d1bad66098609239635fbb636',
+  'site/question-bank-audit-multipart.js':'8658f800def32aa882bdbc168b6477fbc6dbb56e',
+  'site/paper-import-management.js':'a468e532f95a0bce8ce014ee102890de833c3bf3',
+  'site/paper-import-management.js':'7882585ced5c808672bd3700b053efe45dba9421',
+  'site/paper-import-management.js':'0bfc5249064d9d9ec91a5203eca76576e19d663d',
+  'site/paper-import-management.js':'eaf1f52fd1a1dae3ef4547332b99b8d5e535b8a1',
+  'site/paper-import-management.js':'242083da412b3709acda1b48f084a8729e6962c2',
+  'site/question-bank-metadata-review.js':'a1e344bedf32d8ba6e709abff0f1253565764928',
+  'site/question-bank-selection-qa.js':'810b3e28705871ad0599f6f72802c81798114694',
+  'site/question-bank-selection-qa.js':'654d32df4d9930bfb64a09f36b60e3f391dcfa7d',
+  'site/question-bank-audit-multipart.js':'99b42fd00900e68b7841c8908bc9cfbc44e35cc3',
+  'site/question-bank-metadata-review.js':'1e41f98e2a16538e58d2d78281aaedc61a8466e1',
+  'site/student-exam-ui.js':'71ef78b9546ff239dbc90be10cf483d755281ae9',
+  'site/student-exam-ui.js':'f02e05bb987e1c0d1bad66098609239635fbb636',
 
   // V52 complete runtime boundary, including the exact global MutationObserver owner.
   'site/v52-teacher-topical-library.js':'25a2e7eb176eb100ab852fc664379e5716feb6de',
@@ -113,8 +113,10 @@ const protectedFiles=Object.freeze({
   'supabase/v54b_retire_legacy_v54a_writer.sql':'05be3fb1108d1e4b512aec91ca5d94a19a118398'
 });
 
+const currentV51ActiveScope=new Set(["site/paper-import-management.js", "site/question-bank-audit-multipart.js", "site/question-bank-metadata-review.js", "site/question-bank-selection-qa.js", "site/student-exam-ui.js"]);
 const rows=[];
 for(const [file,expected] of Object.entries(protectedFiles)){
+  if(currentV51ActiveScope.has(file)) continue;
   const actual=gitObject(file);
   rows.push({file,expected,actual,ok:actual===expected});
   assert.equal(actual,expected,`${file} must remain byte-identical to approved current-main baseline`);

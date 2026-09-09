@@ -1,10 +1,11 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
-const sourcePath = path.join(__dirname,'..','v51-question-bank-bulk-status.js');
-const source = fs.readFileSync(sourcePath,'utf8');
+const sourcePath = path.join(__dirname,'..','question-bank-selection-qa.js');
+const source = section('question-bank-selection-qa.js','/* V5.1B2A — Safe bulk activate/deactivate for Question Bank.',null);
 
 const profiles = new Map([
   ['6|2019|paper2',{key:'6|2019|paper2',status:'incomplete',examYear:2019,paper:'Paper 2'}],
@@ -19,7 +20,7 @@ const qa = {
 
 const sandbox = { window:{V51QuestionBankQA:qa} };
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-question-bank-bulk-status.js'});
+vm.runInContext(source,sandbox,{filename:'question-bank-selection-qa.js'});
 const bulk = sandbox.window.V51QuestionBankBulkStatus;
 assert(bulk,'V51QuestionBankBulkStatus API should be exposed');
 

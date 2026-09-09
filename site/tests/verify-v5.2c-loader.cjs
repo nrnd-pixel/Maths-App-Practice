@@ -31,7 +31,7 @@ for(const name of ORDER){
 
 const foundationIndex=loader.indexOf(existingKeys[4]);
 const observerIndex=loader.indexOf(existingKeys[5]);
-const qaIndex=loader.indexOf("loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa')");
+const qaIndex=loader.indexOf("loadScriptOnce('question-bank-selection-qa.js', 'data-question-bank-selection-qa')");
 assert(foundationIndex>=0&&observerIndex>foundationIndex&&qaIndex>observerIndex,
   'V52B1 observer gate must remain immediately in the accepted early loader phase between foundation and V51 Question Bank QA');
 

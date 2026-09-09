@@ -61,7 +61,7 @@ assert(release.indexOf(before)>=0&&release.indexOf(newLoader)>release.indexOf(be
 
 const foundation="loadScriptOnce('v52-topical-exercise-foundation.js?v=52a-1', 'data-v52a-topical-exercise-foundation');";
 const observer="loadScriptOnce('v52b1-question-bank-observer-gate.js?v=52b1-2', 'data-v52b1-question-bank-observer-gate');";
-const qa="loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');";
+const qa="loadScriptOnce('question-bank-selection-qa.js', 'data-question-bank-selection-qa');";
 const foundationIndex=release.indexOf(foundation);
 const observerIndex=release.indexOf(observer);
 const qaIndex=release.indexOf(qa);

@@ -1,13 +1,14 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
-const source = fs.readFileSync(path.join(__dirname,'..','v51-question-review-workflow.js'),'utf8');
+const source = section('question-bank-metadata-review.js','/* V5.1B2C — Persistent Question Bank review workflow.',null);
 const sql = fs.readFileSync(path.join(__dirname,'..','..','supabase','v51b2c_question_review_workflow.sql'),'utf8');
 const sandbox = { window:{} };
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-question-review-workflow.js'});
+vm.runInContext(source,sandbox,{filename:'question-bank-metadata-review.js'});
 const review = sandbox.window.V51QuestionReviewWorkflow;
 assert(review,'V51QuestionReviewWorkflow API should be exposed');
 

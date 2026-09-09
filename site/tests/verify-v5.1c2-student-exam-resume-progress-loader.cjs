@@ -1,17 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const assert = require('assert');
-
-const loader = fs.readFileSync(path.join(__dirname,'..','v40-release.js'),'utf8');
-const c1 = loader.indexOf("v51-student-exam-paper-library.js?v=51c1-1");
-const c2 = loader.indexOf("v51-student-exam-resume-progress.js?v=51c2-1");
-const security = loader.indexOf("v50-security-hardening.js?v=50rc2-1");
-
-assert(c1 >= 0,'C1 loader entry missing');
-assert(c2 >= 0,'C2 resume/progress loader entry missing');
-assert(security >= 0,'security hardening loader entry missing');
-assert(c2 > c1,'C2 must load after the C1 paper library it augments');
-assert(c2 < security,'C2 must remain inside the staged V5.1 feature layer before V5.0 overlays');
-assert(loader.includes("'data-v51c2-student-exam-resume-progress'"),'C2 must have a unique load-once key');
-
-console.log('V5.1C2 loader wiring checks passed.');
+const fs=require('fs');
+const path=require('path');
+const assert=require('assert');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'student-exam-ui.js'),'utf8');
+const token="loadScriptOnce('student-exam-ui.js', 'data-student-exam-ui')";
+assert.strictEqual(loader.split(token).length-1,1,'C1/C2 owner must load exactly once');
+assert(owner.indexOf('/* V5.1C1 — Student Exam Paper Library.')<owner.indexOf('/* V5.1C2 — Student Exam Resume & Progress Clarity.'),'C1 must remain before C2 internally');
+assert(loader.indexOf('v51-exam-publication-ui-polish.js')<loader.indexOf(token),'student Exam owner must remain after standalone B3 UI polish');
+assert(loader.indexOf(token)<loader.indexOf('v50-security-hardening.js'),'student Exam owner must remain before V50 security hardening');
+console.log('V5.1C2 consolidated loader check passed.');

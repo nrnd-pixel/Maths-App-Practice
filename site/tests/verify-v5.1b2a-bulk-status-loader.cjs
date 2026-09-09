@@ -1,9 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const assert = require('assert');
-
-const loader = fs.readFileSync(path.join(__dirname,'..','v40-release.js'),'utf8');
-assert(loader.includes("loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');"),'B1 QA must load before B2A');
-assert(loader.includes("loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51-question-bank-bulk-status');"),'B2A bulk status module must be loaded');
-assert(loader.indexOf('v51-question-bank-qa.js') < loader.indexOf('v51-question-bank-bulk-status.js'),'B2A must load after B1 QA');
-console.log('V5.1B2A loader wiring checks passed.');
+const fs=require('fs');
+const path=require('path');
+const assert=require('assert');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'question-bank-selection-qa.js'),'utf8');
+const token="loadScriptOnce('question-bank-selection-qa.js', 'data-question-bank-selection-qa')";
+assert.strictEqual(loader.split(token).length-1,1,'B1/B2A owner must load exactly once');
+assert(owner.indexOf('/* V5.1B1 — Question Bank QA & completeness indicators.')<owner.indexOf('/* V5.1B2A — Safe bulk activate/deactivate for Question Bank.'),'B1 must remain before B2A internally');
+assert(loader.indexOf('v52b1-question-bank-observer-gate.js')<loader.indexOf(token),'B1/B2A owner must remain after V52B1');
+assert(loader.indexOf(token)<loader.indexOf('v52-topical-activation-guard.js'),'B1/B2A owner must remain before V52 activation guard');
+console.log('V5.1B2A consolidated loader check passed.');

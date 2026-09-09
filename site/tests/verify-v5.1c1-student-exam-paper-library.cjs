@@ -1,8 +1,9 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 
-const source = fs.readFileSync(path.join(__dirname,'..','v51-student-exam-paper-library.js'),'utf8');
+const source = section('student-exam-ui.js','/* V5.1C1 — Student Exam Paper Library.','/* V5.1C2 — Student Exam Resume & Progress Clarity.');
 
 assert(source.includes('Student Exam Paper Library'),'C1 feature identity missing');
 assert(source.includes("Array.isArray(examMetaRows)"),'C1 must use the already-loaded secure available-paper metadata');

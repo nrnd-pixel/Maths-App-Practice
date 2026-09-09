@@ -8,7 +8,7 @@ const site = path.join(__dirname,'..');
 const performancePath = path.join(site,'v52b1-question-bank-performance.js');
 const releasePath = path.join(site,'v40-release.js');
 const scopePath = path.join(site,'resource-bank-bulk.js');
-const bulkPath = path.join(site,'v51-question-bank-bulk-status.js');
+const bulkPath = path.join(site,'question-bank-selection-qa.js');
 
 const source = fs.readFileSync(performancePath,'utf8');
 const release = fs.readFileSync(releasePath,'utf8');

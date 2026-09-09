@@ -7,7 +7,7 @@ const modulePath = path.join(root,'resource-bank-bulk.js');
 const uiPath = path.join(root,'resource-bank-ui.js');
 const sqlPath = path.resolve(root,'../supabase/v54e_bulk_practice_eligibility_controls.sql');
 const releasePath = path.join(root,'v40-release.js');
-const bulkStatusPath = path.join(root,'v51-question-bank-bulk-status.js');
+const bulkStatusPath = path.join(root,'question-bank-selection-qa.js');
 const assignmentsCorePath = path.join(root,'assignments-core.js');
 
 const all=fs.readFileSync(modulePath,'utf8');

@@ -20,20 +20,20 @@ assert.match(changelog,/Release-candidate base: `787c9cccf5561dc041c74a5c498631d
 
 // All accepted V5.1 modules must remain in the historical staged release loader.
 [
-  'v51-paper-profile-validator.js',
-  'v51-bulk-question-image-upload.js',
-  'v51-paper-package-preview.js',
-  'v51-one-confirmation-paper-import.js',
-  'v51-post-import-integrity.js',
-  'v51-question-bank-qa.js',
-  'v51-question-bank-bulk-status.js',
-  'v51-question-bank-bulk-metadata.js',
-  'v51-question-review-workflow.js',
-  'v51-question-change-history.js',
-  'v51-multipart-question-management.js',
+  'paper-import-management.js',
+  'paper-import-management.js',
+  'paper-import-management.js',
+  'paper-import-management.js',
+  'paper-import-management.js',
+  'question-bank-selection-qa.js',
+  'question-bank-selection-qa.js',
+  'question-bank-metadata-review.js',
+  'question-bank-metadata-review.js',
+  'question-bank-audit-multipart.js',
+  'question-bank-audit-multipart.js',
   'v51-exam-publication-safety.js',
-  'v51-student-exam-paper-library.js',
-  'v51-student-exam-resume-progress.js'
+  'student-exam-ui.js',
+  'student-exam-ui.js'
 ].forEach(name => assert(release.includes(name),`V5.1 historical loader missing ${name}`));
 
 // Preserve the synchronized migration record formerly kept in a version-specific file.

@@ -1,20 +1,24 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
 const siteRoot = path.resolve(__dirname,'..');
-const source = fs.readFileSync(path.join(siteRoot,'v51-paper-profile-validator.js'),'utf8');
+const source = section('paper-import-management.js','/* V5.1A — Paper Profile Validator.','/* V5.1A2 — Bulk Question Image Upload.');
 const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');
+const readOwner = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');
 
 const context = { window:{}, console };
 vm.createContext(context);
-new vm.Script(source,{filename:'v51-paper-profile-validator.js'}).runInContext(context);
+new vm.Script(source,{filename:'paper-import-management.js'}).runInContext(context);
 const api = context.window.V51PaperProfileValidator;
 assert.ok(api,'V5.1A paper profile API must be exposed.');
-assert.match(release,/v51-paper-profile-validator\.js\?v=51a-1', 'data-v51-paper-profile-validator'/,
-  'Stable loader must include the V5.1A paper-profile validator exactly once.');
-assert.equal((release.match(/data-v51-paper-profile-validator/g)||[]).length,1);
+assert.match(release,/loadScriptOnce\('paper-import-management\.js', 'data-paper-import-management'\)/,
+  'Stable loader must include the consolidated V5.1 paper-import owner exactly once.');
+assert.equal((release.match(/data-paper-import-management/g)||[]).length,1);
+assert.ok(readOwner.indexOf('/* V5.1A — Paper Profile Validator.') < readOwner.indexOf('/* V5.1A2 — Bulk Question Image Upload.'),
+  'A1 must remain before A2 inside paper-import-management.js');
 
 const row = (paper,question,marks,extra={}) => ({
   year_level:6,
