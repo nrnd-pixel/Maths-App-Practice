@@ -72,7 +72,7 @@ assert.doesNotMatch(bulk,/const selectedIds = new Set/,'consolidation must not c
 // Topical whole-set and scope-safety boundaries remain explicit in browser code.
 assert.match(b,/if \(isTopical\(row\)\) throw new Error/,'B browser writer must reject topical rows');
 assert.match(b,/label:'Managed by set'/,'B topical rows must remain whole-set managed');
-assert.match(e,/topical\.length[\s\S]*canRun:selectedList\.length > 0 && topical\.length === 0/,'E bulk plan must reject topical selection');
+assert.ok(e.includes('canRun:selectedList.length > 0 && topical.length === 0 && groups.length > 0 && changingRows > 0'),'E bulk plan must reject topical selection');
 assert.match(f,/addEventListener\('click',[\s\S]*true\);/,'F scope guard must remain capture-phase');
 assert.match(f,/stopImmediatePropagation\(\)/,'F scope guard must block competing scope handlers');
 
