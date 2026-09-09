@@ -3,10 +3,12 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
+const {section}=require('./v51-owner-section-helper.cjs');
 
 const root = path.resolve(__dirname,'..','..');
 const sql = fs.readFileSync(path.join(root,'supabase','v51b2d_question_change_history.sql'),'utf8');
-const js = fs.readFileSync(path.join(root,'site','question-bank-audit-multipart.js'),'utf8');
+const source = section('question-bank-audit-multipart.js','/* V5.1B2D — Teacher-only correction audit history viewer.','/* V5.1B2E — Multipart Question Management.');
+const js = source;
 
 function has(text,needle,message){ assert(text.includes(needle),message || `Missing ${needle}`); }
 
