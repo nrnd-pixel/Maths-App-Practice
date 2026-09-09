@@ -1,16 +1,19 @@
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 const assert = require('assert');
+const {section}=require('./v51-owner-section-helper.cjs');
 
 const root = path.resolve(__dirname,'..');
-const uiPath = path.join(root,'question-bank-audit-multipart.js');
 const sqlPath = path.resolve(root,'../supabase/v51b2e_multipart_question_management.sql');
-const ui = fs.readFileSync(uiPath,'utf8');
+const source = section('question-bank-audit-multipart.js','/* V5.1B2E — Multipart Question Management.',null);
+const ui = source;
 const sql = fs.readFileSync(sqlPath,'utf8');
 
-global.window = {};
-require(uiPath);
-const api = global.window.V51MultipartQuestionManagement;
+const sandbox={window:{},console};
+vm.createContext(sandbox);
+vm.runInContext(source,sandbox,{filename:'question-bank-audit-multipart.js#B2E'});
+const api = sandbox.window.V51MultipartQuestionManagement;
 assert(api,'B2E API should be exposed');
 
 function row(id,label,order,extra={}){
