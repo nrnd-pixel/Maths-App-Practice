@@ -6,7 +6,7 @@ const root = path.resolve(__dirname,'..');
 const modulePath = path.join(root,'v54d-topical-resource-simplification.js');
 const releasePath = path.join(root,'v40-release.js');
 const topicalPublicationPath = path.join(root,'v52c-topical-publication.js');
-const eligibilityPath = path.join(root,'v53a-practice-eligibility.js');
+const eligibilityPath = path.join(root,'practice-eligibility-ui.js');
 const v54bPath = path.join(root,'v54b-practice-eligibility-controls.js');
 
 const source = fs.readFileSync(modulePath,'utf8');
@@ -25,6 +25,10 @@ assert(release.includes("loadScriptOnce('v52c-topical-publication.js?v=52c-1', '
   'Legacy V5.2C publication backend must remain loaded as rollback infrastructure');
 assert(publication.includes('save_topical_exercise_setting_v52c'),
   'Legacy publication implementation must remain intact behind the hidden teacher surface');
+assert(release.includes("loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');"),
+  'Consolidated V53A eligibility owner must remain loaded');
+assert(eligibility.includes('/* V5.3A — Unified Practice eligibility foundation.'),
+  'Consolidated eligibility owner must retain the V53A section');
 assert(eligibility.includes('v53a-eligibility-toggle'),
   'Set-level Practice eligibility controls must remain present');
 assert(v54b.includes('Managed by set'),

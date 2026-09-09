@@ -85,10 +85,9 @@
     loadScriptOnce('v52c1-topical-library-mount-hotfix.js?v=52c1-1', 'data-v52c1-topical-library-mount-hotfix');
     loadScriptOnce('v52c-topical-hint-bridge.js?v=52c-1', 'data-v52c-topical-hint-bridge');
     loadScriptOnce('v52c2-topical-result-ux.js?v=52c2-1', 'data-v52c2-topical-result-ux');
-    loadScriptOnce('v53a-practice-eligibility.js?v=53a-1', 'data-v53a-practice-eligibility');
+    loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');
     loadScriptOnce('practice-selection-engine.js', 'data-practice-selection-engine');
-    loadScriptOnce('v53c-two-mode-student-ui.js?v=53c-1', 'data-v53c-two-mode-student-ui');
-    loadScriptOnce('v53d6-resource-bank-status-clarity.js?v=53d6-1', 'data-v53d6-resource-bank-status-clarity');
+    loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');
     loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');
     loadScriptOnce('v54b-practice-eligibility-controls.js?v=54b-1', 'data-v54b-practice-eligibility-controls');
     loadScriptOnce('v54c-compact-question-bank.js?v=54c-1', 'data-v54c-compact-question-bank');
