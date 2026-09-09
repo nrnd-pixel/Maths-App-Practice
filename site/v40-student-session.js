@@ -300,71 +300,47 @@
 
   function buildSessionPanel(){
     const start = document.getElementById('start');
-    const modeSwitch = start?.querySelector('.mode-switch');
+    const panel = start?.querySelector('.v40c-session-panel');
+    const fields = panel?.querySelector('.v40c-login-fields');
     const studentId = document.getElementById('student-id');
+    const studentPin = document.getElementById('student-pin');
     const studentPinWrap = document.getElementById('student-pin-wrap');
     const accessNote = document.getElementById('student-access-note');
+    const signIn = document.getElementById('v40c-student-signin');
+    const logout = document.getElementById('v40c-student-logout');
 
-    if (!start || !modeSwitch || !studentId || start.querySelector('.v40c-session-panel')) return;
+    if (
+      !start ||
+      !panel ||
+      !fields ||
+      !studentId ||
+      !studentPin ||
+      !studentPinWrap ||
+      !accessNote ||
+      !signIn ||
+      !logout
+    ) return;
 
     const idLabel = studentId.closest('label');
-    if (!idLabel) return;
+    const staticNodesAreInPlace = !!(
+      idLabel &&
+      idLabel.parentElement === fields &&
+      studentPinWrap.parentElement === fields &&
+      accessNote.parentElement === fields
+    );
 
-    const panel = document.createElement('section');
-    panel.className = 'v40c-session-panel';
-    panel.setAttribute('aria-label', 'Student session');
+    if (!staticNodesAreInPlace) {
+      console.warn('V4.0 static student sign-in shell is incomplete.');
+      return;
+    }
 
-    const head = document.createElement('div');
-    head.className = 'v40c-session-head';
-    head.innerHTML = `
-      <div>
-        <h3>Student sign in</h3>
-        <p>Sign in once, then move between your learning sections without entering your PIN again.</p>
-      </div>
-    `;
-
-    const fields = document.createElement('div');
-    fields.className = 'v40c-login-fields';
-    fields.appendChild(idLabel);
-    if (studentPinWrap) fields.appendChild(studentPinWrap);
-    if (accessNote) fields.appendChild(accessNote);
-
-    const actions = document.createElement('div');
-    actions.className = 'v40c-login-actions';
-
-    const signIn = document.createElement('button');
-    signIn.type = 'button';
-    signIn.className = 'primary';
-    signIn.id = 'v40c-student-signin';
-    signIn.textContent = 'Sign in to Learning Hub';
-
-    const status = document.createElement('span');
-    status.className = 'v40c-session-status';
-    status.id = 'v40c-session-status';
-    status.textContent = 'Your PIN is checked securely and is not saved.';
-
-    actions.append(signIn, status);
-
-    const identity = document.createElement('div');
-    identity.className = 'v40c-session-identity';
-
-    const identityText = document.createElement('div');
-    identityText.className = 'v40c-session-identity-text';
-
-    const logout = document.createElement('button');
-    logout.type = 'button';
-    logout.className = 'outline';
-    logout.id = 'v40c-student-logout';
-    logout.textContent = 'Log out';
-
-    identity.append(identityText, logout);
-    panel.append(head, fields, actions, identity);
-    modeSwitch.insertAdjacentElement('beforebegin', panel);
+    if (panel.dataset.v40SessionEnhanced === 'true') return;
+    panel.dataset.v40SessionEnhanced = 'true';
 
     signIn.addEventListener('click', () => validateStudentAccess('practice'));
     logout.addEventListener('click', logoutStudentV40);
 
-    document.getElementById('student-pin')?.addEventListener('keydown', event => {
+    studentPin.addEventListener('keydown', event => {
       if (event.key === 'Enter' && !sessionIsValid()) {
         event.preventDefault();
         validateStudentAccess('practice');

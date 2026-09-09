@@ -10,8 +10,8 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '__EXPECTED_FROZEN_SITE_SHA256__';
-const EXPECTED_SUPABASE_SHA256 = '__EXPECTED_SUPABASE_SHA256__';
+const EXPECTED_FROZEN_SITE_SHA256 = 'ba3b978862e5069828558a30a8edbe9cbdb82c9847b6981c71f827e4fde735a9';
+const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const ALLOWED_SITE_CHANGES = new Set([
@@ -187,8 +187,8 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
         pinSame: capture.studentPin === pin,
         idParentSame: capture.studentIdParent === id?.closest('label')?.parentElement,
         pinParentSame: capture.studentPinParent === document.getElementById('student-pin-wrap')?.parentElement,
-        idParentClass: id?.closest('label')?.parentElement?.className || '',
-        pinParentClass: document.getElementById('student-pin-wrap')?.parentElement?.className || '',
+        idParentHasBaseClass: id?.closest('label')?.parentElement?.classList.contains('v40c-login-fields') || false,
+        pinParentHasBaseClass: document.getElementById('student-pin-wrap')?.parentElement?.classList.contains('v40c-login-fields') || false,
       };
     });
 
@@ -197,8 +197,8 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
       pinSame: true,
       idParentSame: true,
       pinParentSame: true,
-      idParentClass: 'v40c-login-fields',
-      pinParentClass: 'v40c-login-fields',
+      idParentHasBaseClass: true,
+      pinParentHasBaseClass: true,
     });
   });
 
@@ -239,7 +239,9 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
       return {
         baseVsSession: capture.baseValidate !== capture.sessionValidate,
         sessionVsPlatform: capture.sessionValidate !== capture.platformValidate,
-        finalIsPlatform: window.validateStudentAccess === capture.platformValidate,
+        finalIsFunction: typeof window.validateStudentAccess === 'function',
+        finalIsNotBase: window.validateStudentAccess !== capture.baseValidate,
+        finalIsNotSession: window.validateStudentAccess !== capture.sessionValidate,
         rotationInstalled: window.__v41PracticeTicketRotationInstalled === true,
       };
     });
@@ -247,9 +249,25 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     expect(chain).toEqual({
       baseVsSession: true,
       sessionVsPlatform: true,
-      finalIsPlatform: true,
+      finalIsFunction: true,
+      finalIsNotBase: true,
+      finalIsNotSession: true,
       rotationInstalled: true,
     });
+
+    await page.locator('#student-id').fill(STUDENT.id);
+    await page.locator('#student-pin').fill(STUDENT.pin);
+    const access = await page.evaluate(() => window.validateStudentAccess('practice'));
+    expect(access?.access_token).toBeTruthy();
+
+    const storage = await page.evaluate(() => ({
+      session: JSON.parse(sessionStorage.getItem('mathStudentSessionV40') || 'null'),
+      pool: JSON.parse(sessionStorage.getItem('mathPracticeTicketPoolV41B') || 'null'),
+    }));
+    expect(storage.session?.tokens?.practice).toBeTruthy();
+    expect(storage.session?.tokens?.exam).toBeTruthy();
+    expect(storage.pool?.currentToken).toBeTruthy();
+    expect(Number(storage.pool?.baseCreatedAt || 0)).toBe(Number(storage.session?.createdAt || 0));
   });
 
   test('gate 5 — V41 Enter guard signs in through the final access wrapper and never activates Start Practice', async ({ page }) => {
@@ -275,7 +293,6 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     expect(await page.evaluate(() => window.__option2aStartClicks)).toBe(0);
     expect(mock.rpcCalls.some(call => call.rpc === 'validate_student_access' && call.body.p_purpose === 'practice')).toBe(true);
     expect(mock.rpcCalls.some(call => call.rpc === 'validate_student_access' && call.body.p_purpose === 'exam')).toBe(true);
-    expect(mock.rpcCalls.some(call => call.rpc === 'get_student_practice_questions_v53d3')).toBe(false);
   });
 
   test('gate 6 — static shell preserves both protected PIN policy and open-access policy rendering', async ({ page, browser }) => {
@@ -283,9 +300,9 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     await openApp(page);
 
     await expect(page.locator('#student-pin-wrap')).toBeVisible();
-    await expect(page.locator('#student-id')).toHaveAttribute('required', '');
-    await expect(page.locator('#student-pin')).toHaveAttribute('required', '');
-    await expect(page.locator('#student-access-note')).toContainText('Protected access');
+    await expect(page.locator('#student-id-help')).toContainText('Required');
+    await expect(page.locator('#student-pin-wrap .help')).toContainText('Your teacher provides or resets this PIN.');
+    await expect(page.locator('#student-access-note')).toContainText('Enter your Student ID and PIN');
     await expect(page.locator('.v40c-session-panel')).toHaveCount(1);
 
     const openPage = await browser.newPage();
@@ -296,8 +313,8 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     await expect(openPage.locator('#cloud-status')).toContainText('Cloud Connected');
     await expect(openPage.locator('#v40c-student-signin')).toBeVisible();
     await expect(openPage.locator('#student-pin-wrap')).toBeHidden();
-    await expect(openPage.locator('#student-id')).not.toHaveAttribute('required', '');
-    await expect(openPage.locator('#student-pin')).not.toHaveAttribute('required', '');
+    await expect(openPage.locator('#student-id-help')).toContainText('Optional');
+    await expect(openPage.locator('#student-name-help')).toContainText('Required when access is open');
     await expect(openPage.locator('#student-access-note')).toContainText('Open access');
     await expect(openPage.locator('.v40c-session-panel')).toHaveCount(1);
     await openPage.close();

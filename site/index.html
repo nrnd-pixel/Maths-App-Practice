@@ -943,12 +943,33 @@ input[type="file"]::file-selector-button:hover{
   </button>
 </div>
   
-<section id="start" class="card screen active">
+<section id="start" class="card screen active v40-shell-logged-out">
   <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Brunei Primary Mathematics Practice</p>
 <span class="badge local">
     Version 5.8.1 • Full Student Learning Platform 
 </span>
   </div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
+  <section class="v40c-session-panel" aria-label="Student session">
+    <div class="v40c-session-head">
+      <div>
+        <h3>Student sign in</h3>
+        <p>Sign in once, then move between your learning sections without entering your PIN again.</p>
+      </div>
+    </div>
+    <div class="v40c-login-fields">
+      <label>Student ID<input id="student-id" placeholder="e.g. 6A-012" maxlength="40" autocomplete="username"><span id="student-id-help" class="help">Optional school identifier.</span></label>
+      <label id="student-pin-wrap" class="hidden">Student PIN<input id="student-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="current-password" placeholder="4–8 digits"><span class="help">Your teacher provides or resets this PIN.</span></label>
+      <div id="student-access-note" class="info wide">Loading student access settings…</div>
+    </div>
+    <div class="v40c-login-actions">
+      <button type="button" class="primary" id="v40c-student-signin">Sign in to Learning Hub</button>
+      <span class="v40c-session-status" id="v40c-session-status">Your PIN is checked securely and is not saved.</span>
+    </div>
+    <div class="v40c-session-identity">
+      <div class="v40c-session-identity-text"></div>
+      <button type="button" class="outline" id="v40c-student-logout">Log out</button>
+    </div>
+  </section>
   <div class="mode-switch" role="group" aria-label="Choose activity mode">
     <button id="practice-mode-btn" class="mode-btn active" type="button"><strong>📘 Practice Mode</strong><span>Hints, second attempts and instant feedback.</span></button>
     <button id="exam-mode-btn" class="mode-btn" type="button"><strong>📝 Exam Mode</strong><span>Complete a full past paper with no hints or feedback until submission.</span></button>
@@ -956,8 +977,6 @@ input[type="file"]::file-selector-button:hover{
   <div id="mode-note" class="compact-note">Practice Mode is selected.</div>
   <div class="grid" style="margin-top:26px">
     <label>Student name<input id="student-name" placeholder="e.g. Aiman" maxlength="40"><span id="student-name-help" class="help">Required when access is open.</span></label>
-    <label>Student ID<input id="student-id" placeholder="e.g. 6A-012" maxlength="40" autocomplete="username"><span id="student-id-help" class="help">Optional school identifier.</span></label>
-    <label id="student-pin-wrap" class="hidden">Student PIN<input id="student-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="current-password" placeholder="4–8 digits"><span class="help">Your teacher provides or resets this PIN.</span></label>
     <label>Year level<select id="year-level"><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option><option value="4">Year 4</option><option value="5">Year 5</option><option value="6" selected>Year 6</option></select></label>
     <label>Class<select id="class-group"><option>A</option><option>B</option><option>C</option><option>Other</option></select></label>
     <label id="practice-strand-wrap">Strand<select id="strand-filter"></select></label>
@@ -968,7 +987,6 @@ input[type="file"]::file-selector-button:hover{
     <label id="exam-paper-wrap" class="hidden">Paper<select id="exam-paper"><option value="">Select paper</option></select></label>
     <div id="exam-paper-note" class="exam-paper-note hidden">Choose an exam year and paper. The complete active paper will be loaded in question-number order.</div>
     <div id="exam-instructions" class="exam-instructions hidden"></div>
-    <div id="student-access-note" class="info wide">Loading student access settings…</div>
   </div>
 <div class="buttons">
   <button id="start-btn" class="primary">Start Practice</button>
