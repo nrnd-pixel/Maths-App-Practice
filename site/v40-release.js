@@ -64,7 +64,7 @@
     loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');
     loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51-question-bank-bulk-status');
     loadScriptOnce('v52-topical-activation-guard.js?v=52a-1', 'data-v52a-topical-activation-guard');
-    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51b2b-question-bank-bulk-metadata');
+    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51-question-bank-bulk-metadata');
     loadScriptOnce('v51-question-review-workflow.js?v=51b2c-1', 'data-v51-question-review-workflow');
     loadScriptOnce('v52-teacher-topical-library.js?v=52b-1', 'data-v52b-teacher-topical-library');
     loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51-question-change-history');
