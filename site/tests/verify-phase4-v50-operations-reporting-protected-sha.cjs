@@ -25,15 +25,13 @@ const protectedFiles=Object.freeze({
   'site/v50-rc2-empty-result-code-polish.js':'4ecb5556b74b965ce1b192671626cbeecebb1ee4',
   'site/v50-release-audit-rc3.js':'26545966923b0e702a18bf1e0df987d4e7fcb830',
 
-  // V53 active owners / engine.
+  // V53 active owners / engine plus historical non-assignment reference sources.
   'site/practice-eligibility-ui.js':'3d12cb7090289b50b0e809b9f86b4edd6156d849',
   'site/practice-selection-engine.js':'46db6d9b8ad4f011100ff36f81e13cf286b4c8a1',
   'site/practice-ui-resource-clarity.js':'1e458670d8020f6cc5c627ffa6176137365b3533',
-  // Historical V53 references.
   'site/v53a-practice-eligibility.js':'a7a940b9ee080b8fa6a5ed518b0b060f6ba504ca',
   'site/v53b-unified-practice-retrieval.js':'b427513531fce17b8de348ef3251c9d1614d9ca2',
   'site/v53c-two-mode-student-ui.js':'05257bf18a97873f3b76e11f44da2127e3f02898',
-  'site/v53d1-teacher-practice-pool-alignment.js':'d8c95a61b78e3d70278dbd442c877c1aad260869',
   'site/v53d3-practice-selection-quality.js':'5a59a347dd966c3cbc2317aa14c08021647f20e5',
   'site/v53d4-student-recommendation-alignment.js':'6c6d21102f0ddae7b28d4624a56e419371a7cc22',
   'site/v53d5-practice-selection-intelligence.js':'595735f995318c97e783680dda58ea5c22609c27',
@@ -67,29 +65,22 @@ const protectedFiles=Object.freeze({
   'site/v52b1-question-bank-observer-gate.js':'82a87ffed9091b76c9008a3949c3bd432c2d06ce',
   'site/v52b1-question-bank-performance.js':'87124f4bc252289203409fc0abe614748ed1dd86',
   'site/topical-legacy-student-route.js':'aa1c324014cade50a7f41d10d21b03181e06cdc2',
-  // Historical V52C references.
   'site/v52c-student-topical-library.js':'9c926222506e78f885c456816d732abf55727aa1',
   'site/v52c-topical-hint-bridge.js':'df6301d32f82fa718cbd180ccded7c6ed796bca1',
   'site/v52c-topical-publication.js':'0657511377d2edbb70ae8ba33e71c0fe87ee8312',
   'site/v52c1-topical-library-mount-hotfix.js':'c25c75fc6b558260d01c5462bc430386e944e8d0',
   'site/v52c2-topical-result-ux.js':'38d7ccd573e47d9b098dff1ec3d36477efe07590',
 
-  // V54 active consolidated owners + historical references.
+  // V54 current consolidated owners; historical A-F are frozen by the dedicated V54 guard.
   'site/resource-bank-ui.js':'07a3c75122207d44297dde4d1e8820ceb8b83724',
   'site/resource-bank-bulk.js':'4a25893e6ba43c4b106b2e0dff00e9f9a5e29738',
-  'site/v54a-resource-bank-visibility.js':'2c07b345b66ea436e03c90ecbc5650e410400b97',
-  'site/v54b-practice-eligibility-controls.js':'85b11da1e7e99b6cf8ea04027f599fd5c35436e1',
-  'site/v54c-compact-question-bank.js':'15579557518ddb4dce5b9adea69891a245b28ede',
-  'site/v54d-topical-resource-simplification.js':'3d33b94187a5250c8fe399a88d7cb55aeb1f1bf3',
-  'site/v54e-bulk-practice-eligibility.js':'4e536559364c086bfb298051efeac8f1b3c869ca',
-  'site/v54f-bulk-selection-scope-safety.js':'d1c77a5dc3453d1121eaf7ea6a6bc78a3eb93938',
   'site/v54-stable-release-checkpoint.js':'bee266ae0b718295c7e8a3eb9b8e4b3defff7e71',
 
   // Direct V56 downstream contracts.
   'site/v56a-question-bank-response-filter.js':'89f4fd3eb293f321af4908f9435f09015012b95b',
   'site/v56a1-bulk-practice-confirmation-bridge.js':'a99194ca4e2d1d701f197349501a9f0fc350988d',
 
-  // Assignments.
+  // Assignments, including the active V53D1 compatibility owner.
   'site/assignment-deadlines.js':'7d8a4b44f0eb0f8feb009e239de37fa342458d6c',
   'site/assignment-intervention-history.js':'e85d5a986637524ec91e4d2497be51f8b5f851a5',
   'site/assignment-intervention-queue-support.js':'532285487c1510623ba487e5d49647ffc7e96399',
