@@ -6,13 +6,13 @@ const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'v58c-parent-friendly-student-report.js'),'utf8');
 const shortcut=fs.readFileSync(path.join(root,'v58c-parent-summary-workspace-shortcut.js'),'utf8');
 const config=fs.readFileSync(path.join(root,'config.js'),'utf8');
-const reporting=fs.readFileSync(path.join(root,'v50-reporting-export.js'),'utf8');
-const detailed=fs.readFileSync(path.join(root,'v50-teacher-student-report.js'),'utf8');
+const reportingOwner=fs.readFileSync(path.join(root,'teacher-reporting.js'),'utf8');
 const workspace=fs.readFileSync(path.join(root,'v58b-teacher-workspace-consolidation.js'),'utf8');
 
 function assert(condition,message){ if(!condition) throw new Error(message); }
 new vm.Script(source,{filename:'v58c-parent-friendly-student-report.js'});
 new vm.Script(shortcut,{filename:'v58c-parent-summary-workspace-shortcut.js'});
+new vm.Script(reportingOwner,{filename:'teacher-reporting.js'});
 
 assert(source.includes('V5.8C — Parent-Friendly Student Report'),'missing V5.8C identity');
 assert(source.includes("const TRIGGER_ID='v58c-open-parent-summary'"),'missing parent summary trigger');
@@ -33,10 +33,10 @@ assert(source.includes("status.includes('developing')"),'focus must reuse establ
 
 assert(source.includes('ROOT.V50ReportingExport'),'V5.8C must use the existing reporting API');
 assert(source.includes('buildStudentSnapshot'),'V5.8C must reuse the existing student snapshot');
-assert(reporting.includes('buildStudentSnapshot'),'existing reporting snapshot API missing');
-assert(reporting.includes("Object.defineProperty(window,'V50ReportingExport'"),'existing reporting API exposure changed');
-assert(detailed.includes("const TRIGGER_ID = 'v50c2-open-student-report'"),'detailed Student Performance Report trigger changed');
-assert(detailed.includes('Print / Save PDF'),'detailed Student Performance Report print flow changed');
+assert(reportingOwner.includes('buildStudentSnapshot'),'existing reporting snapshot API missing');
+assert(reportingOwner.includes("Object.defineProperty(window,'V50ReportingExport'"),'existing reporting API exposure changed');
+assert(reportingOwner.includes("const TRIGGER_ID = 'v50c2-open-student-report'"),'detailed Student Performance Report trigger changed');
+assert(reportingOwner.includes('Print / Save PDF'),'detailed Student Performance Report print flow changed');
 
 for(const forbidden of [
   'analyticsContext',
