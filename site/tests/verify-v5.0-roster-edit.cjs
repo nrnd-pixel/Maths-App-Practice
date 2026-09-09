@@ -6,15 +6,18 @@ const vm = require('node:vm');
 const siteRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(siteRoot, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
-const ui = fs.readFileSync(path.join(siteRoot, 'v50-roster-edit.js'), 'utf8');
+const owner = fs.readFileSync(path.join(siteRoot, 'teacher-launch-operations.js'), 'utf8');
 const sql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50_roster_student_identity_edit.sql'), 'utf8');
 
-new vm.Script(ui, { filename:'v50-roster-edit.js' });
+const start='/* V5.0 launch roster maintenance';
+const begin=owner.indexOf(start);
+assert.ok(begin>=0,'Roster Edit section must exist in consolidated operations owner.');
+const ui=owner.slice(begin).trimEnd();
+new vm.Script(owner, { filename:'teacher-launch-operations.js' });
 
-assert.match(release, /v50-teacher-operations\.js\?v=50d2-1/);
-assert.match(release, /v50-roster-edit\.js\?v=50launch-1', 'data-v50-roster-edit'/);
-assert.ok(release.indexOf('v50-roster-edit.js') > release.indexOf('v50-teacher-operations.js'),
-  'Roster edit extension must load after Teacher Operations.');
+assert.match(release, /loadScriptOnce\('teacher-launch-operations\.js', 'data-teacher-launch-operations'\)/);
+assert.ok(owner.indexOf('/* V5.0D2 — Teacher Operational Tools.') < begin,
+  'Roster Edit extension must remain after Teacher Operations inside the consolidated owner.');
 
 assert.match(ui, /Edit student/);
 assert.match(ui, /Student ID/);
@@ -56,6 +59,7 @@ assert.match(sql, /revoke all on function public\.edit_roster_student_identity_v
 assert.match(sql, /grant execute on function public\.edit_roster_student_identity_v50\(uuid,text,text\) to authenticated/i);
 
 console.log('V5.0 roster edit verification passed.');
+console.log('- consolidated Roster Edit remains downstream of D2');
 console.log('- existing roster UUID/class/PIN are preserved');
 console.log('- duplicate active IDs are blocked');
 console.log('- Student ID edits stop once history exists; name corrections remain available');
