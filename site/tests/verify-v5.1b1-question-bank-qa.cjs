@@ -1,10 +1,11 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
 const sourcePath = path.join(__dirname,'..','question-bank-selection-qa.js');
-const source = fs.readFileSync(sourcePath,'utf8');
+const source = section('question-bank-selection-qa.js','/* V5.1B1 — Question Bank QA & completeness indicators.','/* V5.1B2A — Safe bulk activate/deactivate for Question Bank.');
 
 const sandbox = { window:{} };
 vm.createContext(sandbox);

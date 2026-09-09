@@ -1,10 +1,11 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
 const sourcePath = path.join(__dirname,'..','question-bank-metadata-review.js');
-const source = fs.readFileSync(sourcePath,'utf8');
+const source = section('question-bank-metadata-review.js','/* V5.1B2B — Safe bulk metadata editing for Question Bank.','/* V5.1B2C — Persistent Question Bank review workflow.');
 const sandbox = {window:{}};
 vm.createContext(sandbox);
 vm.runInContext(source,sandbox,{filename:'question-bank-metadata-review.js'});

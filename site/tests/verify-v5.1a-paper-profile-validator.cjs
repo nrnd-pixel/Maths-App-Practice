@@ -1,10 +1,11 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
 const siteRoot = path.resolve(__dirname,'..');
-const source = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');
+const source = section('paper-import-management.js','/* V5.1A — Paper Profile Validator.','/* V5.1A2 — Bulk Question Image Upload.');
 const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');
 
 const context = { window:{}, console };

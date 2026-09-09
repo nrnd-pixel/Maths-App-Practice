@@ -1,10 +1,11 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const source = fs.readFileSync(path.join(root,'site','paper-import-management.js'),'utf8');
+const source = section('paper-import-management.js','/* V5.1A2 — persistent image-reference and stale-selection safety guard.','/* V5.1A4 — Paper Import Package Preview.');
 const loader = fs.readFileSync(path.join(root,'site','v40-release.js'),'utf8');
 
 const sandbox = {window:{},console};

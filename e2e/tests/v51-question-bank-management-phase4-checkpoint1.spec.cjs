@@ -286,6 +286,7 @@ test('V51 hard gate 7: Exam publication keeps exact hardened global ownership an
 });
 
 test('V51 hard gate 8: student Exam UI wraps existing selectors and only presents existing recovery state',async({page})=>{
+  await page.goto('/');
   await page.setContent(`<!doctype html><html><body>
     <input id="student-id" value="S1"><input id="student-name" value="Ali"><select id="year-level"><option value="6" selected>6</option></select>
     <div id="exam-year-wrap"><select id="exam-year"><option value="2026" selected>2026</option></select></div>
@@ -326,7 +327,7 @@ test('V51 hard gate 9: downstream V52/V54/V56/V58 contracts still consume V51 wh
   await add(page,'selection');
   await page.evaluate(()=>window.renderQuestions());
   await expect.poll(()=>page.locator('.v51b2a-select').count()).toBe(2);
-  await page.locator('.v51b2a-select').first().check();
+  await page.locator('.v51b2a-select').nth(1).check();
   await add(page,'topicalGuard');
   await add(page,'resourceBulk');
   await add(page,'v56a');

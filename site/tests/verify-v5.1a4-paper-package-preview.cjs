@@ -1,3 +1,4 @@
+const {section}=require('./v51-owner-section-helper.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -6,7 +7,7 @@ const assert = require('assert');
 const root = path.resolve(__dirname,'..','..');
 const sourcePath = path.join(root,'site','paper-import-management.js');
 const loaderPath = path.join(root,'site','v40-release.js');
-const source = fs.readFileSync(sourcePath,'utf8');
+const source = section('paper-import-management.js','/* V5.1A4 — Paper Import Package Preview.','/* V5.1A4 — package-preview status wording polish.');
 const loader = fs.readFileSync(loaderPath,'utf8');
 
 const sandbox = {window:{},console};
