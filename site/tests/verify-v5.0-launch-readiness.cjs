@@ -6,17 +6,24 @@ const vm = require('node:vm');
 const siteRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(siteRoot, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
-const launch = fs.readFileSync(path.join(siteRoot, 'v50-student-launch-readiness.js'), 'utf8');
+const owner = fs.readFileSync(path.join(siteRoot, 'teacher-launch-operations.js'), 'utf8');
 const coreSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d1_student_launch_readiness.sql'), 'utf8');
 const alignmentSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d1_student_launch_readiness_alignment.sql'), 'utf8');
 const tuningSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d1_student_launch_readiness_rls_tuning.sql'), 'utf8');
 
-new vm.Script(launch, { filename: 'v50-student-launch-readiness.js' });
+const d1Start=owner.indexOf('/* V5.0D1 — Student Launch Readiness.');
+const d2Start=owner.indexOf('/* V5.0D2 — Teacher Operational Tools.');
+assert.ok(d1Start>=0 && d2Start>d1Start,'consolidated launch owner must preserve D1 before D2');
+const launch=owner.slice(d1Start,d2Start);
+new vm.Script(owner, { filename: 'teacher-launch-operations.js' });
+new vm.Script(launch, { filename: 'teacher-launch-operations:D1' });
 
-assert.match(release, /v50-report-archive\.js\?v=50c3b-1', 'data-v50-report-archive'/,
-  'Existing C3B archive loader must remain stable.');
-assert.match(release, /v50-student-launch-readiness\.js\?v=50d1-1/);
-assert.match(release, /data-v50-student-launch-readiness/);
+assert.match(release, /loadScriptOnce\('teacher-reporting\.js', 'data-teacher-reporting'\)/,
+  'Consolidated reporting owner must remain immediately available before launch operations.');
+assert.match(release, /loadScriptOnce\('teacher-launch-operations\.js', 'data-teacher-launch-operations'\)/,
+  'Consolidated launch/operations owner must remain staged at the historical early V50 phase.');
+assert.ok(release.indexOf("loadScriptOnce('teacher-reporting.js'") < release.indexOf("loadScriptOnce('teacher-launch-operations.js'"),
+  'C3A reporting API must remain installed before D1 consumes it.');
 
 assert.match(launch, /Student Launch Readiness/);
 assert.match(launch, /Preparation needed before student launch/);
@@ -143,6 +150,7 @@ assert.doesNotMatch(alignmentSql, /create\s+table[\s\S]*\bpin\s+text\b/i,
 assert.doesNotMatch(alignmentSql, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 
 console.log('V5.0D1 launch-readiness verification passed.');
+console.log('- active teacher-launch-operations owner preserves launch readiness behavior');
 console.log('- launch readiness uses roster, PIN, access, content, clean-history and test/demo blockers');
 console.log('- destructive reset requires typed + browser confirmation and is transactional');
 console.log('- permanent roster/content/config/report tables are outside the delete set');
