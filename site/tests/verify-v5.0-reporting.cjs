@@ -6,27 +6,34 @@ const vm = require('node:vm');
 const siteRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(siteRoot, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
-const report = fs.readFileSync(path.join(siteRoot, 'v50-teacher-class-report.js'), 'utf8');
-const studentReport = fs.readFileSync(path.join(siteRoot, 'v50-teacher-student-report.js'), 'utf8');
-const exporter = fs.readFileSync(path.join(siteRoot, 'v50-reporting-export.js'), 'utf8');
-const archive = fs.readFileSync(path.join(siteRoot, 'v50-report-archive.js'), 'utf8');
+const owner = fs.readFileSync(path.join(siteRoot, 'teacher-reporting.js'), 'utf8');
 const archiveSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50c3b_report_archives.sql'), 'utf8');
 
-new vm.Script(report, { filename: 'v50-teacher-class-report.js' });
-new vm.Script(studentReport, { filename: 'v50-teacher-student-report.js' });
-new vm.Script(exporter, { filename: 'v50-reporting-export.js' });
-new vm.Script(archive, { filename: 'v50-report-archive.js' });
+function sliceSection(source,start,end){
+  const from=source.indexOf(start);
+  assert.ok(from>=0,`missing consolidated section: ${start}`);
+  const to=end ? source.indexOf(end,from+start.length) : source.length;
+  assert.ok(to>from,`missing consolidated section boundary after: ${start}`);
+  return source.slice(from,to);
+}
+const report=sliceSection(owner,'/* V5.0C1 — Teacher Class Performance Report.','/* V5.0C2 — Teacher Student Performance Report.');
+const studentReport=sliceSection(owner,'/* V5.0C2 — Teacher Student Performance Report.','/* V5.0C3A/C3B — Reporting Export + Snapshot API.');
+const exporter=sliceSection(owner,'/* V5.0C3A/C3B — Reporting Export + Snapshot API.','/* V5.0C3B — Teacher Report Archive.');
+const archive=sliceSection(owner,'/* V5.0C3B — Teacher Report Archive.');
+
+new vm.Script(owner, { filename: 'teacher-reporting.js' });
+new vm.Script(report, { filename: 'teacher-reporting:C1' });
+new vm.Script(studentReport, { filename: 'teacher-reporting:C2' });
+new vm.Script(exporter, { filename: 'teacher-reporting:C3A' });
+new vm.Script(archive, { filename: 'teacher-reporting:C3B' });
 
 assert.match(release, /loadScriptOnce\('assignment-intervention-history\.js', 'data-assignment-intervention-history'\)/,
   'Consolidated V4.7 history owner must remain staged.');
-assert.match(release, /v50-teacher-class-report\.js\?v=50c1-2/);
-assert.match(release, /data-v50-teacher-class-report/);
-assert.match(release, /v50-teacher-student-report\.js\?v=50c2-2/);
-assert.match(release, /data-v50-teacher-student-report/);
-assert.match(release, /v50-reporting-export\.js\?v=50c3a-2/);
-assert.match(release, /data-v50-reporting-export/);
-assert.match(release, /v50-report-archive\.js\?v=50c3b-1/);
-assert.match(release, /data-v50-report-archive/);
+assert.match(release, /loadScriptOnce\('teacher-reporting\.js', 'data-teacher-reporting'\)/,
+  'Consolidated V50 reporting owner must remain staged once at the historical reporting position.');
+assert.ok(owner.indexOf('/* V5.0C1 — Teacher Class Performance Report.') < owner.indexOf('/* V5.0C2 — Teacher Student Performance Report.'));
+assert.ok(owner.indexOf('/* V5.0C2 — Teacher Student Performance Report.') < owner.indexOf('/* V5.0C3A/C3B — Reporting Export + Snapshot API.'));
+assert.ok(owner.indexOf('/* V5.0C3A/C3B — Reporting Export + Snapshot API.') < owner.indexOf('/* V5.0C3B — Teacher Report Archive.'));
 
 assert.match(report, /analyticsVisibleRows/);
 assert.match(report, /analyticsLearningRows/);
@@ -164,8 +171,8 @@ assert.doesNotMatch(archiveSql, /for update/i,
   'V5.0C3B must not create an UPDATE RLS policy.');
 
 console.log('V5.0 reporting verification passed.');
-console.log('- V5.0C1/C2 PDF and evidence semantics remain protected');
-console.log('- V5.0C3A exports and C3B archives share the same structured snapshot builders');
+console.log('- active teacher-reporting owner preserves C1/C2 PDF and evidence semantics');
+console.log('- C3A exports and C3B archives share the same structured snapshot builders');
 console.log('- Report Archive persistence is isolated to report_archives');
 console.log('- archives are immutable, teacher-owned, manually retained and CSV-downloadable');
 console.log('- student-facing flows, grading thresholds and Exam review boundaries are unchanged');
