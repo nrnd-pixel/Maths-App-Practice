@@ -80,11 +80,7 @@
     loadScriptOnce('v50-release-audit-rc3.js?v=51stable-1', 'data-v50-release-audit-rc3');
     loadScriptOnce('v52b1-question-bank-performance.js?v=52b1-3', 'data-v52b1-question-bank-performance');
     loadScriptOnce('v52b1-large-import-timeout-recovery.js?v=52b1-1', 'data-v52b1-large-import-timeout-recovery');
-    loadScriptOnce('v52c-topical-publication.js?v=52c-1', 'data-v52c-topical-publication');
-    loadScriptOnce('v52c-student-topical-library.js?v=52c-1', 'data-v52c-student-topical-library');
-    loadScriptOnce('v52c1-topical-library-mount-hotfix.js?v=52c1-1', 'data-v52c1-topical-library-mount-hotfix');
-    loadScriptOnce('v52c-topical-hint-bridge.js?v=52c-1', 'data-v52c-topical-hint-bridge');
-    loadScriptOnce('v52c2-topical-result-ux.js?v=52c2-1', 'data-v52c2-topical-result-ux');
+    loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route');
     loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');
     loadScriptOnce('practice-selection-engine.js', 'data-practice-selection-engine');
     loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');

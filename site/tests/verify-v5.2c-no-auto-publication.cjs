@@ -1,10 +1,11 @@
 const fs=require('fs');
 const path=require('path');
 const assert=require('assert');
+const {section}=require('./v52c-consolidated-test-helper.cjs');
 const foundation=fs.readFileSync(path.join(__dirname,'..','..','supabase','v52c_student_topical_practice_library.sql'),'utf8');
-const publication=fs.readFileSync(path.join(__dirname,'..','v52c-topical-publication.js'),'utf8');
+const publication=section('publication');
 assert(foundation.includes('is_available boolean not null default false'),'New topical publication settings must default OFF');
 assert(!foundation.match(/insert into public\.topical_exercise_settings[\s\S]{0,500}true\s*\)/i),'Migration must not auto-publish a topical set');
 assert(publication.includes("data-target=\"true\""),'Publishing must be an explicit teacher action');
 assert(publication.includes("${item.ready?'':'disabled'}"),'Publish button must remain disabled until readiness passes');
-console.log('V5.2C zero-exposure checks passed.');
+console.log('V5.2C zero-exposure checks passed against consolidated owner.');

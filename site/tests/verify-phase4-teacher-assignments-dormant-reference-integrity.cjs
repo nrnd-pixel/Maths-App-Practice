@@ -29,7 +29,8 @@ const verifierFiles=listCjsFiles(testsRoot);
 const allowedReferenceFiles=new Set([
   'verify-phase4-teacher-assignments-checkpoint1-integrity.cjs',
   'verify-phase4-teacher-assignments-dormant-reference-integrity.cjs',
-  'verify-phase4-v54-resource-bank-protected-sha.cjs'
+  'verify-phase4-v54-resource-bank-protected-sha.cjs',
+  'verify-phase4-v52c-legacy-student-route-protected-sha.cjs'
 ]);
 
 const hits=[];

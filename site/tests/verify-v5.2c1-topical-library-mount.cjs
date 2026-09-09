@@ -1,12 +1,12 @@
 const fs=require('fs');
 const path=require('path');
 const assert=require('assert');
+const {section,loadApi}=require('./v52c-consolidated-test-helper.cjs');
 
-const hotfixPath=path.join(__dirname,'..','v52c1-topical-library-mount-hotfix.js');
+const hotfix=section('mount');
 const releasePath=path.join(__dirname,'..','v40-release.js');
-const hotfix=fs.readFileSync(hotfixPath,'utf8');
 const release=fs.readFileSync(releasePath,'utf8');
-const api=require(hotfixPath);
+const api=loadApi(hotfix);
 
 assert.strictEqual(api.LIBRARY_ID,'v52c-student-topical-library');
 
@@ -34,11 +34,11 @@ assert(!hotfix.includes("cloud.from("),
 assert(!hotfix.includes('active='),
   'Mount hotfix must not change topical activation state');
 
-const baseLoader="loadScriptOnce('v52c-student-topical-library.js?v=52c-1', 'data-v52c-student-topical-library');";
-const hotfixLoader="loadScriptOnce('v52c1-topical-library-mount-hotfix.js?v=52c1-1', 'data-v52c1-topical-library-mount-hotfix');";
-assert(release.includes(baseLoader),'Accepted V5.2C student library loader must remain unchanged');
-assert(release.includes(hotfixLoader),'V5.2C.1 mount hotfix must be release-wired');
-assert(release.indexOf(hotfixLoader)>release.indexOf(baseLoader),
-  'Mount hotfix must load after the accepted V5.2C student library');
+const consolidated="loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route');";
+assert(release.includes(consolidated),'Consolidated V5.2C route must be release-wired');
+assert(release.indexOf(consolidated)>release.indexOf("loadScriptOnce('v52b1-large-import-timeout-recovery.js?v=52b1-1'"),
+  'Consolidated V5.2C route must retain the accepted loader phase');
+assert(release.indexOf(consolidated)<release.indexOf("loadScriptOnce('practice-eligibility-ui.js'"),
+  'Consolidated V5.2C route must remain before the V53 layer');
 
 console.log('V5.2C.1 topical library mount checks passed.');

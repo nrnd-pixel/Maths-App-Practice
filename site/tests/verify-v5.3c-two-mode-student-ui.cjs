@@ -28,7 +28,7 @@ expect(ui.includes("Object.defineProperty(window,'V53CTwoModeStudentUi'"),'V53C 
 expect(ui.includes('ROOT.__v53cTwoModeStudentUiInstalled = true'),'V53C install flag must remain published');
 expect(!ui.slice(cStart,d6Start).includes('new MutationObserver('),'V5.3C must not add a permanent DOM observer');
 expect(!ui.slice(cStart,d6Start).includes('cloud.rpc('),'V5.3C must remain UI-only with no RPC changes');
-expect(release.includes("loadScriptOnce('v52c-student-topical-library.js?v=52c-1'"),'rollback V5.2C student route must remain loaded');
+expect(release.includes("loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route')"),'rollback V5.2C student route must remain loaded through the consolidated owner');
 expect(release.includes("loadScriptOnce('practice-selection-engine.js'"),'unified Practice selection engine must remain loaded');
 expect(!release.includes("loadScriptOnce('v53b-unified-practice-retrieval.js"),'historical V53B source must remain dormant');
 expect(release.includes("loadScriptOnce('v52-teacher-topical-library.js?v=52b-1'"),'teacher Topical Exercise Library must remain loaded');

@@ -44,7 +44,8 @@ const allowed=new Set([
   'verify-phase4-v54-resource-bank-protected-sha.cjs',
   'verify-phase4-v53-ui-resource-companion-protected-sha.cjs',
   'verify-phase4-v53-practice-selection-protected-sha.cjs',
-  'verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs'
+  'verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
+  'verify-phase4-v52c-legacy-student-route-protected-sha.cjs'
 ]);
 
 const all=listCjsFiles(__dirname);
