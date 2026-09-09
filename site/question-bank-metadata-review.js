@@ -1,6 +1,8 @@
-/* Phase 4 — V51 Question Bank metadata/review consolidated owner.
-   Preserves the accepted V5.1B2B → V5.1B2C sequence exactly. */
+/* Phase 4 — V51 topology-preserving consolidated owner.
+   Historical sections are retained byte-for-byte and execute in the
+   accepted order at the same loader boundary. */
 
+/* ---- historical owner: v51-question-bank-bulk-metadata.js ---- */
 /* V5.1B2B — Safe bulk metadata editing for Question Bank.
    Reuses B2A selection controls and allows only a fixed low-risk metadata whitelist.
    No answers, marks, response configuration, exam identity, multipart, images, active status,
@@ -403,6 +405,7 @@
   }
 })();
 
+/* ---- historical owner: v51-question-review-workflow.js ---- */
 /* V5.1B2C — Persistent Question Bank review workflow.
    Uses B2A selection. Only review_status/review_note may change.
    Needs Review requires inactive questions and blocks B2A activation until resolved. */
