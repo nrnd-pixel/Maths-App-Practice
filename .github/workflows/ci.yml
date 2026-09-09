@@ -154,6 +154,7 @@ jobs:
             "site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs"
             "site/tests/verify-v5.8c-parent-friendly-student-report.cjs"
             "site/tests/verify-v5.8d-content-workflow-consolidation.cjs"
+            "site/tests/verify-v581a-practice-cloud-result-reconciliation.cjs"
             "site/tests/verify-v5.8-intervention-workflow.cjs"
             "site/tests/verify-v5.8-stable-release-checkpoint.cjs"
           )
