@@ -286,7 +286,9 @@ test('V51 hard gate 7: Exam publication keeps exact hardened global ownership an
 });
 
 test('V51 hard gate 8: student Exam UI wraps existing selectors and only presents existing recovery state',async({page})=>{
-  await page.goto('/');
+  // Use a same-origin static asset so localStorage is available without preloading the live app's
+  // already-installed consolidated student Exam owner into this isolated composition test.
+  await page.goto('/config.js');
   await page.setContent(`<!doctype html><html><body>
     <input id="student-id" value="S1"><input id="student-name" value="Ali"><select id="year-level"><option value="6" selected>6</option></select>
     <div id="exam-year-wrap"><select id="exam-year"><option value="2026" selected>2026</option></select></div>
