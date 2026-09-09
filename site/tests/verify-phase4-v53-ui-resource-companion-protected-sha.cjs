@@ -24,25 +24,15 @@ const protectedFiles=Object.freeze({
   'site/v53c-two-mode-student-ui.js':'05257bf18a97873f3b76e11f44da2127e3f02898',
   'site/v53d6-resource-bank-status-clarity.js':'98c5c1c24480856745dd85922ed674e16bf7bfc1',
 
-  // V51 runtime freeze.
-  'site/paper-import-management.js':'dddbc15919479df2a3016e0088b8372ab6fd14ae',
-  'site/paper-import-management.js':'7a066b493eae01289ef2aa340e7e019bb17ab688',
-  'site/paper-import-management.js':'7c4b6a3d27ba59d1b2cebb4799617ee268187efb',
+  // V51 runtime freeze. Phase 4 V51 intentionally consolidated these active owners;
+  // historical V51 source files remain separately SHA-protected by the V51 guard.
+  'site/paper-import-management.js':'49afc983bdb5c08a2a6a45ad6281a236d793c3de',
+  'site/question-bank-selection-qa.js':'65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf',
+  'site/question-bank-metadata-review.js':'5571f6ea2ee33479f5dd0ad75a418249c10ba664',
+  'site/question-bank-audit-multipart.js':'6738e89a7a4a98693b7303a05714c7419d562407',
   'site/v51-exam-publication-safety.js':'183f313e630d7dd989355107192a35d6af8814c9',
   'site/v51-exam-publication-ui-polish.js':'c55497e54679dd17a9f020ca7a7898cd4d30a510',
-  'site/question-bank-audit-multipart.js':'8658f800def32aa882bdbc168b6477fbc6dbb56e',
-  'site/paper-import-management.js':'a468e532f95a0bce8ce014ee102890de833c3bf3',
-  'site/paper-import-management.js':'7882585ced5c808672bd3700b053efe45dba9421',
-  'site/paper-import-management.js':'0bfc5249064d9d9ec91a5203eca76576e19d663d',
-  'site/paper-import-management.js':'eaf1f52fd1a1dae3ef4547332b99b8d5e535b8a1',
-  'site/paper-import-management.js':'242083da412b3709acda1b48f084a8729e6962c2',
-  'site/question-bank-metadata-review.js':'a1e344bedf32d8ba6e709abff0f1253565764928',
-  'site/question-bank-selection-qa.js':'810b3e28705871ad0599f6f72802c81798114694',
-  'site/question-bank-selection-qa.js':'654d32df4d9930bfb64a09f36b60e3f391dcfa7d',
-  'site/question-bank-audit-multipart.js':'99b42fd00900e68b7841c8908bc9cfbc44e35cc3',
-  'site/question-bank-metadata-review.js':'1e41f98e2a16538e58d2d78281aaedc61a8466e1',
-  'site/student-exam-ui.js':'71ef78b9546ff239dbc90be10cf483d755281ae9',
-  'site/student-exam-ui.js':'f02e05bb987e1c0d1bad66098609239635fbb636',
+  'site/student-exam-ui.js':'b4c2e1f4c096790ce820205e34180040131985a4',
 
   // V52 runtime freeze, including the legacy topical rollback path C intercepts.
   'site/v52-teacher-topical-library.js':'25a2e7eb176eb100ab852fc664379e5716feb6de',
