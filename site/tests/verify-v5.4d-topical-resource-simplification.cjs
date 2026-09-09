@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
+const {section}=require('./v52c-consolidated-test-helper.cjs');
 
 const root = path.resolve(__dirname,'..');
 const modulePath = path.join(root,'resource-bank-ui.js');
 const releasePath = path.join(root,'v40-release.js');
-const topicalPublicationPath = path.join(root,'v52c-topical-publication.js');
 const eligibilityPath = path.join(root,'practice-eligibility-ui.js');
 const all=fs.readFileSync(modulePath,'utf8');
 const b0=all.indexOf('/* V5.4B — Teacher Practice eligibility controls.');
@@ -15,12 +15,12 @@ assert(b0>=0&&c0>b0&&d0>c0,'Consolidated owner must preserve B→C→D order');
 const v54b=all.slice(b0,c0);
 const source=all.slice(d0);
 const release=fs.readFileSync(releasePath,'utf8');
-const publication=fs.readFileSync(topicalPublicationPath,'utf8');
+const publication=section('publication');
 const eligibility=fs.readFileSync(eligibilityPath,'utf8');
 
 assert(source.includes('#v52b-topical-library .v52c-publication{display:none!important}'));
 assert(source.includes('#questions-cards .toggle-q[data-v52-topical-locked="1"]{display:none!important}'));
-assert(release.includes("loadScriptOnce('v52c-topical-publication.js?v=52c-1', 'data-v52c-topical-publication');"));
+assert(release.includes("loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route');"));
 assert(publication.includes('save_topical_exercise_setting_v52c'));
 assert(release.includes("loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');"));
 assert(eligibility.includes('/* V5.3A — Unified Practice eligibility foundation.'));
@@ -35,4 +35,4 @@ assert(!source.includes('practice_eligible ='));
 assert(!source.includes('grade_practice_response'));
 assert(!source.includes('exam_paper_settings'));
 assert(release.includes("loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');"));
-console.log('V5.4D topical resource simplification checks passed against consolidated owner.');
+console.log('V5.4D topical resource simplification checks passed against consolidated owners.');
