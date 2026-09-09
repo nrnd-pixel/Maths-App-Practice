@@ -10,13 +10,21 @@ const read = rel => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
 const config = read('site/config.js');
 const release = read('site/v40-release.js');
 const versionSource = read('site/version.js');
-const polish = read('site/v50-production-polish.js');
-const auditRc3 = read('site/v50-release-audit-rc3.js');
+const auditOwner = read('site/release-audit-ui.js');
 const checkpoint = read('site/v54-stable-release-checkpoint.js');
 
+function section(source,start,next){
+  const begin=source.indexOf(start);
+  assert.ok(begin>=0,`Missing consolidated section: ${start}`);
+  const end=next ? source.indexOf(next,begin+start.length) : source.length;
+  assert.ok(end>begin,`Missing consolidated section boundary after: ${start}`);
+  return source.slice(begin,end).trimEnd();
+}
+const polish=section(auditOwner,'/* V5.4 — UX & Production Polish.','/* V5.0 Release Candidate Audit');
+const auditRc3=section(auditOwner,'/* V5.4 — extends the existing read-only Release Audit');
+
 new vm.Script(versionSource,{filename:'version.js'});
-new vm.Script(polish,{filename:'v50-production-polish.js'});
-new vm.Script(auditRc3,{filename:'v50-release-audit-rc3.js'});
+new vm.Script(auditOwner,{filename:'release-audit-ui.js'});
 new vm.Script(checkpoint,{filename:'v54-stable-release-checkpoint.js'});
 
 // Historical V5.1/V5.4 release layers remain recoverable, while current title/badge
@@ -38,10 +46,10 @@ assert.match(checkpoint,/V5\.4 Stable Release:/);
 assert.doesNotMatch(polish,/const TITLE = 'Math Practice V5\.|const BADGE = 'Version 5\./);
 assert.doesNotMatch(checkpoint,/const TITLE = 'Math Practice V5\.|const BADGE = 'Version 5\./);
 
-// Loader order keeps RC2 security first, then production polish and the read-only audit extension.
-assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*v50-production-polish\.js\?v=51stable-1[\s\S]*v50-release-audit\.js\?v=50rc2-1[\s\S]*v50-release-audit-rc3\.js\?v=51stable-1/);
-assert.match(release,/data-v50-production-polish/);
-assert.match(release,/data-v50-release-audit-rc3/);
+// Loader order keeps RC2 security first, then the consolidated late audit/polish owner.
+assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*release-audit-ui\.js/);
+assert.match(release,/data-v50-security-hardening/);
+assert.match(release,/data-release-audit-ui/);
 assert.match(config,/\.\/v40-start-shell\.js'[\s\S]*\.\/v54-stable-release-checkpoint\.js'/,
   'V5.4 stable checkpoint must load after the established start shell.');
 
@@ -112,4 +120,4 @@ console.log('- current title/badge are sourced from config-derived version.js');
 console.log('- packaged production hides the connection editor while local/dev setup remains available');
 console.log('- Reviewed Work and result-code privacy language covers both Practice and Exam');
 console.log('- Teacher tabs have keyboard semantics and narrow-screen horizontal navigation');
-console.log('- status feedback is announced accessibly and the retained V5.4 audit presentation remains read-only');
+console.log('- status feedback is announced accessibly and consolidated RC3 presentation remains read-only');
