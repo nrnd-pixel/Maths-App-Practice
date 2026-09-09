@@ -10,11 +10,20 @@ const readme = read('README.md');
 const config = read('config.js');
 const release = read('v40-release.js');
 const versionSource = read('version.js');
-const polish = read('v50-production-polish.js');
-const audit = read('v50-release-audit-rc3.js');
+const auditOwner = read('release-audit-ui.js');
 const checkpoint = read('v54-stable-release-checkpoint.js');
 const migrations = changelog;
 const checklist = changelog;
+
+function section(source,start,next){
+  const begin=source.indexOf(start);
+  assert(begin>=0,`Missing consolidated section: ${start}`);
+  const end=next ? source.indexOf(next,begin+start.length) : source.length;
+  assert(end>begin,`Missing consolidated section boundary after: ${start}`);
+  return source.slice(begin,end).trimEnd();
+}
+const polish=section(auditOwner,'/* V5.4 — UX & Production Polish.','/* V5.0 Release Candidate Audit');
+const audit=section(auditOwner,'/* V5.4 — extends the existing read-only Release Audit');
 
 // Preserve the signed-off V5.1 release history and migration/checklist record.
 assert.match(readme,/^# Maths Practice V5\.1/m);
@@ -27,8 +36,7 @@ assert.match(release,/MathAppVersion\?\.applyIdentity/);
 assert.match(release,/V5\.1 Stable Release:/);
 assert.match(release,/v51-student-exam-paper-library\.js\?v=51c1-1/);
 assert.match(release,/v51-student-exam-resume-progress\.js\?v=51c2-1/);
-assert.match(release,/v50-production-polish\.js\?v=51stable-1/);
-assert.match(release,/v50-release-audit-rc3\.js\?v=51stable-1/);
+assert.match(release,/loadScriptOnce\('release-audit-ui\.js', 'data-release-audit-ui'\)/);
 
 // Current runtime identity is centralized and derived from config.js's actual staged list.
 assert.match(config,/const MATH_APP_STAGED_SCRIPTS = Object\.freeze\(\[/);
@@ -64,5 +72,6 @@ assert(!release.includes('V5.1 Release Candidate:'),'Historical stable release m
 console.log('Stable Release history + current identity checks passed.');
 console.log('- accepted V5.1 release history and C1/C2 loader wiring remain recoverable');
 console.log('- current displayed identity is derived from config.js through version.js');
+console.log('- consolidated late audit/polish owner retains the historical V5.4 presentation contracts');
 console.log('- production migration/checklist record is retained in CHANGELOG.md');
 console.log('- release presentation remains free of application data writes');
