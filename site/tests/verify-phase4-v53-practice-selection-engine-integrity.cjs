@@ -19,7 +19,7 @@ function indexOfRequired(text,token,label){
 const a=indexOfRequired(loader,"loadScriptOnce('practice-eligibility-ui.js",'V53A consolidated loader');
 const consolidated=indexOfRequired(loader,"loadScriptOnce('practice-selection-engine.js'",'Practice selection engine loader');
 const clarity=indexOfRequired(loader,"loadScriptOnce('practice-ui-resource-clarity.js'",'V53C/D6 consolidated loader');
-const v54=indexOfRequired(loader,"loadScriptOnce('v54a-resource-bank-visibility.js",'V54A loader');
+const v54=indexOfRequired(loader,"loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui')",'V54 consolidated UI loader');
 assert.ok(a<consolidated && consolidated<clarity && clarity<v54,'loader order must remain V53A owner -> engine -> V53C/D6 owner -> V54');
 for(const retired of [
   'v53b-unified-practice-retrieval.js',

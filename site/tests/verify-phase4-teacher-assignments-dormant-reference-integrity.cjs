@@ -28,7 +28,8 @@ function mentionsDormantBrowserFile(source,dormant){
 const verifierFiles=listCjsFiles(testsRoot);
 const allowedReferenceFiles=new Set([
   'verify-phase4-teacher-assignments-checkpoint1-integrity.cjs',
-  'verify-phase4-teacher-assignments-dormant-reference-integrity.cjs'
+  'verify-phase4-teacher-assignments-dormant-reference-integrity.cjs',
+  'verify-phase4-v54-resource-bank-protected-sha.cjs'
 ]);
 
 const hits=[];
@@ -52,7 +53,7 @@ if(unexpected.length){
 
 const actualReferenceFiles=[...new Set(hits.map(hit=>hit.name))].sort();
 assert.deepEqual(actualReferenceFiles,[...allowedReferenceFiles].sort(),
-  'Retired assignment browser filenames must be confined to the two Phase 4 negative/reference guards.');
+  'Retired assignment browser filenames must be confined to the explicit Phase 4 negative/reference guards.');
 
 const read=name=>fs.readFileSync(path.join(testsRoot,name),'utf8');
 const integrity=read('verify-phase4-teacher-assignments-checkpoint1-integrity.cjs');

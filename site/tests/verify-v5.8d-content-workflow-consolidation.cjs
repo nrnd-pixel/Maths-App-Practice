@@ -14,8 +14,7 @@ const review=fs.readFileSync(path.join(root,'v51-question-review-workflow.js'),'
 const history=fs.readFileSync(path.join(root,'v51-question-change-history.js'),'utf8');
 const topical=fs.readFileSync(path.join(root,'v52-teacher-topical-library.js'),'utf8');
 const topicalPublish=fs.readFileSync(path.join(root,'v52c-topical-publication.js'),'utf8');
-const resourceBank=fs.readFileSync(path.join(root,'v54a-resource-bank-visibility.js'),'utf8');
-const eligibility=fs.readFileSync(path.join(root,'v54b-practice-eligibility-controls.js'),'utf8');
+const resourceBankUi=fs.readFileSync(path.join(root,'resource-bank-ui.js'),'utf8');
 const workspace=fs.readFileSync(path.join(root,'v58b-teacher-workspace-consolidation.js'),'utf8');
 
 function assert(condition,message){ if(!condition) throw new Error(message); }
@@ -51,8 +50,8 @@ assert(review.includes("panel.id = 'v51b2c-review-workflow'"),'existing review w
 assert(history.includes("panel.id = 'v51b2d-question-history'"),'existing correction-history target changed');
 assert(topical.includes("panel.id = 'v52b-topical-library'"),'existing Topical Exercise Library target changed');
 assert(topicalPublish.includes('Publish to students'),'existing topical publication owner changed');
-assert(resourceBank.includes("const SUMMARY_ID = 'v54a-resource-bank-summary'"),'existing Practice resource summary target changed');
-assert(eligibility.includes('Teacher Practice eligibility controls'),'existing Practice eligibility owner changed');
+assert(resourceBankUi.includes("const SUMMARY_ID = 'v54a-resource-bank-summary'"),'existing Practice resource summary target changed');
+assert(resourceBankUi.includes('Teacher Practice eligibility controls'),'existing Practice eligibility owner changed');
 assert(workspace.includes("title:'Content'"),'accepted V5.8B Content group missing');
 
 for(const selector of [

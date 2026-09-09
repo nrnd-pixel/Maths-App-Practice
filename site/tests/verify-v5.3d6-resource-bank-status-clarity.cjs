@@ -54,6 +54,7 @@ assert(loader.includes("loadScriptOnce('practice-selection-engine.js', 'data-pra
 assert(!loader.includes("loadScriptOnce('v53d5-practice-selection-intelligence.js"),'Historical D5 source must remain dormant');
 assert(loader.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');"),'Consolidated V53C/D6 loader wiring must be present');
 assert(loader.indexOf('practice-selection-engine.js') < loader.indexOf('practice-ui-resource-clarity.js'),'Clarity owner must remain after Practice engine');
-assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('v54a-resource-bank-visibility.js'),'D6 compatibility layer must remain before V54A');
+assert(loader.includes("loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');"),'Consolidated V54A-D owner must remain loaded');
+assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('resource-bank-ui.js'),'D6 compatibility layer must remain before consolidated V54A-D owner');
 
 console.log('V5.3D6 resource-bank status clarity checks passed against consolidated owner.');

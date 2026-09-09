@@ -88,12 +88,8 @@
     loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');
     loadScriptOnce('practice-selection-engine.js', 'data-practice-selection-engine');
     loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');
-    loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');
-    loadScriptOnce('v54b-practice-eligibility-controls.js?v=54b-1', 'data-v54b-practice-eligibility-controls');
-    loadScriptOnce('v54c-compact-question-bank.js?v=54c-1', 'data-v54c-compact-question-bank');
-    loadScriptOnce('v54d-topical-resource-simplification.js?v=54d-1', 'data-v54d-topical-resource-simplification');
-    loadScriptOnce('v54e-bulk-practice-eligibility.js?v=54e-1', 'data-v54e-bulk-practice-eligibility');
-    loadScriptOnce('v54f-bulk-selection-scope-safety.js?v=54f-1', 'data-v54f-bulk-selection-scope-safety');
+    loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');
+    loadScriptOnce('resource-bank-bulk.js', 'data-resource-bank-bulk');
   }
 
   if (document.readyState === 'loading'){

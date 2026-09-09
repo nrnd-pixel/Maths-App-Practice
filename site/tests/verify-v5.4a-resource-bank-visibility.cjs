@@ -3,16 +3,22 @@ const fs = require('fs');
 const path = require('path');
 
 const siteRoot = path.resolve(__dirname,'..');
-const modulePath = path.join(siteRoot,'v54a-resource-bank-visibility.js');
+const modulePath = path.join(siteRoot,'resource-bank-ui.js');
 const loaderPath = path.join(siteRoot,'v40-release.js');
 const performancePath = path.join(siteRoot,'v52b1-question-bank-performance.js');
 const d6Path = path.join(siteRoot,'practice-ui-resource-clarity.js');
 
-const mod = require(modulePath);
-const performance = require(performancePath);
-const source = fs.readFileSync(modulePath,'utf8');
+const allSource = fs.readFileSync(modulePath,'utf8');
+const aStart=allSource.indexOf('/* V5.4A — Unified Teacher Resource Bank visibility.');
+const bStart=allSource.indexOf('/* V5.4B — Teacher Practice eligibility controls.');
+assert(aStart>=0 && bStart>aStart,'Consolidated owner must contain V54A before V54B');
+const source=allSource.slice(aStart,bStart);
 const loader = fs.readFileSync(loaderPath,'utf8');
 const d6 = fs.readFileSync(d6Path,'utf8');
+global.window=global;
+require(modulePath);
+const mod=global.V54AResourceBankVisibility;
+const performance = require(performancePath);
 
 const rows = [
   {id:'a',practice_eligible:true,source_type:'past_paper',review_status:'none',active:true},
@@ -28,16 +34,7 @@ assert.strictEqual(mod.sourceCategory(rows[0]),'past_paper');
 assert.strictEqual(mod.reviewState(rows[1]),'reviewed');
 assert.strictEqual(mod.reviewState(rows[3]),'needs_review');
 assert.strictEqual(mod.reviewState(rows[0]),'none');
-
-assert.deepStrictEqual(mod.resourceStats(rows),{
-  total:4,
-  eligible:2,
-  ineligible:2,
-  eligibleReviewed:1,
-  eligibleTopical:1,
-  activeTopical:0
-});
-
+assert.deepStrictEqual(mod.resourceStats(rows),{total:4,eligible:2,ineligible:2,eligibleReviewed:1,eligibleTopical:1,activeTopical:0});
 assert.strictEqual(mod.matchesEligibility(rows[0],'eligible'),true);
 assert.strictEqual(mod.matchesEligibility(rows[2],'eligible'),false);
 assert.strictEqual(mod.matchesEligibility(rows[2],'ineligible'),true);
@@ -76,12 +73,12 @@ assert(!source.includes('exam_attempt'),'V5.4A must not alter Exam Mode');
 assert(!/practice_eligible\s*=(?!=)/.test(source),'V5.4A must not mutate Practice eligibility');
 
 assert(loader.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');"),'Accepted consolidated C/D6 loader must remain present');
-assert(loader.includes("loadScriptOnce('v54a-resource-bank-visibility.js?v=54a3-2', 'data-v54a-resource-bank-visibility');"),'V5.4A cache-busted loader wiring must be present');
-assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('v54a-resource-bank-visibility.js'),'V5.4A must load after consolidated D6 so it can reuse D6 topical status elements');
+assert(loader.includes("loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');"),'Consolidated V54A-D loader wiring must be present');
+assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('resource-bank-ui.js'),'V5.4A must load after consolidated D6 so it can reuse D6 topical status elements');
 
 const d5 = fs.readFileSync(require.resolve('../v53d5-practice-selection-intelligence.js'),'utf8');
 assert(d5.includes('adaptiveOrder'),'V5.3D5 historical selection intelligence reference must remain present');
 const exam = fs.readFileSync(require.resolve('../v53b-unified-practice-retrieval.js'),'utf8');
 assert(exam.includes("input.p_exam_year == null"),'Exam routing boundary historical reference must remain explicit');
 
-console.log('V5.4A unified Teacher Resource Bank visibility checks passed.');
+console.log('V5.4A unified Teacher Resource Bank visibility checks passed against consolidated owner.');
