@@ -1,10 +1,8 @@
-const fs=require('fs');
-const path=require('path');
 const assert=require('assert');
+const {section,loadApi}=require('./v52c-consolidated-test-helper.cjs');
 
-const modulePath=path.join(__dirname,'..','v52c-student-topical-library.js');
-const source=fs.readFileSync(modulePath,'utf8');
-const api=require(modulePath);
+const source=section('student');
+const api=loadApi(source);
 
 assert.strictEqual(api.MODE_BUTTON_ID,'v52c-topical-mode-btn');
 assert.strictEqual(api.LIBRARY_ID,'v52c-student-topical-library');
