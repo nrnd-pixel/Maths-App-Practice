@@ -7,10 +7,8 @@ const source=fs.readFileSync(path.join(root,'v58b-teacher-workspace-consolidatio
 const config=fs.readFileSync(path.join(root,'config.js'),'utf8');
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const actionCenter=fs.readFileSync(path.join(root,'v42-teacher-action-center.js'),'utf8');
-const launchReadiness=fs.readFileSync(path.join(root,'v50-student-launch-readiness.js'),'utf8');
-const operations=fs.readFileSync(path.join(root,'v50-teacher-operations.js'),'utf8');
-const classReport=fs.readFileSync(path.join(root,'v50-teacher-class-report.js'),'utf8');
-const archive=fs.readFileSync(path.join(root,'v50-report-archive.js'),'utf8');
+const operationsOwner=fs.readFileSync(path.join(root,'teacher-launch-operations.js'),'utf8');
+const reportingOwner=fs.readFileSync(path.join(root,'teacher-reporting.js'),'utf8');
 const pastPaper=fs.readFileSync(path.join(root,'past-paper-analytics.js'),'utf8');
 const gamificationCore=fs.readFileSync(path.join(root,'gamification-core.js'),'utf8');
 const gamificationTeacher=fs.readFileSync(path.join(root,'gamification-teacher.js'),'utf8');
@@ -18,6 +16,8 @@ const feedback=fs.readFileSync(path.join(root,'v5763-teacher-feedback-header-ico
 
 function assert(condition,message){ if(!condition) throw new Error(message); }
 new vm.Script(source,{filename:'v58b-teacher-workspace-consolidation.js'});
+new vm.Script(operationsOwner,{filename:'teacher-launch-operations.js'});
+new vm.Script(reportingOwner,{filename:'teacher-reporting.js'});
 
 assert(source.includes('V5.8B — Teacher Workspace Consolidation'),'missing V5.8B identity');
 assert(source.includes("const WORKSPACE_ID='v58b-teacher-workspace'"),'missing workspace id');
@@ -44,10 +44,10 @@ assert(actionCenter.includes('v42-action-center'),'Action Center target changed'
 assert(pastPaper.includes("const TRIGGER_ID = 'v56d-open-past-paper-analytics'"),'Past Paper Analytics trigger changed');
 assert(gamificationCore.includes("teacherTrigger:'v573-open-class-motivation'"),'Class Motivation trigger id changed');
 assert(gamificationTeacher.includes('button.id=IDS.teacherTrigger'),'Consolidated teacher gamification must own the Class Motivation trigger');
-assert(launchReadiness.includes("const PANEL_ID = 'launch-readiness-panel'"),'Launch Readiness panel changed');
-assert(operations.includes("const PANEL_ID = 'teacher-operations-panel'"),'Teacher Operations panel changed');
-assert(classReport.includes("const TRIGGER_ID = 'v50c1-open-class-report'"),'Class Report trigger changed');
-assert(archive.includes("const PANEL_ID = 'report-archive-panel'"),'Report Archive panel changed');
+assert(operationsOwner.includes("const PANEL_ID = 'launch-readiness-panel'"),'Launch Readiness panel changed');
+assert(operationsOwner.includes("const PANEL_ID = 'teacher-operations-panel'"),'Teacher Operations panel changed');
+assert(reportingOwner.includes("const TRIGGER_ID = 'v50c1-open-class-report'"),'Class Report trigger changed');
+assert(reportingOwner.includes("const PANEL_ID = 'report-archive-panel'"),'Report Archive panel changed');
 assert(feedback.includes("const ICON_ID='v5763-teacher-feedback-icon'"),'teacher Feedback proxy changed');
 
 assert(source.includes("tab.click()"),'workspace must delegate to existing teacher tabs');
