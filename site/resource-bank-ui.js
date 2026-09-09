@@ -423,6 +423,45 @@
       : 'Remove this question from ordinary Practice.';
   }
 
+  function decorateCards(rows=currentQuestions()){
+    if (typeof document==='undefined') return;
+    const byId=new Map(Array.from(rows||[]).map(row=>[String(row?.id||''),row]));
+    document.querySelectorAll('#questions-cards .qcard').forEach(card=>{
+      const id=cardQuestionId(card);
+      const row=byId.get(id);
+      if (!row) return;
+      const actions=card.querySelector('.qcard-actions');
+      if (!actions) return;
+      let button=actions.querySelector('.v54b-practice-toggle');
+      if (!button){
+        button=document.createElement('button');
+        button.type='button';
+        button.className='outline v54b-practice-toggle';
+        actions.appendChild(button);
+      }
+      const model=controlModel(row);
+      button.dataset.id=id;
+      button.dataset.target=model.target?'true':'false';
+      button.disabled=model.disabled;
+      button.textContent=model.label;
+      button.title=buttonTitle(row,model);
+      button.setAttribute('aria-label',model.label);
+      button.classList.remove('outline','warning','secondary');
+      button.classList.add(model.managed?'secondary':model.eligible?'warning':'outline');
+    });
+  }
+
+  function confirmationText(row,model){
+    const identity=[
+      row?.question_number?`Q${trim(row.question_number)}`:'this question',
+      trim(row?.source)
+    ].filter(Boolean).join(' · ');
+    if (model.grouped){
+      return `${model.target?'Add':'Remove'} this whole multipart question ${model.target?'to':'from'} ordinary Practice?\n\nAll parts will stay together. ${identity}`;
+    }
+    return `${model.target?'Add':'Remove'} ${identity} ${model.target?'to':'from'} ordinary Practice?`;
+  }
+
   function teacherRpcReady(){
     try { return !!(cloudReady && teacherUser && cloud && typeof cloud.rpc==='function'); }
     catch { return false; }
