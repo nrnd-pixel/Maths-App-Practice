@@ -1,9 +1,12 @@
 const fs=require('fs');
 const path=require('path');
 const assert=require('assert');
-const loader=fs.readFileSync(path.resolve(__dirname,'../v40-release.js'),'utf8');
-const b2d="loadScriptOnce('question-bank-audit-multipart.js', 'data-question-bank-audit-multipart');";
-const b2e="loadScriptOnce('question-bank-audit-multipart.js', 'data-question-bank-audit-multipart');";
-assert(loader.includes(b2e),'V5.1B2E loader line must be present');
-assert(loader.indexOf(b2d)>=0 && loader.indexOf(b2e)>loader.indexOf(b2d),'B2E must load after B2D audit history');
-console.log('V5.1B2E loader wiring — PASS');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'question-bank-audit-multipart.js'),'utf8');
+const token="loadScriptOnce('question-bank-audit-multipart.js', 'data-question-bank-audit-multipart')";
+assert.strictEqual(loader.split(token).length-1,1,'B2D/B2E owner must load exactly once');
+assert(owner.indexOf('/* V5.1B2D — Teacher-only correction audit history viewer.')<owner.indexOf('/* V5.1B2E — Multipart Question Management.'),'B2D must remain before B2E internally');
+assert(loader.indexOf('v52-teacher-topical-library.js')<loader.indexOf(token),'B2D/B2E owner must remain after V52 teacher topical library');
+assert(loader.indexOf(token)<loader.indexOf('v51-exam-publication-safety.js'),'B2D/B2E owner must remain before standalone B3 safety');
+console.log('V5.1B2E consolidated loader check passed.');
