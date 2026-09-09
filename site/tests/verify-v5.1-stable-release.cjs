@@ -34,8 +34,9 @@ assert.match(readme,/5c625f6103f037a6bdce592eb985df0ad47a9f42/,'Stable README mu
 assert.match(release,/function applyV51StableRelease\(\)/);
 assert.match(release,/MathAppVersion\?\.applyIdentity/);
 assert.match(release,/V5\.1 Stable Release:/);
-assert.match(release,/student-exam-ui\.js\?v=51c1-1/);
-assert.match(release,/student-exam-ui\.js\?v=51c2-1/);
+assert.match(release,/loadScriptOnce\('student-exam-ui\.js', 'data-student-exam-ui'\)/);
+const studentExamOwner=read('student-exam-ui.js');
+assert(studentExamOwner.indexOf('/* V5.1C1 — Student Exam Paper Library.') < studentExamOwner.indexOf('/* V5.1C2 — Student Exam Resume & Progress Clarity.'));
 assert.match(release,/loadScriptOnce\('release-audit-ui\.js', 'data-release-audit-ui'\)/);
 
 // Current runtime identity is centralized and derived from config.js's actual staged list.
