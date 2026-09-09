@@ -6,18 +6,27 @@ const vm = require('node:vm');
 const siteRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(siteRoot, '..');
 const release = fs.readFileSync(path.join(siteRoot, 'v40-release.js'), 'utf8');
-const operations = fs.readFileSync(path.join(siteRoot, 'v50-teacher-operations.js'), 'utf8');
+const operationsOwner = fs.readFileSync(path.join(siteRoot, 'teacher-launch-operations.js'), 'utf8');
 const coreSql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d2_teacher_operations.sql'), 'utf8');
 const safetySql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d2_teacher_operations_safety.sql'), 'utf8');
 const historySql = fs.readFileSync(path.join(repoRoot, 'supabase', 'v50d2_teacher_operations_history_alignment.sql'), 'utf8');
 
-new vm.Script(operations, { filename: 'v50-teacher-operations.js' });
+function section(source,start,next){
+  const begin=source.indexOf(start);
+  assert.ok(begin>=0,`Missing consolidated section: ${start}`);
+  const end=next ? source.indexOf(next,begin+start.length) : source.length;
+  assert.ok(end>begin,`Missing consolidated section boundary after: ${start}`);
+  return source.slice(begin,end).trimEnd();
+}
+const operations=section(operationsOwner,'/* V5.0D2 — Teacher Operational Tools.','/* V5.0 launch roster maintenance');
+new vm.Script(operationsOwner, { filename: 'teacher-launch-operations.js' });
 
-// Loader compatibility: D1 remains stable and D2 is additive.
-assert.match(release, /v50-student-launch-readiness\.js\?v=50d1-1', 'data-v50-student-launch-readiness'/,
-  'Existing D1 loader must remain stable.');
-assert.match(release, /v50-teacher-operations\.js\?v=50d2-1/);
-assert.match(release, /data-v50-teacher-operations/);
+// Loader compatibility: D1, D2 and Roster Edit now share one early owner.
+assert.match(release, /loadScriptOnce\('teacher-launch-operations\.js', 'data-teacher-launch-operations'\)/);
+assert.match(operationsOwner, /V5\.0D1 — Student Launch Readiness/);
+assert.match(operationsOwner, /V5\.0D2 — Teacher Operational Tools/);
+assert.ok(operationsOwner.indexOf('V5.0D1 — Student Launch Readiness') < operationsOwner.indexOf('V5.0D2 — Teacher Operational Tools'),
+  'D1 must remain before D2 inside the consolidated owner.');
 
 // Teacher-only operational UI.
 assert.match(operations, /Teacher Operational Tools/);
@@ -132,7 +141,7 @@ assert.doesNotMatch(safetySql, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Z
 assert.doesNotMatch(historySql, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 
 console.log('V5.0D2 teacher-operations verification passed.');
-console.log('- operational browser code uses teacher-only RPCs only');
+console.log('- consolidated D2 browser section uses teacher-only RPCs only');
 console.log('- deactivation expires access tickets without cascading learning evidence');
 console.log('- class transfer is limited to clean/new same-year roster records');
 console.log('- assignment activation respects class status and deletion preserves attempt history');
