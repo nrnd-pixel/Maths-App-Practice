@@ -25,17 +25,10 @@ const protectedFiles=Object.freeze({
   'site/v50-rc2-empty-result-code-polish.js':'4ecb5556b74b965ce1b192671626cbeecebb1ee4',
   'site/v50-release-audit-rc3.js':'26545966923b0e702a18bf1e0df987d4e7fcb830',
 
-  // V53 active owners / engine plus historical non-assignment reference sources.
+  // V53 current consolidated owners / engine. Historical V53 sources are frozen by their dedicated checkpoint guards.
   'site/practice-eligibility-ui.js':'3d12cb7090289b50b0e809b9f86b4edd6156d849',
   'site/practice-selection-engine.js':'46db6d9b8ad4f011100ff36f81e13cf286b4c8a1',
   'site/practice-ui-resource-clarity.js':'1e458670d8020f6cc5c627ffa6176137365b3533',
-  'site/v53a-practice-eligibility.js':'a7a940b9ee080b8fa6a5ed518b0b060f6ba504ca',
-  'site/v53b-unified-practice-retrieval.js':'b427513531fce17b8de348ef3251c9d1614d9ca2',
-  'site/v53c-two-mode-student-ui.js':'05257bf18a97873f3b76e11f44da2127e3f02898',
-  'site/v53d3-practice-selection-quality.js':'5a59a347dd966c3cbc2317aa14c08021647f20e5',
-  'site/v53d4-student-recommendation-alignment.js':'6c6d21102f0ddae7b28d4624a56e419371a7cc22',
-  'site/v53d5-practice-selection-intelligence.js':'595735f995318c97e783680dda58ea5c22609c27',
-  'site/v53d6-resource-bank-status-clarity.js':'98c5c1c24480856745dd85922ed674e16bf7bfc1',
 
   // V51 complete runtime boundary.
   'site/v51-bulk-question-image-cleanup.js':'dddbc15919479df2a3016e0088b8372ab6fd14ae',
