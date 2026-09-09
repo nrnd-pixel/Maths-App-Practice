@@ -14,7 +14,7 @@ const protectedFiles=Object.freeze({
   // Checkpoint-owned active modules and exact loader result.
   'site/practice-eligibility-ui.js':'3d12cb7090289b50b0e809b9f86b4edd6156d849',
   'site/practice-ui-resource-clarity.js':'1e458670d8020f6cc5c627ffa6176137365b3533',
-  'site/v40-release.js':'2d2c5f75f3c7b655c735d8bb66f8baae1cf1c02f',
+  'site/v40-release.js':'66ee5aebc4947ca23c3b1a976738761ad1a1d62a',
 
   // Newly consolidated Practice engine must remain byte-identical.
   'site/practice-selection-engine.js':'46db6d9b8ad4f011100ff36f81e13cf286b4c8a1',
