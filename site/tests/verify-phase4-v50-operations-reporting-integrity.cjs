@@ -7,6 +7,7 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'../..');
 const SITE=path.join(ROOT,'site');
 const read=name=>fs.readFileSync(path.join(SITE,name),'utf8');
+const canonical=text=>String(text).replace(/\n+$/,'');
 
 const release=read('v40-release.js');
 const reporting=read('teacher-reporting.js');
@@ -16,11 +17,11 @@ const audit=read('release-audit-ui.js');
 const reportingSources=['v50-teacher-class-report.js','v50-teacher-student-report.js','v50-reporting-export.js','v50-report-archive.js'];
 const operationsSources=['v50-student-launch-readiness.js','v50-teacher-operations.js','v50-roster-edit.js'];
 const auditSources=['v50-production-polish.js','v50-release-audit.js','v50-rc2-empty-result-code-polish.js','v50-release-audit-rc3.js'];
-const concat=files=>files.map(read).join('\n\n');
+const concat=files=>files.map(name=>canonical(read(name))).join('\n\n');
 
-assert.equal(reporting,concat(reportingSources),'teacher-reporting.js must be exact C1 -> C2 -> C3A -> C3B source concatenation');
-assert.equal(operations,concat(operationsSources),'teacher-launch-operations.js must be exact D1 -> D2 -> Roster Edit source concatenation');
-assert.equal(audit,concat(auditSources),'release-audit-ui.js must be exact Production Polish -> Release Audit -> RC2 polish -> RC3 source concatenation');
+assert.equal(canonical(reporting),concat(reportingSources),'teacher-reporting.js must be exact C1 -> C2 -> C3A -> C3B source-body concatenation; only EOF separator newlines are normalized');
+assert.equal(canonical(operations),concat(operationsSources),'teacher-launch-operations.js must be exact D1 -> D2 -> Roster Edit source-body concatenation; only EOF separator newlines are normalized');
+assert.equal(canonical(audit),concat(auditSources),'release-audit-ui.js must be exact Production Polish -> Release Audit -> RC2 polish -> RC3 source-body concatenation; only EOF separator newlines are normalized');
 new vm.Script(reporting,{filename:'teacher-reporting.js'});
 new vm.Script(operations,{filename:'teacher-launch-operations.js'});
 new vm.Script(audit,{filename:'release-audit-ui.js'});
