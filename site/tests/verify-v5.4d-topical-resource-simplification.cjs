@@ -3,56 +3,36 @@ const path = require('path');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..');
-const modulePath = path.join(root,'v54d-topical-resource-simplification.js');
+const modulePath = path.join(root,'resource-bank-ui.js');
 const releasePath = path.join(root,'v40-release.js');
 const topicalPublicationPath = path.join(root,'v52c-topical-publication.js');
 const eligibilityPath = path.join(root,'practice-eligibility-ui.js');
-const v54bPath = path.join(root,'v54b-practice-eligibility-controls.js');
+const all=fs.readFileSync(modulePath,'utf8');
+const b0=all.indexOf('/* V5.4B — Teacher Practice eligibility controls.');
+const c0=all.indexOf('/* V5.4C — Compact Teacher Question Bank browsing.');
+const d0=all.indexOf('/* V5.4D — Topical Resource Library simplification.');
+assert(b0>=0&&c0>b0&&d0>c0,'Consolidated owner must preserve B→C→D order');
+const v54b=all.slice(b0,c0);
+const source=all.slice(d0);
+const release=fs.readFileSync(releasePath,'utf8');
+const publication=fs.readFileSync(topicalPublicationPath,'utf8');
+const eligibility=fs.readFileSync(eligibilityPath,'utf8');
 
-const source = fs.readFileSync(modulePath,'utf8');
-const release = fs.readFileSync(releasePath,'utf8');
-const publication = fs.readFileSync(topicalPublicationPath,'utf8');
-const eligibility = fs.readFileSync(eligibilityPath,'utf8');
-const v54b = fs.readFileSync(v54bPath,'utf8');
-require(modulePath);
-
-assert(source.includes('#v52b-topical-library .v52c-publication{display:none!important}'),
-  'Teacher Topical Resource Library must hide the obsolete legacy publication panel');
-assert(source.includes('#questions-cards .toggle-q[data-v52-topical-locked="1"]{display:none!important}'),
-  'Question Bank must hide the obsolete locked topical Active control');
-
-assert(release.includes("loadScriptOnce('v52c-topical-publication.js?v=52c-1', 'data-v52c-topical-publication');"),
-  'Legacy V5.2C publication backend must remain loaded as rollback infrastructure');
-assert(publication.includes('save_topical_exercise_setting_v52c'),
-  'Legacy publication implementation must remain intact behind the hidden teacher surface');
-assert(release.includes("loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');"),
-  'Consolidated V53A eligibility owner must remain loaded');
-assert(eligibility.includes('/* V5.3A — Unified Practice eligibility foundation.'),
-  'Consolidated eligibility owner must retain the V53A section');
-assert(eligibility.includes('v53a-eligibility-toggle'),
-  'Set-level Practice eligibility controls must remain present');
-assert(v54b.includes('Managed by set'),
-  'Topical Question Bank rows must continue directing Practice eligibility to set-level management');
-
-assert(!source.includes('.v53a-practice-eligibility{display:none'),
-  'V5.4D must not hide current set-level Practice eligibility controls');
-assert(!source.includes('.v54b-practice-toggle{display:none'),
-  'V5.4D must not hide V5.4B Practice eligibility controls');
-assert(!source.includes('new MutationObserver'),
-  'V5.4D must not add a permanent DOM observer');
-assert(!source.includes('cloud.rpc('),
-  'V5.4D must not call database RPCs');
-assert(!source.includes('cloud.from('),
-  'V5.4D must not access question tables');
-assert(!source.includes('practice_eligible ='),
-  'V5.4D must not mutate Practice eligibility');
-assert(!source.includes('grade_practice_response'),
-  'V5.4D must not alter grading');
-assert(!source.includes('exam_paper_settings'),
-  'V5.4D must not alter Exam publication');
-
-const c = release.indexOf("v54c-compact-question-bank.js?v=54c-1");
-const d = release.indexOf("v54d-topical-resource-simplification.js?v=54d-1");
-assert(c >= 0 && d > c,'Release loader must preserve V5.4C → V5.4D composition order');
-
-console.log('V5.4D topical resource simplification checks passed.');
+assert(source.includes('#v52b-topical-library .v52c-publication{display:none!important}'));
+assert(source.includes('#questions-cards .toggle-q[data-v52-topical-locked="1"]{display:none!important}'));
+assert(release.includes("loadScriptOnce('v52c-topical-publication.js?v=52c-1', 'data-v52c-topical-publication');"));
+assert(publication.includes('save_topical_exercise_setting_v52c'));
+assert(release.includes("loadScriptOnce('practice-eligibility-ui.js', 'data-practice-eligibility-ui');"));
+assert(eligibility.includes('/* V5.3A — Unified Practice eligibility foundation.'));
+assert(eligibility.includes('v53a-eligibility-toggle'));
+assert(v54b.includes('Managed by set'));
+assert(!source.includes('.v53a-practice-eligibility{display:none'));
+assert(!source.includes('.v54b-practice-toggle{display:none'));
+assert(!source.includes('new MutationObserver'));
+assert(!source.includes('cloud.rpc('));
+assert(!source.includes('cloud.from('));
+assert(!source.includes('practice_eligible ='));
+assert(!source.includes('grade_practice_response'));
+assert(!source.includes('exam_paper_settings'));
+assert(release.includes("loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');"));
+console.log('V5.4D topical resource simplification checks passed against consolidated owner.');
