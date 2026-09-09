@@ -1,0 +1,299 @@
+name: Option 2A static shell branch validation
+
+on:
+  push:
+    branches:
+      - tech-debt-phase-4-option2a-static-student-signin-shell
+
+permissions:
+  contents: write
+
+concurrency:
+  group: option2a-static-shell-branch-validation
+  cancel-in-progress: false
+
+jobs:
+  patch-and-validate:
+    if: ${{ !contains(github.event.head_commit.message, '[option2a-patched]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Check out implementation branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply approved narrow runtime patch and seal SHA manifests
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import re
+          import subprocess
+
+          ROOT = Path.cwd()
+          ALLOWED_SITE = {
+              'site/index.html',
+              'site/v40-student-session.js',
+              'site/v40-start-shell.js',
+          }
+
+          def run(*args):
+              return subprocess.check_output(args, cwd=ROOT, text=True).strip()
+
+          def working_manifest_hash(root, excluded=frozenset()):
+              output = run('git', 'ls-files', '-co', '--exclude-standard', root)
+              paths = sorted(set(filter(None, output.splitlines()))) if output else []
+              records = []
+              for pathname in paths:
+                  if pathname in excluded:
+                      continue
+                  blob = run('git', 'hash-object', pathname)
+                  records.append(f'{blob}  {pathname}')
+              payload = ('\n'.join(records) + ('\n' if records else '')).encode()
+              return hashlib.sha256(payload).hexdigest()
+
+          frozen_site_hash = working_manifest_hash('site', ALLOWED_SITE)
+          supabase_hash = working_manifest_hash('supabase')
+
+          test_path = ROOT / 'e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs'
+          test_text = test_path.read_text()
+          assert test_text.count('__EXPECTED_FROZEN_SITE_SHA256__') == 1
+          assert test_text.count('__EXPECTED_SUPABASE_SHA256__') == 1
+          test_text = test_text.replace('__EXPECTED_FROZEN_SITE_SHA256__', frozen_site_hash)
+          test_text = test_text.replace('__EXPECTED_SUPABASE_SHA256__', supabase_hash)
+          test_path.write_text(test_text)
+
+          index_path = ROOT / 'site/index.html'
+          index = index_path.read_text()
+
+          old_start = '<section id="start" class="card screen active">'
+          new_start = '<section id="start" class="card screen active v40-shell-logged-out">'
+          assert index.count(old_start) == 1
+          index = index.replace(old_start, new_start, 1)
+
+          header_anchor = '  </div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>\n  <div class="mode-switch" role="group" aria-label="Choose activity mode">'
+          assert index.count(header_anchor) == 1
+          static_panel = '''  </div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
+  <section class="v40c-session-panel" aria-label="Student session">
+    <div class="v40c-session-head">
+      <div>
+        <h3>Student sign in</h3>
+        <p>Sign in once, then move between your learning sections without entering your PIN again.</p>
+      </div>
+    </div>
+    <div class="v40c-login-fields">
+      <label>Student ID<input id="student-id" placeholder="e.g. 6A-012" maxlength="40" autocomplete="username"><span id="student-id-help" class="help">Optional school identifier.</span></label>
+      <label id="student-pin-wrap" class="hidden">Student PIN<input id="student-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="current-password" placeholder="4–8 digits"><span class="help">Your teacher provides or resets this PIN.</span></label>
+      <div id="student-access-note" class="info wide">Loading student access settings…</div>
+    </div>
+    <div class="v40c-login-actions">
+      <button type="button" class="primary" id="v40c-student-signin">Sign in to Learning Hub</button>
+      <span class="v40c-session-status" id="v40c-session-status">Your PIN is checked securely and is not saved.</span>
+    </div>
+    <div class="v40c-session-identity">
+      <div class="v40c-session-identity-text"></div>
+      <button type="button" class="outline" id="v40c-student-logout">Log out</button>
+    </div>
+  </section>
+  <div class="mode-switch" role="group" aria-label="Choose activity mode">'''
+          index = index.replace(header_anchor, static_panel, 1)
+
+          old_id = '    <label>Student ID<input id="student-id" placeholder="e.g. 6A-012" maxlength="40" autocomplete="username"><span id="student-id-help" class="help">Optional school identifier.</span></label>\n'
+          old_pin = '    <label id="student-pin-wrap" class="hidden">Student PIN<input id="student-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="current-password" placeholder="4–8 digits"><span class="help">Your teacher provides or resets this PIN.</span></label>\n'
+          old_note = '    <div id="student-access-note" class="info wide">Loading student access settings…</div>\n'
+          # The newly inserted static panel contains each line once and the legacy grid
+          # contains each line once. Remove only the later grid occurrence.
+          for legacy_line in (old_id, old_pin, old_note):
+              assert index.count(legacy_line) == 2
+              first = index.find(legacy_line)
+              second = index.find(legacy_line, first + len(legacy_line))
+              assert second > first
+              index = index[:second] + index[second + len(legacy_line):]
+
+          assert index.count('id="student-id"') == 1
+          assert index.count('id="student-pin"') == 1
+          assert index.count('class="v40c-session-panel"') == 1
+          assert index.count('id="v40c-student-signin"') == 1
+          assert index.count('id="v40c-student-logout"') == 1
+          index_path.write_text(index)
+
+          session_path = ROOT / 'site/v40-student-session.js'
+          session = session_path.read_text()
+          session_pattern = re.compile(
+              r"  function buildSessionPanel\(\)\{.*?\n  \}\n\n  function clearStudentUi\(\)\{",
+              re.S,
+          )
+          session_replacement = '''  function buildSessionPanel(){
+    const start = document.getElementById('start');
+    const panel = start?.querySelector('.v40c-session-panel');
+    const fields = panel?.querySelector('.v40c-login-fields');
+    const studentId = document.getElementById('student-id');
+    const studentPin = document.getElementById('student-pin');
+    const studentPinWrap = document.getElementById('student-pin-wrap');
+    const accessNote = document.getElementById('student-access-note');
+    const signIn = document.getElementById('v40c-student-signin');
+    const logout = document.getElementById('v40c-student-logout');
+
+    if (
+      !start ||
+      !panel ||
+      !fields ||
+      !studentId ||
+      !studentPin ||
+      !studentPinWrap ||
+      !accessNote ||
+      !signIn ||
+      !logout
+    ) return;
+
+    const idLabel = studentId.closest('label');
+    const staticNodesAreInPlace = !!(
+      idLabel &&
+      idLabel.parentElement === fields &&
+      studentPinWrap.parentElement === fields &&
+      accessNote.parentElement === fields
+    );
+
+    if (!staticNodesAreInPlace) {
+      console.warn('V4.0 static student sign-in shell is incomplete.');
+      return;
+    }
+
+    if (panel.dataset.v40SessionEnhanced === 'true') return;
+    panel.dataset.v40SessionEnhanced = 'true';
+
+    signIn.addEventListener('click', () => validateStudentAccess('practice'));
+    logout.addEventListener('click', logoutStudentV40);
+
+    studentPin.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !sessionIsValid()) {
+        event.preventDefault();
+        validateStudentAccess('practice');
+      }
+    });
+  }
+
+  function clearStudentUi(){'''
+          session, count = session_pattern.subn(session_replacement, session, count=1)
+          assert count == 1
+          assert "document.createElement('section')" not in session[session.index('function buildSessionPanel'):session.index('function clearStudentUi')]
+          assert '.appendChild(idLabel)' not in session[session.index('function buildSessionPanel'):session.index('function clearStudentUi')]
+          session_path.write_text(session)
+
+          shell_path = ROOT / 'site/v40-start-shell.js'
+          shell = shell_path.read_text()
+          shell_pattern = re.compile(
+              r"  function applyShellState\(\{ resetView = false \} = \{\}\)\{.*?\n  \}\n\n  function keepFreshSignInOnHome\(\)\{",
+              re.S,
+          )
+          shell_replacement = '''  function applyShellState({ resetView = false, preserveInitialLoggedOut = false } = {}){
+    const start = startScreen();
+    if (!start) return;
+
+    const signedIn = isSignedIn();
+    start.classList.toggle('v40-shell-authenticated', signedIn);
+
+    if (signedIn) {
+      start.classList.remove('v40-shell-logged-out');
+    } else if (!preserveInitialLoggedOut) {
+      start.classList.add('v40-shell-logged-out');
+    }
+
+    if (!signedIn) {
+      delete start.dataset.v40StartView;
+      clearStoredView();
+      return;
+    }
+
+    setStartView(resetView ? 'home' : preferredView(), { scroll:false });
+  }
+
+  function keepFreshSignInOnHome(){'''
+          shell, count = shell_pattern.subn(shell_replacement, shell, count=1)
+          assert count == 1
+          assert shell.count('    applyShellState();') == 1
+          shell = shell.replace(
+              '    applyShellState();',
+              '    applyShellState({ preserveInitialLoggedOut:true });',
+              1,
+          )
+          shell_path.write_text(shell)
+
+          changed = run('git', 'diff', '--name-only', 'HEAD', '--', 'site', 'supabase').splitlines()
+          assert sorted(changed) == sorted(ALLOWED_SITE), changed
+          PY
+
+      - name: Check patch whitespace and source scope
+        shell: bash
+        run: |
+          git diff --check
+          echo "Changed runtime paths:"
+          git diff --name-only HEAD -- site supabase
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run maintained verifier suite against patched working tree
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import subprocess
+          import sys
+
+          workflow = Path('.github/workflows/ci.yml').read_text()
+          verifiers = []
+          for match in re.findall(r'"(site/tests/verify-[^"]+\.cjs)"', workflow):
+              if match not in verifiers:
+                  verifiers.append(match)
+
+          print(f'Running {len(verifiers)} maintained verifier scripts...')
+          failed = []
+          for verifier in verifiers:
+              print(f'==> {verifier}', flush=True)
+              result = subprocess.run(['node', verifier])
+              if result.returncode:
+                  failed.append(verifier)
+
+          if failed:
+              print('Failed maintained verifiers:', *failed, sep='\n- ', file=sys.stderr)
+              raise SystemExit(1)
+          PY
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Option 2A 12 hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v40-static-student-signin-shell-option2a.spec.cjs --reporter=line
+
+      - name: Run existing Phase 0 core equivalence tests
+        working-directory: e2e
+        run: npx playwright test tests/core.spec.cjs --reporter=line
+
+      - name: Run full Playwright regression suite
+        working-directory: e2e
+        run: npx playwright test --reporter=line
+
+      - name: Commit validated implementation to branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            site/index.html \
+            site/v40-student-session.js \
+            site/v40-start-shell.js \
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
+          git commit -m "Phase 4: implement Option 2A static student sign-in shell [option2a-patched]"
+          git push origin HEAD:tech-debt-phase-4-option2a-static-student-signin-shell
