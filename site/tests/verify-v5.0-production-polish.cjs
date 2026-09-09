@@ -9,26 +9,34 @@ const read = rel => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
 
 const config = read('site/config.js');
 const release = read('site/v40-release.js');
-const polish = read('site/v50-production-polish.js');
-const auditRc3 = read('site/v50-release-audit-rc3.js');
+const versionSource = read('site/version.js');
+const auditOwner = read('site/release-audit-ui.js');
 
-new vm.Script(polish,{filename:'v50-production-polish.js'});
-new vm.Script(auditRc3,{filename:'v50-release-audit-rc3.js'});
+function section(source,start,next){
+  const begin=source.indexOf(start);
+  assert.ok(begin>=0,`Missing consolidated section: ${start}`);
+  const end=next ? source.indexOf(next,begin+start.length) : source.length;
+  assert.ok(end>begin,`Missing consolidated section boundary after: ${start}`);
+  return source.slice(begin,end).trimEnd();
+}
+const polish=section(auditOwner,'/* V5.4 — UX & Production Polish.','/* V5.0 Release Candidate Audit');
+const auditRc3=section(auditOwner,'/* V5.4 — extends the existing read-only Release Audit');
 
-// Final V5.0 stable identity must be visible after sign-off.
-assert.match(config,/document\.title = 'Math Practice V5\.0'/);
-assert.match(release,/document\.title = 'Math Practice V5\.0'/);
-assert.match(release,/Version 5\.0 • Stable Release/);
-assert.match(release,/V5\.0 Stable Release:/);
-assert.doesNotMatch(release,/Version 5\.0 • Release Candidate|V5\.0 Release Candidate:/);
-assert.match(polish,/const TITLE = 'Math Practice V5\.0'/);
-assert.match(polish,/const BADGE = 'Version 5\.0 • Stable Release'/);
+new vm.Script(versionSource,{filename:'version.js'});
+new vm.Script(auditOwner,{filename:'release-audit-ui.js'});
+
+// Current visible identity is centralized rather than owned by the historical polish layer.
+assert.match(config,/const MATH_APP_STAGED_SCRIPTS = Object\.freeze\(\[/);
+assert.match(versionSource,/const CURRENT_RELEASE = buildRelease\(deriveCurrentVersion\(stagedScripts\)\)/);
+assert.match(release,/MathAppVersion\?\.applyIdentity/);
+assert.match(polish,/MathAppVersion\?\.CURRENT_RELEASE/);
+assert.match(polish,/MathAppVersion\?\.applyIdentity/);
 assert.match(polish,/stable_release_branding/);
 
-// Loader order keeps RC2 security first, then stable production polish and audit extension.
-assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*v50-production-polish\.js\?v=50stable-1[\s\S]*v50-release-audit\.js\?v=50rc2-1[\s\S]*v50-release-audit-rc3\.js\?v=50stable-1/);
-assert.match(release,/data-v50-production-polish/);
-assert.match(release,/data-v50-release-audit-rc3/);
+// Loader order keeps frozen RC2 security first, then the consolidated late audit/polish owner.
+assert.match(release,/v50-security-hardening\.js\?v=50rc2-1[\s\S]*release-audit-ui\.js/);
+assert.match(release,/data-v50-security-hardening/);
+assert.match(release,/data-release-audit-ui/);
 
 // Production polish remains presentation/accessibility only.
 assert.doesNotMatch(polish,/cloud\.rpc\(|cloud\.from\(|cloud\.functions\.invoke\(|fetch\(/,
@@ -75,7 +83,6 @@ assert.match(polish,/querySelectorAll\('\.feedback'\)/);
 assert.match(polish,/Object\.defineProperty\(window,'V50ProductionPolish'/);
 assert.match(polish,/getAudit/);
 assert.match(auditRc3,/V50ProductionPolish\?\.getAudit/);
-assert.match(auditRc3,/V5\.0 Release Audit/);
 assert.match(auditRc3,/Stable-release identity/);
 assert.match(auditRc3,/RC3 — UX & production polish/);
 assert.match(auditRc3,/Production-polish checks passed/);
@@ -83,9 +90,8 @@ assert.doesNotMatch(auditRc3,/cloud\.rpc\(|cloud\.from\(|fetch\(/);
 assert.doesNotMatch(auditRc3,/localStorage|sessionStorage/);
 assert.doesNotMatch(auditRc3,/reset_student_launch_activity|generate_missing_student_pins|set_student_pin|manage_teacher_assignment|transfer_roster_student/);
 
-console.log('V5.0 stable UX & production-polish verification passed.');
-console.log('- V5.0 Stable Release identity is consistent across bootstrap, release loader and production polish');
-console.log('- packaged production hides the connection editor while local/dev setup remains available');
-console.log('- Reviewed Work and result-code privacy language covers both Practice and Exam');
-console.log('- Teacher tabs have keyboard semantics and narrow-screen horizontal navigation');
-console.log('- status feedback is announced accessibly and stable audit presentation remains read-only');
+console.log('Historical V5.0 production-polish contract verification passed against the active consolidated owner.');
+console.log('- current identity remains centralized through version.js');
+console.log('- packaged production/local setup behavior is preserved');
+console.log('- Teacher tabs, status feedback and privacy wording remain protected');
+console.log('- stable audit presentation remains read-only');
