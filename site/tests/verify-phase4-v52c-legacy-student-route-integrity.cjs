@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {ownerSource,ORDER,MARKERS,section}=require('./v52c-consolidated-test-helper.cjs');
+const {ownerSource,ORDER,MARKERS}=require('./v52c-consolidated-test-helper.cjs');
 
 const ROOT=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(ROOT,name),'utf8');
@@ -17,13 +17,35 @@ const historical=Object.freeze({
   result:'v52c2-topical-result-ux.js'
 });
 
+const expectedHeader='/* Phase 4 — V52C legacy Topical Practice consolidated owner.\n'
+  +'   Preserves the accepted V5.2C publication → student library → V5.2C.1 mount hotfix\n'
+  +'   → hint bridge → V5.2C.2 result UX sequence exactly. */\n\n';
+assert.equal(ownerSource.slice(0,ownerSource.indexOf(MARKERS.publication)),expectedHeader,
+  'consolidated owner preamble must remain checkpoint-only and byte-stable');
+
 let previous=-1;
-for(const name of ORDER){
+for(let index=0;index<ORDER.length;index+=1){
+  const name=ORDER[index];
   const start=ownerSource.indexOf(MARKERS[name]);
   assert(start>=0,`active V52C owner must contain ${name} section`);
   assert(start>previous,`active V52C owner order changed at ${name}`);
   previous=start;
-  assert.equal(section(name),read(historical[name]),`${name} section must remain byte-equivalent to historical accepted source`);
+
+  const accepted=read(historical[name]);
+  assert.equal(ownerSource.slice(start,start+accepted.length),accepted,
+    `${name} section must remain byte-equivalent to historical accepted source`);
+
+  const nextName=ORDER[index+1];
+  if(nextName){
+    const nextStart=ownerSource.indexOf(MARKERS[nextName],start+accepted.length);
+    assert(nextStart>=start+accepted.length,`active V52C owner must contain ${nextName} after ${name}`);
+    const separator=ownerSource.slice(start+accepted.length,nextStart);
+    assert.equal(separator,accepted.endsWith('\n')?'\n':'\n\n',
+      `${name} → ${nextName} may contain only the checkpoint separator outside historical source bytes`);
+  }else{
+    assert.equal(ownerSource.length,start+accepted.length,
+      'final V52C2 section must end exactly with the historical accepted source bytes');
+  }
 }
 
 const newLoader="loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route');";
