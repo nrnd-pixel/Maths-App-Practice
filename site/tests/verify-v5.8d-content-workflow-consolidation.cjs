@@ -1,6 +1,7 @@
 const fs=require('fs');
 const path=require('path');
 const vm=require('vm');
+const {section}=require('./v52c-consolidated-test-helper.cjs');
 
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'v58d-content-workflow-consolidation.js'),'utf8');
@@ -13,7 +14,7 @@ const qa=fs.readFileSync(path.join(root,'v51-question-bank-qa.js'),'utf8');
 const review=fs.readFileSync(path.join(root,'v51-question-review-workflow.js'),'utf8');
 const history=fs.readFileSync(path.join(root,'v51-question-change-history.js'),'utf8');
 const topical=fs.readFileSync(path.join(root,'v52-teacher-topical-library.js'),'utf8');
-const topicalPublish=fs.readFileSync(path.join(root,'v52c-topical-publication.js'),'utf8');
+const topicalPublish=section('publication');
 const resourceBankUi=fs.readFileSync(path.join(root,'resource-bank-ui.js'),'utf8');
 const workspace=fs.readFileSync(path.join(root,'v58b-teacher-workspace-consolidation.js'),'utf8');
 
