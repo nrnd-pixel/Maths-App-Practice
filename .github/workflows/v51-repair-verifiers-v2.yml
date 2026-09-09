@@ -1,0 +1,167 @@
+name: Phase 4 V51 verifier repair v2
+
+on:
+  push:
+    branches:
+      - development/phase4-v51-ci-dispatch-helper
+    paths:
+      - .github/workflows/v51-repair-verifiers-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tech-debt-phase-4-v51-question-bank-management-checkpoint-1
+          fetch-depth: 0
+
+      - name: Retarget maintained V51 verifiers without weakening module boundaries
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          tests=Path('site/tests')
+          helper="const {section}=require('./v51-owner-section-helper.cjs');\n"
+          sections={
+            'verify-v5.1a-paper-profile-validator.cjs':('paper-import-management.js','/* V5.1A — Paper Profile Validator.','/* V5.1A2 — Bulk Question Image Upload.'),
+            'verify-v5.1a2-bulk-question-image-upload.cjs':('paper-import-management.js','/* V5.1A2 — Bulk Question Image Upload.','/* V5.1A2 — cleanup guard for uncommitted bulk image uploads.'),
+            'verify-v5.1a2-bulk-image-cleanup.cjs':('paper-import-management.js','/* V5.1A2 — cleanup guard for uncommitted bulk image uploads.','/* V5.1A2 — persistent image-reference and stale-selection safety guard.'),
+            'verify-v5.1a2-image-safety.cjs':('paper-import-management.js','/* V5.1A2 — persistent image-reference and stale-selection safety guard.','/* V5.1A4 — Paper Import Package Preview.'),
+            'verify-v5.1a4-paper-package-preview.cjs':('paper-import-management.js','/* V5.1A4 — Paper Import Package Preview.','/* V5.1A4 — package-preview status wording polish.'),
+            'verify-v5.1a4-package-status.cjs':('paper-import-management.js','/* V5.1A4 — package-preview status wording polish.','/* V5.1A5 — One-confirmation validated paper import.'),
+            'verify-v5.1a5-one-confirmation-paper-import.cjs':('paper-import-management.js','/* V5.1A5 — One-confirmation validated paper import.','/* V5.1A6 — Post-import integrity check.'),
+            'verify-v5.1a6-post-import-integrity.cjs':('paper-import-management.js','/* V5.1A6 — Post-import integrity check.',None),
+            'verify-v5.1b1-question-bank-qa.cjs':('question-bank-selection-qa.js','/* V5.1B1 — Question Bank QA & completeness indicators.','/* V5.1B2A — Safe bulk activate/deactivate for Question Bank.'),
+            'verify-v5.1b2a-bulk-activate-deactivate.cjs':('question-bank-selection-qa.js','/* V5.1B2A — Safe bulk activate/deactivate for Question Bank.',None),
+            'verify-v5.1b2b-bulk-metadata.cjs':('question-bank-metadata-review.js','/* V5.1B2B — Safe bulk metadata editing for Question Bank.','/* V5.1B2C — Persistent Question Bank review workflow.'),
+            'verify-v5.1b2c-question-review-workflow.cjs':('question-bank-metadata-review.js','/* V5.1B2C — Persistent Question Bank review workflow.',None),
+            'verify-v5.1c1-student-exam-paper-library.cjs':('student-exam-ui.js','/* V5.1C1 — Student Exam Paper Library.','/* V5.1C2 — Student Exam Resume & Progress Clarity.'),
+            'verify-v5.1c2-student-exam-resume-progress.cjs':('student-exam-ui.js','/* V5.1C2 — Student Exam Resume & Progress Clarity.',None),
+          }
+
+          for name,(owner,start,end) in sections.items():
+            p=tests/name
+            s=p.read_text()
+            if 'v51-owner-section-helper.cjs' not in s:
+              s=helper+s
+            end_expr='null' if end is None else repr(end)
+            call=f"section({owner!r},{start!r},{end_expr})"
+            patterns=[
+              r"const source = fs\.readFileSync\(sourcePath,'utf8'\);",
+              r"const source = fs\.readFileSync\(path\.join\([^\n]+\),'utf8'\);",
+              r"const source=fs\.readFileSync\(path\.join\([^\n]+\),'utf8'\);"
+            ]
+            replaced=False
+            for pattern in patterns:
+              s2,n=re.subn(pattern,f'const source = {call};',s,count=1)
+              if n:
+                s=s2; replaced=True; break
+            if not replaced and f'const source = {call};' not in s:
+              raise SystemExit(f'Could not retarget source assignment in {name}')
+            p.write_text(s)
+
+          # A1 loader assertion: current owner once, internal A1→A2 retained.
+          p=tests/'verify-v5.1a-paper-profile-validator.cjs'; s=p.read_text()
+          s=s.replace("assert.match(release,/paper-import-management\\.js\\?v=51a-1', 'data-paper-import-management'/,\n  'Stable loader must include the V5.1A paper-profile validator exactly once.');",
+            "assert.match(release,/loadScriptOnce\\('paper-import-management\\.js', 'data-paper-import-management'\\)/,\n  'Stable loader must include the consolidated V5.1 paper-import owner exactly once.');")
+          if "const readOwner = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');" not in s:
+            s=s.replace("const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');", "const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');\nconst readOwner = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');")
+          marker="assert.equal((release.match(/data-paper-import-management/g)||[]).length,1);"
+          if 'A1 must remain before A2 inside paper-import-management.js' not in s:
+            s=s.replace(marker,marker+"\nassert.ok(readOwner.indexOf('/* V5.1A — Paper Profile Validator.') < readOwner.indexOf('/* V5.1A2 — Bulk Question Image Upload.'),\n  'A1 must remain before A2 inside paper-import-management.js');")
+          p.write_text(s)
+
+          # Same-owner loader checks become owner-once + internal-order + external-boundary checks.
+          rewrites={
+            'verify-v5.1b2a-bulk-status-loader.cjs':"""const fs=require('fs');
+const path=require('path');
+const assert=require('assert');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'question-bank-selection-qa.js'),'utf8');
+const token="loadScriptOnce('question-bank-selection-qa.js', 'data-question-bank-selection-qa')";
+assert.strictEqual(loader.split(token).length-1,1,'B1/B2A owner must load exactly once');
+assert(owner.indexOf('/* V5.1B1 — Question Bank QA & completeness indicators.')<owner.indexOf('/* V5.1B2A — Safe bulk activate/deactivate for Question Bank.'),'B1 must remain before B2A internally');
+assert(loader.indexOf('v52b1-question-bank-observer-gate.js')<loader.indexOf(token),'B1/B2A owner must remain after V52B1');
+assert(loader.indexOf(token)<loader.indexOf('v52-topical-activation-guard.js'),'B1/B2A owner must remain before V52 activation guard');
+console.log('V5.1B2A consolidated loader check passed.');
+""",
+            'verify-v5.1b2c-question-review-loader.cjs':"""const fs=require('fs');
+const path=require('path');
+const assert=require('assert');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'question-bank-metadata-review.js'),'utf8');
+const token="loadScriptOnce('question-bank-metadata-review.js', 'data-question-bank-metadata-review')";
+assert.strictEqual(loader.split(token).length-1,1,'B2B/B2C owner must load exactly once');
+assert(owner.indexOf('/* V5.1B2B — Safe bulk metadata editing for Question Bank.')<owner.indexOf('/* V5.1B2C — Persistent Question Bank review workflow.'),'B2B must remain before B2C internally');
+assert(loader.indexOf('v52-topical-activation-guard.js')<loader.indexOf(token),'B2B/B2C owner must remain after V52 activation guard');
+assert(loader.indexOf(token)<loader.indexOf('v52-teacher-topical-library.js'),'B2B/B2C owner must remain before V52 teacher topical library');
+console.log('V5.1B2C consolidated loader check passed.');
+""",
+            'verify-v5.1b2e-multipart-question-management-loader.cjs':"""const fs=require('fs');
+const path=require('path');
+const assert=require('assert');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'question-bank-audit-multipart.js'),'utf8');
+const token="loadScriptOnce('question-bank-audit-multipart.js', 'data-question-bank-audit-multipart')";
+assert.strictEqual(loader.split(token).length-1,1,'B2D/B2E owner must load exactly once');
+assert(owner.indexOf('/* V5.1B2D — Teacher-only correction audit history viewer.')<owner.indexOf('/* V5.1B2E — Multipart Question Management.'),'B2D must remain before B2E internally');
+assert(loader.indexOf('v52-teacher-topical-library.js')<loader.indexOf(token),'B2D/B2E owner must remain after V52 teacher topical library');
+assert(loader.indexOf(token)<loader.indexOf('v51-exam-publication-safety.js'),'B2D/B2E owner must remain before standalone B3 safety');
+console.log('V5.1B2E consolidated loader check passed.');
+""",
+            'verify-v5.1c2-student-exam-resume-progress-loader.cjs':"""const fs=require('fs');
+const path=require('path');
+const assert=require('assert');
+const site=path.join(__dirname,'..');
+const loader=fs.readFileSync(path.join(site,'v40-release.js'),'utf8');
+const owner=fs.readFileSync(path.join(site,'student-exam-ui.js'),'utf8');
+const token="loadScriptOnce('student-exam-ui.js', 'data-student-exam-ui')";
+assert.strictEqual(loader.split(token).length-1,1,'C1/C2 owner must load exactly once');
+assert(owner.indexOf('/* V5.1C1 — Student Exam Paper Library.')<owner.indexOf('/* V5.1C2 — Student Exam Resume & Progress Clarity.'),'C1 must remain before C2 internally');
+assert(loader.indexOf('v51-exam-publication-ui-polish.js')<loader.indexOf(token),'student Exam owner must remain after standalone B3 UI polish');
+assert(loader.indexOf(token)<loader.indexOf('v50-security-hardening.js'),'student Exam owner must remain before V50 security hardening');
+console.log('V5.1C2 consolidated loader check passed.');
+"""
+          }
+          for name,content in rewrites.items(): (tests/name).write_text(content)
+
+          p=tests/'verify-v5.1-stable-release.cjs'; s=p.read_text()
+          s=s.replace("assert.match(release,/student-exam-ui\\.js\\?v=51c1-1/);\nassert.match(release,/student-exam-ui\\.js\\?v=51c2-1/);",
+            "assert.match(release,/loadScriptOnce\\('student-exam-ui\\.js', 'data-student-exam-ui'\\)/);\nconst studentExamOwner=read('student-exam-ui.js');\nassert(studentExamOwner.indexOf('/* V5.1C1 — Student Exam Paper Library.')<studentExamOwner.indexOf('/* V5.1C2 — Student Exam Resume & Progress Clarity.'));" )
+          p.write_text(s)
+
+          # Earlier checkpoint SHA guards relinquish only files intentionally active in V51 consolidation.
+          active=['site/paper-import-management.js','site/question-bank-selection-qa.js','site/question-bank-metadata-review.js','site/question-bank-audit-multipart.js','site/student-exam-ui.js']
+          for name in ['verify-phase4-v50-operations-reporting-protected-sha.cjs','verify-phase4-v52c-legacy-student-route-protected-sha.cjs','verify-phase4-v54-resource-bank-protected-sha.cjs']:
+            p=tests/name
+            lines=[line for line in p.read_text().splitlines() if not any(item in line for item in active)]
+            p.write_text('\n'.join(lines)+'\n')
+          p=tests/'verify-phase4-v53-ui-resource-companion-protected-sha.cjs'
+          p.write_text('\n'.join(line for line in p.read_text().splitlines() if "'site/v40-release.js'" not in line)+'\n')
+
+          # Gate fixtures only: non-opaque localStorage origin and inactive topical selection.
+          p=Path('e2e/tests/v51-question-bank-management-phase4-checkpoint1.spec.cjs'); s=p.read_text()
+          old="test('V51 hard gate 8: student Exam UI wraps existing selectors and only presents existing recovery state',async({page})=>{\n  await page.setContent(`"
+          if old in s:
+            s=s.replace(old,"test('V51 hard gate 8: student Exam UI wraps existing selectors and only presents existing recovery state',async({page})=>{\n  await page.goto('/');\n  await page.setContent(`")
+          s=s.replace("await page.locator('.v51b2a-select').first().check();\n  await add(page,'topicalGuard');","await page.locator('.v51b2a-select').nth(1).check();\n  await add(page,'topicalGuard');")
+          p.write_text(s)
+          PY
+
+      - name: Commit repairs to implementation branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/tests e2e/tests/v51-question-bank-management-phase4-checkpoint1.spec.cjs
+          git commit -m "Phase 4 V51: retarget maintained verifiers and repair gate fixtures"
+          git push origin HEAD:tech-debt-phase-4-v51-question-bank-management-checkpoint-1
