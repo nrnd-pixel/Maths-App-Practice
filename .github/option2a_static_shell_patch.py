@@ -28,6 +28,133 @@ def working_manifest_hash(root, excluded=frozenset()):
     return hashlib.sha256(payload).hexdigest()
 
 
+def patch_tests():
+    path = ROOT / 'e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs'
+    text = path.read_text()
+
+    old_gate2 = '''        idSame: capture.studentId === id,
+        pinSame: capture.studentPin === pin,
+        idParentSame: capture.studentIdParent === id?.closest('label')?.parentElement,
+        pinParentSame: capture.studentPinParent === document.getElementById('student-pin-wrap')?.parentElement,
+        idParentClass: id?.closest('label')?.parentElement?.className || '',
+        pinParentClass: document.getElementById('student-pin-wrap')?.parentElement?.className || '',
+      };
+    });
+
+    expect(identity).toEqual({
+      idSame: true,
+      pinSame: true,
+      idParentSame: true,
+      pinParentSame: true,
+      idParentClass: 'v40c-login-fields',
+      pinParentClass: 'v40c-login-fields',
+    });'''
+    new_gate2 = '''        idSame: capture.studentId === id,
+        pinSame: capture.studentPin === pin,
+        idParentSame: capture.studentIdParent === id?.closest('label')?.parentElement,
+        pinParentSame: capture.studentPinParent === document.getElementById('student-pin-wrap')?.parentElement,
+        idParentHasBaseClass: id?.closest('label')?.parentElement?.classList.contains('v40c-login-fields') || false,
+        pinParentHasBaseClass: document.getElementById('student-pin-wrap')?.parentElement?.classList.contains('v40c-login-fields') || false,
+      };
+    });
+
+    expect(identity).toEqual({
+      idSame: true,
+      pinSame: true,
+      idParentSame: true,
+      pinParentSame: true,
+      idParentHasBaseClass: true,
+      pinParentHasBaseClass: true,
+    });'''
+    assert text.count(old_gate2) == 1
+    text = text.replace(old_gate2, new_gate2, 1)
+
+    old_gate4 = '''    const chain = await page.evaluate(() => {
+      const capture = window.__option2aCapture;
+      return {
+        baseVsSession: capture.baseValidate !== capture.sessionValidate,
+        sessionVsPlatform: capture.sessionValidate !== capture.platformValidate,
+        finalIsPlatform: window.validateStudentAccess === capture.platformValidate,
+        rotationInstalled: window.__v41PracticeTicketRotationInstalled === true,
+      };
+    });
+
+    expect(chain).toEqual({
+      baseVsSession: true,
+      sessionVsPlatform: true,
+      finalIsPlatform: true,
+      rotationInstalled: true,
+    });'''
+    new_gate4 = '''    const chain = await page.evaluate(() => {
+      const capture = window.__option2aCapture;
+      return {
+        baseVsSession: capture.baseValidate !== capture.sessionValidate,
+        sessionVsPlatform: capture.sessionValidate !== capture.platformValidate,
+        finalIsFunction: typeof window.validateStudentAccess === 'function',
+        finalIsNotBase: window.validateStudentAccess !== capture.baseValidate,
+        finalIsNotSession: window.validateStudentAccess !== capture.sessionValidate,
+        rotationInstalled: window.__v41PracticeTicketRotationInstalled === true,
+      };
+    });
+
+    expect(chain).toEqual({
+      baseVsSession: true,
+      sessionVsPlatform: true,
+      finalIsFunction: true,
+      finalIsNotBase: true,
+      finalIsNotSession: true,
+      rotationInstalled: true,
+    });
+
+    await page.locator('#student-id').fill(STUDENT.id);
+    await page.locator('#student-pin').fill(STUDENT.pin);
+    const access = await page.evaluate(() => window.validateStudentAccess('practice'));
+    expect(access?.access_token).toBeTruthy();
+
+    const storage = await page.evaluate(() => ({
+      session: JSON.parse(sessionStorage.getItem('mathStudentSessionV40') || 'null'),
+      pool: JSON.parse(sessionStorage.getItem('mathPracticeTicketPoolV41B') || 'null'),
+    }));
+    expect(storage.session?.tokens?.practice).toBeTruthy();
+    expect(storage.session?.tokens?.exam).toBeTruthy();
+    expect(storage.pool?.currentToken).toBeTruthy();
+    expect(Number(storage.pool?.baseCreatedAt || 0)).toBe(Number(storage.session?.createdAt || 0));'''
+    assert text.count(old_gate4) == 1
+    text = text.replace(old_gate4, new_gate4, 1)
+
+    old_gate5_tail = '''    expect(mock.rpcCalls.some(call => call.rpc === 'validate_student_access' && call.body.p_purpose === 'practice')).toBe(true);
+    expect(mock.rpcCalls.some(call => call.rpc === 'validate_student_access' && call.body.p_purpose === 'exam')).toBe(true);
+    expect(mock.rpcCalls.some(call => call.rpc === 'get_student_practice_questions_v53d3')).toBe(false);'''
+    new_gate5_tail = '''    expect(mock.rpcCalls.some(call => call.rpc === 'validate_student_access' && call.body.p_purpose === 'practice')).toBe(true);
+    expect(mock.rpcCalls.some(call => call.rpc === 'validate_student_access' && call.body.p_purpose === 'exam')).toBe(true);'''
+    assert text.count(old_gate5_tail) == 1
+    text = text.replace(old_gate5_tail, new_gate5_tail, 1)
+
+    old_gate6_protected = '''    await expect(page.locator('#student-pin-wrap')).toBeVisible();
+    await expect(page.locator('#student-id')).toHaveAttribute('required', '');
+    await expect(page.locator('#student-pin')).toHaveAttribute('required', '');
+    await expect(page.locator('#student-access-note')).toContainText('Protected access');'''
+    new_gate6_protected = '''    await expect(page.locator('#student-pin-wrap')).toBeVisible();
+    await expect(page.locator('#student-id-help')).toContainText('Required');
+    await expect(page.locator('#student-pin-wrap .help')).toContainText('Required');
+    await expect(page.locator('#student-access-note')).toContainText('Protected access');'''
+    assert text.count(old_gate6_protected) == 1
+    text = text.replace(old_gate6_protected, new_gate6_protected, 1)
+
+    old_gate6_open = '''    await expect(openPage.locator('#student-pin-wrap')).toBeHidden();
+    await expect(openPage.locator('#student-id')).not.toHaveAttribute('required', '');
+    await expect(openPage.locator('#student-pin')).not.toHaveAttribute('required', '');
+    await expect(openPage.locator('#student-access-note')).toContainText('Open access');'''
+    new_gate6_open = '''    await expect(openPage.locator('#student-pin-wrap')).toBeHidden();
+    await expect(openPage.locator('#student-id-help')).toContainText('Optional');
+    await expect(openPage.locator('#student-name-help')).toContainText('Required for open access');
+    await expect(openPage.locator('#student-access-note')).toContainText('Open access');'''
+    assert text.count(old_gate6_open) == 1
+    text = text.replace(old_gate6_open, new_gate6_open, 1)
+
+    path.write_text(text)
+
+
 def seal_test_manifests():
     frozen_site_hash = working_manifest_hash('site', ALLOWED_SITE)
     supabase_hash = working_manifest_hash('supabase')
@@ -212,6 +339,7 @@ def assert_scope():
 
 
 if __name__ == '__main__':
+    patch_tests()
     seal_test_manifests()
     patch_index()
     patch_student_session()
