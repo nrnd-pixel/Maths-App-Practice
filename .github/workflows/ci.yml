@@ -165,22 +165,27 @@ jobs:
           fi
 
       - name: Install E2E dependencies
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
         working-directory: e2e
         run: npm install --no-audit --no-fund
 
       - name: Install Playwright Chromium
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
         working-directory: e2e
         run: npx playwright install --with-deps chromium
 
+      - name: Run V54 resource-bank hard gates
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation' }}
+        working-directory: e2e
+        run: npx playwright test tests/v54-resource-bank-phase4-checkpoint1.spec.cjs --reporter=line
+
       - name: Run core browser tests
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
         working-directory: e2e
         run: npm test
 
       - name: Upload Playwright report on failure
-        if: ${{ failure() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main')) }}
+        if: ${{ failure() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation')) }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
@@ -189,7 +194,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Playwright traces on failure
-        if: ${{ failure() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main')) }}
+        if: ${{ failure() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation')) }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-test-results
