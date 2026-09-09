@@ -14,6 +14,7 @@ const MARKERS=Object.freeze({
 });
 
 const ORDER=Object.freeze(['publication','student','mount','hint','result']);
+const TRAILING_NEWLINE=Object.freeze({publication:true,student:false,mount:true,hint:true,result:false});
 
 function section(name){
   const index=ORDER.indexOf(name);
@@ -23,7 +24,8 @@ function section(name){
   const nextName=ORDER[index+1];
   const end=nextName ? ownerSource.indexOf(MARKERS[nextName],start+MARKERS[name].length) : ownerSource.length;
   if(end<0) throw new Error(`Missing next V52C section marker after: ${name}`);
-  return `${ownerSource.slice(start,end).trimEnd()}\n`;
+  const body=ownerSource.slice(start,end).trimEnd();
+  return TRAILING_NEWLINE[name] ? `${body}\n` : body;
 }
 
 function loadApi(source){
