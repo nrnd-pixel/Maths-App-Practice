@@ -19,58 +19,60 @@ jobs:
           ref: tech-debt-phase-4-v51-question-bank-management-checkpoint-1
           fetch-depth: 0
 
-      - name: Build V51 owners and retarget maintained verifiers
+      - name: Build V51 owners, retarget verifiers, and freeze protected SHAs
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
-
-          root=Path('site')
-          tests=root/'tests'
+          import json,re,subprocess
+          BASE='51863ca14e54658fa3921dee5ece9aac59b6f74c'
+          root=Path('site'); tests=root/'tests'
           groups={
               'paper-import-management.js':['v51-paper-profile-validator.js','v51-bulk-question-image-upload.js','v51-bulk-question-image-cleanup.js','v51-bulk-question-image-safety.js','v51-paper-package-preview.js','v51-paper-package-preview-status.js','v51-one-confirmation-paper-import.js','v51-post-import-integrity.js'],
               'question-bank-selection-qa.js':['v51-question-bank-qa.js','v51-question-bank-bulk-status.js'],
               'question-bank-metadata-review.js':['v51-question-bank-bulk-metadata.js','v51-question-review-workflow.js'],
               'question-bank-audit-multipart.js':['v51-question-change-history.js','v51-multipart-question-management.js'],
-              'student-exam-ui.js':['v51-student-exam-paper-library.js','v51-student-exam-resume-progress.js'],
-          }
-          for output,inputs in groups.items():
-              text='\n\n'.join((root/name).read_text(encoding='utf-8').rstrip('\n') for name in inputs)+'\n'
-              (root/output).write_text(text,encoding='utf-8')
+              'student-exam-ui.js':['v51-student-exam-paper-library.js','v51-student-exam-resume-progress.js']}
+          for output,inputs in groups.items():(root/output).write_text('\n\n'.join((root/name).read_text(encoding='utf-8').rstrip('\n') for name in inputs)+'\n',encoding='utf-8')
 
-          loader=root/'v40-release.js'
-          text=loader.read_text(encoding='utf-8')
+          loader=root/'v40-release.js'; text=loader.read_text(encoding='utf-8')
           replacements=[
               (["    loadScriptOnce('v51-paper-profile-validator.js?v=51a-1', 'data-v51-paper-profile-validator');","    loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51-bulk-question-image-upload');","    loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51-bulk-question-image-cleanup');","    loadScriptOnce('v51-bulk-question-image-safety.js?v=51a2-1', 'data-v51-bulk-question-image-safety');","    loadScriptOnce('v51-paper-package-preview.js?v=51a4-1', 'data-v51-paper-package-preview');","    loadScriptOnce('v51-paper-package-preview-status.js?v=51a4-1', 'data-v51-paper-package-preview-status');","    loadScriptOnce('v51-one-confirmation-paper-import.js?v=51a5-1', 'data-v51-one-confirmation-paper-import');","    loadScriptOnce('v51-post-import-integrity.js?v=51a6-1', 'data-v51-post-import-integrity');"],"    loadScriptOnce('paper-import-management.js', 'data-paper-import-management');"),
               (["    loadScriptOnce('v51-question-bank-qa.js?v=51b1-1', 'data-v51-question-bank-qa');","    loadScriptOnce('v51-question-bank-bulk-status.js?v=51b2a-1', 'data-v51-question-bank-bulk-status');"],"    loadScriptOnce('question-bank-selection-qa.js', 'data-question-bank-selection-qa');"),
               (["    loadScriptOnce('v51-question-bank-bulk-metadata.js?v=51b2b-1', 'data-v51-question-bank-bulk-metadata');","    loadScriptOnce('v51-question-review-workflow.js?v=51b2c-1', 'data-v51-question-review-workflow');"],"    loadScriptOnce('question-bank-metadata-review.js', 'data-question-bank-metadata-review');"),
               (["    loadScriptOnce('v51-question-change-history.js?v=51b2d-1', 'data-v51-question-change-history');","    loadScriptOnce('v51-multipart-question-management.js?v=51b2e-1', 'data-v51-multipart-question-management');"],"    loadScriptOnce('question-bank-audit-multipart.js', 'data-question-bank-audit-multipart');"),
-              (["    loadScriptOnce('v51-student-exam-paper-library.js?v=51c1-1', 'data-v51c1-student-exam-paper-library');","    loadScriptOnce('v51-student-exam-resume-progress.js?v=51c2-1', 'data-v51c2-student-exam-resume-progress');"],"    loadScriptOnce('student-exam-ui.js', 'data-student-exam-ui');"),
-          ]
+              (["    loadScriptOnce('v51-student-exam-paper-library.js?v=51c1-1', 'data-v51c1-student-exam-paper-library');","    loadScriptOnce('v51-student-exam-resume-progress.js?v=51c2-1', 'data-v51c2-student-exam-resume-progress');"],"    loadScriptOnce('student-exam-ui.js', 'data-student-exam-ui');")]
           for old_lines,new_line in replacements:
               old='\n'.join(old_lines)
               if old in text:text=text.replace(old,new_line)
               elif new_line not in text:raise SystemExit('Missing loader block: '+new_line)
           loader.write_text(text,encoding='utf-8')
 
-          owner_for={old:new for new,olds in groups.items() for old in olds}
-          key_for={}
+          owner_for={old:new for new,olds in groups.items() for old in olds}; key_for={}
           for name in groups['paper-import-management.js']:key_for[name]='data-paper-import-management'
           for name in groups['question-bank-selection-qa.js']:key_for[name]='data-question-bank-selection-qa'
           for name in groups['question-bank-metadata-review.js']:key_for[name]='data-question-bank-metadata-review'
           for name in groups['question-bank-audit-multipart.js']:key_for[name]='data-question-bank-audit-multipart'
           for name in groups['student-exam-ui.js']:key_for[name]='data-student-exam-ui'
-          old_data_keys={
-              'v51-paper-profile-validator.js':'data-v51-paper-profile-validator','v51-bulk-question-image-upload.js':'data-v51-bulk-question-image-upload','v51-bulk-question-image-cleanup.js':'data-v51-bulk-question-image-cleanup','v51-bulk-question-image-safety.js':'data-v51-bulk-question-image-safety','v51-paper-package-preview.js':'data-v51-paper-package-preview','v51-paper-package-preview-status.js':'data-v51-paper-package-preview-status','v51-one-confirmation-paper-import.js':'data-v51-one-confirmation-paper-import','v51-post-import-integrity.js':'data-v51-post-import-integrity','v51-question-bank-qa.js':'data-v51-question-bank-qa','v51-question-bank-bulk-status.js':'data-v51-question-bank-bulk-status','v51-question-bank-bulk-metadata.js':'data-v51-question-bank-bulk-metadata','v51-question-review-workflow.js':'data-v51-question-review-workflow','v51-question-change-history.js':'data-v51-question-change-history','v51-multipart-question-management.js':'data-v51-multipart-question-management','v51-student-exam-paper-library.js':'data-v51c1-student-exam-paper-library','v51-student-exam-resume-progress.js':'data-v51c2-student-exam-resume-progress'}
+          old_data_keys={'v51-paper-profile-validator.js':'data-v51-paper-profile-validator','v51-bulk-question-image-upload.js':'data-v51-bulk-question-image-upload','v51-bulk-question-image-cleanup.js':'data-v51-bulk-question-image-cleanup','v51-bulk-question-image-safety.js':'data-v51-bulk-question-image-safety','v51-paper-package-preview.js':'data-v51-paper-package-preview','v51-paper-package-preview-status.js':'data-v51-paper-package-preview-status','v51-one-confirmation-paper-import.js':'data-v51-one-confirmation-paper-import','v51-post-import-integrity.js':'data-v51-post-import-integrity','v51-question-bank-qa.js':'data-v51-question-bank-qa','v51-question-bank-bulk-status.js':'data-v51-question-bank-bulk-status','v51-question-bank-bulk-metadata.js':'data-v51-question-bank-bulk-metadata','v51-question-review-workflow.js':'data-v51-question-review-workflow','v51-question-change-history.js':'data-v51-question-change-history','v51-multipart-question-management.js':'data-v51-multipart-question-management','v51-student-exam-paper-library.js':'data-v51c1-student-exam-paper-library','v51-student-exam-resume-progress.js':'data-v51c2-student-exam-resume-progress'}
+          protected_guards={'verify-phase4-v51-question-bank-management-dormant-reference-integrity.cjs','verify-phase4-v51-question-bank-management-integrity.cjs','verify-phase4-v51-question-bank-management-protected-sha.cjs'}
           for file in sorted(tests.rglob('*.cjs')):
+              if file.name in protected_guards:continue
               src=file.read_text(encoding='utf-8'); updated=src
               for old,owner in owner_for.items():
-                  updated=updated.replace(old,owner)
-                  updated=updated.replace(old.replace('.','\\.'),owner.replace('.','\\.'))
-                  updated=updated.replace(old_data_keys[old],key_for[old])
+                  updated=updated.replace(old,owner).replace(old.replace('.','\\.'),owner.replace('.','\\.')).replace(old_data_keys[old],key_for[old])
               for owner in set(owner_for.values()):updated=re.sub(re.escape(owner)+r'\?v=[A-Za-z0-9.\-]+',owner,updated)
               if updated!=src:file.write_text(updated,encoding='utf-8')
+
+          retired={name for names in groups.values() for name in names}
+          exact={'v52b1-question-bank-observer-gate.js','v52b1-question-bank-performance.js','v52b1-large-import-timeout-recovery.js','v52-topical-activation-guard.js','v52-teacher-topical-library.js','v51-exam-publication-safety.js','v51-exam-publication-ui-polish.js','topical-legacy-student-route.js','practice-selection-engine.js','practice-eligibility-ui.js','practice-ui-resource-clarity.js','resource-bank-ui.js','resource-bank-bulk.js'}
+          manifest={}
+          for line in subprocess.check_output(['git','ls-tree','-r',BASE,'site'],text=True).splitlines():
+              meta,p=line.split('\t',1); sha=meta.split()[2]; name=Path(p).name
+              frozen=(name in retired or name in exact or name.startswith(('v53','v54','v56','v57','v58','assignment-','assignments-','past-paper-','gamification-')))
+              if frozen and p.endswith('.js'):manifest[p]=sha
+          payload={'baseline':BASE,'supabase_tree':'19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456','files':dict(sorted(manifest.items()))}
+          (tests/'v51-phase4-protected-shas.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           PY
 
       - name: Commit generated checkpoint files
@@ -79,9 +81,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site
-          if git diff --cached --quiet; then
-            echo "No generated changes."
-            exit 0
-          fi
-          git commit -m "Phase 4 V51: exact owners and maintained-verifier retarget"
+          if git diff --cached --quiet; then echo "No generated changes."; exit 0; fi
+          git commit -m "Phase 4 V51: freeze protected SHA manifest"
           git push origin HEAD:tech-debt-phase-4-v51-question-bank-management-checkpoint-1
