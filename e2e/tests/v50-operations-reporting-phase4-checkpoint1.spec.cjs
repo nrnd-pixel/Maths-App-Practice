@@ -17,7 +17,7 @@ const sources=Object.freeze({
 const add=(page,key)=>page.addScriptTag({content:sources[key]});
 
 function teacherShell(extra=''){
-  return `<!doctype html><html><head><title>Math Practice Test</title></head><body>
+  return `<!doctype html><html><head><title>Math Practice Test</title><style>.hidden{display:none!important}</style></head><body>
     <section id="start"><div class="brand"><div></div><div><span class="badge">Current Version</span></div></div><div class="info"></div></section>
     <section id="teacher">
       <div class="header"><div><div id="teacher-subtitle"></div></div><div class="toolbar"></div></div>
