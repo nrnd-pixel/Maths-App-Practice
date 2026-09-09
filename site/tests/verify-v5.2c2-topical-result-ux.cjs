@@ -1,12 +1,12 @@
 const fs=require('fs');
 const path=require('path');
 const assert=require('assert');
+const {section,loadApi}=require('./v52c-consolidated-test-helper.cjs');
 
-const modulePath=path.join(__dirname,'..','v52c2-topical-result-ux.js');
+const source=section('result');
 const sqlPath=path.join(__dirname,'..','..','supabase','v52c2_topical_ticket_rotation.sql');
-const source=fs.readFileSync(modulePath,'utf8');
 const sql=fs.readFileSync(sqlPath,'utf8');
-const api=require(modulePath);
+const api=loadApi(source);
 
 assert.strictEqual(api.norm(' Topical   Exercise 2 '),'topical exercise 2');
 assert.strictEqual(api.isStruggleAction('Practice what I struggled with'),true);
