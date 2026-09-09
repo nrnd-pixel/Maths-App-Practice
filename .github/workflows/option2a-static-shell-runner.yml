@@ -22,6 +22,18 @@ jobs:
       - name: Apply approved Option 2A patch
         run: python .github/option2a_static_shell_patch.py
 
+      - name: Align gate 6 with the existing protected-PIN copy contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs')
+          text = path.read_text()
+          old = "    await expect(page.locator('#student-pin-wrap .help')).toContainText('Required');"
+          new = "    await expect(page.locator('#student-pin-wrap .help')).toContainText('Your teacher provides or resets this PIN.');"
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new, 1))
+          PY
+
       - name: Check patch whitespace and runtime scope
         run: |
           git diff --check
