@@ -1,0 +1,54 @@
+name: Phase 4 V51 final temporary verifier patch
+
+on:
+  push:
+    branches:
+      - tech-debt-phase-4-v51-question-bank-management-checkpoint-1
+    paths:
+      - .github/workflows/v51-repair-final-verifiers.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tech-debt-phase-4-v51-question-bank-management-checkpoint-1
+          fetch-depth: 0
+      - name: Retarget remaining release and A1 loader assertions
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          tests=Path('site/tests')
+
+          p=tests/'verify-v5.1a-paper-profile-validator.cjs'
+          s=p.read_text()
+          old="assert.match(release,/paper-import-management\\.js\\?v=51a-1', 'data-paper-import-management'/,\n  'Stable loader must include the V5.1A paper-profile validator exactly once.');"
+          new="assert.match(release,/loadScriptOnce\\('paper-import-management\\.js', 'data-paper-import-management'\\)/,\n  'Stable loader must include the consolidated V5.1 paper-import owner exactly once.');"
+          if old in s: s=s.replace(old,new)
+          if "const readOwner = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');" not in s:
+            s=s.replace("const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');", "const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');\nconst readOwner = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');")
+          marker="assert.equal((release.match(/data-paper-import-management/g)||[]).length,1);"
+          addition="\nassert.ok(readOwner.indexOf('/* V5.1A — Paper Profile Validator.') < readOwner.indexOf('/* V5.1A2 — Bulk Question Image Upload.'),\n  'A1 must remain before A2 inside paper-import-management.js');"
+          if 'A1 must remain before A2 inside paper-import-management.js' not in s: s=s.replace(marker,marker+addition)
+          p.write_text(s)
+
+          p=tests/'verify-v5.1-stable-release.cjs'
+          s=p.read_text()
+          old="assert.match(release,/student-exam-ui\\.js\\?v=51c1-1/);\nassert.match(release,/student-exam-ui\\.js\\?v=51c2-1/);"
+          new="assert.match(release,/loadScriptOnce\\('student-exam-ui\\.js', 'data-student-exam-ui'\\)/);\nconst studentExamOwner=read('student-exam-ui.js');\nassert(studentExamOwner.indexOf('/* V5.1C1 — Student Exam Paper Library.') < studentExamOwner.indexOf('/* V5.1C2 — Student Exam Resume & Progress Clarity.'));"
+          if old in s: s=s.replace(old,new)
+          p.write_text(s)
+          PY
+      - name: Commit remaining verifier patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/tests/verify-v5.1a-paper-profile-validator.cjs site/tests/verify-v5.1-stable-release.cjs
+          git commit -m "Phase 4 V51: retarget remaining stable loader assertions"
+          git push origin HEAD:tech-debt-phase-4-v51-question-bank-management-checkpoint-1
