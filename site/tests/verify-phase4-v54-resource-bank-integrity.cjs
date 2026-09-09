@@ -58,7 +58,9 @@ assert.match(b,/const previous=renderQuestions;[\s\S]*__v54bPreviousRenderQuesti
 // D6 synchronous composition and downstream DOM/API compatibility contracts.
 assert.match(a,/ROOT\.V53D6ResourceBankStatusClarity\?\.decorate\?\.\(\)/);
 assert.ok(a.includes('.v53d6-practice-eligibility-badge'),'A must reuse exact D6 badge');
-for(const token of ['V54AResourceBankVisibility','V54BPracticeEligibilityControls','V54CCompactQuestionBank','V54DTopicalResourceSimplification','#v54a-resource-bank-summary','v54a-resource-bank-summary','v54b-eligibility-feedback','v54b-practice-toggle'])
+assert.ok(a.includes("const SUMMARY_ID = 'v54a-resource-bank-summary'"),'A must preserve the exact #v54a-resource-bank-summary DOM id');
+assert.ok(b.includes("const FEEDBACK_ID = 'v54b-eligibility-feedback'"),'B must preserve the exact #v54b-eligibility-feedback DOM id');
+for(const token of ['V54AResourceBankVisibility','V54BPracticeEligibilityControls','V54CCompactQuestionBank','V54DTopicalResourceSimplification','v54b-practice-toggle'])
   assert.ok(ui.includes(token),`UI owner must retain ${token}`);
 for(const token of ['V54EBulkPracticeEligibility','V54FBulkSelectionScopeSafety','__v54fBulkSelectionScopeSafetyInstalled','v54e-add-practice','v54e-remove-practice'])
   assert.ok(bulk.includes(token),`bulk owner must retain ${token}`);
