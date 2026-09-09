@@ -4,7 +4,7 @@ const assert = require('assert');
 
 const loader = fs.readFileSync(path.join(__dirname,'..','v40-release.js'),'utf8');
 const uiPolish = fs.readFileSync(path.join(__dirname,'..','v51-exam-publication-ui-polish.js'),'utf8');
-const b2e = loader.indexOf("v51-multipart-question-management.js?v=51b2e-1");
+const b2e = loader.indexOf("question-bank-audit-multipart.js");
 const b3 = loader.indexOf("v51-exam-publication-safety.js?v=51b3-1");
 const b3Ui = loader.indexOf("v51-exam-publication-ui-polish.js?v=51b3-ui-3");
 const security = loader.indexOf("v50-security-hardening.js?v=50rc2-1");

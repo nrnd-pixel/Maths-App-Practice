@@ -4,17 +4,17 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const siteRoot = path.resolve(__dirname,'..');
-const source = fs.readFileSync(path.join(siteRoot,'v51-paper-profile-validator.js'),'utf8');
+const source = fs.readFileSync(path.join(siteRoot,'paper-import-management.js'),'utf8');
 const release = fs.readFileSync(path.join(siteRoot,'v40-release.js'),'utf8');
 
 const context = { window:{}, console };
 vm.createContext(context);
-new vm.Script(source,{filename:'v51-paper-profile-validator.js'}).runInContext(context);
+new vm.Script(source,{filename:'paper-import-management.js'}).runInContext(context);
 const api = context.window.V51PaperProfileValidator;
 assert.ok(api,'V5.1A paper profile API must be exposed.');
-assert.match(release,/v51-paper-profile-validator\.js\?v=51a-1', 'data-v51-paper-profile-validator'/,
+assert.match(release,/paper-import-management\.js\?v=51a-1', 'data-paper-import-management'/,
   'Stable loader must include the V5.1A paper-profile validator exactly once.');
-assert.equal((release.match(/data-v51-paper-profile-validator/g)||[]).length,1);
+assert.equal((release.match(/data-paper-import-management/g)||[]).length,1);
 
 const row = (paper,question,marks,extra={}) => ({
   year_level:6,

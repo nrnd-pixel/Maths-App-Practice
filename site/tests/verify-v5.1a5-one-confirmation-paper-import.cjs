@@ -4,7 +4,7 @@ const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const sourcePath = path.join(root,'site','v51-one-confirmation-paper-import.js');
+const sourcePath = path.join(root,'site','paper-import-management.js');
 const loaderPath = path.join(root,'site','v40-release.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 const loader = fs.readFileSync(loaderPath,'utf8');
@@ -78,7 +78,7 @@ const sandbox = {
   console
 };
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-one-confirmation-paper-import.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51OneConfirmationPaperImport;
 assert(api,'V5.1A5 API should be exposed');
 
@@ -175,6 +175,6 @@ assert(!/storage\.from/.test(source),'A5 must not implement a direct Storage wri
 assert(!/exam_settings|exam-settings/i.test(source),'A5 must not create or enable Exam Settings');
 assert(!source.includes('localStorage'),'A5 must not persist orchestration state in localStorage');
 assert(!source.includes('sessionStorage'),'A5 must not persist orchestration state in sessionStorage');
-assert(loader.includes('v51-one-confirmation-paper-import.js'),'V5 loader must include A5');
+assert(loader.includes('paper-import-management.js'),'V5 loader must include A5');
 
 console.log('V5.1A5 one-confirmation paper import checks passed.');

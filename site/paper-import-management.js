@@ -1,8 +1,3 @@
-/* Phase 4 — V51 topology-preserving consolidated owner.
-   Historical sections are retained byte-for-byte and execute in the
-   accepted order at the same loader boundary. */
-
-/* ---- historical owner: v51-paper-profile-validator.js ---- */
 /* V5.1A — Paper Profile Validator.
    Read-only import QA overlay. It does not import, modify, activate or publish questions.
    Profiles the resulting active past-paper state after adding valid, non-duplicate preview rows. */
@@ -239,7 +234,6 @@
   }
 })();
 
-/* ---- historical owner: v51-bulk-question-image-upload.js ---- */
 /* V5.1A2 — Bulk Question Image Upload.
    Teacher-side import companion for matching CSV image_url filenames to local image files,
    uploading matched files to the existing question-images Supabase bucket, and rewriting
@@ -710,7 +704,6 @@
   }
 })();
 
-/* ---- historical owner: v51-bulk-question-image-cleanup.js ---- */
 /* V5.1A2 — cleanup guard for uncommitted bulk image uploads.
    If a teacher abandons a CSV preview after uploading its matched images, Clear Preview
    removes only Storage paths that are not already referenced by committed question rows. */
@@ -826,7 +819,6 @@
   }
 })();
 
-/* ---- historical owner: v51-bulk-question-image-safety.js ---- */
 /* V5.1A2 — persistent image-reference and stale-selection safety guard.
    Keeps imported question image URLs durable and prevents a previous CSV file selection
    from being silently reused after the preview rows are replaced. */
@@ -995,7 +987,6 @@
   }
 })();
 
-/* ---- historical owner: v51-paper-package-preview.js ---- */
 /* V5.1A4 — Paper Import Package Preview.
    Read-only orchestration layer for the permanent digitisation package format.
    It identifies questions.csv, manifest.json, audit_report.xlsx and question images,
@@ -1532,7 +1523,6 @@
   }
 })();
 
-/* ---- historical owner: v51-paper-package-preview-status.js ---- */
 /* V5.1A4 — package-preview status wording polish.
    Distinguishes a fully validated package with no new rows from one ready for staged import.
    Presentation-only: no import, Storage, grading or database behavior changes. */
@@ -1604,7 +1594,6 @@
   }
 })();
 
-/* ---- historical owner: v51-one-confirmation-paper-import.js ---- */
 /* V5.1A5 — One-confirmation validated paper import.
    Orchestrates the production-validated A4 package preview, A2 image upload and existing
    CSV importer behind one deliberate teacher confirmation. It does not implement a new
@@ -2107,7 +2096,6 @@
   }
 })();
 
-/* ---- historical owner: v51-post-import-integrity.js ---- */
 /* V5.1A6 — Post-import integrity check.
    Read-only verification of the actual teacher question bank after a validated A5 import.
    It does not insert/update/delete questions, Storage objects, or Exam Settings. */

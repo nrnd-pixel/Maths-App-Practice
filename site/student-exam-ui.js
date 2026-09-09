@@ -1,8 +1,3 @@
-/* Phase 4 — V51 topology-preserving consolidated owner.
-   Historical sections are retained byte-for-byte and execute in the
-   accepted order at the same loader boundary. */
-
-/* ---- historical owner: v51-student-exam-paper-library.js ---- */
 /* V5.1C1 — Student Exam Paper Library.
    Student-facing presentation layer over the existing secure Exam Mode selectors.
    It reads only the already-loaded available-paper metadata, keeps the existing
@@ -255,7 +250,6 @@
   else wire();
 })();
 
-/* ---- historical owner: v51-student-exam-resume-progress.js ---- */
 /* V5.1C2 — Student Exam Resume & Progress Clarity.
    Presentation-only layer over the existing recoverable Exam Mode snapshot.
    Reads the current device's saved in-progress attempt to make resume state visible.

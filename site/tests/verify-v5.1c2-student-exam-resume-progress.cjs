@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 
-const source = fs.readFileSync(path.join(__dirname,'..','v51-student-exam-resume-progress.js'),'utf8');
+const source = fs.readFileSync(path.join(__dirname,'..','student-exam-ui.js'),'utf8');
 
 assert(source.includes('Student Exam Resume & Progress Clarity'),'C2 feature identity missing');
 assert(source.includes("const ACTIVE_ATTEMPTS_KEY = 'mathV32F1ActiveAttempts'"),'C2 must read the established recoverable-attempt storage key');

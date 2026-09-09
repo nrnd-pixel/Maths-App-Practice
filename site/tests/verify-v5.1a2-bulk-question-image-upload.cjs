@@ -4,14 +4,14 @@ const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const sourcePath = path.join(root,'site','v51-bulk-question-image-upload.js');
+const sourcePath = path.join(root,'site','paper-import-management.js');
 const loaderPath = path.join(root,'site','v40-release.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 const loader = fs.readFileSync(loaderPath,'utf8');
 
 const sandbox = {window:{},console};
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-bulk-question-image-upload.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51BulkQuestionImageUpload;
 assert(api,'V51 bulk image upload API should be exposed');
 
@@ -86,6 +86,6 @@ assert(!/\.from\(\s*['\"]questions['\"]\s*\)/.test(source), 'A2 module must not 
 assert(!source.includes('localStorage'), 'A2 must not persist import/image state in localStorage');
 assert(!source.includes('sessionStorage'), 'A2 must not persist import/image state in sessionStorage');
 assert(!source.includes('fetch('), 'A2 must use the established Supabase client rather than direct fetch');
-assert(loader.includes('v51-bulk-question-image-upload.js'), 'V5 loader must include the A2 module');
+assert(loader.includes('paper-import-management.js'), 'V5 loader must include the A2 module');
 
 console.log('V5.1A2 bulk question image upload checks passed.');

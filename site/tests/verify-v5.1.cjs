@@ -91,11 +91,11 @@ assert.doesNotMatch(release, /document\.title\s*=\s*['"]Math Practice V5\.|badge
   'Historical release presenter must not own the current displayed version identity.');
 assert.match(release, /v49-student-topic-progress\.js/);
 assert.match(release, /v50-student-progress-overview\.js/);
-assert.match(release, /v51-paper-profile-validator\.js/);
-assert.match(release, /v51-question-bank-qa\.js/);
+assert.match(release, /paper-import-management\.js/);
+assert.match(release, /question-bank-selection-qa\.js/);
 assert.match(release, /v51-exam-publication-safety\.js/);
-assert.match(release, /v51-student-exam-paper-library\.js/);
-assert.match(release, /v51-student-exam-resume-progress\.js/);
+assert.match(release, /student-exam-ui\.js/);
+assert.match(release, /student-exam-ui\.js/);
 assert.doesNotMatch(release, /loadScriptOnce\('v49-student-progress-snapshot\.js/, 'The superseded V4.9A panel must not be loaded after B3 consolidation.');
 assert.doesNotMatch(release, /loadScriptOnce\('v49-student-next-steps\.js/, 'The superseded V4.9C panel must not be loaded after B3 consolidation.');
 assert.ok(fs.existsSync(path.join(siteRoot, 'v49-student-progress-snapshot.js')), 'Archived V4.9A source must remain recoverable in the repository.');

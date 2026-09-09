@@ -4,14 +4,14 @@ const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const sourcePath = path.join(root,'site','v51-paper-package-preview-status.js');
+const sourcePath = path.join(root,'site','paper-import-management.js');
 const loaderPath = path.join(root,'site','v40-release.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 const loader = fs.readFileSync(loaderPath,'utf8');
 
 const sandbox = {window:{},console};
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-paper-package-preview-status.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51PaperPackagePreviewStatus;
 assert(api,'A4 package status API should be exposed');
 
@@ -38,7 +38,7 @@ const stagedImport = api.reportCounts('CSV: 34 rows · 13 ready · 21 duplicates
 assert.strictEqual(stagedImport.readyRows,13);
 assert.strictEqual(stagedImport.invalidRows,0);
 
-assert(loader.includes('v51-paper-package-preview-status.js'), 'V5 loader must include the A4 status polish');
+assert(loader.includes('paper-import-management.js'), 'V5 loader must include the A4 status polish');
 assert(source.includes('if (headline.textContent !== nextLabel) headline.textContent = nextLabel;'), 'status observer must not rewrite an unchanged headline and trigger itself repeatedly');
 assert(!/storage\.from|\.from\(\s*['\"]questions['\"]\s*\)|localStorage|sessionStorage/.test(source), 'status polish must remain presentation-only');
 

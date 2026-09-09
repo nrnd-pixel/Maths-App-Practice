@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 
-const source = fs.readFileSync(path.join(__dirname,'..','v51-student-exam-paper-library.js'),'utf8');
+const source = fs.readFileSync(path.join(__dirname,'..','student-exam-ui.js'),'utf8');
 
 assert(source.includes('Student Exam Paper Library'),'C1 feature identity missing');
 assert(source.includes("Array.isArray(examMetaRows)"),'C1 must use the already-loaded secure available-paper metadata');

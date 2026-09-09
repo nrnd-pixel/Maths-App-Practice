@@ -3,7 +3,7 @@ const path = require('path');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..');
-const uiPath = path.join(root,'v51-multipart-question-management.js');
+const uiPath = path.join(root,'question-bank-audit-multipart.js');
 const sqlPath = path.resolve(root,'../supabase/v51b2e_multipart_question_management.sql');
 const ui = fs.readFileSync(uiPath,'utf8');
 const sql = fs.readFileSync(sqlPath,'utf8');

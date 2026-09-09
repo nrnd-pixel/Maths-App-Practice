@@ -37,8 +37,8 @@ assert.match(index,/id="exam-mode-btn"/);
 // Exam infrastructure remains loaded as a rollback boundary.
 assert.match(release,/v51-exam-publication-safety\.js/);
 assert.match(release,/v51-exam-publication-ui-polish\.js/);
-assert.match(release,/v51-student-exam-paper-library\.js/);
-assert.match(release,/v51-student-exam-resume-progress\.js/);
+assert.match(release,/student-exam-ui\.js/);
+assert.match(release,/student-exam-ui\.js/);
 
 // The stable V5.6 checkpoint stays intact and the reversible patch loads after it.
 const stableIndex = config.indexOf("'./v56-stable-release-checkpoint.js'");

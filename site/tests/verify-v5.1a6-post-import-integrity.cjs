@@ -4,7 +4,7 @@ const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const sourcePath = path.join(root,'site','v51-post-import-integrity.js');
+const sourcePath = path.join(root,'site','paper-import-management.js');
 const loaderPath = path.join(root,'site','v40-release.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 const loader = fs.readFileSync(loaderPath,'utf8');
@@ -32,7 +32,7 @@ const sandbox = {
   console
 };
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-post-import-integrity.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51PostImportIntegrity;
 assert(api,'V5.1A6 API should be exposed');
 
@@ -172,6 +172,6 @@ assert(!/\.upload\s*\(/.test(source),'A6 must not upload Storage objects');
 assert(!/\.remove\s*\(/.test(source),'A6 must not remove Storage objects');
 assert(source.includes("getElementById('v51a5-import-paper')"),'A6 should capture the A5 import context before the write');
 assert(source.includes('imported successfully'),'A6 should automatically verify after A5 reports success');
-assert(loader.includes('v51-post-import-integrity.js'),'V5 loader must include A6');
+assert(loader.includes('paper-import-management.js'),'V5 loader must include A6');
 
 console.log('V5.1A6 post-import integrity checks passed.');

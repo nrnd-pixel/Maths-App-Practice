@@ -1,8 +1,3 @@
-/* Phase 4 — V51 topology-preserving consolidated owner.
-   Historical sections are retained byte-for-byte and execute in the
-   accepted order at the same loader boundary. */
-
-/* ---- historical owner: v51-question-change-history.js ---- */
 /* V5.1B2D — Teacher-only correction audit history viewer.
    Read-only UI. History is written by the database trigger, never by this module. */
 (() => {
@@ -223,7 +218,6 @@
   }
 })();
 
-/* ---- historical owner: v51-multipart-question-management.js ---- */
 /* V5.1B2E — Multipart Question Management.
    Inspects sibling consistency and uses a teacher-only RPC for safe group-wide prompt/order corrections.
    Answers, marks, question text, exam identity, response configuration, images and active status are never changed here. */

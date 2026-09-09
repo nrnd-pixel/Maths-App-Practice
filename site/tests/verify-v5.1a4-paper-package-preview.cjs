@@ -4,14 +4,14 @@ const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const sourcePath = path.join(root,'site','v51-paper-package-preview.js');
+const sourcePath = path.join(root,'site','paper-import-management.js');
 const loaderPath = path.join(root,'site','v40-release.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 const loader = fs.readFileSync(loaderPath,'utf8');
 
 const sandbox = {window:{},console};
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-paper-package-preview.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51PaperPackagePreview;
 assert(api,'V5.1A4 package preview API should be exposed');
 
@@ -110,6 +110,6 @@ assert(!/\.from\(\s*['\"]questions['\"]\s*\)/.test(source), 'A4 must not write q
 assert(!source.includes('localStorage'), 'A4 must not persist package state in localStorage');
 assert(!source.includes('sessionStorage'), 'A4 must not persist package state in sessionStorage');
 assert(!source.includes('fetch('), 'A4 must not add a direct network path');
-assert(loader.includes('v51-paper-package-preview.js'), 'V5 loader must include the A4 module');
+assert(loader.includes('paper-import-management.js'), 'V5 loader must include the A4 module');
 
 console.log('V5.1A4 paper package preview checks passed.');

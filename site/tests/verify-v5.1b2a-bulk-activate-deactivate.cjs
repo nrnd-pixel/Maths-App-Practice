@@ -3,7 +3,7 @@ const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
-const sourcePath = path.join(__dirname,'..','v51-question-bank-bulk-status.js');
+const sourcePath = path.join(__dirname,'..','question-bank-selection-qa.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 
 const profiles = new Map([
@@ -19,7 +19,7 @@ const qa = {
 
 const sandbox = { window:{V51QuestionBankQA:qa} };
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-question-bank-bulk-status.js'});
+vm.runInContext(source,sandbox,{filename:'question-bank-selection-qa.js'});
 const bulk = sandbox.window.V51QuestionBankBulkStatus;
 assert(bulk,'V51QuestionBankBulkStatus API should be exposed');
 

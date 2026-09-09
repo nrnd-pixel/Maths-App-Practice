@@ -4,12 +4,12 @@ const vm = require('vm');
 const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
-const source = fs.readFileSync(path.join(root,'site','v51-bulk-question-image-cleanup.js'),'utf8');
+const source = fs.readFileSync(path.join(root,'site','paper-import-management.js'),'utf8');
 const loader = fs.readFileSync(path.join(root,'site','v40-release.js'),'utf8');
 
 const sandbox = {window:{},console};
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-bulk-question-image-cleanup.js'});
+vm.runInContext(source,sandbox,{filename:'paper-import-management.js'});
 const api = sandbox.window.V51BulkQuestionImageCleanup;
 assert(api,'V5.1A2 cleanup API should be exposed');
 
@@ -48,7 +48,7 @@ assert(!/\.from\(\s*['\"]questions['\"]\s*\)/.test(source),'cleanup module must 
 assert(!source.includes('localStorage'));
 assert(!source.includes('sessionStorage'));
 assert(!source.includes('fetch('));
-assert(loader.includes('v51-bulk-question-image-cleanup.js'),'V5 loader must include abandoned-batch cleanup guard');
+assert(loader.includes('paper-import-management.js'),'V5 loader must include abandoned-batch cleanup guard');
 
 console.log('V5.1A2 abandoned bulk image cleanup checks passed.');
 console.log('- duplicate uploaded paths are deduplicated');

@@ -6,7 +6,7 @@ const assert = require('assert');
 
 const root = path.resolve(__dirname,'..','..');
 const sql = fs.readFileSync(path.join(root,'supabase','v51b2d_question_change_history.sql'),'utf8');
-const js = fs.readFileSync(path.join(root,'site','v51-question-change-history.js'),'utf8');
+const js = fs.readFileSync(path.join(root,'site','question-bank-audit-multipart.js'),'utf8');
 
 function has(text,needle,message){ assert(text.includes(needle),message || `Missing ${needle}`); }
 

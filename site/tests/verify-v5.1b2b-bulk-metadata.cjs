@@ -3,11 +3,11 @@ const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
-const sourcePath = path.join(__dirname,'..','v51-question-bank-bulk-metadata.js');
+const sourcePath = path.join(__dirname,'..','question-bank-metadata-review.js');
 const source = fs.readFileSync(sourcePath,'utf8');
 const sandbox = {window:{}};
 vm.createContext(sandbox);
-vm.runInContext(source,sandbox,{filename:'v51-question-bank-bulk-metadata.js'});
+vm.runInContext(source,sandbox,{filename:'question-bank-metadata-review.js'});
 const bulk = sandbox.window.V51QuestionBankBulkMetadata;
 assert(bulk,'V51QuestionBankBulkMetadata API should be exposed');
 

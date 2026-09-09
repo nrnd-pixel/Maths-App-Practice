@@ -1,8 +1,3 @@
-/* Phase 4 — V51 topology-preserving consolidated owner.
-   Historical sections are retained byte-for-byte and execute in the
-   accepted order at the same loader boundary. */
-
-/* ---- historical owner: v51-question-bank-qa.js ---- */
 /* V5.1B1 — Question Bank QA & completeness indicators.
    Read-only teacher overlay. Adds paper-profile summaries, QA flags and filters without
    modifying question rows, Storage objects, Exam Settings or student data. */
@@ -402,7 +397,6 @@
   }
 })();
 
-/* ---- historical owner: v51-question-bank-bulk-status.js ---- */
 /* V5.1B2A — Safe bulk activate/deactivate for Question Bank.
    Adds selection and one-confirmation status updates. No deletes, metadata edits,
    Storage writes, Exam Setting changes or student-data changes. */
