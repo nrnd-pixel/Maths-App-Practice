@@ -28,14 +28,19 @@ jobs:
           old="(github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation')"
           new="((github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v51-question-bank-management-checkpoint1-validation'))"
           s=s.replace(old,new)
-          old2="if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}"
-          new2="if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v51-question-bank-management-checkpoint1-validation') }}"
-          # Apply to V50 and V51 dedicated hard-gate steps only.
+          dollar='$'
+          desired=f"        if: {dollar}{{{{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v51-question-bank-management-checkpoint1-validation') }}}}"
           for name in ['Run V50 operations/reporting hard gates','Run V51 question-bank management hard gates']:
-              marker=f'      - name: {name}\n        {old2}'
-              replacement=f'      - name: {name}\n        {new2}'
-              if marker not in s: raise SystemExit(f'missing condition marker for {name}')
-              s=s.replace(marker,replacement)
+              lines=s.splitlines()
+              for i,line in enumerate(lines):
+                  if line==f'      - name: {name}':
+                      if i+1>=len(lines) or not lines[i+1].lstrip().startswith('if:'):
+                          raise SystemExit(f'condition line missing for {name}')
+                      lines[i+1]=desired
+                      break
+              else:
+                  raise SystemExit(f'step missing: {name}')
+              s='\n'.join(lines)+'\n'
           p.write_text(s)
           PY
       - name: Commit CI condition patch
