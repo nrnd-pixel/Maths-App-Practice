@@ -1,10 +1,8 @@
-const fs=require('fs');
-const path=require('path');
 const assert=require('assert');
+const {section,loadApi}=require('./v52c-consolidated-test-helper.cjs');
 
-const modulePath=path.join(__dirname,'..','v52c-topical-publication.js');
-const source=fs.readFileSync(modulePath,'utf8');
-const api=require(modulePath);
+const source=section('publication');
+const api=loadApi(source);
 
 assert.strictEqual(api.setKey(6,' Topical  Exercise Paper 2 Extra '),'6|topical exercise paper 2 extra');
 assert.strictEqual(api.publicationStateLabel({ready:false,is_available:false}),'Not ready to publish');
