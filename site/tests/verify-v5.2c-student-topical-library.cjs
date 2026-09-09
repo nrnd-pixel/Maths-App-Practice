@@ -8,7 +8,8 @@ assert.strictEqual(api.MODE_BUTTON_ID,'v52c-topical-mode-btn');
 assert.strictEqual(api.LIBRARY_ID,'v52c-student-topical-library');
 assert.strictEqual(api.setKey(6,' Topical Exercise  2 '),'6|topical exercise 2');
 const sets=api.normalizeSetRows([{source:' Set A ',logical_questions:'12',physical_rows:'14',total_marks:'16',image_rows:'3',manual_rows:'2'},{source:'',logical_questions:5}]);
-assert.deepStrictEqual(sets,[{source:'Set A',logical_questions:12,physical_rows:14,total_marks:16,image_rows:3,manual_rows:2}]);
+const normalizedSets=JSON.parse(JSON.stringify(sets));
+assert.deepStrictEqual(normalizedSets,[{source:'Set A',logical_questions:12,physical_rows:14,total_marks:16,image_rows:3,manual_rows:2}]);
 
 assert(source.includes('🎯 Topical Practice'),'Student start screen must expose a distinct Topical Practice mode');
 assert(source.includes("cloud.rpc('get_available_topical_exercise_sets_v52c'"),'Student library must list only server-published topical sets');
