@@ -8,13 +8,17 @@ const repoRoot = path.resolve(siteRoot, '..');
 const read = rel => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
 
 const release = read('site/v40-release.js');
-const polish = read('site/v50-rc2-empty-result-code-polish.js');
+const owner = read('site/release-audit-ui.js');
 const sql = read('supabase/v50rc2_result_code_empty_audit_hotfix.sql');
+const start='/* V5.0RC2 launch audit polish.';
+const next='/* V5.4 — extends the existing read-only Release Audit';
+const begin=owner.indexOf(start), end=owner.indexOf(next,begin+1);
+assert.ok(begin>=0 && end>begin,'RC2 empty-result polish section must remain in consolidated audit owner.');
+const polish=owner.slice(begin,end).trimEnd();
+new vm.Script(owner,{filename:'release-audit-ui.js'});
 
-new vm.Script(polish,{filename:'v50-rc2-empty-result-code-polish.js'});
-
-assert.match(release,/v50-rc2-empty-result-code-polish\.js\?v=50rc2-empty-1/,
-  'Release loader must include the empty-result-code audit polish.');
+assert.match(release,/loadScriptOnce\('release-audit-ui\.js', 'data-release-audit-ui'\)/,
+  'Release loader must include the consolidated audit UI owner.');
 assert.match(release,/loadScriptOnce\('assignment-interventions\.js', 'data-assignment-interventions'\)/,
   'The consolidated V44 intervention owner must remain staged.');
 assert.match(release,/loadScriptOnce\('assignment-intervention-history\.js', 'data-assignment-intervention-history'\)/,
@@ -46,6 +50,7 @@ assert.doesNotMatch(sql,/\btruncate\b|delete\s+from/i,
   'RC2 audit hotfix must remain read-only.');
 
 console.log('V5.0RC2 empty-result-code audit verification passed.');
+console.log('- consolidated audit owner retains the exact empty-sample presentation section');
 console.log('- zero saved result codes are treated as an empty sample, not a weak code');
 console.log('- any real saved code must still be >=19 characters and unique');
 console.log('- browser display changes only when the server-side RC2 result already passes');
