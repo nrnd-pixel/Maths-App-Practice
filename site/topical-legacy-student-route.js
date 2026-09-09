@@ -983,9 +983,9 @@
 
   const api=Object.freeze({norm,isStruggleAction,topicalPrivacyText});
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
-  if (typeof window!=='undefined'){
+  if (typeof window !== 'undefined'){
     Object.defineProperty(window,'V52C2TopicalResultUx',{value:api,writable:false,configurable:false});
-    if (typeof document!=='undefined'){
+    if (typeof document !== 'undefined'){
       if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire,{once:true});
       else wire();
     }
