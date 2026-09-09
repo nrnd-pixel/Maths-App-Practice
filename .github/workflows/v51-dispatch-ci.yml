@@ -19,6 +19,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Requested implementation head before dispatch: 172d6ddb940f3b40a081c502f1c6b52951184d28
           curl --fail-with-body -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \
