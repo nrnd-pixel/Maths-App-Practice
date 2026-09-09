@@ -92,6 +92,9 @@ jobs:
             "site/tests/verify-v5.2c-loader.cjs"
             "site/tests/verify-v5.2c1-topical-library-mount.cjs"
             "site/tests/verify-v5.2c2-topical-result-ux.cjs"
+            "site/tests/verify-phase4-v52c-legacy-student-route-dormant-reference-integrity.cjs"
+            "site/tests/verify-phase4-v52c-legacy-student-route-integrity.cjs"
+            "site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs"
             "site/tests/verify-v5.3a-practice-eligibility.cjs"
             "site/tests/verify-v5.3b-unified-practice-retrieval.cjs"
             "site/tests/verify-v5.3c-two-mode-student-ui.cjs"
@@ -173,6 +176,11 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
         working-directory: e2e
         run: npx playwright install --with-deps chromium
+
+      - name: Run V52C legacy topical hard gates
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
+        working-directory: e2e
+        run: npx playwright test tests/v52c-legacy-student-route-phase4-checkpoint1.spec.cjs --reporter=line
 
       - name: Run V54 resource-bank hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
