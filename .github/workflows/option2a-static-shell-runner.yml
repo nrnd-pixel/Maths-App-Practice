@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
 
+# One-shot branch validation runner; remove before the final draft PR.
 jobs:
   validate:
     runs-on: ubuntu-latest
