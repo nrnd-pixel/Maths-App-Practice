@@ -44,13 +44,8 @@
     loadScriptOnce('v49-student-topic-progress.js?v=49b-2', 'data-v49b-student-topic-progress');
     loadScriptOnce('v50-student-progress-overview.js?v=50b3-1', 'data-v50-student-progress-overview');
     loadScriptOnce('v50-accessibility-polish.js?v=50b4a-1', 'data-v50-accessibility-polish');
-    loadScriptOnce('v50-teacher-class-report.js?v=50c1-2', 'data-v50-teacher-class-report');
-    loadScriptOnce('v50-teacher-student-report.js?v=50c2-2', 'data-v50-teacher-student-report');
-    loadScriptOnce('v50-reporting-export.js?v=50c3a-2', 'data-v50-reporting-export');
-    loadScriptOnce('v50-report-archive.js?v=50c3b-1', 'data-v50-report-archive');
-    loadScriptOnce('v50-student-launch-readiness.js?v=50d1-1', 'data-v50-student-launch-readiness');
-    loadScriptOnce('v50-teacher-operations.js?v=50d2-1', 'data-v50-teacher-operations');
-    loadScriptOnce('v50-roster-edit.js?v=50launch-1', 'data-v50-roster-edit');
+    loadScriptOnce('teacher-reporting.js', 'data-teacher-reporting');
+    loadScriptOnce('teacher-launch-operations.js', 'data-teacher-launch-operations');
     loadScriptOnce('v51-paper-profile-validator.js?v=51a-1', 'data-v51-paper-profile-validator');
     loadScriptOnce('v51-bulk-question-image-upload.js?v=51a2-1', 'data-v51-bulk-question-image-upload');
     loadScriptOnce('v51-bulk-question-image-cleanup.js?v=51a2-1', 'data-v51-bulk-question-image-cleanup');
@@ -74,10 +69,7 @@
     loadScriptOnce('v51-student-exam-paper-library.js?v=51c1-1', 'data-v51c1-student-exam-paper-library');
     loadScriptOnce('v51-student-exam-resume-progress.js?v=51c2-1', 'data-v51c2-student-exam-resume-progress');
     loadScriptOnce('v50-security-hardening.js?v=50rc2-1', 'data-v50-security-hardening');
-    loadScriptOnce('v50-production-polish.js?v=51stable-1', 'data-v50-production-polish');
-    loadScriptOnce('v50-release-audit.js?v=50rc2-1', 'data-v50-release-audit');
-    loadScriptOnce('v50-rc2-empty-result-code-polish.js?v=50rc2-empty-1', 'data-v50-rc2-empty-result-code-polish');
-    loadScriptOnce('v50-release-audit-rc3.js?v=51stable-1', 'data-v50-release-audit-rc3');
+    loadScriptOnce('release-audit-ui.js', 'data-release-audit-ui');
     loadScriptOnce('v52b1-question-bank-performance.js?v=52b1-3', 'data-v52b1-question-bank-performance');
     loadScriptOnce('v52b1-large-import-timeout-recovery.js?v=52b1-1', 'data-v52b1-large-import-timeout-recovery');
     loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route');
