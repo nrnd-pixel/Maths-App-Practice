@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const {section:v52cSection}=require('./v52c-consolidated-test-helper.cjs');
 
 const SITE=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(SITE,file),'utf8');
@@ -12,7 +13,7 @@ const historicalA=read('v53a-practice-eligibility.js');
 const historicalC=read('v53c-two-mode-student-ui.js');
 const historicalD6=read('v53d6-resource-bank-status-clarity.js');
 const loader=read('v40-release.js');
-const v52c2=read('v52c2-topical-result-ux.js');
+const v52c2=v52cSection('result');
 const resourceBankUi=read('resource-bank-ui.js');
 
 function indexOfRequired(text,token,label){
