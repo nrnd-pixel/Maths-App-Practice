@@ -37,6 +37,10 @@ jobs:
                   "    await expect(page.locator('#student-access-note')).toContainText('Protected access');",
                   "    await expect(page.locator('#student-access-note')).toContainText('Enter your Student ID and PIN');",
               ),
+              (
+                  "    await expect(openPage.locator('#student-name-help')).toContainText('Required for open access');",
+                  "    await expect(openPage.locator('#student-name-help')).toContainText('Required when access is open');",
+              ),
           ]
           for old, new in replacements:
               assert text.count(old) == 1, old
