@@ -18,7 +18,7 @@ jobs:
           ref: fix-static-session-mode-flash
           fetch-depth: 0
 
-      - name: Apply exact two-line static CSS fix
+      - name: Replace stale direct-child mode selector
         shell: bash
         run: |
           python <<'PY'
@@ -26,21 +26,15 @@ jobs:
 
           path = Path('site/index.html')
           data = path.read_bytes()
-          marker = b'<style>\n'
-          replacement = (
-              b'<style>\n'
-              b'  #start .v40c-session-identity { display: none; }\n'
-              b'  #start.v40-shell-logged-out > .mode-switch { display: none !important; }\n'
-          )
+          old = b'#start.v40-shell-logged-out > .mode-switch { display: none !important; }'
+          new = b'#start.v40-shell-logged-out .v40c-learn-setup { display: none !important; }'
 
-          if b'#start .v40c-session-identity { display: none; }' in data:
-              raise SystemExit('targeted session identity rule already exists')
-          if b'#start.v40-shell-logged-out > .mode-switch { display: none !important; }' in data:
-              raise SystemExit('targeted mode-switch rule already exists')
-          if data.count(marker) < 1:
-              raise SystemExit('opening style marker not found')
+          if data.count(old) != 1:
+              raise SystemExit(f'expected exactly one old selector, found {data.count(old)}')
+          if new in data:
+              raise SystemExit('replacement selector already exists')
 
-          updated = data.replace(marker, replacement, 1)
+          updated = data.replace(old, new, 1)
           path.write_bytes(updated)
           PY
 
@@ -49,19 +43,19 @@ jobs:
           read additions deletions path <<EOF
           $(git diff --numstat -- site/index.html)
           EOF
-          test "$additions" = "2"
-          test "$deletions" = "0"
+          test "$additions" = "1"
+          test "$deletions" = "1"
           test "$path" = "site/index.html"
 
           git diff --check
           git diff -- site/index.html
 
-      - name: Commit exact target-branch change
+      - name: Commit target-branch selector correction
         shell: bash
         run: |
           git config user.name "nrnd-pixel"
           git config user.email "anuarn.edu@gmail.com"
           git add site/index.html
           test "$(git diff --cached --name-only)" = "site/index.html"
-          git commit -m "fix: suppress initial session and mode flash"
+          git commit -m "fix: hide static Learn shell while logged out"
           git push origin HEAD:fix-static-session-mode-flash
