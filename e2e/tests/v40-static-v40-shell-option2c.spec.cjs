@@ -11,15 +11,13 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';
-const EXPECTED_FROZEN_SITE_SHA256 = '3687690a1e136adf5f9adc59c1b65e0ebfd78741d319c07f5b1b8008060776f5';
+const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
+const EXPECTED_FROZEN_SITE_SHA256 = '5c9ab35280605063598b495aef32e24ba8a4c258ccf36b3f5c77e1eff3693707';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': '68ba53f30671e053b81c6280132800b16495debb',
-  'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
-  'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
+  'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
