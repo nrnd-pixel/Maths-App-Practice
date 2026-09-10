@@ -2,8 +2,9 @@
 """Deterministically align the Option 2B hard-gate spec with approved seal scope.
 
 This is temporary branch validation scaffolding. It changes only the Option 2B
-E2E spec: two race-prone fixture sequences are synchronized with the existing
-gamification refresh lifecycle, and gate 12 recognizes the explicitly approved
+E2E spec: race-prone fixture sequences are synchronized with the complete
+XP -> achievements -> missions -> class-challenge lifecycle, including V57C's
+scheduled forced refresh, and gate 12 recognizes the explicitly approved
 historical successor-seal files without relaxing frozen runtime/Supabase checks.
 """
 from pathlib import Path
@@ -70,35 +71,85 @@ new_helpers = """async function waitForHomeRendered(page) {
   ).toBe(true);
 }
 
+const GAMIFICATION_LIFECYCLE_EVENTS = Object.freeze([
+  'v571a:gamification-updated',
+  'v571b:achievements-updated',
+  'v572:missions-updated',
+  'v573:class-challenge-updated',
+]);
+
+// The runtime schedules the V57C-forced refresh after 70ms and may retry after
+// 180ms when a load is already active. A >180ms event-free poll window following
+// a complete serial lifecycle therefore proves those scheduled paths are settled
+// without using a blind sleep as the synchronization mechanism.
+const GAMIFICATION_SETTLE_QUIET_MS = 220;
+
+async function armGamificationLifecycleProbe(page) {
+  await page.evaluate(eventNames => {
+    if (!window.__option2bGamificationLifecycleProbe) {
+      const probe = { events: [] };
+      window.__option2bGamificationLifecycleProbe = probe;
+      for (const name of eventNames) {
+        window.addEventListener(name, () => {
+          probe.events.push({ name, at: performance.now() });
+        });
+      }
+    }
+    window.__option2bGamificationLifecycleProbe.events = [];
+  }, GAMIFICATION_LIFECYCLE_EVENTS);
+}
+
+async function waitForGamificationLifecycleQuiescence(page, minimumCycles = 1) {
+  await expect.poll(
+    () => page.evaluate(({ eventNames, minimumCycles, quietMs }) => {
+      const entries = window.__option2bGamificationLifecycleProbe?.events || [];
+      let position = 0;
+      let cycles = 0;
+      for (const entry of entries) {
+        if (entry.name === eventNames[position]) {
+          position += 1;
+        } else {
+          position = entry.name === eventNames[0] ? 1 : 0;
+        }
+        if (position === eventNames.length) {
+          cycles += 1;
+          position = 0;
+        }
+      }
+      const last = entries[entries.length - 1];
+      if (cycles < minimumCycles || !last || last.name !== eventNames[eventNames.length - 1]) return false;
+      return performance.now() - last.at >= quietMs;
+    }, {
+      eventNames: GAMIFICATION_LIFECYCLE_EVENTS,
+      minimumCycles,
+      quietMs: GAMIFICATION_SETTLE_QUIET_MS,
+    }),
+    { timeout: 15_000, intervals: [40, 60, 80, 120] },
+  ).toBe(true);
+}
+
 async function primeGamification(page) {
+  await armGamificationLifecycleProbe(page);
   await expect.poll(
     () => page.evaluate(async () => Boolean(await window.GamificationStudent.refresh(true))),
     { timeout: 15_000, intervals: [100, 150, 250, 400] },
   ).toBe(true);
+  await waitForGamificationLifecycleQuiescence(page, 1);
 }
 
 async function renderHomeAndWaitForScheduledGamificationRefresh(page, model) {
+  // First settle any sign-in/previous Home refresh that could still be active.
   await primeGamification(page);
-  const before = await page.evaluate(() => {
-    if (!window.__option2bChallengeEvents) {
-      window.__option2bChallengeEvents = 0;
-      window.addEventListener('v573:class-challenge-updated', () => {
-        window.__option2bChallengeEvents += 1;
-      });
-    }
-    return window.__option2bChallengeEvents;
-  });
+  await armGamificationLifecycleProbe(page);
 
   await page.evaluate(value => window.V57CStudentContinueLearningHome.render(value), model);
 
-  // V57C emits v57c:home-updated. Existing gamification ownership first renders
-  // the primed cache synchronously, then performs its scheduled forced refresh.
-  // Waiting for two class-challenge output events proves both phases have settled
-  // before this test injects its deterministic fixture values.
-  await expect.poll(
-    () => page.evaluate(start => window.__option2bChallengeEvents >= start + 2, before),
-    { timeout: 15_000, intervals: [50, 100, 150, 250] },
-  ).toBe(true);
+  // V57C emits v57c:home-updated. Existing gamification ownership renders the
+  // primed cache synchronously (one complete lifecycle) and then schedules its
+  // forced refresh 70ms later (a second complete lifecycle). Requiring both
+  // ordered lifecycle sequences plus a >180ms quiet window proves the refresh
+  // path is quiescent before deterministic fixture values are injected.
+  await waitForGamificationLifecycleQuiescence(page, 2);
 }
 
 function homeModel(name = 'Fixture Student') {
