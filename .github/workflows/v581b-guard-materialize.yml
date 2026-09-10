@@ -1,0 +1,183 @@
+name: Temporary V5.8.1B guard materializer
+
+on:
+  push:
+    branches:
+      - maintenance/v581b-guard-materializer-20260911
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out target branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/v581b-assignment-checkpoint-attribution
+          fetch-depth: 0
+
+      - name: Refresh V5.8.1B verifier registration and successor guards
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import hashlib
+          import subprocess
+
+          MAIN_SHA = '6d1cc994e479411e6af266de1ebdfa91bb57f8d1'
+          MIGRATION = 'supabase/v581b_assignment_checkpoint_and_attribution_hardening.sql'
+          VERIFIER = 'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs'
+          VERIFIER_BLOB = '5d88433c990bf6dfba2513113004117ef5f8c947'
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected one occurrence, found {count}')
+              return text.replace(old, new, 1)
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          def manifest_hash(root, excluded=()):
+              excluded = set(excluded)
+              output = git('ls-files', '-co', '--exclude-standard', root)
+              paths = sorted(set(filter(None, output.splitlines()))) if output else []
+              records = []
+              for pathname in paths:
+                  if pathname in excluded:
+                      continue
+                  records.append(f"{git('hash-object', pathname)}  {pathname}")
+              payload = ('\n'.join(records) + ('\n' if records else '')).encode()
+              return hashlib.sha256(payload).hexdigest()
+
+          ci_path = Path('.github/workflows/ci.yml')
+          ci = ci_path.read_text()
+          anchor = '            "site/tests/verify-v581a-practice-cloud-result-reconciliation.cjs"\n'
+          insertion = anchor + '            "site/tests/verify-v5.8.1b-checkpoint-attribution.cjs"\n'
+          if 'verify-v5.8.1b-checkpoint-attribution.cjs' not in ci:
+              ci = replace_once(ci, anchor, insertion, 'CI verifier anchor')
+          ci_path.write_text(ci)
+
+          b_path = Path('e2e/tests/v40-static-authenticated-home-option2b.spec.cjs')
+          b = b_path.read_text()
+          b = replace_once(
+              b,
+              "const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';",
+              f"const BASE_SHA = '{MAIN_SHA}';",
+              'Option 2B base SHA',
+          )
+          b = replace_once(
+              b,
+              "const AUTHORIZED_RUNTIME_CHANGES = new Set([\n  'site/index.html',\n]);",
+              "const AUTHORIZED_RUNTIME_CHANGES = new Set([\n  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',\n]);",
+              'Option 2B current site diff',
+          )
+          b = replace_once(
+              b,
+              "    expect(changedSupabase).toBe('');",
+              f"    expect(changedSupabase).toBe('{MIGRATION}');",
+              'Option 2B Supabase diff',
+          )
+          b_path.write_text(b)
+
+          c_path = Path('e2e/tests/v40-static-v40-shell-option2c.spec.cjs')
+          c = c_path.read_text()
+          c = replace_once(
+              c,
+              "const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';",
+              f"const BASE_SHA = '{MAIN_SHA}';",
+              'Option 2C base SHA',
+          )
+          c = replace_once(
+              c,
+              "const RUNTIME_SUCCESSORS = Object.freeze({\n  'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',\n});",
+              f"const RUNTIME_SUCCESSORS = Object.freeze({{\n  '{VERIFIER}': '{VERIFIER_BLOB}',\n}});",
+              'Option 2C current site successor',
+          )
+          c = replace_once(
+              c,
+              "    expect(git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])).toBe('');",
+              f"    expect(git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])).toBe('{MIGRATION}');",
+              'Option 2C Supabase diff',
+          )
+          c_path.write_text(c)
+
+          supabase_hash = manifest_hash('supabase')
+          supabase_tree = git('rev-parse', 'HEAD:supabase')
+          option2a_site_hash = manifest_hash('site', {
+              'site/index.html',
+              'site/v40-student-session.js',
+              'site/v40-start-shell.js',
+          })
+          option2c_site_hash = manifest_hash('site', {VERIFIER})
+
+          a_path = Path('e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs')
+          a = a_path.read_text()
+          a = replace_once(
+              a,
+              "const EXPECTED_FROZEN_SITE_SHA256 = '018a91f0e6c1e9b8ed6dbf76a3f26fccf11c5b4e2a9a6a1175a2f57328816137';",
+              f"const EXPECTED_FROZEN_SITE_SHA256 = '{option2a_site_hash}';",
+              'Option 2A frozen site seal',
+          )
+          a = replace_once(
+              a,
+              "const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';",
+              f"const EXPECTED_SUPABASE_SHA256 = '{supabase_hash}';",
+              'Option 2A Supabase manifest',
+          )
+          a = replace_once(
+              a,
+              "const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';",
+              f"const EXPECTED_SUPABASE_TREE = '{supabase_tree}';",
+              'Option 2A Supabase tree',
+          )
+          a_path.write_text(a)
+
+          c = c_path.read_text()
+          c = replace_once(
+              c,
+              "const EXPECTED_FROZEN_SITE_SHA256 = '5c9ab35280605063598b495aef32e24ba8a4c258ccf36b3f5c77e1eff3693707';",
+              f"const EXPECTED_FROZEN_SITE_SHA256 = '{option2c_site_hash}';",
+              'Option 2C frozen site seal',
+          )
+          c = replace_once(
+              c,
+              "const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';",
+              f"const EXPECTED_SUPABASE_SHA256 = '{supabase_hash}';",
+              'Option 2C Supabase manifest',
+          )
+          c = replace_once(
+              c,
+              "const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';",
+              f"const EXPECTED_SUPABASE_TREE = '{supabase_tree}';",
+              'Option 2C Supabase tree',
+          )
+          c_path.write_text(c)
+
+          print('Option 2A site seal:', option2a_site_hash)
+          print('Option 2C site seal:', option2c_site_hash)
+          print('Supabase manifest:', supabase_hash)
+          print('Supabase tree:', supabase_tree)
+          PY
+
+          node site/tests/verify-v5.8.1b-checkpoint-attribution.cjs
+          git diff --check
+          printf '%s\n' 'Guard references to the previous Supabase tree:'
+          grep -RIl '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456' e2e/tests || true
+          printf '%s\n' 'Files to commit:'
+          git diff --name-only
+
+      - name: Commit maintenance to target branch
+        shell: bash
+        run: |
+          git config user.name "nrnd-pixel"
+          git config user.email "anuarn.edu@gmail.com"
+          git add .github/workflows/ci.yml \
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs \
+            e2e/tests/v40-static-authenticated-home-option2b.spec.cjs \
+            e2e/tests/v40-static-v40-shell-option2c.spec.cjs
+          test "$(git diff --cached --name-only | wc -l)" -eq 4
+          git commit -m "test: register V5.8.1B and refresh successor guards"
+          git push origin HEAD:fix/v581b-assignment-checkpoint-attribution
