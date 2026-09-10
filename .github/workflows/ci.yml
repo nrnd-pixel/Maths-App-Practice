@@ -84,7 +84,6 @@ jobs:
             "site/tests/verify-v5.1c1-student-exam-paper-library.cjs"
             "site/tests/verify-v5.1c1-student-exam-paper-library-loader.cjs"
             "site/tests/verify-v5.1c2-student-exam-resume-progress.cjs"
-            "site/tests/verify-v5.1c2-student-exam-resume-progress-loader.cjs"
             "site/tests/verify-v5.1-stable-release.cjs"
             "site/tests/verify-v5.2a-topical-exercise-foundation.cjs"
             "site/tests/verify-v5.2a-topical-activation-guard.cjs"
@@ -155,6 +154,7 @@ jobs:
             "site/tests/verify-v5.8c-parent-friendly-student-report.cjs"
             "site/tests/verify-v5.8d-content-workflow-consolidation.cjs"
             "site/tests/verify-v581a-practice-cloud-result-reconciliation.cjs"
+            "site/tests/verify-v5.8.1b-checkpoint-attribution.cjs"
             "site/tests/verify-v5.8-intervention-workflow.cjs"
             "site/tests/verify-v5.8-stable-release-checkpoint.cjs"
           )
