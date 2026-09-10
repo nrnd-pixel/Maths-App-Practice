@@ -14,10 +14,8 @@ const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
   'site/index.html',
-  'site/v40-learning-priorities.js',
-  'site/v57c-student-continue-learning-home.js',
-  'site/gamification-student.js',
-  'site/v58a-student-first-use-experience.js',
+  'site/v40-student-nav.js',
+  'site/v40-learn-setup.js',
 ]);
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
