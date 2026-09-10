@@ -37,11 +37,11 @@ const protectedFiles = Object.freeze({
 
   // Consolidated gamification runtime.
   'site/gamification-core.js':'87d6175270284e4b40c3a1fbcd196622179d0402',
-  'site/gamification-student.js':'4847c0be7c635d46bb1e458a81510d37f1079851',
+  'site/gamification-student.js':'d9c4dc0e25cbed50346937db887a703800be5a59',
   'site/gamification-teacher.js':'04b93c670575acbf53e023b4f53edde9171ed034',
 
   // Explicit downstream V57C consumer.
-  'site/v57c-student-continue-learning-home.js':'b3daeac60970302bc6bb59e654f9ec8c484096a0',
+  'site/v57c-student-continue-learning-home.js':'196225cf94035363869b8051bc33cdd3c03993f9',
 
   // V54 resource-bank chain.
   'site/v54a-resource-bank-visibility.js':'2c07b345b66ea436e03c90ecbc5650e410400b97',

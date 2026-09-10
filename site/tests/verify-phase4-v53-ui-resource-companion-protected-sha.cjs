@@ -76,11 +76,11 @@ const protectedFiles=Object.freeze({
 
   // Consolidated Gamification runtime.
   'site/gamification-core.js':'87d6175270284e4b40c3a1fbcd196622179d0402',
-  'site/gamification-student.js':'4847c0be7c635d46bb1e458a81510d37f1079851',
+  'site/gamification-student.js':'d9c4dc0e25cbed50346937db887a703800be5a59',
   'site/gamification-teacher.js':'04b93c670575acbf53e023b4f53edde9171ed034',
 
   // Explicit V57C downstream consumer.
-  'site/v57c-student-continue-learning-home.js':'b3daeac60970302bc6bb59e654f9ec8c484096a0',
+  'site/v57c-student-continue-learning-home.js':'196225cf94035363869b8051bc33cdd3c03993f9',
 
   // Explicit V53A SQL contract, additionally covered by the complete Supabase tree.
   'supabase/v53a_practice_eligibility_foundation.sql':'198297e85b98997fed66f749ed87a489f22c0a00'

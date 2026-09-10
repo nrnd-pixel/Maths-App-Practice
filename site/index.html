@@ -927,6 +927,16 @@ input[type="file"]::file-selector-button:hover{
   background:#fff;
 }
   
+
+/* Option 2B: authenticated Home is source HTML, but stays hidden while logged out
+   even before the staged presentation scripts install their equivalent rules. */
+#start.v40-shell-logged-out .v40-learning-hub-hero,
+#start.v40-shell-logged-out .v40c3-home-dashboard,
+#start.v40-shell-logged-out .v40-platform-section,
+#start.v40-shell-logged-out .v40-section-note{
+  display:none!important;
+}
+
 </style>
 </head>
 <body>
@@ -988,16 +998,153 @@ input[type="file"]::file-selector-button:hover{
     <div id="exam-paper-note" class="exam-paper-note hidden">Choose an exam year and paper. The complete active paper will be loaded in question-number order.</div>
     <div id="exam-instructions" class="exam-instructions hidden"></div>
   </div>
-<div class="buttons">
-  <button id="start-btn" class="primary">Start Practice</button>
-  <button id="my-progress-btn" class="secondary hidden">📊 My Progress</button>
-  <button id="my-assignments-btn" class="secondary hidden">
-  📚 My Assignments
-</button>
-  <button id="check-reviewed-btn" class="secondary">Check Reviewed Work</button>
-  <button id="teacher-btn" class="secondary">Teacher Dashboard</button>
-  <button id="setup-btn" class="outline">Cloud Setup</button>
-</div>  
+<div class="v39-home-hub v40-platform-ready">
+  <section class="v40-learning-hub-hero" aria-label="Student learning hub">
+    <div>
+      <div class="v40-learning-hub-kicker">Your learning hub</div>
+      <h2>Learn, check your progress, and keep improving.</h2>
+      <p>Sign in to load your current learning priorities, assignments, Practice progress and achievements.</p>
+    </div>
+    <div class="v40-learning-cycle" aria-label="Learning cycle">
+      <span>✏️ Learn</span><b>→</b><span>📊 Check</span><b>→</b><span>🌱 Improve</span>
+    </div>
+  </section>
+
+  <section class="v40c3-home-dashboard v40c3-ready" data-v40-static-home="true" data-v57c-rendered="false" aria-label="Learning priorities">
+    <article id="v571a-gamification-card" class="hidden" data-v40-static-card="xp" aria-label="XP and level">
+      <div class="v40-static-placeholder">XP and level will appear after sign-in.</div>
+    </article>
+
+    <article id="v58a-first-use-card" class="hidden" data-v40-static-card="first-use" aria-label="First Practice">
+      <div class="v58a-icon" aria-hidden="true">👋</div>
+      <div class="v58a-main">
+        <div class="v58a-kicker">Your first step</div>
+        <h2>Ready for your first short Practice?</h2>
+        <p>Your starter activity will appear here when it is the best next step.</p>
+        <div class="v58a-meta"><span>5 questions</span><span>Mixed Practice</span><span>Hints available</span></div>
+      </div>
+      <button type="button" class="primary v58a-start">Start My First 5 Questions</button>
+    </article>
+
+    <article class="v57c-continue-card" data-v57c-kind="loading" data-v40-static-card="continue">
+      <div>
+        <div class="v57c-kicker">Continue Learning</div>
+        <h2 data-v57c-priority-title>Preparing your next learning step…</h2>
+        <p data-v57c-priority-text>Your assignments, saved Practice and recommendations will appear here after sign-in.</p>
+        <div class="v57c-meta" data-v57c-priority-meta></div>
+      </div>
+      <button type="button" class="primary v57c-primary" disabled>Preparing…</button>
+    </article>
+
+    <div class="v57c-home-grid">
+      <article class="v57c-mini-card" data-v57c-card="assignments" data-v40-static-card="teacher-work">
+        <div class="v57c-mini-kicker">Teacher work</div>
+        <strong data-v57c-assignment-title>Checking assignments…</strong>
+        <p data-v57c-assignment-text>Your current teacher Practice will appear here.</p>
+        <button type="button" class="outline v57c-assignments">My Assignments</button>
+      </article>
+
+      <article class="v57c-mini-card" data-v57c-card="recommendation" data-v40-static-card="recommendation">
+        <div class="v57c-mini-kicker">Recommended next</div>
+        <strong data-v57c-recommendation-title>Preparing recommendation…</strong>
+        <p data-v57c-recommendation-text>Your next recommended Practice will appear here.</p>
+        <button type="button" class="outline v57c-recommend" disabled>Practice Recommendation</button>
+      </article>
+
+      <article class="v57c-mini-card" data-v57c-card="recent" data-v40-static-card="recent-practice">
+        <div class="v57c-mini-kicker">Recent Practice</div>
+        <strong data-v57c-recent-title>Checking recent Practice…</strong>
+        <div class="v57c-recent-metrics hidden" data-v57c-recent-metrics>
+          <span data-v57c-first-try>First try —</span>
+          <span data-v57c-mastery>Mastery —</span>
+        </div>
+        <p data-v57c-recent-text>Your latest completed Practice result will appear here.</p>
+        <button type="button" class="outline v57c-result hidden">View Result</button>
+        <button type="button" class="outline v57c-progress" data-v57c-recent-progress>My Progress</button>
+      </article>
+    </div>
+
+    <article id="v572-weekly-missions-card" class="hidden" data-v40-static-card="missions" aria-label="Weekly missions">
+      <div class="v40-static-placeholder">Weekly missions will appear after sign-in.</div>
+    </article>
+
+    <article id="v574-class-challenge-card" class="hidden" data-v40-static-card="class-challenge" aria-label="Class challenge">
+      <div class="v40-static-placeholder">Class challenge will appear when enabled.</div>
+    </article>
+
+    <article id="v571b-latest-achievement" class="hidden" data-v40-static-card="achievement" aria-label="Latest achievement">
+      <div class="v40-static-placeholder">Achievements will appear after sign-in.</div>
+    </article>
+
+    <div class="v57c-secondary">
+      <button type="button" class="outline v57c-learn">Open Learn</button>
+      <button type="button" class="outline v57c-progress">My Progress</button>
+    </div>
+  </section>
+
+  <section class="v40-platform-section" data-section="continue">
+    <div class="v39-section-head">
+      <div>
+        <h2>Continue Learning</h2>
+        <p>Start a new activity or continue work from your teacher.</p>
+      </div>
+    </div>
+    <div class="v39-student-action-grid">
+      <article class="v39-action-card" data-action-for="start-btn" data-emphasis="primary">
+        <div class="v39-action-icon" aria-hidden="true">✏️</div>
+        <div class="v39-action-copy">
+          <div class="v39-action-title">Learn</div>
+          <div class="v39-action-description">Choose Practice or Exam, adjust your activity if needed, then start.</div>
+        </div>
+        <button id="start-btn" class="primary">Start Practice</button>
+      </article>
+      <article class="v39-action-card" data-action-for="my-assignments-btn">
+        <div class="v39-action-icon" aria-hidden="true">📚</div>
+        <div class="v39-action-copy">
+          <div class="v39-action-title">My Assignments</div>
+          <div class="v39-action-description">See work your teacher has assigned and continue where you left off.</div>
+        </div>
+        <button id="my-assignments-btn" class="secondary hidden">📚 My Assignments</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="v40-platform-section" data-section="learning">
+    <div class="v39-section-head">
+      <div>
+        <h2>My Learning</h2>
+        <p>See what to practise next and learn from your previous work.</p>
+      </div>
+    </div>
+    <div class="v39-student-action-grid">
+      <article class="v39-action-card" data-action-for="my-progress-btn">
+        <div class="v39-action-icon" aria-hidden="true">📊</div>
+        <div class="v39-action-copy">
+          <div class="v39-action-title">My Progress</div>
+          <div class="v39-action-description">See your progress, achievements and recommended practice.</div>
+        </div>
+        <button id="my-progress-btn" class="secondary hidden">📊 My Progress</button>
+      </article>
+      <article class="v39-action-card" data-action-for="check-reviewed-btn">
+        <div class="v39-action-icon" aria-hidden="true">✅</div>
+        <div class="v39-action-copy">
+          <div class="v39-action-title">Reviewed Work</div>
+          <div class="v39-action-description">Check feedback on work that has been reviewed by your teacher.</div>
+        </div>
+        <button id="check-reviewed-btn" class="secondary">Check Reviewed Work</button>
+      </article>
+    </div>
+    <p class="v40-section-note">Recommended Practice, achievements and teacher messages are available inside My Progress.</p>
+  </section>
+
+  <section class="v39-teacher-zone" aria-label="Teacher tools">
+    <div class="v39-teacher-zone-head"><span aria-hidden="true">🔒</span><span>Teacher tools</span></div>
+    <div class="v39-teacher-actions">
+      <button id="teacher-btn" class="secondary">Teacher Dashboard</button>
+      <button id="setup-btn" class="outline">Cloud Setup</button>
+    </div>
+  </section>
+</div>
 <div class="info">
   <strong>V5.8.1:</strong>
   Sign in once, then use Home, Learn, Assignments, Progress and Reviewed Work from one student platform.

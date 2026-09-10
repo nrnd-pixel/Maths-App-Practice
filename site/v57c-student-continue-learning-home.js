@@ -18,6 +18,7 @@
   let renderBusy = false;
   let installDone = false;
   let retryTimer = 0;
+  let currentHomeModel = null;
 
   const trim = value => String(value ?? '').trim();
   const norm = value => trim(value).toLowerCase().replace(/\s+/g,' ');
@@ -215,6 +216,87 @@
 
   function dashboard(){ return typeof document==='undefined'?null:document.querySelector(DASHBOARD_SELECTOR); }
 
+  function setText(root, selector, value){
+    const node=root?.querySelector(selector);
+    if (node) node.textContent=String(value ?? '');
+    return node;
+  }
+
+  function setHidden(root, selector, hidden){
+    const node=root?.querySelector(selector);
+    node?.classList.toggle('hidden', !!hidden);
+    return node;
+  }
+
+  function renderMeta(container, values){
+    if (!container) return;
+    const fragment=document.createDocumentFragment();
+    (Array.isArray(values)?values:[]).forEach(value=>{
+      const span=document.createElement('span');
+      span.textContent=String(value ?? '');
+      fragment.appendChild(span);
+    });
+    container.replaceChildren(fragment);
+  }
+
+  function resetHome(){
+    const root=dashboard();
+    currentHomeModel=null;
+    if (!root) return false;
+
+    root.dataset.v57cRendered='false';
+    root.classList.remove('v57c-ready');
+    root.classList.add('v40c3-ready');
+
+    const continueCard=root.querySelector('.v57c-continue-card');
+    if (continueCard) continueCard.dataset.v57cKind='loading';
+    setText(root,'[data-v57c-priority-title]','Preparing your next learning step…');
+    setText(root,'[data-v57c-priority-text]','Sign in to load your assignments, saved Practice and recommendations.');
+    renderMeta(root.querySelector('[data-v57c-priority-meta]'),[]);
+    const primary=root.querySelector('.v57c-primary');
+    if (primary){ primary.textContent='Preparing…'; primary.disabled=true; }
+
+    setText(root,'[data-v57c-assignment-title]','Checking assignments…');
+    setText(root,'[data-v57c-assignment-text]','Your current teacher Practice will appear here.');
+    setText(root,'[data-v57c-recommendation-title]','Preparing recommendation…');
+    setText(root,'[data-v57c-recommendation-text]','Your next recommended Practice will appear here.');
+    const recommend=root.querySelector('.v57c-recommend');
+    if (recommend) recommend.disabled=true;
+
+    setText(root,'[data-v57c-recent-title]','Checking recent Practice…');
+    setText(root,'[data-v57c-recent-text]','Your latest completed Practice result will appear here.');
+    setText(root,'[data-v57c-first-try]','First try —');
+    setText(root,'[data-v57c-mastery]','Mastery —');
+    setHidden(root,'[data-v57c-recent-metrics]',true);
+    setHidden(root,'.v57c-result',true);
+    setHidden(root,'[data-v57c-recent-progress]',false);
+
+    const hero=document.querySelector('#start .v40-learning-hub-hero');
+    const heading=hero?.querySelector('h2');
+    const paragraph=hero?.querySelector('p');
+    if (heading) heading.textContent='Learn, check your progress, and keep improving.';
+    if (paragraph) paragraph.textContent='Sign in to load your current learning priorities, assignments, Practice progress and achievements.';
+    return true;
+  }
+
+  function bindDashboardActions(root){
+    if (!root || root.dataset.v57cActionsBound==='true') return;
+    root.dataset.v57cActionsBound='true';
+    root.addEventListener('click',async event=>{
+      if (root.dataset.v57cRendered!=='true') return;
+      const target=event.target;
+      if (target?.closest?.('.v57c-primary')){
+        await runPriority(currentHomeModel?.priority,target.closest('.v57c-primary'));
+        return;
+      }
+      if (target?.closest?.('.v57c-assignments')){ openAssignments(); return; }
+      if (target?.closest?.('.v57c-recommend')){ await startRecommendation(currentHomeModel?.recommendation); return; }
+      if (target?.closest?.('.v57c-result')){ openResult(currentHomeModel?.recent?.result_code); return; }
+      if (target?.closest?.('.v57c-progress')){ openProgress(); return; }
+      if (target?.closest?.('.v57c-learn')) openLearn();
+    });
+  }
+
   function openLearn(){
     const button=document.querySelector('#start .v40c-open-learn');
     if (button){ button.click(); return; }
@@ -285,59 +367,60 @@
     const recentWhen=recentDate && !Number.isNaN(recentDate.getTime()) ? recentDate.toLocaleDateString([],{day:'numeric',month:'short'}) : '';
     const student=model?.progress?.student || model?.student || {};
 
+    const continueCard=root.querySelector('.v57c-continue-card');
+    const assignmentCard=root.querySelector('[data-v57c-card="assignments"]');
+    const recommendationCard=root.querySelector('[data-v57c-card="recommendation"]');
+    const recentCard=root.querySelector('[data-v57c-card="recent"]');
+    if (!continueCard || !assignmentCard || !recommendationCard || !recentCard) return false;
+
     renderBusy=true;
-    root.innerHTML=`
-      <article class="v57c-continue-card" data-v57c-kind="${html(priority.kind)}">
-        <div>
-          <div class="v57c-kicker">Continue Learning</div>
-          <h2>${html(priority.icon)} ${html(priority.title)}</h2>
-          <p>${html(priority.text)}</p>
-          ${priority.meta.length?`<div class="v57c-meta">${priority.meta.map(item=>`<span>${html(item)}</span>`).join('')}</div>`:''}
-        </div>
-        <button type="button" class="primary v57c-primary">${html(priority.action)}</button>
-      </article>
-      <div class="v57c-home-grid">
-        <article class="v57c-mini-card">
-          <div class="v57c-mini-kicker">Teacher work</div>
-          <strong>${assignmentStats.incomplete?`${assignmentStats.incomplete} assignment${assignmentStats.incomplete===1?'':'s'} to check`:'All caught up'}</strong>
-          <p>${assignmentStats.overdue?`${assignmentStats.overdue} overdue. `:''}${assignmentStats.active?`${assignmentStats.active} currently available.`:assignmentStats.upcoming?`${assignmentStats.upcoming} upcoming.`:'No active teacher Practice right now.'}</p>
-          <button type="button" class="outline v57c-assignments">My Assignments</button>
-        </article>
-        <article class="v57c-mini-card">
-          <div class="v57c-mini-kicker">Recommended next</div>
-          <strong>${html(recTitle)}</strong>
-          <p>${Number(rec.recommended_count||0)>0?`${Number(rec.recommended_count)} questions selected from your current learning evidence.`:'Complete some Practice and recommendations will appear here.'}</p>
-          <button type="button" class="outline v57c-recommend" ${Number(rec.recommended_count||0)>0?'':'disabled'}>Practice Recommendation</button>
-        </article>
-        <article class="v57c-mini-card">
-          <div class="v57c-mini-kicker">Recent Practice</div>
-          <strong>${recent?html(recent.title||'Practice result'):'No completed Practice yet'}</strong>
-          ${recent?`<div class="v57c-recent-metrics"><span>First try ${Number.isFinite(first)?`${Math.round(first)}%`:'—'}</span><span>Mastery ${Number.isFinite(mastery)?`${Math.round(mastery)}%`:'—'}</span></div><p>${recentWhen?`Completed ${html(recentWhen)}.`:''}</p>`:'<p>Your latest completed Practice result will appear here.</p>'}
-          ${recent?.result_code?'<button type="button" class="outline v57c-result">View Result</button>':'<button type="button" class="outline v57c-progress">My Progress</button>'}
-        </article>
-      </div>
-      <div class="v57c-secondary">
-        <button type="button" class="outline v57c-learn">Open Learn</button>
-        <button type="button" class="outline v57c-progress">My Progress</button>
-      </div>`;
-    root.classList.add('v40c3-ready','v57c-ready');
-    root.dataset.v57cRendered='true';
-    renderBusy=false;
+    try {
+      currentHomeModel={priority,recommendation:rec,recent};
+      bindDashboardActions(root);
 
-    root.querySelector('.v57c-primary')?.addEventListener('click',event=>runPriority(priority,event.currentTarget));
-    root.querySelector('.v57c-assignments')?.addEventListener('click',openAssignments);
-    root.querySelector('.v57c-recommend')?.addEventListener('click',()=>startRecommendation(rec));
-    root.querySelector('.v57c-result')?.addEventListener('click',()=>openResult(recent?.result_code));
-    root.querySelectorAll('.v57c-progress').forEach(button=>button.addEventListener('click',openProgress));
-    root.querySelector('.v57c-learn')?.addEventListener('click',openLearn);
+      continueCard.dataset.v57cKind=priority.kind;
+      setText(root,'[data-v57c-priority-title]',`${priority.icon} ${priority.title}`);
+      setText(root,'[data-v57c-priority-text]',priority.text);
+      renderMeta(root.querySelector('[data-v57c-priority-meta]'),priority.meta);
+      const primary=root.querySelector('.v57c-primary');
+      if (primary){ primary.textContent=priority.action; primary.disabled=false; }
 
-    const hero=document.querySelector('#start .v40-learning-hub-hero');
-    const heading=hero?.querySelector('h2');
-    const paragraph=hero?.querySelector('p');
-    if (heading && student?.student_name) heading.textContent=`Welcome back, ${student.student_name}.`;
-    if (paragraph) paragraph.textContent='Continue where you left off, complete teacher work, or follow your recommended Practice.';
-    window.dispatchEvent(new CustomEvent('v57c:home-updated',{detail:{kind:priority.kind}}));
-    return true;
+      setText(assignmentCard,'[data-v57c-assignment-title]',assignmentStats.incomplete
+        ? `${assignmentStats.incomplete} assignment${assignmentStats.incomplete===1?'':'s'} to check`
+        : 'All caught up');
+      setText(assignmentCard,'[data-v57c-assignment-text]',
+        `${assignmentStats.overdue?`${assignmentStats.overdue} overdue. `:''}${assignmentStats.active?`${assignmentStats.active} currently available.`:assignmentStats.upcoming?`${assignmentStats.upcoming} upcoming.`:'No active teacher Practice right now.'}`);
+
+      setText(recommendationCard,'[data-v57c-recommendation-title]',recTitle);
+      setText(recommendationCard,'[data-v57c-recommendation-text]',Number(rec.recommended_count||0)>0
+        ? `${Number(rec.recommended_count)} questions selected from your current learning evidence.`
+        : 'Complete some Practice and recommendations will appear here.');
+      const recommendationButton=recommendationCard.querySelector('.v57c-recommend');
+      if (recommendationButton) recommendationButton.disabled=Number(rec.recommended_count||0)<1;
+
+      setText(recentCard,'[data-v57c-recent-title]',recent?recent.title||'Practice result':'No completed Practice yet');
+      setText(recentCard,'[data-v57c-first-try]',`First try ${Number.isFinite(first)?`${Math.round(first)}%`:'—'}`);
+      setText(recentCard,'[data-v57c-mastery]',`Mastery ${Number.isFinite(mastery)?`${Math.round(mastery)}%`:'—'}`);
+      setHidden(recentCard,'[data-v57c-recent-metrics]',!recent);
+      setText(recentCard,'[data-v57c-recent-text]',recent
+        ? (recentWhen?`Completed ${recentWhen}.`:'')
+        : 'Your latest completed Practice result will appear here.');
+      setHidden(recentCard,'.v57c-result',!recent?.result_code);
+      setHidden(recentCard,'[data-v57c-recent-progress]',!!recent?.result_code);
+
+      root.classList.add('v40c3-ready','v57c-ready');
+      root.dataset.v57cRendered='true';
+
+      const hero=document.querySelector('#start .v40-learning-hub-hero');
+      const heading=hero?.querySelector('h2');
+      const paragraph=hero?.querySelector('p');
+      if (heading && student?.student_name) heading.textContent=`Welcome back, ${student.student_name}.`;
+      if (paragraph) paragraph.textContent='Continue where you left off, complete teacher work, or follow your recommended Practice.';
+      window.dispatchEvent(new CustomEvent('v57c:home-updated',{detail:{kind:priority.kind}}));
+      return true;
+    } finally {
+      renderBusy=false;
+    }
   }
 
   async function rpc(name,token){
@@ -415,16 +498,14 @@
     new MutationObserver(()=>{
       lastLoadedAt=0;
       if (signedIn()) scheduleLoad(true);
-      else {
-        const root=dashboard();
-        if (root){ root.dataset.v57cRendered='false'; root.classList.remove('v57c-ready'); }
-      }
+      else resetHome();
     }).observe(panel,{attributes:true,attributeFilter:['class']});
   }
 
   function wire(){
     if (typeof document==='undefined') return false;
     injectStyles();
+    bindDashboardActions(dashboard());
     watchDashboard();
     watchSession();
     document.addEventListener('click',event=>{
@@ -441,6 +522,7 @@
       if (signedIn() && document.getElementById('start')?.classList.contains('active')) scheduleLoad(false);
     });
     if (signedIn()) scheduleLoad(true);
+    else resetHome();
     return true;
   }
 
