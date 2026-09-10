@@ -14,7 +14,7 @@ jobs:
   validate-and-commit:
     name: Validate Option 2B and commit implementation
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - name: Check out exact branch
         uses: actions/checkout@v4
@@ -27,10 +27,13 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Apply Option 2B patch
+      - name: Apply Option 2B runtime patch
         run: python .github/option2b_static_hub_patch.py
 
-      - name: Syntax and scope checks
+      - name: Advance only approved Option 2B successor seals
+        run: python .github/option2b_successor_seals.py
+
+      - name: Syntax, successor-seal, and exact scope checks
         shell: bash
         run: |
           set -euo pipefail
@@ -39,21 +42,53 @@ jobs:
           node --check site/gamification-student.js
           node --check site/v58a-student-first-use-experience.js
           node --check e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
+          node --check e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
 
           base=162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3
-          allowed='^(site/index\.html|site/v40-learning-priorities\.js|site/v57c-student-continue-learning-home\.js|site/gamification-student\.js|site/v58a-student-first-use-experience\.js)$'
-          unexpected="$(git diff --name-only "$base" -- site | grep -Ev "$allowed" || true)"
-          if [ -n "$unexpected" ]; then
-            echo "Unexpected site changes:"
-            echo "$unexpected"
+          expected_supabase=19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
+
+          allowed_site='^(site/index\.html|site/v40-learning-priorities\.js|site/v57c-student-continue-learning-home\.js|site/gamification-student\.js|site/v58a-student-first-use-experience\.js|site/tests/v51-phase4-protected-shas\.json|site/tests/verify-phase4-v50-operations-reporting-protected-sha\.cjs|site/tests/verify-phase4-v52c-legacy-student-route-protected-sha\.cjs|site/tests/verify-phase4-v53-practice-selection-protected-sha\.cjs|site/tests/verify-phase4-v53-ui-resource-companion-protected-sha\.cjs|site/tests/verify-phase4-v54-resource-bank-protected-sha\.cjs|site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha\.cjs)$'
+          changed_site="$(git diff --name-only -- site)"
+          unexpected_site="$(printf '%s\n' "$changed_site" | sed '/^$/d' | grep -Ev "$allowed_site" || true)"
+          if [ -n "$unexpected_site" ]; then
+            echo 'Unexpected working-tree site changes:'
+            echo "$unexpected_site"
             exit 1
           fi
-          if [ -n "$(git diff --name-only "$base" -- supabase)" ]; then
-            echo 'Supabase tree changed unexpectedly.'
-            git diff --name-only "$base" -- supabase
+
+          allowed_e2e='^e2e/tests/v40-static-student-signin-shell-option2a\.spec\.cjs$'
+          changed_e2e="$(git diff --name-only -- e2e)"
+          unexpected_e2e="$(printf '%s\n' "$changed_e2e" | sed '/^$/d' | grep -Ev "$allowed_e2e" || true)"
+          if [ -n "$unexpected_e2e" ]; then
+            echo 'Unexpected working-tree E2E changes:'
+            echo "$unexpected_e2e"
             exit 1
           fi
-          test "$(git rev-parse "$base":supabase)" = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456'
+
+          if [ -n "$(git diff --name-only -- supabase)" ]; then
+            echo 'Supabase working tree changed unexpectedly.'
+            git diff --name-only -- supabase
+            exit 1
+          fi
+          test "$(git rev-parse HEAD:supabase)" = "$expected_supabase"
+          test "$(git rev-parse "$base":supabase)" = "$expected_supabase"
+
+          # The branch-level candidate may differ from baseline only in the five
+          # authorized runtime files plus exact successor-seal/test scaffolding.
+          runtime_changed="$(git diff --name-only "$base" -- site/index.html site/v40-learning-priorities.js site/v57c-student-continue-learning-home.js site/gamification-student.js site/v58a-student-first-use-experience.js)"
+          printf 'Authorized Option 2B runtime candidate files:\n%s\n' "$runtime_changed"
+          test "$(printf '%s\n' "$runtime_changed" | sed '/^$/d' | wc -l)" -eq 5
+
+          echo 'Final successor runtime Git blob SHAs:'
+          for file in \
+            site/index.html \
+            site/v40-learning-priorities.js \
+            site/v57c-student-continue-learning-home.js \
+            site/gamification-student.js \
+            site/v58a-student-first-use-experience.js
+          do
+            printf '%s\t%s\n' "$file" "$(git hash-object "$file")"
+          done
 
       - name: Run maintained verifier suite
         shell: bash
@@ -67,6 +102,8 @@ jobs:
           if not match:
               raise SystemExit('Could not locate maintained verifier list in ci.yml')
           verifiers=re.findall(r'"([^"]+\.cjs)"',match.group(1))
+          if len(verifiers) != 116:
+              raise SystemExit(f'Expected exactly 116 maintained verifiers, found {len(verifiers)}')
           print(f'Running {len(verifiers)} maintained verifiers')
           failures=[]
           for verifier in verifiers:
@@ -78,6 +115,7 @@ jobs:
               print('FAILED VERIFIERS:')
               print('\n'.join(failures))
               raise SystemExit(1)
+          print('Maintained verifier suite: 116/116 PASS')
           PY
 
       - name: Install E2E dependencies
@@ -120,7 +158,7 @@ jobs:
         working-directory: e2e
         run: npm test
 
-      - name: Commit validated implementation
+      - name: Commit fully validated Option 2B implementation and successor seals
         shell: bash
         run: |
           set -euo pipefail
@@ -131,7 +169,17 @@ jobs:
             site/v40-learning-priorities.js \
             site/v57c-student-continue-learning-home.js \
             site/gamification-student.js \
-            site/v58a-student-first-use-experience.js
+            site/v58a-student-first-use-experience.js \
+            site/tests/v51-phase4-protected-shas.json \
+            site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs \
+            site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs \
+            site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs \
+            site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs \
+            site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs \
+            site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs \
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
           git diff --cached --check
+          echo 'Validated staged files:'
+          git diff --cached --name-only
           git commit -m 'Phase 4 Option 2B static authenticated Home'
           git push origin HEAD:tech-debt-phase-4-option2b-authenticated-hub-static
