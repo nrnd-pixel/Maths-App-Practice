@@ -37,7 +37,19 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
       - name: Materialize static shell and successor seals
-        run: python .github/option2c_static_shell_patch.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('.github/option2c_static_shell_patch.py').read_text()
+          old = "changed = {line[3:] for line in git('status', '--porcelain').splitlines() if line.strip()}"
+          new = "changed = set(filter(None, git('diff', '--name-only').splitlines()))"
+          if source.count(old) != 1:
+              raise SystemExit('temporary scope-parser patch target was not exact')
+          Path('/tmp/option2c_static_shell_patch.py').write_text(source.replace(old, new, 1))
+          PY
+          python /tmp/option2c_static_shell_patch.py
 
       - name: Syntax and exact materialization scope audit
         shell: bash
@@ -48,7 +60,7 @@ jobs:
           node --check e2e/tests/v40-static-v40-shell-option2c.spec.cjs
           python -m py_compile .github/option2c_static_shell_patch.py
           test -z "$(git status --porcelain -- supabase)"
-          actual="$(git status --porcelain | sed 's/^...//' | sort)"
+          actual="$(git diff --name-only | sort)"
           expected="$(printf '%s\n' \
             e2e/tests/v40-static-authenticated-home-option2b.spec.cjs \
             e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs \
