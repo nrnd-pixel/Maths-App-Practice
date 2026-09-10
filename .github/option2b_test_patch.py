@@ -2,10 +2,12 @@
 """Deterministically align the Option 2B hard-gate spec with approved seal scope.
 
 This is temporary branch validation scaffolding. It changes only the Option 2B
-E2E spec: race-prone fixture sequences are synchronized with the complete
-XP -> achievements -> missions -> class-challenge lifecycle, including V57C's
-scheduled forced refresh, and gate 12 recognizes the explicitly approved
-historical successor-seal files without relaxing frozen runtime/Supabase checks.
+E2E spec: race-prone fixture sequences are synchronized against the actual
+XP -> achievements -> missions -> class-challenge RPC/render lifecycle and a
+post-lifecycle stability window that exceeds both the V57C 70ms forced-refresh
+schedule and the 180ms retry schedule. Gate 12 recognizes only the explicitly
+approved historical successor-seal files without relaxing frozen runtime or
+Supabase checks.
 """
 from pathlib import Path
 
@@ -71,90 +73,170 @@ new_helpers = """async function waitForHomeRendered(page) {
   ).toBe(true);
 }
 
-const GAMIFICATION_LIFECYCLE_EVENTS = Object.freeze([
-  'v571a:gamification-updated',
-  'v571b:achievements-updated',
-  'v572:missions-updated',
-  'v573:class-challenge-updated',
+const GAMIFICATION_LIFECYCLE = Object.freeze([
+  Object.freeze({ rpc: 'get_student_gamification_v571a', event: 'v571a:gamification-updated' }),
+  Object.freeze({ rpc: 'get_student_gamification_achievements_v571b', event: 'v571b:achievements-updated' }),
+  Object.freeze({ rpc: 'get_student_weekly_missions_v572', event: 'v572:missions-updated' }),
+  Object.freeze({ rpc: 'get_student_class_challenge_v574', event: 'v573:class-challenge-updated' }),
 ]);
 
-// The runtime schedules the V57C-forced refresh after 70ms and may retry after
-// 180ms when a load is already active. A >180ms event-free poll window following
-// a complete serial lifecycle therefore proves those scheduled paths are settled
-// without using a blind sleep as the synchronization mechanism.
+// This is a stability condition, not a blind sleep. The runtime's V57C path
+// schedules the forced refresh after 70ms and a collision retry after 180ms.
+// Requiring >180ms with no new lifecycle activity AND unchanged XP proves those
+// scheduled paths have settled before fixture values are asserted.
 const GAMIFICATION_SETTLE_QUIET_MS = 220;
 
 async function armGamificationLifecycleProbe(page) {
-  await page.evaluate(eventNames => {
-    if (!window.__option2bGamificationLifecycleProbe) {
-      const probe = { events: [] };
+  await page.evaluate(stages => {
+    const rpcNames = new Set(stages.map(stage => stage.rpc));
+    const eventNames = new Set(stages.map(stage => stage.event));
+    let probe = window.__option2bGamificationLifecycleProbe;
+
+    if (!probe) {
+      if (!window.cloud || typeof window.cloud.rpc !== 'function') {
+        throw new Error('cloud.rpc is unavailable for the Option 2B lifecycle probe');
+      }
+
+      probe = {
+        entries: [],
+        nextCallId: 1,
+        lastXp: null,
+        xpStableSince: performance.now(),
+      };
       window.__option2bGamificationLifecycleProbe = probe;
+
+      const originalRpc = window.cloud.rpc;
+      window.cloud.rpc = async function(...args) {
+        const name = String(args[0] || '');
+        if (!rpcNames.has(name)) return originalRpc.apply(this, args);
+
+        const id = probe.nextCallId++;
+        probe.entries.push({ kind: 'rpc-start', name, id, at: performance.now() });
+        try {
+          const result = await originalRpc.apply(this, args);
+          probe.entries.push({ kind: 'rpc-end', name, id, at: performance.now() });
+          return result;
+        } catch (error) {
+          probe.entries.push({ kind: 'rpc-error', name, id, at: performance.now() });
+          throw error;
+        }
+      };
+
       for (const name of eventNames) {
         window.addEventListener(name, () => {
-          probe.events.push({ name, at: performance.now() });
+          probe.entries.push({ kind: 'event', name, at: performance.now() });
         });
       }
     }
-    window.__option2bGamificationLifecycleProbe.events = [];
-  }, GAMIFICATION_LIFECYCLE_EVENTS);
+
+    probe.entries.length = 0;
+    probe.lastXp = null;
+    probe.xpStableSince = performance.now();
+  }, GAMIFICATION_LIFECYCLE);
 }
 
-async function waitForGamificationLifecycleQuiescence(page, minimumCycles = 1) {
-  await expect.poll(
-    () => page.evaluate(({ eventNames, minimumCycles, quietMs }) => {
-      const entries = window.__option2bGamificationLifecycleProbe?.events || [];
-      let position = 0;
-      let cycles = 0;
-      for (const entry of entries) {
-        if (entry.name === eventNames[position]) {
-          position += 1;
-        } else {
-          position = entry.name === eventNames[0] ? 1 : 0;
+async function waitForGamificationLifecycleSettlement(page) {
+  try {
+    await expect.poll(
+      () => page.evaluate(({ stages, quietMs }) => {
+        const probe = window.__option2bGamificationLifecycleProbe;
+        if (!probe) return false;
+        const entries = probe.entries;
+        const starts = new Map();
+        const completedCalls = [];
+
+        for (const entry of entries) {
+          if (entry.kind === 'rpc-start') starts.set(entry.id, entry);
+          if (entry.kind === 'rpc-end') {
+            const start = starts.get(entry.id);
+            if (start) completedCalls.push({ name: entry.name, startAt: start.at, endAt: entry.at });
+          }
         }
-        if (position === eventNames.length) {
-          cycles += 1;
-          position = 0;
+        completedCalls.sort((a, b) => a.startAt - b.startAt);
+
+        let batch = null;
+        for (let i = 0; i <= completedCalls.length - stages.length; i += 1) {
+          const calls = completedCalls.slice(i, i + stages.length);
+          if (!calls.every((call, index) => call.name === stages[index].rpc)) continue;
+
+          let valid = true;
+          let finalOutputAt = 0;
+          for (let index = 0; index < stages.length; index += 1) {
+            const lower = calls[index].endAt;
+            const upper = index + 1 < calls.length ? calls[index + 1].startAt : Number.POSITIVE_INFINITY;
+            const output = entries.find(entry => (
+              entry.kind === 'event' &&
+              entry.name === stages[index].event &&
+              entry.at >= lower &&
+              entry.at <= upper
+            ));
+            if (!output) {
+              valid = false;
+              break;
+            }
+            finalOutputAt = output.at;
+          }
+          if (valid) batch = { finalOutputAt };
         }
-      }
-      const last = entries[entries.length - 1];
-      if (cycles < minimumCycles || !last || last.name !== eventNames[eventNames.length - 1]) return false;
-      return performance.now() - last.at >= quietMs;
-    }, {
-      eventNames: GAMIFICATION_LIFECYCLE_EVENTS,
-      minimumCycles,
-      quietMs: GAMIFICATION_SETTLE_QUIET_MS,
-    }),
-    { timeout: 15_000, intervals: [40, 60, 80, 120] },
-  ).toBe(true);
+        if (!batch) return false;
+
+        const now = performance.now();
+        const xp = document.getElementById('v571a-gamification-card')?.dataset?.xp ?? null;
+        if (xp === null) return false;
+        if (probe.lastXp !== xp) {
+          probe.lastXp = xp;
+          probe.xpStableSince = now;
+          return false;
+        }
+
+        const lastActivityAt = entries.reduce((latest, entry) => Math.max(latest, entry.at || 0), batch.finalOutputAt);
+        const stableSince = Math.max(lastActivityAt, probe.xpStableSince);
+        return now - stableSince >= quietMs;
+      }, { stages: GAMIFICATION_LIFECYCLE, quietMs: GAMIFICATION_SETTLE_QUIET_MS }),
+      { timeout: 15_000, intervals: [40, 60, 80, 120] },
+    ).toBe(true);
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => ({
+      xp: document.getElementById('v571a-gamification-card')?.dataset?.xp ?? null,
+      entries: window.__option2bGamificationLifecycleProbe?.entries || [],
+    }));
+    throw new Error(`${error.message}\\nGamification lifecycle diagnostic: ${JSON.stringify(diagnostic)}`);
+  }
 }
 
-async function primeGamification(page) {
+async function settleSignInGamification(page) {
   await armGamificationLifecycleProbe(page);
-  await expect.poll(
-    () => page.evaluate(async () => Boolean(await window.GamificationStudent.refresh(true))),
-    { timeout: 15_000, intervals: [100, 150, 250, 400] },
-  ).toBe(true);
-  await waitForGamificationLifecycleQuiescence(page, 1);
+  await signInStudent(page);
+  await waitForHomeRendered(page);
+  await waitForGamificationLifecycleSettlement(page);
 }
 
-async function renderHomeAndWaitForScheduledGamificationRefresh(page, model) {
-  // First settle any sign-in/previous Home refresh that could still be active.
-  await primeGamification(page);
+async function renderHomeAndSettleForcedGamification(page, model) {
   await armGamificationLifecycleProbe(page);
-
   await page.evaluate(value => window.V57CStudentContinueLearningHome.render(value), model);
-
-  // V57C emits v57c:home-updated. Existing gamification ownership renders the
-  // primed cache synchronously (one complete lifecycle) and then schedules its
-  // forced refresh 70ms later (a second complete lifecycle). Requiring both
-  // ordered lifecycle sequences plus a >180ms quiet window proves the refresh
-  // path is quiescent before deterministic fixture values are injected.
-  await waitForGamificationLifecycleQuiescence(page, 2);
+  await waitForGamificationLifecycleSettlement(page);
 }
 
 function homeModel(name = 'Fixture Student') {
 """
-text = replace_once(text, old_helpers, new_helpers, 'gamification settlement helpers')
+text = replace_once(text, old_helpers, new_helpers, 'gamification lifecycle settlement helpers')
+
+old_gate4_preamble = """  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {
+    await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
+    await waitForOption2bRuntime(page);
+    await waitForHomeRendered(page);
+
+"""
+new_gate4_preamble = """  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {
+    await installSupabaseMock(page);
+    await openApp(page);
+    await waitForOption2bRuntime(page);
+    await settleSignInGamification(page);
+
+"""
+text = replace_once(text, old_gate4_preamble, new_gate4_preamble, 'gate 4 initial sign-in settlement')
 
 old_alpha = """    await page.evaluate(({ model, missions, challenge }) => {
       window.V57CStudentContinueLearningHome.render(model);
@@ -167,7 +249,7 @@ old_alpha = """    await page.evaluate(({ model, missions, challenge }) => {
       challenge: challengePayload(true, 'Alpha Class'),
     });
 """
-new_alpha = """    await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Student Alpha'));
+new_alpha = """    await renderHomeAndSettleForcedGamification(page, homeModel('Student Alpha'));
     await page.evaluate(({ missions, challenge }) => {
       window.GamificationStudent.xp.render({ xp: { total: 321 } });
       window.GamificationStudent.missions.render(missions);
@@ -177,7 +259,7 @@ new_alpha = """    await renderHomeAndWaitForScheduledGamificationRefresh(page, 
       challenge: challengePayload(true, 'Alpha Class'),
     });
 """
-text = replace_once(text, old_alpha, new_alpha, 'gate 4 Alpha fixture sequencing')
+text = replace_once(text, old_alpha, new_alpha, 'gate 4 Alpha forced-refresh settlement')
 
 old_beta = """    await signInStudent(page);
     await waitForHomeRendered(page);
@@ -192,9 +274,8 @@ old_beta = """    await signInStudent(page);
       challenge: challengePayload(true, 'Beta Class'),
     });
 """
-new_beta = """    await signInStudent(page);
-    await waitForHomeRendered(page);
-    await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Student Beta'));
+new_beta = """    await settleSignInGamification(page);
+    await renderHomeAndSettleForcedGamification(page, homeModel('Student Beta'));
     await page.evaluate(({ missions, challenge }) => {
       window.GamificationStudent.xp.render({ xp: { total: 654 } });
       window.GamificationStudent.missions.render(missions);
@@ -204,28 +285,27 @@ new_beta = """    await signInStudent(page);
       challenge: challengePayload(true, 'Beta Class'),
     });
 """
-text = replace_once(text, old_beta, new_beta, 'gate 4 Beta fixture sequencing')
+text = replace_once(text, old_beta, new_beta, 'gate 4 Beta forced-refresh settlement')
 
-old_gate8_start = """    await signInStudent(page);
+old_gate8 = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
+    await installStaticCapture(page);
+    await installSupabaseMock(page);
+    await openApp(page);
+    await signInStudent(page);
     await waitForOption2bRuntime(page);
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
 """
-new_gate8_start = """    await signInStudent(page);
+new_gate8 = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
+    await installStaticCapture(page);
+    await installSupabaseMock(page);
+    await openApp(page);
     await waitForOption2bRuntime(page);
-    await primeGamification(page);
+    await settleSignInGamification(page);
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
 """
-# This short sequence occurs in gate 8 and may also occur elsewhere. Anchor it to
-# the gate heading to prevent accidentally modifying another test.
-gate8_heading = "test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {"
-gate8_index = text.find(gate8_heading)
-if gate8_index < 0:
-    raise RuntimeError('gate 8 heading not found')
-prefix, gate8_tail = text[:gate8_index], text[gate8_index:]
-gate8_tail = replace_once(gate8_tail, old_gate8_start, new_gate8_start, 'gate 8 refresh settlement')
-text = prefix + gate8_tail
+text = replace_once(text, old_gate8, new_gate8, 'gate 8 sign-in refresh settlement')
 
 old_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
       .split(/\\r?\\n/)
@@ -251,4 +331,4 @@ new_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '-
 text = replace_once(text, old_gate12, new_gate12, 'gate 12 exact authorized scope')
 
 PATH.write_text(text, encoding='utf-8')
-print('Option 2B E2E deterministic test patch applied successfully.')
+print('Option 2B E2E lifecycle-synchronized test patch applied successfully.')
