@@ -12,12 +12,12 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';
-const EXPECTED_FROZEN_SITE_SHA256 = '__EXPECTED_FROZEN_SITE_SHA256__';
+const EXPECTED_FROZEN_SITE_SHA256 = '3687690a1e136adf5f9adc59c1b65e0ebfd78741d319c07f5b1b8008060776f5';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': '__INDEX_SHA__',
+  'site/index.html': '68ba53f30671e053b81c6280132800b16495debb',
   'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
   'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
 });
@@ -84,6 +84,8 @@ async function installLifecycleCapture(page) {
       baseValidate: null,
       sessionValidate: null,
       platformValidate: null,
+      v52c2Validate: null,
+      validateOrder: [],
     };
 
     const captureStatic = () => {
@@ -115,6 +117,7 @@ async function installLifecycleCapture(page) {
         openLearn: document.querySelector('#start [data-action-for="start-btn"] .v40c-open-learn'),
       };
       capture.baseValidate = window.validateStudentAccess;
+      capture.validateOrder.push('base');
 
       const observer = new MutationObserver(records => {
         records.forEach(record => {
@@ -124,11 +127,19 @@ async function installLifecycleCapture(page) {
             if (src.includes('v40-student-session.js')) {
               node.addEventListener('load', () => {
                 capture.sessionValidate = window.validateStudentAccess;
+                capture.validateOrder.push('session');
               }, { once: true });
             }
             if (src.includes('v40-platform-polish.js')) {
               node.addEventListener('load', () => {
                 capture.platformValidate = window.validateStudentAccess;
+                capture.validateOrder.push('platform-polish');
+              }, { once: true });
+            }
+            if (src.includes('topical-legacy-student-route.js')) {
+              node.addEventListener('load', () => {
+                capture.v52c2Validate = window.validateStudentAccess;
+                capture.validateOrder.push('v52c2');
               }, { once: true });
             }
           });
@@ -305,24 +316,45 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     }
   });
 
-  test('gate 6 — non-Home transitions use the existing Home controls before opening the next student section', async ({ page }) => {
+  test('gate 6 — non-Home transitions use the existing back-home and delegated source-button path', async ({ page }) => {
     await installSupabaseMock(page);
     await openApp(page);
     await signInAndWait(page);
+
+    await page.evaluate(() => {
+      window.__option2cDelegation = {
+        assignmentsBackHome: 0,
+        progressSource: 0,
+        dashboardBackHome: 0,
+      };
+      document.querySelector('#student-assignments .back-home')?.addEventListener('click', () => {
+        window.__option2cDelegation.assignmentsBackHome += 1;
+      });
+      document.getElementById('my-progress-btn')?.addEventListener('click', () => {
+        window.__option2cDelegation.progressSource += 1;
+      });
+      document.querySelector('#student-dashboard .back-home')?.addEventListener('click', () => {
+        window.__option2cDelegation.dashboardBackHome += 1;
+      });
+    });
 
     await page.locator('#start [data-v40-nav="assignments"]').click();
     await expect(page.locator('#student-assignments')).toHaveClass(/active/);
 
     await page.locator('#student-assignments [data-v40-nav="progress"]').click();
     await expect(page.locator('#student-dashboard')).toHaveClass(/active/);
+    expect(await page.evaluate(() => window.__option2cDelegation)).toMatchObject({
+      assignmentsBackHome: 1,
+      progressSource: 1,
+    });
 
     await page.locator('#student-dashboard [data-v40-nav="learn"]').click();
     await expect(page.locator('#start')).toHaveClass(/active/);
-    await expect(page.locator('#start')).toHaveAttribute('data-v40-start-view', 'learn');
-    await expect(page.locator('#start .v40c-learn-setup')).toBeVisible();
-
-    await page.locator('#start [data-v40-nav="home"]').click();
     await expect(page.locator('#start')).toHaveAttribute('data-v40-start-view', 'home');
+    await expect(page.locator('#start [data-v40-nav="home"]')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#start .v40c-learn-setup')).toBeHidden();
+    await expect(page.locator('#start .v39-home-hub')).toBeVisible();
+    expect(await page.evaluate(() => window.__option2cDelegation.dashboardBackHome)).toBe(1);
   });
 
   test('gate 7 — active Practice keeps every non-Learn navigation tab disabled', async ({ page }) => {
@@ -426,28 +458,48 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     await expect.poll(() => page.evaluate(() => Boolean(
       window.__option2cCapture?.baseValidate &&
       window.__option2cCapture?.sessionValidate &&
-      window.__option2cCapture?.platformValidate
+      window.__option2cCapture?.platformValidate &&
+      window.__option2cCapture?.v52c2Validate
     )), { timeout: 15_000 }).toBe(true);
 
     const chain = await page.evaluate(() => {
       const capture = window.__option2cCapture;
+      const knownStages = [
+        capture.baseValidate,
+        capture.sessionValidate,
+        capture.platformValidate,
+        capture.v52c2Validate,
+      ];
       return {
-        baseFunction: typeof capture.baseValidate === 'function',
-        sessionFunction: typeof capture.sessionValidate === 'function',
-        platformFunction: typeof capture.platformValidate === 'function',
+        knownStagesAreFunctions: knownStages.every(fn => typeof fn === 'function'),
+        knownStagesAreDistinct: new Set(knownStages).size === 4,
         baseToSessionWrapped: capture.baseValidate !== capture.sessionValidate,
         sessionToPlatformWrapped: capture.sessionValidate !== capture.platformValidate,
-        platformIsFinal: capture.platformValidate === window.validateStudentAccess,
+        platformToV52C2Wrapped: capture.platformValidate !== capture.v52c2Validate,
+        knownLoadOrder: capture.validateOrder.slice(0, 4),
+        currentFinalIsFunction: typeof window.validateStudentAccess === 'function',
       };
     });
     expect(chain).toEqual({
-      baseFunction: true,
-      sessionFunction: true,
-      platformFunction: true,
+      knownStagesAreFunctions: true,
+      knownStagesAreDistinct: true,
       baseToSessionWrapped: true,
       sessionToPlatformWrapped: true,
-      platformIsFinal: true,
+      platformToV52C2Wrapped: true,
+      knownLoadOrder: ['base', 'session', 'platform-polish', 'v52c2'],
+      currentFinalIsFunction: true,
     });
+
+    const sessionSource = fs.readFileSync(path.join(REPO_ROOT, 'site/v40-student-session.js'), 'utf8');
+    const platformSource = fs.readFileSync(path.join(REPO_ROOT, 'site/v40-platform-polish.js'), 'utf8');
+    const v52c2OwnerSource = fs.readFileSync(path.join(REPO_ROOT, 'site/topical-legacy-student-route.js'), 'utf8');
+    expect(sessionSource).toContain('const validateStudentAccessV40Base = validateStudentAccess;');
+    expect(sessionSource).toContain('return validateStudentAccessV40Base(requestedPurpose);');
+    expect(platformSource).toContain('const validateBase = validateStudentAccess;');
+    expect(platformSource).toContain('const access = await validateBase(purpose);');
+    expect(v52c2OwnerSource).toContain('/* V5.2C.2 — Topical Practice result UX polish.');
+    expect(v52c2OwnerSource).toContain('const base=validateStudentAccess;');
+    expect(v52c2OwnerSource).toContain('const access=await base(purpose);');
 
     const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
       .split(/\r?\n/)

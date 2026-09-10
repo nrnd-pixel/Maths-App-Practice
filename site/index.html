@@ -928,8 +928,16 @@ input[type="file"]::file-selector-button:hover{
 }
   
 
-/* Option 2B: authenticated Home is source HTML, but stays hidden while logged out
-   even before the staged presentation scripts install their equivalent rules. */
+/* Options 2A–2C: source HTML owns the initial student shell. Keep authenticated
+   controls hidden before staged JavaScript enhances the same nodes. */
+#start .v40c-session-identity{
+  display:none;
+}
+
+#start.v40-shell-logged-out > .v40-student-nav,
+#start.v40-shell-logged-out .v40c-learn-setup,
+#start.v40-shell-logged-out > .mode-switch,
+#start.v40-shell-logged-out > #mode-note,
 #start.v40-shell-logged-out .v40-learning-hub-hero,
 #start.v40-shell-logged-out .v40c3-home-dashboard,
 #start.v40-shell-logged-out .v40-platform-section,
@@ -980,23 +988,59 @@ input[type="file"]::file-selector-button:hover{
       <button type="button" class="outline" id="v40c-student-logout">Log out</button>
     </div>
   </section>
-  <div class="mode-switch" role="group" aria-label="Choose activity mode">
-    <button id="practice-mode-btn" class="mode-btn active" type="button"><strong>📘 Practice Mode</strong><span>Hints, second attempts and instant feedback.</span></button>
-    <button id="exam-mode-btn" class="mode-btn" type="button"><strong>📝 Exam Mode</strong><span>Complete a full past paper with no hints or feedback until submission.</span></button>
-  </div>
-  <div id="mode-note" class="compact-note">Practice Mode is selected.</div>
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="start" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home" aria-current="page"><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden"><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden"><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
+  <section class="v40c-learn-setup" data-v40-static-learn="true" aria-label="Learn setup">
+    <div class="v40c-learn-head">
+      <div>
+        <div class="v40c-learn-kicker">Learn</div>
+        <h2>Choose how you want to learn.</h2>
+        <p>Pick Practice for guided learning or Exam for a full past paper.</p>
+      </div>
+    </div>
+    <div class="mode-switch" role="group" aria-label="Choose activity mode">
+      <button id="practice-mode-btn" class="mode-btn active" type="button"><strong>📘 Practice Mode</strong><span>Hints, second attempts and instant feedback.</span></button>
+      <button id="exam-mode-btn" class="mode-btn" type="button"><strong>📝 Exam Mode</strong><span>Complete a full past paper with no hints or feedback until submission.</span></button>
+    </div>
+    <div id="mode-note" class="compact-note">Practice Mode is selected.</div>
+    <section class="v40c-practice-summary">
+      <div class="v40c-summary-head">
+        <div><h3>Practice setup</h3><p>Start quickly with these settings, or change them if you want a specific focus.</p></div>
+        <button type="button" class="outline v40c-change-settings" aria-expanded="false">Change settings</button>
+      </div>
+      <div class="v40c-practice-pills" aria-label="Current practice settings">
+        <span data-v40-summary="strand"></span><span data-v40-summary="topic"></span><span data-v40-summary="count"></span><span data-v40-summary="difficulty"></span>
+      </div>
+      <div class="v40c-practice-settings"><div class="v40c-settings-grid">
+        <label id="practice-strand-wrap">Strand<select id="strand-filter"></select></label>
+        <label id="practice-topic-wrap">Topic<select id="topic-filter"></select></label>
+        <label id="practice-count-wrap">Number of questions<select id="question-count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></label>
+        <label id="practice-difficulty-wrap">Difficulty<select id="difficulty-filter"><option value="all">Any difficulty</option><option value="foundation">Foundation</option><option value="standard">Standard</option><option value="challenge">Challenge</option></select></label>
+      </div></div>
+    </section>
+    <section class="v40c-exam-panel hidden">
+      <h3>Exam setup</h3><p>Select a complete past paper. Exam Mode keeps its existing save, resume and submission safeguards.</p>
+      <div class="v40c-exam-grid">
+        <label id="exam-year-wrap" class="hidden">Exam year<select id="exam-year"><option value="">Select exam year</option></select></label>
+        <label id="exam-paper-wrap" class="hidden">Paper<select id="exam-paper"><option value="">Select paper</option></select></label>
+        <div id="exam-paper-note" class="exam-paper-note hidden">Choose an exam year and paper. The complete active paper will be loaded in question-number order.</div>
+        <div id="exam-instructions" class="exam-instructions hidden"></div>
+      </div>
+    </section>
+    <div class="v40c-learn-actions">
+      <div class="v40c-learn-action-copy"><strong>Ready to practise?</strong><span>Your selected practice settings will be used for this session.</span></div>
+      <button id="start-btn" class="primary">Start Practice</button>
+    </div>
+  </section>
   <div class="grid" style="margin-top:26px">
     <label>Student name<input id="student-name" placeholder="e.g. Aiman" maxlength="40"><span id="student-name-help" class="help">Required when access is open.</span></label>
     <label>Year level<select id="year-level"><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option><option value="4">Year 4</option><option value="5">Year 5</option><option value="6" selected>Year 6</option></select></label>
     <label>Class<select id="class-group"><option>A</option><option>B</option><option>C</option><option>Other</option></select></label>
-    <label id="practice-strand-wrap">Strand<select id="strand-filter"></select></label>
-    <label id="practice-topic-wrap">Topic<select id="topic-filter"></select></label>
-    <label id="practice-count-wrap">Number of questions<select id="question-count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></label>
-    <label id="practice-difficulty-wrap">Difficulty<select id="difficulty-filter"><option value="all">Any difficulty</option><option value="foundation">Foundation</option><option value="standard">Standard</option><option value="challenge">Challenge</option></select></label>
-    <label id="exam-year-wrap" class="hidden">Exam year<select id="exam-year"><option value="">Select exam year</option></select></label>
-    <label id="exam-paper-wrap" class="hidden">Paper<select id="exam-paper"><option value="">Select paper</option></select></label>
-    <div id="exam-paper-note" class="exam-paper-note hidden">Choose an exam year and paper. The complete active paper will be loaded in question-number order.</div>
-    <div id="exam-instructions" class="exam-instructions hidden"></div>
   </div>
 <div class="v39-home-hub v40-platform-ready">
   <section class="v40-learning-hub-hero" aria-label="Student learning hub">
@@ -1096,7 +1140,7 @@ input[type="file"]::file-selector-button:hover{
           <div class="v39-action-title">Learn</div>
           <div class="v39-action-description">Choose Practice or Exam, adjust your activity if needed, then start.</div>
         </div>
-        <button id="start-btn" class="primary">Start Practice</button>
+        <button type="button" class="primary v40c-open-learn">Open Learn</button>
       </article>
       <article class="v39-action-card" data-action-for="my-assignments-btn">
         <div class="v39-action-icon" aria-hidden="true">📚</div>
@@ -1160,6 +1204,14 @@ input[type="file"]::file-selector-button:hover{
 </section>
 
 <section id="quiz" class="card screen">
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="quiz" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home" disabled title="End Practice before switching sections."><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn" aria-current="page"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden" disabled title="End Practice before switching sections."><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden" disabled title="End Practice before switching sections."><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed" disabled title="End Practice before switching sections."><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
+  <p class="v40-student-nav-note">Finish or end this Practice session before switching to another learning section.</p>
   <div class="quizbar"><div class="pills"><span id="student-pill" class="pill"></span><span id="class-pill" class="pill"></span><span id="path-pill" class="pill"></span></div><div class="scoremini"><strong id="first-score">First try: 0</strong><br><span id="mastery-score" class="muted">Mastered: 0</span></div></div>
   <div class="progress"><div id="progress-bar"></div></div><p id="progress-text" class="muted"></p>
   <div class="question-meta"><span id="q-number" class="qnum"></span><span id="q-meta" class="source"></span></div><h2 id="q-text"></h2><img id="q-image" class="qimage hidden" alt="Question diagram">
@@ -1192,6 +1244,13 @@ input[type="file"]::file-selector-button:hover{
 </section>
 
 <section id="exam-result" class="card screen result">
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="exam-result" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home"><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn" aria-current="page"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden"><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden"><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
   <div style="font-size:56px">📝</div><div id="exam-result-status" class="exam-result-status pending">Teacher review pending</div><h1 id="exam-result-heading">Exam Submitted</h1><p id="exam-result-name"></p>
   <div id="exam-score-hero" class="exam-score-hero pending"><div id="exam-result-score" class="big"></div><p id="exam-result-label" class="muted">Marks awarded so far</p></div><div id="exam-result-message" class="exam-result-notice pending"></div>
   <div class="exam-score-breakdown"><div class="stat"><strong id="exam-res-auto">0/0</strong><small>Auto-marked</small></div><div class="stat"><strong id="exam-res-teacher">Pending</strong><small>Teacher-marked</small></div><div class="stat"><strong id="exam-res-final-status">Pending</strong><small>Final-score status</small></div></div>
@@ -1202,6 +1261,13 @@ input[type="file"]::file-selector-button:hover{
 </section>
 
 <section id="result" class="card screen result">
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="result" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home"><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn" aria-current="page"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden"><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden"><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
   <div style="font-size:60px">🏆</div><h1>Practice Complete</h1><p id="result-name"></p><div id="result-score" class="big"></div><p class="muted">First-try score</p><p id="result-message"></p>
   <div class="stats"><div class="stat"><strong id="res-mastery">0/0</strong><small>Mastered</small></div><div class="stat"><strong id="res-hints">0</strong><small>Hints</small></div><div class="stat"><strong id="res-second">0</strong><small>2nd-try success</small></div><div class="stat"><strong id="res-sync">Local</strong><small>Storage</small></div></div>
   <div id="result-code-box" class="result-code-box hidden"><div><div class="muted">Private result code</div><strong id="result-code" class="result-code"></strong><div class="help">Keep this code to check teacher feedback later. Anyone with the code can view this practice result.</div></div><button id="copy-result-code" class="outline" type="button">Copy Code</button></div>
@@ -1209,6 +1275,13 @@ input[type="file"]::file-selector-button:hover{
 </section>
 
 <section id="student-review" class="card screen">
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="student-review" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home"><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden"><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden"><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed" aria-current="page"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
   <div class="header"><div><h1>Check Reviewed Work</h1><p class="muted">Use the private result code shown after a practice session to see teacher feedback and reviewed marks.</p></div><button class="secondary back-home">Home</button></div>
   <div class="review-lookup">
     <label>Result code<input id="student-result-code" autocomplete="off" maxlength="24" placeholder="e.g. A1B2-C3D4-E5F6-G7H8"></label>
@@ -1219,6 +1292,13 @@ input[type="file"]::file-selector-button:hover{
   <div id="student-review-content" class="student-review-content"></div>
 </section>
   <section id="student-assignments" class="card screen">
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="student-assignments" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home"><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden" aria-current="page"><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden"><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
 
   <div class="header">
     <div>
@@ -1249,6 +1329,13 @@ input[type="file"]::file-selector-button:hover{
 
 </section>
 <section id="student-dashboard" class="card screen">
+  <nav class="v40-student-nav" data-v40-static-nav="true" data-v40-nav-screen="student-dashboard" aria-label="Student learning navigation">
+    <button type="button" data-v40-nav="home"><span aria-hidden="true">🏠</span><span>Home</span></button>
+    <button type="button" data-v40-nav="learn"><span aria-hidden="true">✏️</span><span>Learn</span></button>
+    <button type="button" data-v40-nav="assignments" class="hidden"><span aria-hidden="true">📚</span><span>Assignments</span></button>
+    <button type="button" data-v40-nav="progress" class="hidden" aria-current="page"><span aria-hidden="true">📊</span><span>Progress</span></button>
+    <button type="button" data-v40-nav="reviewed"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
+  </nav>
   <div class="header">
     <div>
       <h1>📊 My Progress</h1>

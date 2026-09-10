@@ -10,7 +10,7 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = 'fec4ce3d617a415168dd0edd52cc7bad8e610500a3b56c8192b0a317e8b0906d';
+const EXPECTED_FROZEN_SITE_SHA256 = '018a91f0e6c1e9b8ed6dbf76a3f26fccf11c5b4e2a9a6a1175a2f57328816137';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -25,8 +25,8 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/v40-release.js': 'a308df11b601bf563b56d555e9f434652e524d77',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
   'site/v41-mastery-progress.js': '49b8705335510cbc5df029f20b9a335e9c944e64',
-  'site/v40-student-nav.js': '86855f09db9ce2900008e50d10b2f685caa87c56',
-  'site/v40-learn-setup.js': 'bfa85adc8261684a91da87f720fa3e9af24ac677',
+  'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
+  'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
   'site/v40-learning-priorities.js': 'bfec5b47eaf266486d21c96acdb4e1cfd677b328',
   'site/version.js': 'fa82bfbdb978bb927a9e0fb930cd692816571b0d',
 });
