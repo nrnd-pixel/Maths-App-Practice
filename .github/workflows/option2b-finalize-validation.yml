@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   materialize:
-    name: Materialize accepted Option 2B candidate and clean scaffolding
+    name: Materialize and push accepted Option 2B candidate content
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -26,7 +26,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base=162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3
           python - <<'PY'
           import subprocess
           expected = {
@@ -45,9 +44,8 @@ jobs:
           print('Pre-materialization branch scope is exactly the six known temporary/seed files.')
           PY
           test "$(git rev-parse HEAD:supabase)" = 19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
-          test "$(git rev-parse "$base":supabase)" = 19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
 
-      - name: Reconstruct exact accepted Option 2B candidate content
+      - name: Reconstruct exact accepted runner-local candidate
         shell: bash
         run: |
           set -euo pipefail
@@ -85,126 +83,33 @@ jobs:
           test "$candidate_tree" = 3c9128ab5d115957121674fbf7b1eab600c2f44a
           unset GIT_INDEX_FILE
           rm -f "$tmp_index"
-          echo 'Accepted runner-local candidate 65a710954... reproduced byte-for-byte by tree identity.'
 
-      - name: Add exact consolidated CI gate and remove all temporary Option 2B scaffolding
+      - name: Commit only the validated candidate files and push
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('.github/workflows/ci.yml')
-          text = path.read_text()
-          anchor = "      - name: Run V52C legacy topical hard gates\n"
-          if text.count(anchor) != 1:
-              raise SystemExit(f'Expected exactly one V52C anchor, found {text.count(anchor)}')
-          if 'Run Option 2B static authenticated Home hard gates' in text:
-              raise SystemExit('Option 2B consolidated CI step already exists unexpectedly')
-          expr = chr(36) + "{{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}"
-          step = (
-              "      - name: Run Option 2B static authenticated Home hard gates\n"
-              f"        if: {expr}\n"
-              "        working-directory: e2e\n"
-              "        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line\n"
-              "\n"
-          )
-          path.write_text(text.replace(anchor, step + anchor, 1))
-          PY
-
-          rm -f \
-            .github/option2b_static_hub_patch.py \
-            .github/option2b_successor_seals.py \
-            .github/option2b_test_patch.py \
-            .github/workflows/option2b-finalize-validation.yml \
-            .github/workflows/option2b-static-hub-branch-validation.yml
-
-      - name: Verify exact final diff, frozen server tree, and validated runtime blobs
-        shell: bash
-        run: |
-          set -euo pipefail
-          base=162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add \
+            e2e/tests/v40-static-authenticated-home-option2b.spec.cjs \
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs \
+            site/index.html \
+            site/v40-learning-priorities.js \
+            site/v57c-student-continue-learning-home.js \
+            site/gamification-student.js \
+            site/v58a-student-first-use-experience.js \
+            site/tests/v51-phase4-protected-shas.json \
+            site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs \
+            site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs \
+            site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs \
+            site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs \
+            site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs \
+            site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs
           git diff --cached --check
-
-          python - <<'PY'
-          import subprocess
-          expected = {
-              '.github/workflows/ci.yml',
-              'e2e/tests/v40-static-authenticated-home-option2b.spec.cjs',
-              'e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs',
-              'site/index.html',
-              'site/v40-learning-priorities.js',
-              'site/v57c-student-continue-learning-home.js',
-              'site/gamification-student.js',
-              'site/v58a-student-first-use-experience.js',
-              'site/tests/v51-phase4-protected-shas.json',
-              'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
-              'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs',
-              'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs',
-              'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs',
-              'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
-              'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
-          }
-          actual = set(filter(None, subprocess.check_output([
-              'git','diff','--cached','--name-only','162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3'
-          ], text=True).splitlines()))
-          if actual != expected:
-              raise SystemExit(f'Final diff mismatch. Missing={sorted(expected-actual)} Extra={sorted(actual-expected)}')
-          print('FINAL_DIFF_SCOPE_PASS: exactly 15 approved runtime/test/CI/SHA-guard files.')
-          PY
-
-          test "$(git hash-object site/index.html)" = be7909f3534c77b3eb570ab3b971c33f58ebdaed
-          test "$(git hash-object site/v40-learning-priorities.js)" = bfec5b47eaf266486d21c96acdb4e1cfd677b328
-          test "$(git hash-object site/v57c-student-continue-learning-home.js)" = 196225cf94035363869b8051bc33cdd3c03993f9
-          test "$(git hash-object site/gamification-student.js)" = d9c4dc0e25cbed50346937db887a703800be5a59
-          test "$(git hash-object site/v58a-student-first-use-experience.js)" = 8e0279e86b1ece862586238f99c760129c13465f
-
-          final_tree="$(git write-tree)"
-          test "$(git rev-parse "$final_tree":supabase)" = 19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
-          test -z "$(git diff --cached --name-only "$base" -- supabase)"
-
-          python - <<'PY'
-          import subprocess
-          from pathlib import Path
-          base = subprocess.check_output([
-              'git','show','162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3:.github/workflows/ci.yml'
-          ], text=True)
-          current = Path('.github/workflows/ci.yml').read_text()
-          anchor = "      - name: Run V52C legacy topical hard gates\n"
-          expr = chr(36) + "{{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}"
-          step = (
-              "      - name: Run Option 2B static authenticated Home hard gates\n"
-              f"        if: {expr}\n"
-              "        working-directory: e2e\n"
-              "        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line\n"
-              "\n"
-          )
-          expected = base.replace(anchor, step + anchor, 1)
-          if current != expected:
-              raise SystemExit('ci.yml is not the exact single additive Option 2B hard-gate change')
-          print('CONSOLIDATED_CI_EXACT_ADDITION_PASS')
-          PY
-
-          for path in \
-            .github/option2b_static_hub_patch.py \
-            .github/option2b_successor_seals.py \
-            .github/option2b_test_patch.py \
-            .github/workflows/option2b-finalize-validation.yml \
-            .github/workflows/option2b-static-hub-branch-validation.yml
-          do
-            test ! -e "$path"
-          done
-
-          echo "FINAL_TREE=$final_tree"
-
-      - name: Commit and push final clean branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          git commit -m 'Phase 4 Option 2B static authenticated Home'
-          echo "FINAL_HEAD=$(git rev-parse HEAD)"
-          echo "FINAL_TREE=$(git rev-parse HEAD^{tree})"
-          test -z "$(git status --porcelain)"
+          test "$(git diff --cached --name-only | wc -l)" -eq 14
+          test -z "$(git diff --cached --name-only -- .github/workflows)"
+          test -z "$(git diff --cached --name-only -- supabase)"
+          git commit -m 'Phase 4 Option 2B validated candidate content'
+          echo "MATERIALIZED_HEAD=$(git rev-parse HEAD)"
+          echo "MATERIALIZED_TREE=$(git rev-parse HEAD^{tree})"
           git push origin HEAD:tech-debt-phase-4-option2b-authenticated-hub-static
