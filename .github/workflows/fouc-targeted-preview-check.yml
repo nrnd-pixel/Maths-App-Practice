@@ -1,0 +1,189 @@
+name: Temporary targeted FOUC deploy-preview check
+
+on:
+  push:
+    branches:
+      - maintenance/fouc-targeted-preview-check-20260910
+
+permissions:
+  contents: read
+
+jobs:
+  preview-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install browser test dependencies
+        working-directory: e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Verify first-paint flash suppression on Netlify preview
+        env:
+          PREVIEW_URL: https://deploy-preview-232--magical-pixie-a61111.netlify.app/
+        run: |
+          node <<'NODE'
+          const { chromium } = require('./e2e/node_modules/@playwright/test');
+
+          function assert(condition, message) {
+            if (!condition) throw new Error(message);
+          }
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            try {
+              // Static first-paint contract: with JavaScript disabled, #start itself
+              // must remain visible while the two flash-prone controls are hidden.
+              const staticContext = await browser.newContext({ javaScriptEnabled: false });
+              const staticPage = await staticContext.newPage();
+              await staticPage.goto(process.env.PREVIEW_URL, { waitUntil: 'load', timeout: 60000 });
+              const staticState = await staticPage.evaluate(() => {
+                const start = document.getElementById('start');
+                const identity = start?.querySelector('.v40c-session-identity');
+                const directMode = start?.querySelector(':scope > .mode-switch');
+                const startStyle = start ? getComputedStyle(start) : null;
+                const rect = start?.getBoundingClientRect();
+                return {
+                  startDisplay: startStyle?.display || 'missing',
+                  startVisibility: startStyle?.visibility || 'missing',
+                  startWidth: rect?.width || 0,
+                  startHeight: rect?.height || 0,
+                  identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
+                  directModeDisplay: directMode ? getComputedStyle(directMode).display : 'missing',
+                  startClass: start?.className || 'missing',
+                  bodyBackground: getComputedStyle(document.body).backgroundImage,
+                };
+              });
+              console.log('STATIC_FIRST_PAINT', JSON.stringify(staticState));
+              assert(staticState.startDisplay !== 'none', '#start is hidden in static first paint');
+              assert(staticState.startVisibility === 'visible', '#start visibility is not visible in static first paint');
+              assert(staticState.startWidth > 0 && staticState.startHeight > 0, '#start has no rendered area in static first paint');
+              assert(staticState.identityDisplay === 'none', 'session identity/logout control is visible in static first paint');
+              assert(staticState.directModeDisplay === 'none', 'direct mode-switch is visible in static first paint');
+              assert(staticState.startClass.includes('v40-shell-logged-out'), 'static #start is not marked logged out');
+              await staticContext.close();
+
+              // Real JS enhancement path: sample every animation frame from before
+              // page scripts execute. There must be no frame after #start appears in
+              // which the shell itself disappears, and no logged-out frame may show
+              // either flash-prone control.
+              const context = await browser.newContext();
+              const page = await context.newPage();
+              await page.addInitScript(() => {
+                window.__targetedFoucProbe = { samples: [] };
+                const sample = () => {
+                  const start = document.getElementById('start');
+                  if (start) {
+                    const rect = start.getBoundingClientRect();
+                    const style = getComputedStyle(start);
+                    const identity = start.querySelector('.v40c-session-identity');
+                    const mode = start.querySelector('.mode-switch');
+                    const elementVisible = el => {
+                      if (!el) return false;
+                      const s = getComputedStyle(el);
+                      const r = el.getBoundingClientRect();
+                      return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
+                    };
+                    window.__targetedFoucProbe.samples.push({
+                      t: performance.now(),
+                      startVisible: style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0,
+                      identityVisible: elementVisible(identity),
+                      modeVisible: elementVisible(mode),
+                      loggedOut: start.classList.contains('v40-shell-logged-out'),
+                      authenticated: start.classList.contains('v40-shell-authenticated'),
+                      startClass: start.className,
+                    });
+                    if (window.__targetedFoucProbe.samples.length > 240) {
+                      window.__targetedFoucProbe.samples.shift();
+                    }
+                  }
+                  requestAnimationFrame(sample);
+                };
+                requestAnimationFrame(sample);
+              });
+
+              await page.goto(process.env.PREVIEW_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+              await page.waitForFunction(() =>
+                document.getElementById('v40-student-session-style') &&
+                document.getElementById('v40-learn-setup-style') &&
+                document.getElementById('v40-start-shell-style') &&
+                document.getElementById('start')?.classList.contains('v40-shell-logged-out'),
+                null,
+                { timeout: 15000 }
+              );
+              await page.waitForTimeout(700);
+
+              const enhanced = await page.evaluate(() => {
+                const samples = window.__targetedFoucProbe.samples.slice();
+                const first = samples[0] || null;
+                const blankSamples = samples.filter(s => !s.startVisible);
+                const loggedOutIdentityLeaks = samples.filter(s => s.loggedOut && s.identityVisible);
+                const loggedOutModeLeaks = samples.filter(s => s.loggedOut && s.modeVisible);
+                const start = document.getElementById('start');
+                const identity = start.querySelector('.v40c-session-identity');
+                const mode = start.querySelector('.mode-switch');
+                return {
+                  sampleCount: samples.length,
+                  firstSample: first,
+                  blankSampleCount: blankSamples.length,
+                  identityLeakCount: loggedOutIdentityLeaks.length,
+                  modeLeakCount: loggedOutModeLeaks.length,
+                  finalStartClass: start.className,
+                  finalStartDisplay: getComputedStyle(start).display,
+                  finalStartVisibility: getComputedStyle(start).visibility,
+                  finalIdentityDisplay: identity ? getComputedStyle(identity).display : 'missing',
+                  finalModeDisplay: mode ? getComputedStyle(mode).display : 'missing',
+                  firstSampleAt: first?.t ?? null,
+                  lastSampleAt: samples.at(-1)?.t ?? null,
+                };
+              });
+              console.log('ENHANCED_FRAME_PROBE', JSON.stringify(enhanced));
+              assert(enhanced.sampleCount >= 2, 'not enough enhancement-frame samples collected');
+              assert(enhanced.blankSampleCount === 0, `#start disappeared for ${enhanced.blankSampleCount} sampled frame(s)`);
+              assert(enhanced.identityLeakCount === 0, `session identity leaked on ${enhanced.identityLeakCount} logged-out sampled frame(s)`);
+              assert(enhanced.modeLeakCount === 0, `mode-switch leaked on ${enhanced.modeLeakCount} logged-out sampled frame(s)`);
+              assert(enhanced.finalStartDisplay !== 'none' && enhanced.finalStartVisibility === 'visible', '#start is not visible after enhancement');
+              assert(enhanced.finalIdentityDisplay === 'none', 'session identity is visible after logged-out enhancement');
+              assert(enhanced.finalModeDisplay === 'none', 'mode-switch is visible after logged-out enhancement');
+
+              // Confirm the existing dynamic styles can still override the new
+              // static defaults when the shell is authenticated/Learn is active.
+              const overrideState = await page.evaluate(() => {
+                const start = document.getElementById('start');
+                const panel = start.querySelector('.v40c-session-panel');
+                panel.classList.add('v40c-authenticated');
+                start.classList.remove('v40-shell-logged-out');
+                start.classList.add('v40-shell-authenticated');
+                start.dataset.v40StartView = 'learn';
+                const identity = start.querySelector('.v40c-session-identity');
+                const mode = start.querySelector('.mode-switch');
+                const setup = start.querySelector('.v40c-learn-setup');
+                return {
+                  identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
+                  modeDisplay: mode ? getComputedStyle(mode).display : 'missing',
+                  setupDisplay: setup ? getComputedStyle(setup).display : 'missing',
+                };
+              });
+              console.log('AUTHENTICATED_OVERRIDE', JSON.stringify(overrideState));
+              assert(overrideState.identityDisplay !== 'none', 'authenticated dynamic session style cannot override static identity hide');
+              assert(overrideState.setupDisplay !== 'none', 'authenticated Learn setup remains hidden');
+              assert(overrideState.modeDisplay !== 'none', 'authenticated mode-switch remains hidden');
+
+              await context.close();
+              console.log('TARGETED_FOUC_PREVIEW_CHECK PASS');
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
