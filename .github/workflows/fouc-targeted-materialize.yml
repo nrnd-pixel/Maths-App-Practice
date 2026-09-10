@@ -1,0 +1,67 @@
+name: Temporary targeted FOUC materializer
+
+on:
+  push:
+    branches:
+      - maintenance/fouc-targeted-materializer-20260910
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out target branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix-static-session-mode-flash
+          fetch-depth: 0
+
+      - name: Apply exact two-line static CSS fix
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('site/index.html')
+          data = path.read_bytes()
+          marker = b'<style>\n'
+          replacement = (
+              b'<style>\n'
+              b'  #start .v40c-session-identity { display: none; }\n'
+              b'  #start.v40-shell-logged-out > .mode-switch { display: none !important; }\n'
+          )
+
+          if b'#start .v40c-session-identity { display: none; }' in data:
+              raise SystemExit('targeted session identity rule already exists')
+          if b'#start.v40-shell-logged-out > .mode-switch { display: none !important; }' in data:
+              raise SystemExit('targeted mode-switch rule already exists')
+          if data.count(marker) < 1:
+              raise SystemExit('opening style marker not found')
+
+          updated = data.replace(marker, replacement, 1)
+          path.write_bytes(updated)
+          PY
+
+          changed="$(git diff --name-only)"
+          test "$changed" = "site/index.html"
+          read additions deletions path <<EOF
+          $(git diff --numstat -- site/index.html)
+          EOF
+          test "$additions" = "2"
+          test "$deletions" = "0"
+          test "$path" = "site/index.html"
+
+          git diff --check
+          git diff -- site/index.html
+
+      - name: Commit exact target-branch change
+        shell: bash
+        run: |
+          git config user.name "nrnd-pixel"
+          git config user.email "anuarn.edu@gmail.com"
+          git add site/index.html
+          test "$(git diff --cached --name-only)" = "site/index.html"
+          git commit -m "fix: suppress initial session and mode flash"
+          git push origin HEAD:fix-static-session-mode-flash
