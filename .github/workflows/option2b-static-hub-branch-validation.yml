@@ -89,6 +89,35 @@ jobs:
             printf '%s\t%s\n' "$file" "$(git hash-object "$file")"
           done
 
+      - name: Create local candidate commit for HEAD-based SHA guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            site/index.html \
+            site/v40-learning-priorities.js \
+            site/v57c-student-continue-learning-home.js \
+            site/gamification-student.js \
+            site/v58a-student-first-use-experience.js \
+            site/tests/v51-phase4-protected-shas.json \
+            site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs \
+            site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs \
+            site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs \
+            site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs \
+            site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs \
+            site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs \
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
+          git diff --cached --check
+          echo 'Local candidate files:'
+          git diff --cached --name-only
+          test "$(git diff --cached --name-only | wc -l)" -eq 13
+          git commit -m 'Phase 4 Option 2B static authenticated Home'
+          echo "LOCAL_CANDIDATE_HEAD=$(git rev-parse HEAD)"
+          echo "LOCAL_CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          test -z "$(git status --porcelain)"
+
       - name: Run maintained verifier suite
         shell: bash
         run: |
@@ -157,28 +186,11 @@ jobs:
         working-directory: e2e
         run: npm test
 
-      - name: Commit fully validated Option 2B implementation and successor seals
+      - name: Push fully validated local candidate
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add \
-            site/index.html \
-            site/v40-learning-priorities.js \
-            site/v57c-student-continue-learning-home.js \
-            site/gamification-student.js \
-            site/v58a-student-first-use-experience.js \
-            site/tests/v51-phase4-protected-shas.json \
-            site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs \
-            site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs \
-            site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs \
-            site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs \
-            site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs \
-            site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs \
-            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
-          git diff --cached --check
-          echo 'Validated staged files:'
-          git diff --cached --name-only
-          git commit -m 'Phase 4 Option 2B static authenticated Home'
+          test -z "$(git status --porcelain)"
+          echo "VALIDATED_HEAD=$(git rev-parse HEAD)"
+          echo "VALIDATED_TREE=$(git rev-parse HEAD^{tree})"
           git push origin HEAD:tech-debt-phase-4-option2b-authenticated-hub-static
