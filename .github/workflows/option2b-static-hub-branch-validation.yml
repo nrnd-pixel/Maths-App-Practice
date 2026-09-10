@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/option2b-static-hub-branch-validation.yml
       - .github/option2b_successor_seals.py
+      - .github/option2b_test_patch.py
 
 permissions:
   contents: write
@@ -30,6 +31,9 @@ jobs:
 
       - name: Apply Option 2B runtime patch
         run: python .github/option2b_static_hub_patch.py
+
+      - name: Apply deterministic Option 2B hard-gate patch
+        run: python .github/option2b_test_patch.py
 
       - name: Advance only approved Option 2B successor seals
         run: python .github/option2b_successor_seals.py
@@ -57,7 +61,7 @@ jobs:
             exit 1
           fi
 
-          allowed_e2e='^e2e/tests/v40-static-student-signin-shell-option2a\.spec\.cjs$'
+          allowed_e2e='^(e2e/tests/v40-static-student-signin-shell-option2a\.spec\.cjs|e2e/tests/v40-static-authenticated-home-option2b\.spec\.cjs)$'
           changed_e2e="$(git diff --name-only -- e2e)"
           unexpected_e2e="$(printf '%s\n' "$changed_e2e" | sed '/^$/d' | grep -Ev "$allowed_e2e" || true)"
           if [ -n "$unexpected_e2e" ]; then
@@ -108,11 +112,12 @@ jobs:
             site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs \
             site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs \
             site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs \
-            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs \
+            e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
           git diff --cached --check
           echo 'Local candidate files:'
           git diff --cached --name-only
-          test "$(git diff --cached --name-only | wc -l)" -eq 13
+          test "$(git diff --cached --name-only | wc -l)" -eq 14
           git commit -m 'Phase 4 Option 2B static authenticated Home'
           echo "LOCAL_CANDIDATE_HEAD=$(git rev-parse HEAD)"
           echo "LOCAL_CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
