@@ -9,15 +9,13 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const BASE_SHA = '162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3';
+const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
   'site/index.html',
-  'site/v40-learning-priorities.js',
-  'site/v57c-student-continue-learning-home.js',
-  'site/gamification-student.js',
-  'site/v58a-student-first-use-experience.js',
+  'site/v40-student-nav.js',
+  'site/v40-learn-setup.js',
 ]);
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
@@ -30,9 +28,15 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
 ]);
 
+const OPTION2C_SUCCESSOR_RUNTIME = new Set([
+  'site/v40-student-nav.js',
+  'site/v40-learn-setup.js',
+]);
+
 const ALLOWED_SITE_CHANGES = new Set([
   ...AUTHORIZED_RUNTIME_CHANGES,
   ...AUTHORIZED_SUCCESSOR_SEAL_CHANGES,
+  ...OPTION2C_SUCCESSOR_RUNTIME,
 ]);
 
 const FROZEN_BLOBS = Object.freeze({
@@ -42,8 +46,8 @@ const FROZEN_BLOBS = Object.freeze({
   'site/v40-release.js': 'a308df11b601bf563b56d555e9f434652e524d77',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
   'site/v40-start-shell.js': '26280684b65275ea13656b3e423a8a3ce81cd9e9',
-  'site/v40-student-nav.js': '86855f09db9ce2900008e50d10b2f685caa87c56',
-  'site/v40-learn-setup.js': 'bfa85adc8261684a91da87f720fa3e9af24ac677',
+  'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
+  'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
   'site/gamification-core.js': '87d6175270284e4b40c3a1fbcd196622179d0402',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
   'site/v52b1-question-bank-observer-gate.js': '82a87ffed9091b76c9008a3949c3bd432c2d06ce',

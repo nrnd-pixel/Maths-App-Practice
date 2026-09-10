@@ -1,7 +1,8 @@
 /* V4.0B — Persistent student navigation.
-   Presentation-only: reuses existing Home, Assignments, Progress and Reviewed Work
-   controls. Active Practice remains protected from cross-navigation so session
-   state is not bypassed. Active Exam Mode is intentionally unchanged. */
+   Option 2C keeps the navigation structure in source HTML and progressively
+   enhances those exact nodes. Dynamic creation remains only as a compatibility
+   fallback. Existing Home, Assignments, Progress and Reviewed Work controls,
+   active-Practice protection and Exam behavior remain unchanged. */
 (() => {
   'use strict';
 
@@ -170,6 +171,9 @@
   }
 
   function watchSourceAvailability(nav){
+    if (nav.dataset.v40AvailabilityWatched === 'true') return;
+    nav.dataset.v40AvailabilityWatched = 'true';
+
     NAV_ITEMS.forEach(item => {
       if (!item.sourceId) return;
       const source = document.getElementById(item.sourceId);
@@ -181,50 +185,75 @@
     });
   }
 
-  function makeNav(screen, activeKey){
+  function makeButton(item, screen, activeKey){
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.v40Nav = item.key;
+    button.innerHTML = `<span aria-hidden="true">${item.icon}</span><span>${item.label}</span>`;
+    if (item.key === activeKey) button.setAttribute('aria-current', 'page');
+    return button;
+  }
+
+  function makeFallbackNav(screen, activeKey){
     const nav = document.createElement('nav');
     nav.className = 'v40-student-nav';
+    nav.dataset.v40Fallback = 'true';
+    nav.setAttribute('aria-label', 'Student learning navigation');
+    NAV_ITEMS.forEach(item => nav.appendChild(makeButton(item, screen, activeKey)));
+    screen.insertAdjacentElement('afterbegin', nav);
+    return nav;
+  }
+
+  function ensureQuizNote(screen, nav){
+    if (screen.id !== 'quiz') return;
+    let note = screen.querySelector(':scope > .v40-student-nav-note');
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'v40-student-nav-note';
+      note.textContent = 'Finish or end this Practice session before switching to another learning section.';
+      nav.insertAdjacentElement('afterend', note);
+    }
+  }
+
+  function enhanceNav(screen, activeKey){
+    let nav = screen.querySelector(':scope > .v40-student-nav');
+    if (!nav) nav = makeFallbackNav(screen, activeKey);
+
     nav.setAttribute('aria-label', 'Student learning navigation');
 
     NAV_ITEMS.forEach(item => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.dataset.v40Nav = item.key;
-      button.innerHTML = `<span aria-hidden="true">${item.icon}</span><span>${item.label}</span>`;
-
-      if (item.key === activeKey) {
-        button.setAttribute('aria-current', 'page');
+      let button = nav.querySelector(`[data-v40-nav="${item.key}"]`);
+      if (!button) {
+        button = makeButton(item, screen, activeKey);
+        nav.appendChild(button);
       }
 
-      if (screen.id === 'quiz' && item.key !== 'learn') {
-        button.disabled = true;
-        button.title = 'End Practice before switching sections.';
-      } else {
+      if (item.key === activeKey) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
+
+      const lockedInPractice = screen.id === 'quiz' && item.key !== 'learn';
+      button.disabled = lockedInPractice;
+      if (lockedInPractice) button.title = 'End Practice before switching sections.';
+      else if (button.title === 'End Practice before switching sections.') button.removeAttribute('title');
+
+      if (button.dataset.v40NavBound !== 'true' && !lockedInPractice) {
+        button.dataset.v40NavBound = 'true';
         button.addEventListener('click', () => navigate(item.key, screen));
       }
-
-      nav.appendChild(button);
     });
 
     syncAvailability(nav);
     watchSourceAvailability(nav);
+    ensureQuizNote(screen, nav);
+    nav.dataset.v40NavEnhanced = 'true';
     return nav;
   }
 
   function addStudentNavigation(){
     Object.entries(SCREEN_CONFIG).forEach(([screenId, activeKey]) => {
       const screen = document.getElementById(screenId);
-      if (!screen || screen.querySelector(':scope > .v40-student-nav')) return;
-
-      const nav = makeNav(screen, activeKey);
-      screen.insertAdjacentElement('afterbegin', nav);
-
-      if (screenId === 'quiz') {
-        const note = document.createElement('p');
-        note.className = 'v40-student-nav-note';
-        note.textContent = 'Finish or end this Practice session before switching to another learning section.';
-        nav.insertAdjacentElement('afterend', note);
-      }
+      if (!screen) return;
+      enhanceNav(screen, activeKey);
     });
   }
 
