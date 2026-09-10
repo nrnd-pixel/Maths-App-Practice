@@ -54,12 +54,13 @@ jobs:
               raise SystemExit(f'Expected one V52C insertion anchor, found {text.count(anchor)}')
           if 'Run Option 2B static authenticated Home hard gates' in text:
               raise SystemExit('Option 2B CI step already present unexpectedly')
-          step = """      - name: Run Option 2B static authenticated Home hard gates
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
-        working-directory: e2e
-        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line
-
-"""
+          step = (
+              "      - name: Run Option 2B static authenticated Home hard gates\n"
+              "        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}\n"
+              "        working-directory: e2e\n"
+              "        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line\n"
+              "\n"
+          )
           path.write_text(text.replace(anchor, step + anchor, 1))
           PY
 
