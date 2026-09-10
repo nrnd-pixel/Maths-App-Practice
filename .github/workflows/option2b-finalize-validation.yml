@@ -1,0 +1,243 @@
+name: Option 2B final candidate validation
+
+on:
+  push:
+    branches:
+      - tech-debt-phase-4-option2b-authenticated-hub-static
+    paths:
+      - .github/workflows/option2b-finalize-validation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  validate-push:
+    name: Validate and push exact Option 2B candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: tech-debt-phase-4-option2b-authenticated-hub-static
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Confirm exact baseline and Supabase tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse 162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3^{tree})" = aecab70a2172ccf1fead6b7549dbd4207f6fe492
+          test "$(git rev-parse HEAD:supabase)" = 19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
+          test "$(git rev-parse 162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3:supabase)" = 19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
+
+      - name: Apply Option 2B runtime patch
+        run: python .github/option2b_static_hub_patch.py
+
+      - name: Apply deterministic Option 2B hard-gate patch
+        run: python .github/option2b_test_patch.py
+
+      - name: Wire Option 2B hard gates into consolidated CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/ci.yml')
+          text = path.read_text()
+          anchor = "      - name: Run V52C legacy topical hard gates\n"
+          if text.count(anchor) != 1:
+              raise SystemExit(f'Expected one V52C insertion anchor, found {text.count(anchor)}')
+          if 'Run Option 2B static authenticated Home hard gates' in text:
+              raise SystemExit('Option 2B CI step already present unexpectedly')
+          step = """      - name: Run Option 2B static authenticated Home hard gates
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line
+
+"""
+          path.write_text(text.replace(anchor, step + anchor, 1))
+          PY
+
+      - name: Advance only approved Option 2B successor seals
+        run: python .github/option2b_successor_seals.py
+
+      - name: Verify exact successor bytes and pre-commit scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3
+          expected_supabase=19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
+
+          node --check site/v40-learning-priorities.js
+          node --check site/v57c-student-continue-learning-home.js
+          node --check site/gamification-student.js
+          node --check site/v58a-student-first-use-experience.js
+          node --check e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
+          node --check e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
+
+          test "$(git hash-object site/index.html)" = be7909f3534c77b3eb570ab3b971c33f58ebdaed
+          test "$(git hash-object site/v40-learning-priorities.js)" = bfec5b47eaf266486d21c96acdb4e1cfd677b328
+          test "$(git hash-object site/v57c-student-continue-learning-home.js)" = 196225cf94035363869b8051bc33cdd3c03993f9
+          test "$(git hash-object site/gamification-student.js)" = d9c4dc0e25cbed50346937db887a703800be5a59
+          test "$(git hash-object site/v58a-student-first-use-experience.js)" = 8e0279e86b1ece862586238f99c760129c13465f
+
+          allowed_site='^(site/index\.html|site/v40-learning-priorities\.js|site/v57c-student-continue-learning-home\.js|site/gamification-student\.js|site/v58a-student-first-use-experience\.js|site/tests/v51-phase4-protected-shas\.json|site/tests/verify-phase4-v50-operations-reporting-protected-sha\.cjs|site/tests/verify-phase4-v52c-legacy-student-route-protected-sha\.cjs|site/tests/verify-phase4-v53-practice-selection-protected-sha\.cjs|site/tests/verify-phase4-v53-ui-resource-companion-protected-sha\.cjs|site/tests/verify-phase4-v54-resource-bank-protected-sha\.cjs|site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha\.cjs)$'
+          changed_site="$(git diff --name-only -- site)"
+          unexpected_site="$(printf '%s\n' "$changed_site" | sed '/^$/d' | grep -Ev "$allowed_site" || true)"
+          if [ -n "$unexpected_site" ]; then
+            echo 'Unexpected site working-tree changes:'
+            echo "$unexpected_site"
+            exit 1
+          fi
+
+          allowed_e2e='^(e2e/tests/v40-static-student-signin-shell-option2a\.spec\.cjs|e2e/tests/v40-static-authenticated-home-option2b\.spec\.cjs)$'
+          changed_e2e="$(git diff --name-only -- e2e)"
+          unexpected_e2e="$(printf '%s\n' "$changed_e2e" | sed '/^$/d' | grep -Ev "$allowed_e2e" || true)"
+          if [ -n "$unexpected_e2e" ]; then
+            echo 'Unexpected E2E working-tree changes:'
+            echo "$unexpected_e2e"
+            exit 1
+          fi
+
+          changed_github="$(git diff --name-only -- .github)"
+          test "$changed_github" = '.github/workflows/ci.yml'
+
+          test -z "$(git diff --name-only -- supabase)"
+          test "$(git rev-parse HEAD:supabase)" = "$expected_supabase"
+          test "$(git rev-parse "$base":supabase)" = "$expected_supabase"
+
+          runtime_changed="$(git diff --name-only "$base" -- site/index.html site/v40-learning-priorities.js site/v57c-student-continue-learning-home.js site/gamification-student.js site/v58a-student-first-use-experience.js)"
+          test "$(printf '%s\n' "$runtime_changed" | sed '/^$/d' | wc -l)" -eq 5
+          for file in site/index.html site/v40-learning-priorities.js site/v57c-student-continue-learning-home.js site/gamification-student.js site/v58a-student-first-use-experience.js; do
+            printf '%s\n' "$runtime_changed" | grep -Fx "$file" >/dev/null
+          done
+
+          grep -F 'Run Option 2B static authenticated Home hard gates' .github/workflows/ci.yml >/dev/null
+          grep -F 'npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line' .github/workflows/ci.yml >/dev/null
+
+      - name: Create local final candidate commit for HEAD-based guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            .github/workflows/ci.yml \
+            e2e/tests/v40-static-authenticated-home-option2b.spec.cjs \
+            e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs \
+            site/index.html \
+            site/v40-learning-priorities.js \
+            site/v57c-student-continue-learning-home.js \
+            site/gamification-student.js \
+            site/v58a-student-first-use-experience.js \
+            site/tests/v51-phase4-protected-shas.json \
+            site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs \
+            site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs \
+            site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs \
+            site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs \
+            site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs \
+            site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs
+          git diff --cached --check
+          echo 'Final candidate staged files:'
+          git diff --cached --name-only
+          test "$(git diff --cached --name-only | wc -l)" -eq 15
+          git commit -m 'Phase 4 Option 2B static authenticated Home'
+          echo "LOCAL_FINAL_CANDIDATE_HEAD=$(git rev-parse HEAD)"
+          echo "LOCAL_FINAL_CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          test -z "$(git diff --name-only)"
+          test -z "$(git diff --cached --name-only)"
+
+      - name: Run maintained verifier suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re, subprocess
+          from pathlib import Path
+          source = Path('.github/workflows/ci.yml').read_text()
+          match = re.search(r'verifiers=\(\n(.*?)\n\s*\)', source, re.S)
+          if not match:
+              raise SystemExit('Could not locate maintained verifier list in ci.yml')
+          verifiers = re.findall(r'"([^"]+\.cjs)"', match.group(1))
+          if len(verifiers) != 116:
+              raise SystemExit(f'Expected exactly 116 maintained verifiers, found {len(verifiers)}')
+          print(f'Running {len(verifiers)} maintained verifiers')
+          failures = []
+          for verifier in verifiers:
+              print(f'==> {verifier}', flush=True)
+              result = subprocess.run(['node', verifier])
+              if result.returncode:
+                  failures.append(verifier)
+          if failures:
+              print('FAILED VERIFIERS:')
+              print('\n'.join(failures))
+              raise SystemExit(1)
+          print('Maintained verifier suite: 116/116 PASS')
+          PY
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Option 2B twelve hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line
+
+      - name: Run Phase 0 core equivalence
+        working-directory: e2e
+        run: npx playwright test tests/core.spec.cjs --reporter=line
+
+      - name: Run V52C legacy topical hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v52c-legacy-student-route-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V54 resource-bank hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v54-resource-bank-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V50 operations/reporting hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v50-operations-reporting-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V51 question-bank management hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v51-question-bank-management-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V52B1 observer-gate adversarial hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v52b1-observer-gate-phase4-adversarial.spec.cjs --reporter=line
+
+      - name: Run full Playwright suite
+        working-directory: e2e
+        run: npm test
+
+      - name: Verify post-test candidate integrity and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'Post-test tracked changes:'
+          git status --short --untracked-files=no
+          test -z "$(git diff --name-only)"
+          test -z "$(git diff --cached --name-only)"
+          echo 'Post-test untracked files (not part of candidate commit):'
+          git ls-files --others --exclude-standard || true
+
+          test "$(git hash-object site/index.html)" = be7909f3534c77b3eb570ab3b971c33f58ebdaed
+          test "$(git hash-object site/v40-learning-priorities.js)" = bfec5b47eaf266486d21c96acdb4e1cfd677b328
+          test "$(git hash-object site/v57c-student-continue-learning-home.js)" = 196225cf94035363869b8051bc33cdd3c03993f9
+          test "$(git hash-object site/gamification-student.js)" = d9c4dc0e25cbed50346937db887a703800be5a59
+          test "$(git hash-object site/v58a-student-first-use-experience.js)" = 8e0279e86b1ece862586238f99c760129c13465f
+          test "$(git rev-parse HEAD:supabase)" = 19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456
+
+          echo "VALIDATED_HEAD=$(git rev-parse HEAD)"
+          echo "VALIDATED_TREE=$(git rev-parse HEAD^{tree})"
+          git push origin HEAD:tech-debt-phase-4-option2b-authenticated-hub-static
