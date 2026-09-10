@@ -40,14 +40,13 @@ jobs:
           (async () => {
             const browser = await chromium.launch({ headless: true });
             try {
-              // Static first-paint contract: with JavaScript disabled, #start itself
-              // must remain visible while the two flash-prone controls are hidden.
               const staticContext = await browser.newContext({ javaScriptEnabled: false });
               const staticPage = await staticContext.newPage();
               await staticPage.goto(process.env.PREVIEW_URL, { waitUntil: 'load', timeout: 60000 });
               const staticState = await staticPage.evaluate(() => {
                 const start = document.getElementById('start');
                 const identity = start?.querySelector('.v40c-session-identity');
+                const mode = start?.querySelector('.mode-switch');
                 const directMode = start?.querySelector(':scope > .mode-switch');
                 const startStyle = start ? getComputedStyle(start) : null;
                 const rect = start?.getBoundingClientRect();
@@ -57,6 +56,8 @@ jobs:
                   startWidth: rect?.width || 0,
                   startHeight: rect?.height || 0,
                   identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
+                  modeDisplay: mode ? getComputedStyle(mode).display : 'missing',
+                  modeParent: mode?.parentElement?.className || 'missing',
                   directModeDisplay: directMode ? getComputedStyle(directMode).display : 'missing',
                   startClass: start?.className || 'missing',
                   bodyBackground: getComputedStyle(document.body).backgroundImage,
@@ -67,14 +68,10 @@ jobs:
               assert(staticState.startVisibility === 'visible', '#start visibility is not visible in static first paint');
               assert(staticState.startWidth > 0 && staticState.startHeight > 0, '#start has no rendered area in static first paint');
               assert(staticState.identityDisplay === 'none', 'session identity/logout control is visible in static first paint');
-              assert(staticState.directModeDisplay === 'none', 'direct mode-switch is visible in static first paint');
+              assert(staticState.modeDisplay === 'none' || staticState.modeDisplay === 'missing', `mode-switch is visible in static first paint (display=${staticState.modeDisplay}, parent=${staticState.modeParent})`);
               assert(staticState.startClass.includes('v40-shell-logged-out'), 'static #start is not marked logged out');
               await staticContext.close();
 
-              // Real JS enhancement path: sample every animation frame from before
-              // page scripts execute. There must be no frame after #start appears in
-              // which the shell itself disappears, and no logged-out frame may show
-              // either flash-prone control.
               const context = await browser.newContext();
               const page = await context.newPage();
               await page.addInitScript(() => {
@@ -101,9 +98,7 @@ jobs:
                       authenticated: start.classList.contains('v40-shell-authenticated'),
                       startClass: start.className,
                     });
-                    if (window.__targetedFoucProbe.samples.length > 240) {
-                      window.__targetedFoucProbe.samples.shift();
-                    }
+                    if (window.__targetedFoucProbe.samples.length > 240) window.__targetedFoucProbe.samples.shift();
                   }
                   requestAnimationFrame(sample);
                 };
@@ -152,10 +147,8 @@ jobs:
               assert(enhanced.modeLeakCount === 0, `mode-switch leaked on ${enhanced.modeLeakCount} logged-out sampled frame(s)`);
               assert(enhanced.finalStartDisplay !== 'none' && enhanced.finalStartVisibility === 'visible', '#start is not visible after enhancement');
               assert(enhanced.finalIdentityDisplay === 'none', 'session identity is visible after logged-out enhancement');
-              assert(enhanced.finalModeDisplay === 'none', 'mode-switch is visible after logged-out enhancement');
+              assert(enhanced.finalModeDisplay === 'none' || enhanced.finalModeDisplay === 'missing', 'mode-switch is visible after logged-out enhancement');
 
-              // Confirm the existing dynamic styles can still override the new
-              // static defaults when the shell is authenticated/Learn is active.
               const overrideState = await page.evaluate(() => {
                 const start = document.getElementById('start');
                 const panel = start.querySelector('.v40c-session-panel');
@@ -175,7 +168,7 @@ jobs:
               console.log('AUTHENTICATED_OVERRIDE', JSON.stringify(overrideState));
               assert(overrideState.identityDisplay !== 'none', 'authenticated dynamic session style cannot override static identity hide');
               assert(overrideState.setupDisplay !== 'none', 'authenticated Learn setup remains hidden');
-              assert(overrideState.modeDisplay !== 'none', 'authenticated mode-switch remains hidden');
+              assert(overrideState.modeDisplay !== 'none' && overrideState.modeDisplay !== 'missing', 'authenticated mode-switch remains hidden or missing');
 
               await context.close();
               console.log('TARGETED_FOUC_PREVIEW_CHECK PASS');
