@@ -9,7 +9,7 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const BASE_SHA = '162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3';
+const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
