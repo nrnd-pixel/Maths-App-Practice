@@ -211,10 +211,24 @@ async function settleSignInGamification(page) {
   await waitForGamificationLifecycleSettlement(page);
 }
 
+async function primeGamification(page) {
+  await armGamificationLifecycleProbe(page);
+  await expect.poll(
+    () => page.evaluate(async () => Boolean(await window.GamificationStudent.refresh(true))),
+    { timeout: 15_000, intervals: [100, 150, 250, 400] },
+  ).toBe(true);
+  await waitForGamificationLifecycleSettlement(page);
+}
+
 async function renderHomeAndSettleForcedGamification(page, model) {
   await armGamificationLifecycleProbe(page);
   await page.evaluate(value => window.V57CStudentContinueLearningHome.render(value), model);
   await waitForGamificationLifecycleSettlement(page);
+}
+
+async function renderHomeAndWaitForScheduledGamificationRefresh(page, model) {
+  await primeGamification(page);
+  await renderHomeAndSettleForcedGamification(page, model);
 }
 
 function homeModel(name = 'Fixture Student') {
@@ -287,25 +301,24 @@ new_beta = """    await settleSignInGamification(page);
 """
 text = replace_once(text, old_beta, new_beta, 'gate 4 Beta forced-refresh settlement')
 
-old_gate8 = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
-    await installStaticCapture(page);
-    await installSupabaseMock(page);
-    await openApp(page);
-    await signInStudent(page);
+old_gate8_start = """    await signInStudent(page);
     await waitForOption2bRuntime(page);
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
 """
-new_gate8 = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
-    await installStaticCapture(page);
-    await installSupabaseMock(page);
-    await openApp(page);
+new_gate8_start = """    await signInStudent(page);
     await waitForOption2bRuntime(page);
-    await settleSignInGamification(page);
+    await primeGamification(page);
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
 """
-text = replace_once(text, old_gate8, new_gate8, 'gate 8 sign-in refresh settlement')
+gate8_heading = "test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {"
+gate8_index = text.find(gate8_heading)
+if gate8_index < 0:
+    raise RuntimeError('gate 8 heading not found')
+prefix, gate8_tail = text[:gate8_index], text[gate8_index:]
+gate8_tail = replace_once(gate8_tail, old_gate8_start, new_gate8_start, 'gate 8 refresh settlement')
+text = prefix + gate8_tail
 
 old_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
       .split(/\\r?\\n/)
