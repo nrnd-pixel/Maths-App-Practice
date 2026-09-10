@@ -41,6 +41,38 @@ jobs:
       - name: Apply deterministic Option 2B hard-gate patch
         run: python .github/option2b_test_patch.py
 
+      - name: Settle Gate 8 Home-triggered gamification refresh before fixture injection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('e2e/tests/v40-static-authenticated-home-option2b.spec.cjs')
+          text = path.read_text()
+          heading = "test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {"
+          index = text.find(heading)
+          if index < 0:
+              raise SystemExit('Gate 8 heading not found')
+          prefix, tail = text[:index], text[index:]
+          old = """    await signInStudent(page);
+              await waitForOption2bRuntime(page);
+              await primeGamification(page);
+
+              await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
+          """
+          new = """    await signInStudent(page);
+              await waitForOption2bRuntime(page);
+              await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Challenge Fixture'));
+
+              await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
+          """
+          if tail.count(old) != 1:
+              raise SystemExit(f'Expected exactly one Gate 8 fixture sequence, found {tail.count(old)}')
+          path.write_text(prefix + tail.replace(old, new, 1))
+          print('Gate 8 deterministic fixture sequencing hardened without runtime changes.')
+          PY
+
       - name: Wire Option 2B hard gates into consolidated CI
         shell: bash
         run: |
@@ -54,9 +86,10 @@ jobs:
               raise SystemExit(f'Expected one V52C insertion anchor, found {text.count(anchor)}')
           if 'Run Option 2B static authenticated Home hard gates' in text:
               raise SystemExit('Option 2B CI step already present unexpectedly')
+          expr = chr(36) + "{{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}"
           step = (
               "      - name: Run Option 2B static authenticated Home hard gates\n"
-              "        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}\n"
+              f"        if: {expr}\n"
               "        working-directory: e2e\n"
               "        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line\n"
               "\n"
@@ -118,8 +151,31 @@ jobs:
             printf '%s\n' "$runtime_changed" | grep -Fx "$file" >/dev/null
           done
 
-          grep -F 'Run Option 2B static authenticated Home hard gates' .github/workflows/ci.yml >/dev/null
-          grep -F 'npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line' .github/workflows/ci.yml >/dev/null
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
+
+          base = subprocess.check_output(
+              ['git', 'show', '162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3:.github/workflows/ci.yml'],
+              text=True,
+          )
+          current = Path('.github/workflows/ci.yml').read_text()
+          anchor = "      - name: Run V52C legacy topical hard gates\n"
+          expr = chr(36) + "{{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}"
+          step = (
+              "      - name: Run Option 2B static authenticated Home hard gates\n"
+              f"        if: {expr}\n"
+              "        working-directory: e2e\n"
+              "        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line\n"
+              "\n"
+          )
+          expected = base.replace(anchor, step + anchor, 1)
+          if current != expected:
+              raise SystemExit('ci.yml differs from baseline by more than the exact Option 2B PR/dispatch hard-gate step')
+          if 'if: false' in current[current.index('Run Option 2B static authenticated Home hard gates'):current.index('Run V52C legacy topical hard gates')]:
+              raise SystemExit('Option 2B CI gate was incorrectly reduced to if: false')
+          print('ci.yml exact additive Option 2B hard-gate wiring: PASS')
+          PY
 
       - name: Create local final candidate commit for HEAD-based guards
         shell: bash
