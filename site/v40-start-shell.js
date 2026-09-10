@@ -267,13 +267,18 @@
     zone.appendChild(details);
   }
 
-  function applyShellState({ resetView = false } = {}){
+  function applyShellState({ resetView = false, preserveInitialLoggedOut = false } = {}){
     const start = startScreen();
     if (!start) return;
 
     const signedIn = isSignedIn();
     start.classList.toggle('v40-shell-authenticated', signedIn);
-    start.classList.toggle('v40-shell-logged-out', !signedIn);
+
+    if (signedIn) {
+      start.classList.remove('v40-shell-logged-out');
+    } else if (!preserveInitialLoggedOut) {
+      start.classList.add('v40-shell-logged-out');
+    }
 
     if (!signedIn) {
       delete start.dataset.v40StartView;
@@ -342,7 +347,7 @@
     moveStartNav();
     compactTeacherTools();
     watchSessionPanel();
-    applyShellState();
+    applyShellState({ preserveInitialLoggedOut:true });
 
     document.addEventListener('click', handleNavigationClick, true);
   }
