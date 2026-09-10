@@ -6,6 +6,7 @@ on:
       - tech-debt-phase-4-option2b-authenticated-hub-static
     paths:
       - .github/workflows/option2b-static-hub-branch-validation.yml
+      - .github/option2b_successor_seals.py
 
 permissions:
   contents: write
@@ -73,8 +74,6 @@ jobs:
           test "$(git rev-parse HEAD:supabase)" = "$expected_supabase"
           test "$(git rev-parse "$base":supabase)" = "$expected_supabase"
 
-          # The branch-level candidate may differ from baseline only in the five
-          # authorized runtime files plus exact successor-seal/test scaffolding.
           runtime_changed="$(git diff --name-only "$base" -- site/index.html site/v40-learning-priorities.js site/v57c-student-continue-learning-home.js site/gamification-student.js site/v58a-student-first-use-experience.js)"
           printf 'Authorized Option 2B runtime candidate files:\n%s\n' "$runtime_changed"
           test "$(printf '%s\n' "$runtime_changed" | sed '/^$/d' | wc -l)" -eq 5
