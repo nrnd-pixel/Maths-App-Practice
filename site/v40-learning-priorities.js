@@ -10,6 +10,7 @@
   let requestId = 0;
   let lastLoadedAt = 0;
   let lastIdentityKey = '';
+  let legacyPriorityContext = null;
 
   function injectStyles(){
     if (document.getElementById(STYLE_ID)) return;
@@ -182,13 +183,91 @@
   function buildDashboard(){
     const hub = document.querySelector('#start .v39-home-hub');
     const hero = hub?.querySelector('.v40-learning-hub-hero');
-    if (!hub || !hero || hub.querySelector('.v40c3-home-dashboard')) return;
+    if (!hub || !hero) return null;
 
-    const dashboard = document.createElement('section');
-    dashboard.className = 'v40c3-home-dashboard';
+    let dashboard = hub.querySelector('.v40c3-home-dashboard');
+    if (dashboard) return dashboard;
+
+    // Compatibility fallback for isolated/legacy hosts. The production index owns
+    // this structure statically; this branch only runs if that source HTML is absent.
+    dashboard = document.createElement('section');
+    dashboard.className = 'v40c3-home-dashboard v40c3-ready';
     dashboard.setAttribute('aria-label', 'Learning priorities');
-    dashboard.innerHTML = '<div class="v40c3-loading">Preparing your learning priorities…</div>';
+    dashboard.innerHTML = `
+      <article class="v57c-continue-card" data-v57c-kind="loading">
+        <div>
+          <div class="v57c-kicker">Continue Learning</div>
+          <h2 data-v57c-priority-title>Preparing your next learning step…</h2>
+          <p data-v57c-priority-text>Your learning priorities will appear here after sign-in.</p>
+          <div class="v57c-meta" data-v57c-priority-meta></div>
+        </div>
+        <button type="button" class="primary v57c-primary" disabled>Preparing…</button>
+      </article>`;
     hero.insertAdjacentElement('afterend', dashboard);
+    return dashboard;
+  }
+
+  function priorityNodes(dashboard){
+    const card = dashboard?.querySelector('.v57c-continue-card') || dashboard?.querySelector('.v40c3-priority-card');
+    return {
+      card,
+      title: card?.querySelector('[data-v57c-priority-title],.v40c3-priority-title') || null,
+      text: card?.querySelector('[data-v57c-priority-text],.v40c3-priority-text') || null,
+      meta: card?.querySelector('[data-v57c-priority-meta],.v40c3-priority-meta') || null,
+      button: card?.querySelector('.v57c-primary,.v40c3-priority-action') || null
+    };
+  }
+
+  function setPriorityMeta(container, values){
+    if (!container) return;
+    const fragment = document.createDocumentFragment();
+    (Array.isArray(values) ? values : []).forEach(value => {
+      const span = document.createElement('span');
+      span.textContent = String(value || '');
+      fragment.appendChild(span);
+    });
+    container.replaceChildren(fragment);
+  }
+
+  function setPriorityShell(dashboard, priority, { disabled = false } = {}){
+    const nodes = priorityNodes(dashboard);
+    if (!nodes.card) return false;
+    nodes.card.dataset.v57cKind = priority?.kind || 'learn';
+    nodes.card.dataset.v40c3Kind = priority?.kind || 'learn';
+    if (nodes.title) nodes.title.textContent = `${priority?.icon || '✏️'} ${priority?.title || 'Continue learning'}`;
+    if (nodes.text) nodes.text.textContent = priority?.text || 'Your personalised next step will appear here.';
+    setPriorityMeta(nodes.meta, priority?.meta || []);
+    if (nodes.button) {
+      nodes.button.textContent = priority?.action || 'Open Learn';
+      nodes.button.disabled = !!disabled;
+    }
+    dashboard.classList.add('v40c3-ready');
+    return true;
+  }
+
+  function setPriorityLoading(dashboard, text){
+    if (!dashboard || dashboard.dataset.v57cRendered === 'true') return;
+    legacyPriorityContext = null;
+    setPriorityShell(dashboard, {
+      kind:'loading', icon:'⏳', title:'Preparing your next learning step',
+      text:text || 'Refreshing your learning priorities…', action:'Preparing…', meta:[]
+    }, { disabled:true });
+  }
+
+  function bindLegacyPriorityAction(dashboard){
+    if (!dashboard || dashboard.dataset.v40c3ActionBound === 'true') return;
+    dashboard.dataset.v40c3ActionBound = 'true';
+    dashboard.addEventListener('click', event => {
+      if (dashboard.dataset.v57cRendered === 'true') return;
+      const button = event.target?.closest?.('.v57c-primary,.v40c3-priority-action');
+      if (!button || !dashboard.contains(button) || button.disabled) return;
+      const context = legacyPriorityContext;
+      if (!context?.priority) return;
+      if (context.priority.kind === 'assignment') openAssignments();
+      else if (context.priority.kind === 'focus') startRecommendation(context.focusPractice);
+      else if (context.priority.kind === 'recommendation') startRecommendation(context.recommendation);
+      else openLearn();
+    });
   }
 
   function setHero(studentName){
@@ -405,83 +484,36 @@
 
   function renderDashboard(data){
     const dashboard = document.querySelector('#start .v40c3-home-dashboard');
-    if (!dashboard) return;
+    if (!dashboard || dashboard.dataset.v57cRendered === 'true') return;
 
     const assignments = Array.isArray(data.assignments?.assignments)
       ? data.assignments.assignments
       : [];
     const recommendation = data.recommendation || {};
     const progress = data.progress || {};
-    const motivation = data.motivation || {};
-    const messages = data.messages || {};
     const student = progress.student || data.assignments?.student || {};
     const focusPractice = focusPracticeFromProgress(progress);
     const priority = choosePriority(assignments, recommendation, focusPractice);
 
-    const streak = Math.max(0, Number(motivation.streak?.current_days || 0));
-    const weeklyDone = Math.max(0, Number(motivation.weekly_goal?.completed_days || 0));
-    const weeklyGoal = Math.max(1, Number(motivation.weekly_goal?.goal_days || 3));
-    const unread = Math.max(0, Number(messages.unread_count || 0));
-    const sessions = Math.max(0, Number(progress.summary?.practice_sessions || 0));
-
-    dashboard.innerHTML = `
-      <article class="v40c3-priority-card">
-        <div>
-          <div class="v40c3-priority-kicker">Your next step</div>
-          <h2 class="v40c3-priority-title">${priority.icon} ${esc(priority.title)}</h2>
-          <p class="v40c3-priority-text">${esc(priority.text)}</p>
-          ${priority.meta.length ? `
-            <div class="v40c3-priority-meta">
-              ${priority.meta.map(item => `<span>${esc(item)}</span>`).join('')}
-            </div>
-          ` : ''}
-        </div>
-        <button type="button" class="primary v40c3-priority-action">${esc(priority.action)}</button>
-      </article>
-
-      <div class="v40c3-glance" aria-label="Learning at a glance">
-        <div class="v40c3-glance-card"><strong>🔥 ${streak}</strong><span>day learning streak</span></div>
-        <div class="v40c3-glance-card"><strong>🎯 ${weeklyDone}/${weeklyGoal}</strong><span>learning days this week</span></div>
-        <div class="v40c3-glance-card"><strong>✏️ ${sessions}</strong><span>completed Practice sessions</span></div>
-        <div class="v40c3-glance-card"><strong>💬 ${unread}</strong><span>unread teacher message${unread === 1 ? '' : 's'}</span></div>
-      </div>
-
-      <div class="v40c3-secondary-row">
-        <button type="button" class="outline v40c3-view-progress">View Mastery Progress</button>
-        ${unread > 0 ? '<button type="button" class="outline v40c3-view-messages">Read Teacher Messages</button>' : ''}
-      </div>
-    `;
-
-    const priorityButton = dashboard.querySelector('.v40c3-priority-action');
-    priorityButton?.addEventListener('click', () => {
-      if (priority.kind === 'assignment') openAssignments();
-      else if (priority.kind === 'focus') startRecommendation(focusPractice);
-      else if (priority.kind === 'recommendation') startRecommendation(recommendation);
-      else openLearn();
-    });
-
-    dashboard.querySelector('.v40c3-view-progress')?.addEventListener('click', openProgress);
-    dashboard.querySelector('.v40c3-view-messages')?.addEventListener('click', openProgress);
-
-    dashboard.classList.add('v40c3-ready');
+    legacyPriorityContext = { priority, recommendation, focusPractice };
+    bindLegacyPriorityAction(dashboard);
+    setPriorityShell(dashboard, priority);
+    dashboard.dataset.v40c3LegacyRendered = 'true';
     setHero(student.student_name || activeStudentAccess?.student_name || 'Student');
   }
 
   function renderLoadProblem(){
     const dashboard = document.querySelector('#start .v40c3-home-dashboard');
-    if (!dashboard) return;
-    dashboard.innerHTML = `
-      <article class="v40c3-priority-card">
-        <div>
-          <div class="v40c3-priority-kicker">Your next step</div>
-          <h2 class="v40c3-priority-title">✏️ Continue learning</h2>
-          <p class="v40c3-priority-text">Your personalised priority could not be refreshed right now, but you can still open Learn, Assignments or Progress.</p>
-        </div>
-        <button type="button" class="primary v40c3-priority-action">Open Learn</button>
-      </article>
-    `;
-    dashboard.querySelector('.v40c3-priority-action')?.addEventListener('click', openLearn);
-    dashboard.classList.add('v40c3-ready');
+    if (!dashboard || dashboard.dataset.v57cRendered === 'true') return;
+    legacyPriorityContext = {
+      priority:{ kind:'learn' }, recommendation:null, focusPractice:null
+    };
+    bindLegacyPriorityAction(dashboard);
+    setPriorityShell(dashboard, {
+      kind:'learn', icon:'✏️', title:'Continue learning',
+      text:'Your personalised priority could not be refreshed right now, but you can still open Learn, Assignments or Progress.',
+      action:'Open Learn', meta:[]
+    });
   }
 
   async function loadHomePriorities(force = false){
@@ -493,8 +525,7 @@
 
     if (!force && Date.now() - lastLoadedAt < 20000) return;
 
-    dashboard.classList.remove('v40c3-ready');
-    dashboard.innerHTML = '<div class="v40c3-loading">Refreshing your learning priorities…</div>';
+    setPriorityLoading(dashboard, 'Refreshing your learning priorities…');
 
     try {
       const practiceAccess = await validateStudentAccess('practice');
@@ -538,10 +569,16 @@
     ++requestId;
     lastLoadedAt = 0;
     lastIdentityKey = '';
+    legacyPriorityContext = null;
     const dashboard = document.querySelector('#start .v40c3-home-dashboard');
     if (dashboard) {
-      dashboard.classList.remove('v40c3-ready');
-      dashboard.innerHTML = '<div class="v40c3-loading">Sign in to see your personalised next step.</div>';
+      dashboard.dataset.v40c3LegacyRendered = 'false';
+      dashboard.dataset.v57cRendered = 'false';
+      setPriorityShell(dashboard, {
+        kind:'loading', icon:'⏳', title:'Preparing your next learning step',
+        text:'Sign in to load your assignments, saved Practice and recommendations.',
+        action:'Preparing…', meta:[]
+      }, { disabled:true });
     }
     setHero('');
   }

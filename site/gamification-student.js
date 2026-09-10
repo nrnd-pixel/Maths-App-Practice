@@ -78,14 +78,16 @@
         : `<strong>${remaining} XP to Level ${level.number+1}</strong><span>XP comes from verified Practice already saved in the app.</span>`;
 
     let card=document.getElementById(IDS.xpCard);
+    const staticCard=!!card?.hasAttribute('data-v40-static-card');
     if (!card){
       card=document.createElement('article');
       card.id=IDS.xpCard;
       anchor.insertAdjacentElement('beforebegin',card);
-    } else if (card.nextElementSibling!==anchor){
+    } else if (!staticCard && card.nextElementSibling!==anchor){
       anchor.insertAdjacentElement('beforebegin',card);
     }
 
+    card.classList.remove('hidden');
     card.dataset.level=String(level.number);
     card.dataset.xp=String(xp);
     card.innerHTML=`
@@ -158,14 +160,16 @@
     const earned=model.earned_count;
 
     let card=document.getElementById(IDS.achievementCard);
+    const staticCard=!!card?.hasAttribute('data-v40-static-card');
     if (!card){
       card=document.createElement('article');
       card.id=IDS.achievementCard;
       anchor.insertAdjacentElement('beforebegin',card);
-    } else if (card.nextElementSibling!==anchor){
+    } else if (!staticCard && card.nextElementSibling!==anchor){
       anchor.insertAdjacentElement('beforebegin',card);
     }
 
+    card.classList.remove('hidden');
     const latestDate=latest?.earned_at ? CORE.dateLabel(latest.earned_at) : '';
     card.innerHTML=`
       <div class="v571b-achievement-icon">${latest?html(latest.icon):'🏅'}</div>
@@ -268,14 +272,16 @@
     if (!anchor) return false;
 
     let card=document.getElementById(IDS.missionsCard);
+    const staticCard=!!card?.hasAttribute('data-v40-static-card');
     if (!card){
       card=document.createElement('article');
       card.id=IDS.missionsCard;
       anchor.insertAdjacentElement('beforebegin',card);
-    } else if (card.nextElementSibling!==anchor){
+    } else if (!staticCard && card.nextElementSibling!==anchor){
       anchor.insertAdjacentElement('beforebegin',card);
     }
 
+    card.classList.remove('hidden');
     const done=model.summary.completed;
     const total=model.summary.total || 3;
     const footer=model.summary.all_complete
@@ -335,8 +341,14 @@
     document.documentElement.classList.add('v574-class-challenge-ready');
 
     let card=document.getElementById(IDS.classChallengeCard);
+    const staticCard=!!card?.hasAttribute('data-v40-static-card');
     if (!model.challenge.enabled){
-      card?.remove();
+      if (card && staticCard){
+        card.classList.add('hidden');
+        card.innerHTML='<div class="v40-static-placeholder">Class challenge will appear when enabled.</div>';
+      } else {
+        card?.remove();
+      }
       emitClassChallengeCompatibility(model);
       return true;
     }
@@ -347,12 +359,15 @@
     const anchor=missions || achievement || fallback;
     if (!anchor) return false;
     if (!card){ card=document.createElement('article'); card.id=IDS.classChallengeCard; }
-    if (missions){
-      if (missions.nextElementSibling!==card) missions.insertAdjacentElement('afterend',card);
-    } else if (card.nextElementSibling!==anchor){
-      anchor.insertAdjacentElement('beforebegin',card);
+    if (!staticCard){
+      if (missions){
+        if (missions.nextElementSibling!==card) missions.insertAdjacentElement('afterend',card);
+      } else if (card.nextElementSibling!==anchor){
+        anchor.insertAdjacentElement('beforebegin',card);
+      }
     }
 
+    card.classList.remove('hidden');
     const c=model.challenge;
     const remaining=Math.max(0,c.target_questions-c.questions_completed);
     const classLabel=model.class.year_level?`${model.class.class_name} · Year ${model.class.year_level}`:model.class.class_name;
@@ -509,28 +524,46 @@
     },attempt?180:70);
   }
 
+  function resetStaticCard(card, markup){
+    if (!card) return false;
+    if (!card.hasAttribute('data-v40-static-card')){
+      card.remove();
+      return false;
+    }
+    card.classList.add('hidden');
+    card.innerHTML=markup;
+    return true;
+  }
+
   function clearXp(){
     xpCache.clear();
-    document.getElementById(IDS.xpCard)?.remove();
+    const card=document.getElementById(IDS.xpCard);
+    if (card){
+      delete card.dataset.level;
+      delete card.dataset.xp;
+      resetStaticCard(card,'<div class="v40-static-placeholder">XP and level will appear after sign-in.</div>');
+    }
   }
 
   function clearAchievements(){
     achievementsCache.clear();
-    document.querySelector('.v571b-streak-chip')?.remove();
     document.querySelector('.v571b-streak-note')?.remove();
-    document.getElementById(IDS.achievementCard)?.remove();
+    const card=document.getElementById(IDS.achievementCard);
+    if (card) resetStaticCard(card,'<div class="v40-static-placeholder">Achievements will appear after sign-in.</div>');
     document.getElementById(IDS.achievementToast)?.remove();
   }
 
   function clearMissions(){
     missionsCache.clear();
-    document.getElementById(IDS.missionsCard)?.remove();
+    const card=document.getElementById(IDS.missionsCard);
+    if (card) resetStaticCard(card,'<div class="v40-static-placeholder">Weekly missions will appear after sign-in.</div>');
     document.getElementById(IDS.missionsToast)?.remove();
   }
 
   function clearClassChallenge(){
     classChallengeCache.clear();
-    document.getElementById(IDS.classChallengeCard)?.remove();
+    const card=document.getElementById(IDS.classChallengeCard);
+    if (card) resetStaticCard(card,'<div class="v40-static-placeholder">Class challenge will appear when enabled.</div>');
     document.getElementById(IDS.classChallengeToast)?.remove();
     document.documentElement?.classList?.remove('v574-class-challenge-ready');
   }

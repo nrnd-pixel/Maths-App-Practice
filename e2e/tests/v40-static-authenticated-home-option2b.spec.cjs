@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { execFileSync } = require('node:child_process');
 const path = require('node:path');
 const {
+  STUDENT,
   installSupabaseMock,
   openApp,
   signInStudent,
@@ -11,12 +12,27 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
-const ALLOWED_SITE_CHANGES = new Set([
+const AUTHORIZED_RUNTIME_CHANGES = new Set([
   'site/index.html',
   'site/v40-learning-priorities.js',
   'site/v57c-student-continue-learning-home.js',
   'site/gamification-student.js',
   'site/v58a-student-first-use-experience.js',
+]);
+
+const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
+  'site/tests/v51-phase4-protected-shas.json',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs',
+  'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs',
+  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
+  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
+]);
+
+const ALLOWED_SITE_CHANGES = new Set([
+  ...AUTHORIZED_RUNTIME_CHANGES,
+  ...AUTHORIZED_SUCCESSOR_SEAL_CHANGES,
 ]);
 
 const FROZEN_BLOBS = Object.freeze({
@@ -90,6 +106,34 @@ async function waitForHomeRendered(page) {
     () => page.evaluate(() => document.querySelector('#start .v40c3-home-dashboard')?.dataset?.v57cRendered === 'true'),
     { timeout: 15_000 },
   ).toBe(true);
+}
+
+const OPTION2B_STABLE_WINDOW_MS = 220;
+
+async function waitForStableCardState(page, selector) {
+  const locator = page.locator(selector);
+  await expect(locator).toHaveCount(1);
+  let lastSignature = null;
+  let stableSince = 0;
+
+  await expect.poll(async () => {
+    const signature = await locator.evaluate(node => JSON.stringify({
+      text: node.textContent,
+      className: node.className,
+      xp: node.dataset?.xp ?? null,
+      hidden: node.classList.contains('hidden'),
+    }));
+    const now = Date.now();
+    if (signature !== lastSignature) {
+      lastSignature = signature;
+      stableSince = now;
+      return false;
+    }
+    return now - stableSince > OPTION2B_STABLE_WINDOW_MS;
+  }, {
+    timeout: 15_000,
+    intervals: [40, 60, 80, 120],
+  }).toBe(true);
 }
 
 function homeModel(name = 'Fixture Student') {
@@ -252,18 +296,30 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     await waitForOption2bRuntime(page);
     await waitForHomeRendered(page);
 
-    await page.evaluate(({ model, missions, challenge }) => {
-      window.V57CStudentContinueLearningHome.render(model);
+    // Drain the genuine first-sign-in Home/gamification work before planting a
+    // previous-student fixture. This is state-stability polling, not a sleep.
+    await waitForStableCardState(page, '#v571a-gamification-card');
+    await waitForStableCardState(page, '#v572-weekly-missions-card');
+    await waitForStableCardState(page, '#v574-class-challenge-card');
+
+    // V57C render itself schedules the forced gamification refresh. Let that
+    // real refresh settle first, then plant the distinctive Alpha gamification
+    // markers so they are genuinely present at the logout boundary.
+    await page.evaluate(model => window.V57CStudentContinueLearningHome.render(model), homeModel('Student Alpha'));
+    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Alpha');
+    await waitForStableCardState(page, '#v571a-gamification-card');
+    await waitForStableCardState(page, '#v572-weekly-missions-card');
+    await waitForStableCardState(page, '#v574-class-challenge-card');
+
+    await page.evaluate(({ missions, challenge }) => {
       window.GamificationStudent.xp.render({ xp: { total: 321 } });
       window.GamificationStudent.missions.render(missions);
       window.GamificationStudent.classChallenge.render(challenge);
     }, {
-      model: homeModel('Student Alpha'),
       missions: missionsPayload('Alpha Mission'),
       challenge: challengePayload(true, 'Alpha Class'),
     });
 
-    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Alpha');
     await expect(page.locator('#v571a-gamification-card')).toContainText('321');
     await expect(page.locator('#v572-weekly-missions-card')).toContainText('Alpha Mission');
     await expect(page.locator('#v574-class-challenge-card')).toContainText('Alpha Class');
@@ -276,29 +332,22 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     ).not.toContain('Student Alpha');
 
     const afterLogout = await page.locator('#start .v40c3-home-dashboard').innerText();
+    expect(afterLogout).not.toContain(STUDENT.name);
     expect(afterLogout).not.toContain('321');
     expect(afterLogout).not.toContain('Alpha Mission');
     expect(afterLogout).not.toContain('Alpha Class');
 
+    // Option B: use the real second sign-in fixture as Student B. Because the
+    // logged-out Home was just proven not to contain this name, observing the
+    // fixture name now proves the new V57C personalization render completed;
+    // no manual Beta render can race a later authentic Home refresh.
     await signInStudent(page);
-    await waitForHomeRendered(page);
-    await page.evaluate(({ model, missions, challenge }) => {
-      window.V57CStudentContinueLearningHome.render(model);
-      window.GamificationStudent.xp.render({ xp: { total: 654 } });
-      window.GamificationStudent.missions.render(missions);
-      window.GamificationStudent.classChallenge.render(challenge);
-    }, {
-      model: homeModel('Student Beta'),
-      missions: missionsPayload('Beta Mission'),
-      challenge: challengePayload(true, 'Beta Class'),
-    });
+    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText(STUDENT.name, { timeout: 15_000 });
 
     const betaText = await page.locator('#start').innerText();
-    expect(betaText).toContain('Student Beta');
-    expect(betaText).toContain('654');
-    expect(betaText).toContain('Beta Mission');
-    expect(betaText).toContain('Beta Class');
+    expect(betaText).toContain(STUDENT.name);
     expect(betaText).not.toContain('Student Alpha');
+    expect(betaText).not.toContain('321');
     expect(betaText).not.toContain('Alpha Mission');
     expect(betaText).not.toContain('Alpha Class');
   });
@@ -367,6 +416,11 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     await openApp(page);
     await signInStudent(page);
     await waitForOption2bRuntime(page);
+
+    // Prove the real sign-in/V57C challenge state has stopped changing before
+    // injecting the 6B fixture. The >180ms stability window covers the retry
+    // path without relying on an arbitrary setTimeout.
+    await waitForStableCardState(page, '#v574-class-challenge-card');
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
     await expect(page.locator('#v574-class-challenge-card')).not.toHaveClass(/hidden/);
@@ -477,6 +531,9 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
       .filter(Boolean);
     for (const pathname of changedSite) {
       expect(ALLOWED_SITE_CHANGES.has(pathname), `unapproved site change: ${pathname}`).toBe(true);
+    }
+    for (const pathname of AUTHORIZED_RUNTIME_CHANGES) {
+      expect(changedSite, `authorized runtime successor missing: ${pathname}`).toContain(pathname);
     }
 
     const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase']);

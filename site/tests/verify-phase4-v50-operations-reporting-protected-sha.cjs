@@ -94,14 +94,14 @@ const protectedFiles=Object.freeze({
 
   // Gamification + V57C.
   'site/gamification-core.js':'87d6175270284e4b40c3a1fbcd196622179d0402',
-  'site/gamification-student.js':'4847c0be7c635d46bb1e458a81510d37f1079851',
+  'site/gamification-student.js':'d9c4dc0e25cbed50346937db887a703800be5a59',
   'site/gamification-teacher.js':'04b93c670575acbf53e023b4f53edde9171ed034',
-  'site/v57c-student-continue-learning-home.js':'b3daeac60970302bc6bb59e654f9ec8c484096a0',
+  'site/v57c-student-continue-learning-home.js':'196225cf94035363869b8051bc33cdd3c03993f9',
 
   // V58 complete runtime boundary.
   'site/v58-stable-release-checkpoint.js':'7afdfa50363672f7dd35d67473bcec8485944fdd',
   'site/v581a-practice-cloud-result-reconciliation.js':'09f167eab59737a393113ec3059724b8931155d3',
-  'site/v58a-student-first-use-experience.js':'610dc830c89d44959e5ea893b79b8424283077be',
+  'site/v58a-student-first-use-experience.js':'8e0279e86b1ece862586238f99c760129c13465f',
   'site/v58b-teacher-workspace-consolidation.js':'661c54ddc1f5cf45252f14b0dadf8600c1243ab2',
   'site/v58c-parent-friendly-student-report.js':'ab1ec58ff7cae1d886879002e4983179d7280145',
   'site/v58c-parent-summary-workspace-shortcut.js':'a6bbf05422d414d94fa7e6164f1d302e27feda51',

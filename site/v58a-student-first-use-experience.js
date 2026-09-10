@@ -148,8 +148,35 @@
     }
   }
 
+  function ensureCard(){
+    let card=document.getElementById(CARD_ID);
+    if(card) return card;
+    card=document.createElement('article');
+    card.id=CARD_ID;
+    card.className='hidden';
+    card.setAttribute('aria-label','First Practice');
+    card.innerHTML=`
+      <div class="v58a-icon" aria-hidden="true">👋</div>
+      <div class="v58a-main">
+        <div class="v58a-kicker">Your first step</div>
+        <h2>Ready for your first short Practice?</h2>
+        <p>Start with a short Mixed Practice. Hints and a second try are available, and finishing unlocks your First Practice achievement.</p>
+        <div class="v58a-meta"><span>5 questions</span><span>Mixed Practice</span><span>Hints available</span><span>Earn XP + first badge</span></div>
+      </div>
+      <button type="button" class="primary v58a-start">Start My First 5 Questions</button>`;
+    return card;
+  }
+
   function removeCard(){
-    document.getElementById(CARD_ID)?.remove();
+    const card=document.getElementById(CARD_ID);
+    if(!card) return;
+    if(!card.hasAttribute('data-v40-static-card')){
+      card.remove();
+      return;
+    }
+    card.classList.add('hidden');
+    const heading=card.querySelector('h2');
+    if(heading) heading.textContent='Ready for your first short Practice?';
   }
 
   function eligible(){
@@ -169,25 +196,21 @@
       return false;
     }
 
-    let card=document.getElementById(CARD_ID);
-    if(!card){
-      card=document.createElement('article');
-      card.id=CARD_ID;
-      card.setAttribute('aria-label','First Practice');
-    }
-    if(card.nextElementSibling!==anchor) anchor.insertAdjacentElement('beforebegin',card);
+    const card=ensureCard();
+    const staticCard=card.hasAttribute('data-v40-static-card');
+    if(!staticCard && card.nextElementSibling!==anchor) anchor.insertAdjacentElement('beforebegin',card);
 
     const name=studentName();
-    card.innerHTML=`
-      <div class="v58a-icon" aria-hidden="true">👋</div>
-      <div class="v58a-main">
-        <div class="v58a-kicker">Your first step</div>
-        <h2>${name?`Welcome, ${escapeHtml(name)}! `:''}Ready for 5 quick questions?</h2>
-        <p>Start with a short Mixed Practice. Hints and a second try are available, and finishing unlocks your First Practice achievement.</p>
-        <div class="v58a-meta"><span>5 questions</span><span>Mixed Practice</span><span>Hints available</span><span>Earn XP + first badge</span></div>
-      </div>
-      <button type="button" class="primary v58a-start">Start My First 5 Questions</button>`;
-    card.querySelector('.v58a-start')?.addEventListener('click',event=>startFirstPractice(event.currentTarget));
+    const heading=card.querySelector('h2');
+    if(heading) heading.textContent=`${name?`Welcome, ${name}! `:''}Ready for 5 quick questions?`;
+    const paragraph=card.querySelector('p');
+    if(paragraph) paragraph.textContent='Start with a short Mixed Practice. Hints and a second try are available, and finishing unlocks your First Practice achievement.';
+    const button=card.querySelector('.v58a-start');
+    if(button && button.dataset.v58aBound!=='true'){
+      button.dataset.v58aBound='true';
+      button.addEventListener('click',event=>startFirstPractice(event.currentTarget));
+    }
+    card.classList.remove('hidden');
     return true;
   }
 
