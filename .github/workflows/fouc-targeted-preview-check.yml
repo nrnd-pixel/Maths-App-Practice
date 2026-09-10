@@ -37,15 +37,6 @@ jobs:
             if (!condition) throw new Error(message);
           }
 
-          function visibleStateSource(){
-            return `el => {
-              if (!el) return false;
-              const s = getComputedStyle(el);
-              const r = el.getBoundingClientRect();
-              return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
-            }`;
-          }
-
           (async () => {
             const browser = await chromium.launch({ headless: true });
             try {
