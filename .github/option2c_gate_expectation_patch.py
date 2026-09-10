@@ -36,14 +36,14 @@ def patch_gate_expectations():
               }, { once: true });
             }
 """
-    new_platform_capture = old_platform_capture + """            if (src.includes('v52c2-topical-result-ux.js')) {
+    new_platform_capture = old_platform_capture + """            if (src.includes('topical-legacy-student-route.js')) {
               node.addEventListener('load', () => {
                 capture.v52c2Validate = window.validateStudentAccess;
                 capture.validateOrder.push('v52c2');
               }, { once: true });
             }
 """
-    spec = replace_once(spec, old_platform_capture, new_platform_capture, 'capture V52C2 load stage')
+    spec = replace_once(spec, old_platform_capture, new_platform_capture, 'capture active consolidated V52C2 load stage')
     spec = replace_once(
         spec,
         "                capture.sessionValidate = window.validateStudentAccess;\n",
@@ -177,13 +177,14 @@ def patch_gate_expectations():
 
     const sessionSource = fs.readFileSync(path.join(REPO_ROOT, 'site/v40-student-session.js'), 'utf8');
     const platformSource = fs.readFileSync(path.join(REPO_ROOT, 'site/v40-platform-polish.js'), 'utf8');
-    const v52c2Source = fs.readFileSync(path.join(REPO_ROOT, 'site/v52c2-topical-result-ux.js'), 'utf8');
+    const v52c2OwnerSource = fs.readFileSync(path.join(REPO_ROOT, 'site/topical-legacy-student-route.js'), 'utf8');
     expect(sessionSource).toContain('const validateStudentAccessV40Base = validateStudentAccess;');
     expect(sessionSource).toContain('return validateStudentAccessV40Base(requestedPurpose);');
     expect(platformSource).toContain('const validateBase = validateStudentAccess;');
     expect(platformSource).toContain('const access = await validateBase(purpose);');
-    expect(v52c2Source).toContain('const base=validateStudentAccess;');
-    expect(v52c2Source).toContain('const access=await base(purpose);');
+    expect(v52c2OwnerSource).toContain('/* V5.2C.2 — Topical Practice result UX polish.');
+    expect(v52c2OwnerSource).toContain('const base=validateStudentAccess;');
+    expect(v52c2OwnerSource).toContain('const access=await base(purpose);');
 """
     spec = replace_once(spec, old_chain, new_chain, 'Gate 10 known wrapper chain')
     SPEC.write_text(spec)
