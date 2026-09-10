@@ -350,6 +350,7 @@
     applyShellState({ preserveInitialLoggedOut:true });
 
     document.addEventListener('click', handleNavigationClick, true);
+    document.getElementById('start').style.visibility = 'visible';
   }
 
   if (document.readyState === 'loading') {
