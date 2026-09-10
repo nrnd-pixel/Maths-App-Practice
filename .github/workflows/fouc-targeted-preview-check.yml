@@ -37,6 +37,15 @@ jobs:
             if (!condition) throw new Error(message);
           }
 
+          function visibleStateSource(){
+            return `el => {
+              if (!el) return false;
+              const s = getComputedStyle(el);
+              const r = el.getBoundingClientRect();
+              return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
+            }`;
+          }
+
           (async () => {
             const browser = await chromium.launch({ headless: true });
             try {
@@ -46,19 +55,21 @@ jobs:
               const staticState = await staticPage.evaluate(() => {
                 const start = document.getElementById('start');
                 const identity = start?.querySelector('.v40c-session-identity');
+                const setup = start?.querySelector('.v40c-learn-setup');
                 const mode = start?.querySelector('.mode-switch');
-                const directMode = start?.querySelector(':scope > .mode-switch');
                 const startStyle = start ? getComputedStyle(start) : null;
-                const rect = start?.getBoundingClientRect();
+                const startRect = start?.getBoundingClientRect();
+                const modeRect = mode?.getBoundingClientRect();
                 return {
                   startDisplay: startStyle?.display || 'missing',
                   startVisibility: startStyle?.visibility || 'missing',
-                  startWidth: rect?.width || 0,
-                  startHeight: rect?.height || 0,
+                  startWidth: startRect?.width || 0,
+                  startHeight: startRect?.height || 0,
                   identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
+                  learnSetupDisplay: setup ? getComputedStyle(setup).display : 'missing',
                   modeDisplay: mode ? getComputedStyle(mode).display : 'missing',
-                  modeParent: mode?.parentElement?.className || 'missing',
-                  directModeDisplay: directMode ? getComputedStyle(directMode).display : 'missing',
+                  modeWidth: modeRect?.width || 0,
+                  modeHeight: modeRect?.height || 0,
                   startClass: start?.className || 'missing',
                   bodyBackground: getComputedStyle(document.body).backgroundImage,
                 };
@@ -68,7 +79,8 @@ jobs:
               assert(staticState.startVisibility === 'visible', '#start visibility is not visible in static first paint');
               assert(staticState.startWidth > 0 && staticState.startHeight > 0, '#start has no rendered area in static first paint');
               assert(staticState.identityDisplay === 'none', 'session identity/logout control is visible in static first paint');
-              assert(staticState.modeDisplay === 'none' || staticState.modeDisplay === 'missing', `mode-switch is visible in static first paint (display=${staticState.modeDisplay}, parent=${staticState.modeParent})`);
+              assert(staticState.learnSetupDisplay === 'none', 'Learn setup is visible in static logged-out first paint');
+              assert(staticState.modeWidth === 0 && staticState.modeHeight === 0, 'mode-switch occupies visible layout in static first paint');
               assert(staticState.startClass.includes('v40-shell-logged-out'), 'static #start is not marked logged out');
               await staticContext.close();
 
@@ -76,27 +88,26 @@ jobs:
               const page = await context.newPage();
               await page.addInitScript(() => {
                 window.__targetedFoucProbe = { samples: [] };
+                const elementVisible = el => {
+                  if (!el) return false;
+                  const s = getComputedStyle(el);
+                  const r = el.getBoundingClientRect();
+                  return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
+                };
                 const sample = () => {
                   const start = document.getElementById('start');
                   if (start) {
-                    const rect = start.getBoundingClientRect();
-                    const style = getComputedStyle(start);
                     const identity = start.querySelector('.v40c-session-identity');
+                    const setup = start.querySelector('.v40c-learn-setup');
                     const mode = start.querySelector('.mode-switch');
-                    const elementVisible = el => {
-                      if (!el) return false;
-                      const s = getComputedStyle(el);
-                      const r = el.getBoundingClientRect();
-                      return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
-                    };
                     window.__targetedFoucProbe.samples.push({
                       t: performance.now(),
-                      startVisible: style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0,
+                      startVisible: elementVisible(start),
                       identityVisible: elementVisible(identity),
+                      setupVisible: elementVisible(setup),
                       modeVisible: elementVisible(mode),
                       loggedOut: start.classList.contains('v40-shell-logged-out'),
                       authenticated: start.classList.contains('v40-shell-authenticated'),
-                      startClass: start.className,
                     });
                     if (window.__targetedFoucProbe.samples.length > 240) window.__targetedFoucProbe.samples.shift();
                   }
@@ -118,25 +129,24 @@ jobs:
 
               const enhanced = await page.evaluate(() => {
                 const samples = window.__targetedFoucProbe.samples.slice();
-                const first = samples[0] || null;
                 const blankSamples = samples.filter(s => !s.startVisible);
-                const loggedOutIdentityLeaks = samples.filter(s => s.loggedOut && s.identityVisible);
-                const loggedOutModeLeaks = samples.filter(s => s.loggedOut && s.modeVisible);
+                const identityLeaks = samples.filter(s => s.loggedOut && s.identityVisible);
+                const setupLeaks = samples.filter(s => s.loggedOut && s.setupVisible);
+                const modeLeaks = samples.filter(s => s.loggedOut && s.modeVisible);
                 const start = document.getElementById('start');
                 const identity = start.querySelector('.v40c-session-identity');
-                const mode = start.querySelector('.mode-switch');
+                const setup = start.querySelector('.v40c-learn-setup');
                 return {
                   sampleCount: samples.length,
-                  firstSample: first,
                   blankSampleCount: blankSamples.length,
-                  identityLeakCount: loggedOutIdentityLeaks.length,
-                  modeLeakCount: loggedOutModeLeaks.length,
-                  finalStartClass: start.className,
+                  identityLeakCount: identityLeaks.length,
+                  setupLeakCount: setupLeaks.length,
+                  modeLeakCount: modeLeaks.length,
                   finalStartDisplay: getComputedStyle(start).display,
                   finalStartVisibility: getComputedStyle(start).visibility,
                   finalIdentityDisplay: identity ? getComputedStyle(identity).display : 'missing',
-                  finalModeDisplay: mode ? getComputedStyle(mode).display : 'missing',
-                  firstSampleAt: first?.t ?? null,
+                  finalSetupDisplay: setup ? getComputedStyle(setup).display : 'missing',
+                  firstSampleAt: samples[0]?.t ?? null,
                   lastSampleAt: samples.at(-1)?.t ?? null,
                 };
               });
@@ -144,10 +154,11 @@ jobs:
               assert(enhanced.sampleCount >= 2, 'not enough enhancement-frame samples collected');
               assert(enhanced.blankSampleCount === 0, `#start disappeared for ${enhanced.blankSampleCount} sampled frame(s)`);
               assert(enhanced.identityLeakCount === 0, `session identity leaked on ${enhanced.identityLeakCount} logged-out sampled frame(s)`);
+              assert(enhanced.setupLeakCount === 0, `Learn setup leaked on ${enhanced.setupLeakCount} logged-out sampled frame(s)`);
               assert(enhanced.modeLeakCount === 0, `mode-switch leaked on ${enhanced.modeLeakCount} logged-out sampled frame(s)`);
               assert(enhanced.finalStartDisplay !== 'none' && enhanced.finalStartVisibility === 'visible', '#start is not visible after enhancement');
               assert(enhanced.finalIdentityDisplay === 'none', 'session identity is visible after logged-out enhancement');
-              assert(enhanced.finalModeDisplay === 'none' || enhanced.finalModeDisplay === 'missing', 'mode-switch is visible after logged-out enhancement');
+              assert(enhanced.finalSetupDisplay === 'none', 'Learn setup is visible after logged-out enhancement');
 
               const overrideState = await page.evaluate(() => {
                 const start = document.getElementById('start');
@@ -157,18 +168,20 @@ jobs:
                 start.classList.add('v40-shell-authenticated');
                 start.dataset.v40StartView = 'learn';
                 const identity = start.querySelector('.v40c-session-identity');
-                const mode = start.querySelector('.mode-switch');
                 const setup = start.querySelector('.v40c-learn-setup');
+                const mode = start.querySelector('.mode-switch');
+                const modeRect = mode?.getBoundingClientRect();
                 return {
                   identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
-                  modeDisplay: mode ? getComputedStyle(mode).display : 'missing',
                   setupDisplay: setup ? getComputedStyle(setup).display : 'missing',
+                  modeWidth: modeRect?.width || 0,
+                  modeHeight: modeRect?.height || 0,
                 };
               });
               console.log('AUTHENTICATED_OVERRIDE', JSON.stringify(overrideState));
-              assert(overrideState.identityDisplay !== 'none', 'authenticated dynamic session style cannot override static identity hide');
+              assert(overrideState.identityDisplay !== 'none', 'authenticated session style cannot override static identity hide');
               assert(overrideState.setupDisplay !== 'none', 'authenticated Learn setup remains hidden');
-              assert(overrideState.modeDisplay !== 'none' && overrideState.modeDisplay !== 'missing', 'authenticated mode-switch remains hidden or missing');
+              assert(overrideState.modeWidth > 0 && overrideState.modeHeight > 0, 'authenticated mode-switch remains non-rendered');
 
               await context.close();
               console.log('TARGETED_FOUC_PREVIEW_CHECK PASS');
