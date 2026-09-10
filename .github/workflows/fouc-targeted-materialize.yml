@@ -1,4 +1,4 @@
-name: Temporary Option 2C guard maintenance materializer
+name: Temporary Option 2B guard maintenance materializer
 
 on:
   push:
@@ -18,42 +18,38 @@ jobs:
           ref: fix-static-session-mode-flash
           fetch-depth: 0
 
-      - name: Refresh Option 2C current-main successor seal
+      - name: Refresh Option 2B current-main diff guard
         shell: bash
         run: |
           python <<'PY'
           from pathlib import Path
 
-          path = Path('e2e/tests/v40-static-v40-shell-option2c.spec.cjs')
+          path = Path('e2e/tests/v40-static-authenticated-home-option2b.spec.cjs')
           text = path.read_text()
 
-          replacements = {
-              "const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';":
-                  "const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';",
-              "const EXPECTED_FROZEN_SITE_SHA256 = '3687690a1e136adf5f9adc59c1b65e0ebfd78741d319c07f5b1b8008060776f5';":
-                  "const EXPECTED_FROZEN_SITE_SHA256 = '5c9ab35280605063598b495aef32e24ba8a4c258ccf36b3f5c77e1eff3693707';",
-              """const RUNTIME_SUCCESSORS = Object.freeze({\n  'site/index.html': '68ba53f30671e053b81c6280132800b16495debb',\n  'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',\n  'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',\n});""":
-                  """const RUNTIME_SUCCESSORS = Object.freeze({\n  'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',\n});""",
-          }
+          old_base = "const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';"
+          new_base = "const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';"
+          old_runtime = """const AUTHORIZED_RUNTIME_CHANGES = new Set([\n  'site/index.html',\n  'site/v40-student-nav.js',\n  'site/v40-learn-setup.js',\n]);"""
+          new_runtime = """const AUTHORIZED_RUNTIME_CHANGES = new Set([\n  'site/index.html',\n]);"""
 
-          for old, new in replacements.items():
+          for old, new in ((old_base, new_base), (old_runtime, new_runtime)):
               if text.count(old) != 1:
-                  raise SystemExit(f'expected one occurrence of maintenance target, found {text.count(old)}: {old[:80]}')
+                  raise SystemExit(f'expected exactly one maintenance target, found {text.count(old)}')
               text = text.replace(old, new, 1)
 
           path.write_text(text)
           PY
 
-          test "$(git diff --name-only)" = "e2e/tests/v40-static-v40-shell-option2c.spec.cjs"
+          test "$(git diff --name-only)" = "e2e/tests/v40-static-authenticated-home-option2b.spec.cjs"
           git diff --check
-          git diff -- e2e/tests/v40-static-v40-shell-option2c.spec.cjs
+          git diff -- e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
 
       - name: Commit guard-only maintenance to target branch
         shell: bash
         run: |
           git config user.name "nrnd-pixel"
           git config user.email "anuarn.edu@gmail.com"
-          git add e2e/tests/v40-static-v40-shell-option2c.spec.cjs
-          test "$(git diff --cached --name-only)" = "e2e/tests/v40-static-v40-shell-option2c.spec.cjs"
-          git commit -m "test: refresh Option 2C current-main successor seal"
+          git add e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
+          test "$(git diff --cached --name-only)" = "e2e/tests/v40-static-authenticated-home-option2b.spec.cjs"
+          git commit -m "test: refresh Option 2B current-main diff guard"
           git push origin HEAD:fix-static-session-mode-flash
