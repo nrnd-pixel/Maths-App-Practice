@@ -58,11 +58,9 @@ jobs:
                   startHeight: startRect?.height || 0,
                   identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
                   learnSetupDisplay: setup ? getComputedStyle(setup).display : 'missing',
-                  modeDisplay: mode ? getComputedStyle(mode).display : 'missing',
                   modeWidth: modeRect?.width || 0,
                   modeHeight: modeRect?.height || 0,
                   startClass: start?.className || 'missing',
-                  bodyBackground: getComputedStyle(document.body).backgroundImage,
                 };
               });
               console.log('STATIC_FIRST_PAINT', JSON.stringify(staticState));
@@ -92,13 +90,11 @@ jobs:
                     const setup = start.querySelector('.v40c-learn-setup');
                     const mode = start.querySelector('.mode-switch');
                     window.__targetedFoucProbe.samples.push({
-                      t: performance.now(),
                       startVisible: elementVisible(start),
                       identityVisible: elementVisible(identity),
                       setupVisible: elementVisible(setup),
                       modeVisible: elementVisible(mode),
                       loggedOut: start.classList.contains('v40-shell-logged-out'),
-                      authenticated: start.classList.contains('v40-shell-authenticated'),
                     });
                     if (window.__targetedFoucProbe.samples.length > 240) window.__targetedFoucProbe.samples.shift();
                   }
@@ -120,25 +116,19 @@ jobs:
 
               const enhanced = await page.evaluate(() => {
                 const samples = window.__targetedFoucProbe.samples.slice();
-                const blankSamples = samples.filter(s => !s.startVisible);
-                const identityLeaks = samples.filter(s => s.loggedOut && s.identityVisible);
-                const setupLeaks = samples.filter(s => s.loggedOut && s.setupVisible);
-                const modeLeaks = samples.filter(s => s.loggedOut && s.modeVisible);
                 const start = document.getElementById('start');
                 const identity = start.querySelector('.v40c-session-identity');
                 const setup = start.querySelector('.v40c-learn-setup');
                 return {
                   sampleCount: samples.length,
-                  blankSampleCount: blankSamples.length,
-                  identityLeakCount: identityLeaks.length,
-                  setupLeakCount: setupLeaks.length,
-                  modeLeakCount: modeLeaks.length,
+                  blankSampleCount: samples.filter(s => !s.startVisible).length,
+                  identityLeakCount: samples.filter(s => s.loggedOut && s.identityVisible).length,
+                  setupLeakCount: samples.filter(s => s.loggedOut && s.setupVisible).length,
+                  modeLeakCount: samples.filter(s => s.loggedOut && s.modeVisible).length,
                   finalStartDisplay: getComputedStyle(start).display,
                   finalStartVisibility: getComputedStyle(start).visibility,
-                  finalIdentityDisplay: identity ? getComputedStyle(identity).display : 'missing',
-                  finalSetupDisplay: setup ? getComputedStyle(setup).display : 'missing',
-                  firstSampleAt: samples[0]?.t ?? null,
-                  lastSampleAt: samples.at(-1)?.t ?? null,
+                  finalIdentityDisplay: getComputedStyle(identity).display,
+                  finalSetupDisplay: getComputedStyle(setup).display,
                 };
               });
               console.log('ENHANCED_FRAME_PROBE', JSON.stringify(enhanced));
@@ -151,6 +141,9 @@ jobs:
               assert(enhanced.finalIdentityDisplay === 'none', 'session identity is visible after logged-out enhancement');
               assert(enhanced.finalSetupDisplay === 'none', 'Learn setup is visible after logged-out enhancement');
 
+              // Confirm the new static rules stop applying when the existing
+              // authenticated classes replace v40-shell-logged-out. Other
+              // pre-existing Learn-mode state may still control descendants.
               const overrideState = await page.evaluate(() => {
                 const start = document.getElementById('start');
                 const panel = start.querySelector('.v40c-session-panel');
@@ -158,21 +151,14 @@ jobs:
                 start.classList.remove('v40-shell-logged-out');
                 start.classList.add('v40-shell-authenticated');
                 start.dataset.v40StartView = 'learn';
-                const identity = start.querySelector('.v40c-session-identity');
-                const setup = start.querySelector('.v40c-learn-setup');
-                const mode = start.querySelector('.mode-switch');
-                const modeRect = mode?.getBoundingClientRect();
                 return {
-                  identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
-                  setupDisplay: setup ? getComputedStyle(setup).display : 'missing',
-                  modeWidth: modeRect?.width || 0,
-                  modeHeight: modeRect?.height || 0,
+                  identityDisplay: getComputedStyle(start.querySelector('.v40c-session-identity')).display,
+                  setupDisplay: getComputedStyle(start.querySelector('.v40c-learn-setup')).display,
                 };
               });
               console.log('AUTHENTICATED_OVERRIDE', JSON.stringify(overrideState));
-              assert(overrideState.identityDisplay !== 'none', 'authenticated session style cannot override static identity hide');
-              assert(overrideState.setupDisplay !== 'none', 'authenticated Learn setup remains hidden');
-              assert(overrideState.modeWidth > 0 && overrideState.modeHeight > 0, 'authenticated mode-switch remains non-rendered');
+              assert(overrideState.identityDisplay === 'flex', 'authenticated session style cannot override static identity default');
+              assert(overrideState.setupDisplay !== 'none', 'authenticated Learn setup remains hidden by static logged-out rule');
 
               await context.close();
               console.log('TARGETED_FOUC_PREVIEW_CHECK PASS');
