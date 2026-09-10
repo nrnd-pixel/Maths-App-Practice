@@ -1,4 +1,4 @@
-name: Temporary targeted FOUC deploy-preview check
+name: Temporary Option 2C manifest calculator
 
 on:
   push:
@@ -9,164 +9,29 @@ permissions:
   contents: read
 
 jobs:
-  preview-check:
+  calculate:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out PR branch
         uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          ref: fix-static-session-mode-flash
+          fetch-depth: 0
 
-      - name: Install browser test dependencies
-        working-directory: e2e
-        run: |
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
-
-      - name: Verify first-paint flash suppression on Netlify preview
-        env:
-          PREVIEW_URL: https://deploy-preview-232--magical-pixie-a61111.netlify.app/
+      - name: Calculate Option 2C frozen-site manifest excluding index only
+        shell: bash
         run: |
           node <<'NODE'
-          const { chromium } = require('./e2e/node_modules/@playwright/test');
-
-          function assert(condition, message) {
-            if (!condition) throw new Error(message);
-          }
-
-          (async () => {
-            const browser = await chromium.launch({ headless: true });
-            try {
-              const staticContext = await browser.newContext({ javaScriptEnabled: false });
-              const staticPage = await staticContext.newPage();
-              await staticPage.goto(process.env.PREVIEW_URL, { waitUntil: 'load', timeout: 60000 });
-              const staticState = await staticPage.evaluate(() => {
-                const start = document.getElementById('start');
-                const identity = start?.querySelector('.v40c-session-identity');
-                const setup = start?.querySelector('.v40c-learn-setup');
-                const mode = start?.querySelector('.mode-switch');
-                const startStyle = start ? getComputedStyle(start) : null;
-                const startRect = start?.getBoundingClientRect();
-                const modeRect = mode?.getBoundingClientRect();
-                return {
-                  startDisplay: startStyle?.display || 'missing',
-                  startVisibility: startStyle?.visibility || 'missing',
-                  startWidth: startRect?.width || 0,
-                  startHeight: startRect?.height || 0,
-                  identityDisplay: identity ? getComputedStyle(identity).display : 'missing',
-                  learnSetupDisplay: setup ? getComputedStyle(setup).display : 'missing',
-                  modeWidth: modeRect?.width || 0,
-                  modeHeight: modeRect?.height || 0,
-                  startClass: start?.className || 'missing',
-                };
-              });
-              console.log('STATIC_FIRST_PAINT', JSON.stringify(staticState));
-              assert(staticState.startDisplay !== 'none', '#start is hidden in static first paint');
-              assert(staticState.startVisibility === 'visible', '#start visibility is not visible in static first paint');
-              assert(staticState.startWidth > 0 && staticState.startHeight > 0, '#start has no rendered area in static first paint');
-              assert(staticState.identityDisplay === 'none', 'session identity/logout control is visible in static first paint');
-              assert(staticState.learnSetupDisplay === 'none', 'Learn setup is visible in static logged-out first paint');
-              assert(staticState.modeWidth === 0 && staticState.modeHeight === 0, 'mode-switch occupies visible layout in static first paint');
-              assert(staticState.startClass.includes('v40-shell-logged-out'), 'static #start is not marked logged out');
-              await staticContext.close();
-
-              const context = await browser.newContext();
-              const page = await context.newPage();
-              await page.addInitScript(() => {
-                window.__targetedFoucProbe = { samples: [] };
-                const elementVisible = el => {
-                  if (!el) return false;
-                  const s = getComputedStyle(el);
-                  const r = el.getBoundingClientRect();
-                  return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
-                };
-                const sample = () => {
-                  const start = document.getElementById('start');
-                  if (start) {
-                    const identity = start.querySelector('.v40c-session-identity');
-                    const setup = start.querySelector('.v40c-learn-setup');
-                    const mode = start.querySelector('.mode-switch');
-                    window.__targetedFoucProbe.samples.push({
-                      startVisible: elementVisible(start),
-                      identityVisible: elementVisible(identity),
-                      setupVisible: elementVisible(setup),
-                      modeVisible: elementVisible(mode),
-                      loggedOut: start.classList.contains('v40-shell-logged-out'),
-                    });
-                    if (window.__targetedFoucProbe.samples.length > 240) window.__targetedFoucProbe.samples.shift();
-                  }
-                  requestAnimationFrame(sample);
-                };
-                requestAnimationFrame(sample);
-              });
-
-              await page.goto(process.env.PREVIEW_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
-              await page.waitForFunction(() =>
-                document.getElementById('v40-student-session-style') &&
-                document.getElementById('v40-learn-setup-style') &&
-                document.getElementById('v40-start-shell-style') &&
-                document.getElementById('start')?.classList.contains('v40-shell-logged-out'),
-                null,
-                { timeout: 15000 }
-              );
-              await page.waitForTimeout(700);
-
-              const enhanced = await page.evaluate(() => {
-                const samples = window.__targetedFoucProbe.samples.slice();
-                const start = document.getElementById('start');
-                const identity = start.querySelector('.v40c-session-identity');
-                const setup = start.querySelector('.v40c-learn-setup');
-                return {
-                  sampleCount: samples.length,
-                  blankSampleCount: samples.filter(s => !s.startVisible).length,
-                  identityLeakCount: samples.filter(s => s.loggedOut && s.identityVisible).length,
-                  setupLeakCount: samples.filter(s => s.loggedOut && s.setupVisible).length,
-                  modeLeakCount: samples.filter(s => s.loggedOut && s.modeVisible).length,
-                  finalStartDisplay: getComputedStyle(start).display,
-                  finalStartVisibility: getComputedStyle(start).visibility,
-                  finalIdentityDisplay: getComputedStyle(identity).display,
-                  finalSetupDisplay: getComputedStyle(setup).display,
-                };
-              });
-              console.log('ENHANCED_FRAME_PROBE', JSON.stringify(enhanced));
-              assert(enhanced.sampleCount >= 2, 'not enough enhancement-frame samples collected');
-              assert(enhanced.blankSampleCount === 0, `#start disappeared for ${enhanced.blankSampleCount} sampled frame(s)`);
-              assert(enhanced.identityLeakCount === 0, `session identity leaked on ${enhanced.identityLeakCount} logged-out sampled frame(s)`);
-              assert(enhanced.setupLeakCount === 0, `Learn setup leaked on ${enhanced.setupLeakCount} logged-out sampled frame(s)`);
-              assert(enhanced.modeLeakCount === 0, `mode-switch leaked on ${enhanced.modeLeakCount} logged-out sampled frame(s)`);
-              assert(enhanced.finalStartDisplay !== 'none' && enhanced.finalStartVisibility === 'visible', '#start is not visible after enhancement');
-              assert(enhanced.finalIdentityDisplay === 'none', 'session identity is visible after logged-out enhancement');
-              assert(enhanced.finalSetupDisplay === 'none', 'Learn setup is visible after logged-out enhancement');
-
-              // Confirm the new static rules stop applying when the existing
-              // authenticated classes replace v40-shell-logged-out. Other
-              // pre-existing Learn-mode state may still control descendants.
-              const overrideState = await page.evaluate(() => {
-                const start = document.getElementById('start');
-                const panel = start.querySelector('.v40c-session-panel');
-                panel.classList.add('v40c-authenticated');
-                start.classList.remove('v40-shell-logged-out');
-                start.classList.add('v40-shell-authenticated');
-                start.dataset.v40StartView = 'learn';
-                return {
-                  identityDisplay: getComputedStyle(start.querySelector('.v40c-session-identity')).display,
-                  setupDisplay: getComputedStyle(start.querySelector('.v40c-learn-setup')).display,
-                };
-              });
-              console.log('AUTHENTICATED_OVERRIDE', JSON.stringify(overrideState));
-              assert(overrideState.identityDisplay === 'flex', 'authenticated session style cannot override static identity default');
-              assert(overrideState.setupDisplay !== 'none', 'authenticated Learn setup remains hidden by static logged-out rule');
-
-              await context.close();
-              console.log('TARGETED_FOUC_PREVIEW_CHECK PASS');
-            } finally {
-              await browser.close();
-            }
-          })().catch(error => {
-            console.error(error);
-            process.exit(1);
-          });
+          const crypto = require('node:crypto');
+          const { execFileSync } = require('node:child_process');
+          const path = require('node:path');
+          const root = process.cwd();
+          const git = args => execFileSync('git', args, {cwd: root, encoding:'utf8'}).trim();
+          const output = git(['ls-files','-co','--exclude-standard','site']);
+          const paths = output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
+          const records = paths.filter(p => p !== 'site/index.html').map(p => `${git(['hash-object',p])}  ${p}`);
+          const hash = crypto.createHash('sha256').update(records.length ? `${records.join('\n')}\n` : '').digest('hex');
+          console.log('FROZEN_SITE_EXCLUDING_INDEX_SHA256=' + hash);
+          console.log('INDEX_BLOB=' + git(['hash-object','site/index.html']));
+          console.log('HEAD=' + git(['rev-parse','HEAD']));
           NODE
