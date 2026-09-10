@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Deterministically align the Option 2B hard-gate spec with approved seal scope.
 
-Temporary validation scaffolding only. The generated spec synchronizes against
-actual mocked gamification RPC calls plus browser output events. Settlement is
-proved by an ordered XP -> achievements -> missions -> class-challenge cycle,
-then an XP/call-signature stability poll longer than both the 70ms V57C forced
-refresh delay and the 180ms retry delay. No runtime code is changed here.
+Temporary validation scaffolding only. Gate 4 follows Option B: after the
+Student B V57C Home render, it proves that Student A personalization is absent,
+without coupling the leak-prevention contract to the gamification refresh
+lifecycle. Gate 8 uses state-stability polling (not an arbitrary sleep) before
+injecting its class-challenge fixture. No runtime code is changed here.
 """
 from pathlib import Path
 
@@ -18,6 +18,16 @@ def replace_once(text, old, new, label):
     if count != 1:
         raise RuntimeError(f'{label}: expected exactly one match, got {count}')
     return text.replace(old, new, 1)
+
+
+def replace_block(text, start_marker, end_marker, replacement, label):
+    start = text.find(start_marker)
+    end = text.find(end_marker, start + len(start_marker)) if start >= 0 else -1
+    if start < 0 or end < 0:
+        raise RuntimeError(f'{label}: block markers not found')
+    if text.find(start_marker, start + 1) >= 0:
+        raise RuntimeError(f'{label}: start marker is not unique')
+    return text[:start] + replacement + text[end:]
 
 
 text = PATH.read_text(encoding='utf-8')
@@ -71,168 +81,55 @@ new_helpers = """async function waitForHomeRendered(page) {
   ).toBe(true);
 }
 
-const GAMIFICATION_RPC_ORDER = Object.freeze([
-  'get_student_gamification_v571a',
-  'get_student_gamification_achievements_v571b',
-  'get_student_weekly_missions_v572',
-  'get_student_class_challenge_v574',
-]);
-const GAMIFICATION_EVENT_ORDER = Object.freeze([
-  'v571a:gamification-updated',
-  'v571b:achievements-updated',
-  'v572:missions-updated',
-  'v573:class-challenge-updated',
-]);
-const GAMIFICATION_SETTLE_QUIET_MS = 220;
-const OPTION2B_MOCKS = new WeakMap();
+const OPTION2B_STABLE_WINDOW_MS = 220;
 
-async function installTrackedSupabaseMock(page) {
-  const mock = await installSupabaseMock(page);
-  OPTION2B_MOCKS.set(page, mock);
-  return mock;
-}
-
-function trackedMock(page) {
-  const mock = OPTION2B_MOCKS.get(page);
-  if (!mock) throw new Error('Option 2B tracked Supabase mock is not installed for this page');
-  return mock;
-}
-
-function gamificationCallsSince(mock, startIndex) {
-  return mock.rpcCalls
-    .slice(startIndex)
-    .map(call => call.rpc)
-    .filter(name => GAMIFICATION_RPC_ORDER.includes(name));
-}
-
-function containsOrderedLifecycle(values, expected) {
-  if (values.length < expected.length) return false;
-  for (let i = 0; i <= values.length - expected.length; i += 1) {
-    if (expected.every((name, offset) => values[i + offset] === name)) return true;
-  }
-  return false;
-}
-
-async function armGamificationEventProbe(page) {
-  await page.evaluate(eventNames => {
-    let probe = window.__option2bGamificationEventProbe;
-    if (!probe) {
-      probe = { events: [] };
-      window.__option2bGamificationEventProbe = probe;
-      for (const name of eventNames) {
-        window.addEventListener(name, () => {
-          probe.events.push({ name, at: performance.now() });
-        });
-      }
-    }
-    probe.events.length = 0;
-  }, GAMIFICATION_EVENT_ORDER);
-}
-
-async function eventProbeLength(page) {
-  return page.evaluate(() => window.__option2bGamificationEventProbe?.events?.length || 0);
-}
-
-async function waitForOrderedLifecycleAndStability(page, mock, startIndex, eventFloor = 0) {
-  await expect.poll(
-    () => containsOrderedLifecycle(gamificationCallsSince(mock, startIndex), GAMIFICATION_RPC_ORDER),
-    { timeout: 15_000, intervals: [40, 60, 80, 120] },
-  ).toBe(true);
-
-  await expect.poll(
-    () => page.evaluate(({ expected, floor }) => {
-      const names = (window.__option2bGamificationEventProbe?.events || [])
-        .slice(floor)
-        .map(entry => entry.name);
-      if (names.length < expected.length) return false;
-      for (let i = 0; i <= names.length - expected.length; i += 1) {
-        if (expected.every((name, offset) => names[i + offset] === name)) return true;
-      }
-      return false;
-    }, { expected: GAMIFICATION_EVENT_ORDER, floor: eventFloor }),
-    { timeout: 15_000, intervals: [40, 60, 80, 120] },
-  ).toBe(true);
-
+async function waitForStableCardState(page, selector) {
+  const locator = page.locator(selector);
+  await expect(locator).toHaveCount(1);
   let lastSignature = null;
-  let lastXp = null;
   let stableSince = 0;
+
   await expect.poll(async () => {
-    const signature = JSON.stringify(gamificationCallsSince(mock, startIndex));
-    const xp = await page.locator('#v571a-gamification-card').getAttribute('data-xp');
+    const signature = await locator.evaluate(node => JSON.stringify({
+      text: node.textContent,
+      className: node.className,
+      xp: node.dataset?.xp ?? null,
+      hidden: node.classList.contains('hidden'),
+    }));
     const now = Date.now();
-    if (xp == null) return false;
-    if (signature !== lastSignature || xp !== lastXp) {
+    if (signature !== lastSignature) {
       lastSignature = signature;
-      lastXp = xp;
       stableSince = now;
       return false;
     }
-    return now - stableSince >= GAMIFICATION_SETTLE_QUIET_MS;
+    return now - stableSince > OPTION2B_STABLE_WINDOW_MS;
   }, {
     timeout: 15_000,
     intervals: [40, 60, 80, 120],
   }).toBe(true);
 }
 
-async function primeGamification(page) {
-  const mock = trackedMock(page);
-  await armGamificationEventProbe(page);
-  const startIndex = mock.rpcCalls.length;
-
-  await expect.poll(
-    () => page.evaluate(async () => Boolean(await window.GamificationStudent.refresh(true))),
-    { timeout: 15_000, intervals: [80, 120, 180, 250] },
-  ).toBe(true);
-
-  await waitForOrderedLifecycleAndStability(page, mock, startIndex, 0);
-}
-
-async function renderHomeAndSettleForcedGamification(page, model) {
-  const mock = trackedMock(page);
-  await armGamificationEventProbe(page);
-  const startIndex = mock.rpcCalls.length;
-
-  // Capture the synchronous renderCached() event boundary inside the same browser
-  // task as V57C.render(). The 70ms scheduled refresh cannot execute until after
-  // that task returns, so events after this boundary belong to the forced path.
-  const synchronousEventBoundary = await page.evaluate(value => {
-    window.V57CStudentContinueLearningHome.render(value);
-    return window.__option2bGamificationEventProbe?.events?.length || 0;
-  }, model);
-
-  await waitForOrderedLifecycleAndStability(page, mock, startIndex, synchronousEventBoundary);
-}
-
-async function renderHomeAndWaitForScheduledGamificationRefresh(page, model) {
-  // First force and settle one complete serial refresh. This drains any sign-in
-  // refresh/retry already in flight. Then prove V57C's own scheduled forced cycle.
-  await primeGamification(page);
-  await renderHomeAndSettleForcedGamification(page, model);
-}
-
 function homeModel(name = 'Fixture Student') {
 """
-text = replace_once(text, old_helpers, new_helpers, 'gamification lifecycle settlement helpers')
+text = replace_once(text, old_helpers, new_helpers, 'state-stability helper')
 
-old_gate4_preamble = """  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {
+gate4_start = "  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {"
+gate5_start = "  test('gate 5 — V57C enhances the four static learning cards instead of replacing them', async ({ page }) => {"
+gate4 = """  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {
     await installSupabaseMock(page);
     await openApp(page);
     await signInStudent(page);
     await waitForOption2bRuntime(page);
     await waitForHomeRendered(page);
 
-"""
-new_gate4_preamble = """  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {
-    await installTrackedSupabaseMock(page);
-    await openApp(page);
-    await signInStudent(page);
-    await waitForOption2bRuntime(page);
-    await waitForHomeRendered(page);
+    // Drain any sign-in/V57C gamification writes before planting Student A's
+    // distinctive personalization markers. This is stability polling, not a
+    // fixed delay: the state must remain unchanged beyond the 180ms retry path.
+    await waitForStableCardState(page, '#v571a-gamification-card');
+    await waitForStableCardState(page, '#v572-weekly-missions-card');
+    await waitForStableCardState(page, '#v574-class-challenge-card');
 
-"""
-text = replace_once(text, old_gate4_preamble, new_gate4_preamble, 'gate 4 tracked mock')
-
-old_alpha = """    await page.evaluate(({ model, missions, challenge }) => {
+    await page.evaluate(({ model, missions, challenge }) => {
       window.V57CStudentContinueLearningHome.render(model);
       window.GamificationStudent.xp.render({ xp: { total: 321 } });
       window.GamificationStudent.missions.render(missions);
@@ -242,76 +139,72 @@ old_alpha = """    await page.evaluate(({ model, missions, challenge }) => {
       missions: missionsPayload('Alpha Mission'),
       challenge: challengePayload(true, 'Alpha Class'),
     });
-"""
-new_alpha = """    await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Student Alpha'));
-    await page.evaluate(({ missions, challenge }) => {
-      window.GamificationStudent.xp.render({ xp: { total: 321 } });
-      window.GamificationStudent.missions.render(missions);
-      window.GamificationStudent.classChallenge.render(challenge);
-    }, {
-      missions: missionsPayload('Alpha Mission'),
-      challenge: challengePayload(true, 'Alpha Class'),
-    });
-"""
-text = replace_once(text, old_alpha, new_alpha, 'gate 4 Alpha settlement')
 
-old_beta = """    await signInStudent(page);
-    await waitForHomeRendered(page);
-    await page.evaluate(({ model, missions, challenge }) => {
-      window.V57CStudentContinueLearningHome.render(model);
-      window.GamificationStudent.xp.render({ xp: { total: 654 } });
-      window.GamificationStudent.missions.render(missions);
-      window.GamificationStudent.classChallenge.render(challenge);
-    }, {
-      model: homeModel('Student Beta'),
-      missions: missionsPayload('Beta Mission'),
-      challenge: challengePayload(true, 'Beta Class'),
-    });
-"""
-new_beta = """    await signInStudent(page);
-    await waitForHomeRendered(page);
-    await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Student Beta'));
-    await page.evaluate(({ missions, challenge }) => {
-      window.GamificationStudent.xp.render({ xp: { total: 654 } });
-      window.GamificationStudent.missions.render(missions);
-      window.GamificationStudent.classChallenge.render(challenge);
-    }, {
-      missions: missionsPayload('Beta Mission'),
-      challenge: challengePayload(true, 'Beta Class'),
-    });
-"""
-text = replace_once(text, old_beta, new_beta, 'gate 4 Beta settlement')
+    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Alpha');
+    await expect(page.locator('#v571a-gamification-card')).toContainText('321');
+    await expect(page.locator('#v572-weekly-missions-card')).toContainText('Alpha Mission');
+    await expect(page.locator('#v574-class-challenge-card')).toContainText('Alpha Class');
 
-old_gate8_mock = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
+    await page.locator('#v40c-student-logout').click();
+    await expect(page.locator('.v40c-session-panel')).not.toHaveClass(/v40c-authenticated/);
+    await expect.poll(
+      () => page.locator('#start .v40c3-home-dashboard').innerText(),
+      { timeout: 8_000 },
+    ).not.toContain('Student Alpha');
+
+    const afterLogout = await page.locator('#start .v40c3-home-dashboard').innerText();
+    expect(afterLogout).not.toContain('321');
+    expect(afterLogout).not.toContain('Alpha Mission');
+    expect(afterLogout).not.toContain('Alpha Class');
+
+    await signInStudent(page);
+    await waitForHomeRendered(page);
+
+    // Option B: Gate 4 owns leak prevention, not refresh-cycle timing. A
+    // successful Student Beta V57C render proves the new Home personalization
+    // has completed; after that, every Student Alpha marker must be absent.
+    await page.evaluate(model => window.V57CStudentContinueLearningHome.render(model), homeModel('Student Beta'));
+    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Beta', { timeout: 15_000 });
+
+    const betaText = await page.locator('#start').innerText();
+    expect(betaText).toContain('Student Beta');
+    expect(betaText).not.toContain('Student Alpha');
+    expect(betaText).not.toContain('321');
+    expect(betaText).not.toContain('Alpha Mission');
+    expect(betaText).not.toContain('Alpha Class');
+  });
+
+"""
+text = replace_block(text, gate4_start, gate5_start, gate4, 'Gate 4 Option B')
+
+gate8_start = "  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {"
+gate9_start = "  test('gate 9 — V58A first-use card toggles one static node instead of creating/removing it', async ({ page }) => {"
+gate8 = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
     await installStaticCapture(page);
     await installSupabaseMock(page);
     await openApp(page);
-"""
-new_gate8_mock = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
-    await installStaticCapture(page);
-    await installTrackedSupabaseMock(page);
-    await openApp(page);
-"""
-text = replace_once(text, old_gate8_mock, new_gate8_mock, 'gate 8 tracked mock')
-
-old_gate8_start = """    await signInStudent(page);
+    await signInStudent(page);
     await waitForOption2bRuntime(page);
 
-    await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
-"""
-new_gate8_start = """    await signInStudent(page);
-    await waitForOption2bRuntime(page);
-    await primeGamification(page);
+    // Prove the real sign-in/V57C challenge state has stopped changing before
+    // injecting the 6B fixture. The >180ms stability window covers the retry
+    // path without relying on an arbitrary setTimeout.
+    await waitForStableCardState(page, '#v574-class-challenge-card');
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
+    await expect(page.locator('#v574-class-challenge-card')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#v574-class-challenge-card')).toContainText('6B');
+    expect(await page.evaluate(() => window.__option2bCapture.initial.classChallengeCard === document.getElementById('v574-class-challenge-card'))).toBe(true);
+
+    await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(false, '6B'));
+    await expect(page.locator('#v574-class-challenge-card')).toHaveCount(1);
+    await expect(page.locator('#v574-class-challenge-card')).toHaveClass(/hidden/);
+    expect(await page.evaluate(() => window.__option2bCapture.initial.classChallengeCard === document.getElementById('v574-class-challenge-card'))).toBe(true);
+    expect(await page.locator('#v574-class-challenge-card').innerText()).not.toContain('6B');
+  });
+
 """
-gate8_heading = "test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {"
-gate8_index = text.find(gate8_heading)
-if gate8_index < 0:
-    raise RuntimeError('gate 8 heading not found')
-prefix, gate8_tail = text[:gate8_index], text[gate8_index:]
-gate8_tail = replace_once(gate8_tail, old_gate8_start, new_gate8_start, 'gate 8 lifecycle settlement')
-text = prefix + gate8_tail
+text = replace_block(text, gate8_start, gate9_start, gate8, 'Gate 8 stable fixture boundary')
 
 old_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
       .split(/\\r?\\n/)
@@ -337,4 +230,4 @@ new_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '-
 text = replace_once(text, old_gate12, new_gate12, 'gate 12 exact authorized scope')
 
 PATH.write_text(text, encoding='utf-8')
-print('Option 2B E2E lifecycle-synchronized test patch applied successfully.')
+print('Option 2B E2E Option-B leak gate + stability-polled fixture patch applied successfully.')
