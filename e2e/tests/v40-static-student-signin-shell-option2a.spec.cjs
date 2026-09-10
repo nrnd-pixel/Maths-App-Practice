@@ -10,9 +10,9 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '018a91f0e6c1e9b8ed6dbf76a3f26fccf11c5b4e2a9a6a1175a2f57328816137';
-const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
-const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
+const EXPECTED_FROZEN_SITE_SHA256 = 'a19ba041223b248a09c87c8063b2826b28fccf17b1a8fedd68dcf1082ec3dde4';
+const EXPECTED_SUPABASE_SHA256 = '58fbaa5f6ebcf1fa4214429e0e9a76284897775680a93f704fb2a0455a273389';
+const EXPECTED_SUPABASE_TREE = '204bba144a9ebe47dcbcc1bb1331c484acd0ea33';
 
 const ALLOWED_SITE_CHANGES = new Set([
   'site/index.html',

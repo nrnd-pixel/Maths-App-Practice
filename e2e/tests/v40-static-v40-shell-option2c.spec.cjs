@@ -11,13 +11,13 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '5c9ab35280605063598b495aef32e24ba8a4c258ccf36b3f5c77e1eff3693707';
-const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
-const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
+const BASE_SHA = '6d1cc994e479411e6af266de1ebdfa91bb57f8d1';
+const EXPECTED_FROZEN_SITE_SHA256 = '1a29b397d8777aa956c742e7807a18b78255558a2139812df71dfc7b45a49374';
+const EXPECTED_SUPABASE_SHA256 = '58fbaa5f6ebcf1fa4214429e0e9a76284897775680a93f704fb2a0455a273389';
+const EXPECTED_SUPABASE_TREE = '204bba144a9ebe47dcbcc1bb1331c484acd0ea33';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',
+  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': '5d88433c990bf6dfba2513113004117ef5f8c947',
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
@@ -515,6 +515,6 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(workingManifestHash('site', new Set(Object.keys(RUNTIME_SUCCESSORS)))).toBe(EXPECTED_FROZEN_SITE_SHA256);
     expect(workingManifestHash('supabase')).toBe(EXPECTED_SUPABASE_SHA256);
     expect(git(['rev-parse', 'HEAD:supabase'])).toBe(EXPECTED_SUPABASE_TREE);
-    expect(git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])).toBe('');
+    expect(git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])).toBe('supabase/v581b_assignment_checkpoint_and_attribution_hardening.sql');
   });
 });

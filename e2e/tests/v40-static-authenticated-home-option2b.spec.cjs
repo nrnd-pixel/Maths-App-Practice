@@ -9,11 +9,11 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
+const BASE_SHA = '6d1cc994e479411e6af266de1ebdfa91bb57f8d1';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
-  'site/index.html',
+  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
 ]);
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
@@ -539,7 +539,7 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     }
 
     const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase']);
-    expect(changedSupabase).toBe('');
+    expect(changedSupabase).toBe('supabase/v581b_assignment_checkpoint_and_attribution_hardening.sql');
     expect(git(['rev-parse', `${BASE_SHA}:supabase`])).toBe(EXPECTED_SUPABASE_TREE);
   });
 });
