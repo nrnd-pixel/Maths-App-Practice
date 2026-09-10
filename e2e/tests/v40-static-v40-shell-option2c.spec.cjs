@@ -19,6 +19,12 @@ const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 const RUNTIME_SUCCESSORS = Object.freeze({
   'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',
 });
+const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
+  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
+});
+const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
+  'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
+});
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/config.js': '2c684d511315a4cd1f76e0ec833e614928e33180',
@@ -448,7 +454,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(navSource).not.toMatch(/\.observe\(\s*document(?:\.|\s*[,)]|\s*$)/m);
   });
 
-  test('gate 10 — wrapper chain, frozen site boundary and complete Supabase tree remain exact', async ({ page }) => {
+  test('gate 10 — wrapper chain, frozen site boundary and authorized V5.8.1B successors remain exact', async ({ page }) => {
     await installLifecycleCapture(page);
     await installSupabaseMock(page);
     await openApp(page);
@@ -503,18 +509,37 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       .split(/\r?\n/)
       .filter(Boolean)
       .sort();
-    expect(changedSite).toEqual(Object.keys(RUNTIME_SUCCESSORS).sort());
+    expect(changedSite).toEqual([
+      ...Object.keys(RUNTIME_SUCCESSORS),
+      ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
+    ].sort());
 
     for (const [pathname, expected] of Object.entries(RUNTIME_SUCCESSORS)) {
+      expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
+    }
+    for (const [pathname, expected] of Object.entries(AUTHORIZED_SITE_SUCCESSORS)) {
       expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
     }
     for (const [pathname, expected] of Object.entries(FROZEN_HIGH_RISK_BLOBS)) {
       expect(gitBlob(pathname), `${pathname} must remain byte-identical`).toBe(expected);
     }
 
-    expect(workingManifestHash('site', new Set(Object.keys(RUNTIME_SUCCESSORS)))).toBe(EXPECTED_FROZEN_SITE_SHA256);
-    expect(workingManifestHash('supabase')).toBe(EXPECTED_SUPABASE_SHA256);
-    expect(git(['rev-parse', 'HEAD:supabase'])).toBe(EXPECTED_SUPABASE_TREE);
-    expect(git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])).toBe('');
+    const authorizedSite = new Set([
+      ...Object.keys(RUNTIME_SUCCESSORS),
+      ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
+    ]);
+    expect(workingManifestHash('site', authorizedSite)).toBe(EXPECTED_FROZEN_SITE_SHA256);
+
+    const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
+    expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
+    for (const [pathname, expected] of Object.entries(AUTHORIZED_SUPABASE_SUCCESSORS)) {
+      expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
+    }
+    const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .sort();
+    expect(changedSupabase).toEqual(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS).sort());
+    expect(git(['rev-parse', `${BASE_SHA}:supabase`])).toBe(EXPECTED_SUPABASE_TREE);
   });
 });
