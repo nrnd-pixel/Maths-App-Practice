@@ -1,0 +1,137 @@
+name: Option 2B static authenticated Home branch validation
+
+on:
+  push:
+    branches:
+      - tech-debt-phase-4-option2b-authenticated-hub-static
+    paths:
+      - .github/workflows/option2b-static-hub-branch-validation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-commit:
+    name: Validate Option 2B and commit implementation
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: tech-debt-phase-4-option2b-authenticated-hub-static
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Apply Option 2B patch
+        run: python .github/option2b_static_hub_patch.py
+
+      - name: Syntax and scope checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check site/v40-learning-priorities.js
+          node --check site/v57c-student-continue-learning-home.js
+          node --check site/gamification-student.js
+          node --check site/v58a-student-first-use-experience.js
+          node --check e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
+
+          base=162205ba76b08f31f0ea4bbb14cc6f5fc85c56a3
+          allowed='^(site/index\.html|site/v40-learning-priorities\.js|site/v57c-student-continue-learning-home\.js|site/gamification-student\.js|site/v58a-student-first-use-experience\.js)$'
+          unexpected="$(git diff --name-only "$base" -- site | grep -Ev "$allowed" || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected site changes:"
+            echo "$unexpected"
+            exit 1
+          fi
+          if [ -n "$(git diff --name-only "$base" -- supabase)" ]; then
+            echo 'Supabase tree changed unexpectedly.'
+            git diff --name-only "$base" -- supabase
+            exit 1
+          fi
+          test "$(git rev-parse "$base":supabase)" = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456'
+
+      - name: Run maintained verifier suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re, subprocess
+          from pathlib import Path
+          source=Path('.github/workflows/ci.yml').read_text()
+          match=re.search(r'verifiers=\(\n(.*?)\n\s*\)',source,re.S)
+          if not match:
+              raise SystemExit('Could not locate maintained verifier list in ci.yml')
+          verifiers=re.findall(r'"([^"]+\.cjs)"',match.group(1))
+          print(f'Running {len(verifiers)} maintained verifiers')
+          failures=[]
+          for verifier in verifiers:
+              print(f'==> {verifier}',flush=True)
+              result=subprocess.run(['node',verifier])
+              if result.returncode:
+                  failures.append(verifier)
+          if failures:
+              print('FAILED VERIFIERS:')
+              print('\n'.join(failures))
+              raise SystemExit(1)
+          PY
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Option 2B twelve hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line
+
+      - name: Run Phase 0 core equivalence
+        working-directory: e2e
+        run: npx playwright test tests/core.spec.cjs --reporter=line
+
+      - name: Run V52C legacy topical hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v52c-legacy-student-route-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V54 resource-bank hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v54-resource-bank-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V50 operations/reporting hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v50-operations-reporting-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V51 question-bank management hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v51-question-bank-management-phase4-checkpoint1.spec.cjs --reporter=line
+
+      - name: Run V52B1 observer-gate adversarial hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v52b1-observer-gate-phase4-adversarial.spec.cjs --reporter=line
+
+      - name: Run full Playwright suite
+        working-directory: e2e
+        run: npm test
+
+      - name: Commit validated implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            site/index.html \
+            site/v40-learning-priorities.js \
+            site/v57c-student-continue-learning-home.js \
+            site/gamification-student.js \
+            site/v58a-student-first-use-experience.js
+          git diff --cached --check
+          git commit -m 'Phase 4 Option 2B static authenticated Home'
+          git push origin HEAD:tech-debt-phase-4-option2b-authenticated-hub-static
