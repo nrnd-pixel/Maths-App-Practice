@@ -1,0 +1,104 @@
+name: Temporary FOUC deploy-preview check
+
+on:
+  push:
+    branches:
+      - maintenance/fouc-materialize-20260910
+
+permissions:
+  contents: read
+
+jobs:
+  preview-check:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install browser test dependencies
+        working-directory: e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Measure real deploy-preview reveal
+        env:
+          PREVIEW_URL: https://deploy-preview-231--magical-pixie-a61111.netlify.app/
+        run: |
+          node <<'NODE'
+          const { chromium } = require('./e2e/node_modules/@playwright/test');
+
+          async function measure(browser, restored) {
+            const context = await browser.newContext();
+            const page = await context.newPage();
+            await page.addInitScript(({ restored }) => {
+              window.__foucProbe = { domAt: null, loadAt: null, visibleAt: null, visibilityAtDom: null };
+              if (restored) {
+                try {
+                  sessionStorage.setItem('mathStudentSessionV40', JSON.stringify({
+                    version: 1,
+                    createdAt: Date.now(),
+                    expiresAt: Date.now() + 60 * 60 * 1000,
+                    identity: {
+                      access_mode: 'registered', registered: true, roster_student_id: 'preview-roster',
+                      class_id: 'preview-class', student_name: 'Preview Student', student_id: 'PREVIEW001',
+                      year_level: 6, class_name: '6A'
+                    },
+                    tokens: { practice: 'preview-practice-token', exam: 'preview-exam-token' }
+                  }));
+                } catch {}
+              }
+              document.addEventListener('DOMContentLoaded', () => {
+                const probe = window.__foucProbe;
+                probe.domAt = performance.now();
+                const start = document.getElementById('start');
+                probe.visibilityAtDom = start ? getComputedStyle(start).visibility : 'missing';
+                const watch = () => {
+                  if (!probe.visibleAt && start && getComputedStyle(start).visibility === 'visible') {
+                    probe.visibleAt = performance.now();
+                    return;
+                  }
+                  requestAnimationFrame(watch);
+                };
+                watch();
+              }, { once: true });
+              window.addEventListener('load', () => { window.__foucProbe.loadAt = performance.now(); }, { once: true });
+            }, { restored });
+
+            await page.goto(process.env.PREVIEW_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            await page.waitForFunction(() => {
+              const start = document.getElementById('start');
+              return start && getComputedStyle(start).visibility === 'visible';
+            }, null, { timeout: 15000 });
+            const result = await page.evaluate(() => ({
+              ...window.__foucProbe,
+              now: performance.now(),
+              computed: getComputedStyle(document.getElementById('start')).visibility,
+              startClass: document.getElementById('start').className,
+              startView: document.getElementById('start').dataset.v40StartView || null,
+              sessionAuthenticated: document.querySelector('#start .v40c-session-panel')?.classList.contains('v40c-authenticated') || false,
+              bodyBg: getComputedStyle(document.body).backgroundImage,
+            }));
+            result.afterDomMs = result.visibleAt - result.domAt;
+            result.afterLoadMs = result.loadAt == null ? null : result.visibleAt - result.loadAt;
+            console.log(`${restored ? 'RESTORED' : 'LOGGED_OUT'} ${JSON.stringify(result)}`);
+            if (result.visibilityAtDom !== 'hidden') throw new Error('start was not hidden at DOMContentLoaded');
+            if (result.computed !== 'visible') throw new Error('start did not reveal');
+            if (restored && !result.sessionAuthenticated) throw new Error('restored session was not authenticated at reveal');
+            if (!restored && !result.startClass.includes('v40-shell-logged-out')) throw new Error('logged-out shell class missing at reveal');
+            await context.close();
+            return result;
+          }
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            try {
+              const loggedOut = await measure(browser, false);
+              const restored = await measure(browser, true);
+              console.log(`FOUC_TIMING loggedOutAfterLoad=${loggedOut.afterLoadMs?.toFixed(1)}ms restoredAfterLoad=${restored.afterLoadMs?.toFixed(1)}ms`);
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
