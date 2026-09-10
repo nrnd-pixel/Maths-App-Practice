@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """Deterministically align the Option 2B hard-gate spec with approved seal scope.
 
-This is temporary branch validation scaffolding. It changes only the Option 2B
-E2E spec: race-prone fixture sequences are synchronized against the actual
-XP -> achievements -> missions -> class-challenge RPC/render lifecycle and a
-post-lifecycle stability window that exceeds both the V57C 70ms forced-refresh
-schedule and the 180ms retry schedule. Gate 12 recognizes only the explicitly
-approved historical successor-seal files without relaxing frozen runtime or
-Supabase checks.
+Temporary validation scaffolding only. The generated spec synchronizes against
+actual mocked gamification RPC calls plus browser output events. Settlement is
+proved by an ordered XP -> achievements -> missions -> class-challenge cycle,
+then an XP/call-signature stability poll longer than both the 70ms V57C forced
+refresh delay and the 180ms retry delay. No runtime code is changed here.
 """
 from pathlib import Path
 
@@ -73,160 +71,141 @@ new_helpers = """async function waitForHomeRendered(page) {
   ).toBe(true);
 }
 
-const GAMIFICATION_LIFECYCLE = Object.freeze([
-  Object.freeze({ rpc: 'get_student_gamification_v571a', event: 'v571a:gamification-updated' }),
-  Object.freeze({ rpc: 'get_student_gamification_achievements_v571b', event: 'v571b:achievements-updated' }),
-  Object.freeze({ rpc: 'get_student_weekly_missions_v572', event: 'v572:missions-updated' }),
-  Object.freeze({ rpc: 'get_student_class_challenge_v574', event: 'v573:class-challenge-updated' }),
+const GAMIFICATION_RPC_ORDER = Object.freeze([
+  'get_student_gamification_v571a',
+  'get_student_gamification_achievements_v571b',
+  'get_student_weekly_missions_v572',
+  'get_student_class_challenge_v574',
 ]);
-
-// This is a stability condition, not a blind sleep. The runtime's V57C path
-// schedules the forced refresh after 70ms and a collision retry after 180ms.
-// Requiring >180ms with no new lifecycle activity AND unchanged XP proves those
-// scheduled paths have settled before fixture values are asserted.
+const GAMIFICATION_EVENT_ORDER = Object.freeze([
+  'v571a:gamification-updated',
+  'v571b:achievements-updated',
+  'v572:missions-updated',
+  'v573:class-challenge-updated',
+]);
 const GAMIFICATION_SETTLE_QUIET_MS = 220;
+const OPTION2B_MOCKS = new WeakMap();
 
-async function armGamificationLifecycleProbe(page) {
-  await page.evaluate(stages => {
-    const rpcNames = new Set(stages.map(stage => stage.rpc));
-    const eventNames = new Set(stages.map(stage => stage.event));
-    let probe = window.__option2bGamificationLifecycleProbe;
+async function installTrackedSupabaseMock(page) {
+  const mock = await installSupabaseMock(page);
+  OPTION2B_MOCKS.set(page, mock);
+  return mock;
+}
 
+function trackedMock(page) {
+  const mock = OPTION2B_MOCKS.get(page);
+  if (!mock) throw new Error('Option 2B tracked Supabase mock is not installed for this page');
+  return mock;
+}
+
+function gamificationCallsSince(mock, startIndex) {
+  return mock.rpcCalls
+    .slice(startIndex)
+    .map(call => call.rpc)
+    .filter(name => GAMIFICATION_RPC_ORDER.includes(name));
+}
+
+function containsOrderedLifecycle(values, expected) {
+  if (values.length < expected.length) return false;
+  for (let i = 0; i <= values.length - expected.length; i += 1) {
+    if (expected.every((name, offset) => values[i + offset] === name)) return true;
+  }
+  return false;
+}
+
+async function armGamificationEventProbe(page) {
+  await page.evaluate(eventNames => {
+    let probe = window.__option2bGamificationEventProbe;
     if (!probe) {
-      if (!window.cloud || typeof window.cloud.rpc !== 'function') {
-        throw new Error('cloud.rpc is unavailable for the Option 2B lifecycle probe');
-      }
-
-      probe = {
-        entries: [],
-        nextCallId: 1,
-        lastXp: null,
-        xpStableSince: performance.now(),
-      };
-      window.__option2bGamificationLifecycleProbe = probe;
-
-      const originalRpc = window.cloud.rpc;
-      window.cloud.rpc = async function(...args) {
-        const name = String(args[0] || '');
-        if (!rpcNames.has(name)) return originalRpc.apply(this, args);
-
-        const id = probe.nextCallId++;
-        probe.entries.push({ kind: 'rpc-start', name, id, at: performance.now() });
-        try {
-          const result = await originalRpc.apply(this, args);
-          probe.entries.push({ kind: 'rpc-end', name, id, at: performance.now() });
-          return result;
-        } catch (error) {
-          probe.entries.push({ kind: 'rpc-error', name, id, at: performance.now() });
-          throw error;
-        }
-      };
-
+      probe = { events: [] };
+      window.__option2bGamificationEventProbe = probe;
       for (const name of eventNames) {
         window.addEventListener(name, () => {
-          probe.entries.push({ kind: 'event', name, at: performance.now() });
+          probe.events.push({ name, at: performance.now() });
         });
       }
     }
-
-    probe.entries.length = 0;
-    probe.lastXp = null;
-    probe.xpStableSince = performance.now();
-  }, GAMIFICATION_LIFECYCLE);
+    probe.events.length = 0;
+  }, GAMIFICATION_EVENT_ORDER);
 }
 
-async function waitForGamificationLifecycleSettlement(page) {
-  try {
-    await expect.poll(
-      () => page.evaluate(({ stages, quietMs }) => {
-        const probe = window.__option2bGamificationLifecycleProbe;
-        if (!probe) return false;
-        const entries = probe.entries;
-        const starts = new Map();
-        const completedCalls = [];
-
-        for (const entry of entries) {
-          if (entry.kind === 'rpc-start') starts.set(entry.id, entry);
-          if (entry.kind === 'rpc-end') {
-            const start = starts.get(entry.id);
-            if (start) completedCalls.push({ name: entry.name, startAt: start.at, endAt: entry.at });
-          }
-        }
-        completedCalls.sort((a, b) => a.startAt - b.startAt);
-
-        let batch = null;
-        for (let i = 0; i <= completedCalls.length - stages.length; i += 1) {
-          const calls = completedCalls.slice(i, i + stages.length);
-          if (!calls.every((call, index) => call.name === stages[index].rpc)) continue;
-
-          let valid = true;
-          let finalOutputAt = 0;
-          for (let index = 0; index < stages.length; index += 1) {
-            const lower = calls[index].endAt;
-            const upper = index + 1 < calls.length ? calls[index + 1].startAt : Number.POSITIVE_INFINITY;
-            const output = entries.find(entry => (
-              entry.kind === 'event' &&
-              entry.name === stages[index].event &&
-              entry.at >= lower &&
-              entry.at <= upper
-            ));
-            if (!output) {
-              valid = false;
-              break;
-            }
-            finalOutputAt = output.at;
-          }
-          if (valid) batch = { finalOutputAt };
-        }
-        if (!batch) return false;
-
-        const now = performance.now();
-        const xp = document.getElementById('v571a-gamification-card')?.dataset?.xp ?? null;
-        if (xp === null) return false;
-        if (probe.lastXp !== xp) {
-          probe.lastXp = xp;
-          probe.xpStableSince = now;
-          return false;
-        }
-
-        const lastActivityAt = entries.reduce((latest, entry) => Math.max(latest, entry.at || 0), batch.finalOutputAt);
-        const stableSince = Math.max(lastActivityAt, probe.xpStableSince);
-        return now - stableSince >= quietMs;
-      }, { stages: GAMIFICATION_LIFECYCLE, quietMs: GAMIFICATION_SETTLE_QUIET_MS }),
-      { timeout: 15_000, intervals: [40, 60, 80, 120] },
-    ).toBe(true);
-  } catch (error) {
-    const diagnostic = await page.evaluate(() => ({
-      xp: document.getElementById('v571a-gamification-card')?.dataset?.xp ?? null,
-      entries: window.__option2bGamificationLifecycleProbe?.entries || [],
-    }));
-    throw new Error(`${error.message}\\nGamification lifecycle diagnostic: ${JSON.stringify(diagnostic)}`);
-  }
+async function eventProbeLength(page) {
+  return page.evaluate(() => window.__option2bGamificationEventProbe?.events?.length || 0);
 }
 
-async function settleSignInGamification(page) {
-  await armGamificationLifecycleProbe(page);
-  await signInStudent(page);
-  await waitForHomeRendered(page);
-  await waitForGamificationLifecycleSettlement(page);
+async function waitForOrderedLifecycleAndStability(page, mock, startIndex, eventFloor = 0) {
+  await expect.poll(
+    () => containsOrderedLifecycle(gamificationCallsSince(mock, startIndex), GAMIFICATION_RPC_ORDER),
+    { timeout: 15_000, intervals: [40, 60, 80, 120] },
+  ).toBe(true);
+
+  await expect.poll(
+    () => page.evaluate(({ expected, floor }) => {
+      const names = (window.__option2bGamificationEventProbe?.events || [])
+        .slice(floor)
+        .map(entry => entry.name);
+      if (names.length < expected.length) return false;
+      for (let i = 0; i <= names.length - expected.length; i += 1) {
+        if (expected.every((name, offset) => names[i + offset] === name)) return true;
+      }
+      return false;
+    }, { expected: GAMIFICATION_EVENT_ORDER, floor: eventFloor }),
+    { timeout: 15_000, intervals: [40, 60, 80, 120] },
+  ).toBe(true);
+
+  let lastSignature = null;
+  let lastXp = null;
+  let stableSince = 0;
+  await expect.poll(async () => {
+    const signature = JSON.stringify(gamificationCallsSince(mock, startIndex));
+    const xp = await page.locator('#v571a-gamification-card').getAttribute('data-xp');
+    const now = Date.now();
+    if (xp == null) return false;
+    if (signature !== lastSignature || xp !== lastXp) {
+      lastSignature = signature;
+      lastXp = xp;
+      stableSince = now;
+      return false;
+    }
+    return now - stableSince >= GAMIFICATION_SETTLE_QUIET_MS;
+  }, {
+    timeout: 15_000,
+    intervals: [40, 60, 80, 120],
+  }).toBe(true);
 }
 
 async function primeGamification(page) {
-  await armGamificationLifecycleProbe(page);
+  const mock = trackedMock(page);
+  await armGamificationEventProbe(page);
+  const startIndex = mock.rpcCalls.length;
+
   await expect.poll(
     () => page.evaluate(async () => Boolean(await window.GamificationStudent.refresh(true))),
-    { timeout: 15_000, intervals: [100, 150, 250, 400] },
+    { timeout: 15_000, intervals: [80, 120, 180, 250] },
   ).toBe(true);
-  await waitForGamificationLifecycleSettlement(page);
+
+  await waitForOrderedLifecycleAndStability(page, mock, startIndex, 0);
 }
 
 async function renderHomeAndSettleForcedGamification(page, model) {
-  await armGamificationLifecycleProbe(page);
-  await page.evaluate(value => window.V57CStudentContinueLearningHome.render(value), model);
-  await waitForGamificationLifecycleSettlement(page);
+  const mock = trackedMock(page);
+  await armGamificationEventProbe(page);
+  const startIndex = mock.rpcCalls.length;
+
+  // Capture the synchronous renderCached() event boundary inside the same browser
+  // task as V57C.render(). The 70ms scheduled refresh cannot execute until after
+  // that task returns, so events after this boundary belong to the forced path.
+  const synchronousEventBoundary = await page.evaluate(value => {
+    window.V57CStudentContinueLearningHome.render(value);
+    return window.__option2bGamificationEventProbe?.events?.length || 0;
+  }, model);
+
+  await waitForOrderedLifecycleAndStability(page, mock, startIndex, synchronousEventBoundary);
 }
 
 async function renderHomeAndWaitForScheduledGamificationRefresh(page, model) {
+  // First force and settle one complete serial refresh. This drains any sign-in
+  // refresh/retry already in flight. Then prove V57C's own scheduled forced cycle.
   await primeGamification(page);
   await renderHomeAndSettleForcedGamification(page, model);
 }
@@ -244,13 +223,14 @@ old_gate4_preamble = """  test('gate 4 — Student A logout then Student B rende
 
 """
 new_gate4_preamble = """  test('gate 4 — Student A logout then Student B render leaves no Home personalization from Student A', async ({ page }) => {
-    await installSupabaseMock(page);
+    await installTrackedSupabaseMock(page);
     await openApp(page);
+    await signInStudent(page);
     await waitForOption2bRuntime(page);
-    await settleSignInGamification(page);
+    await waitForHomeRendered(page);
 
 """
-text = replace_once(text, old_gate4_preamble, new_gate4_preamble, 'gate 4 initial sign-in settlement')
+text = replace_once(text, old_gate4_preamble, new_gate4_preamble, 'gate 4 tracked mock')
 
 old_alpha = """    await page.evaluate(({ model, missions, challenge }) => {
       window.V57CStudentContinueLearningHome.render(model);
@@ -263,7 +243,7 @@ old_alpha = """    await page.evaluate(({ model, missions, challenge }) => {
       challenge: challengePayload(true, 'Alpha Class'),
     });
 """
-new_alpha = """    await renderHomeAndSettleForcedGamification(page, homeModel('Student Alpha'));
+new_alpha = """    await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Student Alpha'));
     await page.evaluate(({ missions, challenge }) => {
       window.GamificationStudent.xp.render({ xp: { total: 321 } });
       window.GamificationStudent.missions.render(missions);
@@ -273,7 +253,7 @@ new_alpha = """    await renderHomeAndSettleForcedGamification(page, homeModel('
       challenge: challengePayload(true, 'Alpha Class'),
     });
 """
-text = replace_once(text, old_alpha, new_alpha, 'gate 4 Alpha forced-refresh settlement')
+text = replace_once(text, old_alpha, new_alpha, 'gate 4 Alpha settlement')
 
 old_beta = """    await signInStudent(page);
     await waitForHomeRendered(page);
@@ -288,8 +268,9 @@ old_beta = """    await signInStudent(page);
       challenge: challengePayload(true, 'Beta Class'),
     });
 """
-new_beta = """    await settleSignInGamification(page);
-    await renderHomeAndSettleForcedGamification(page, homeModel('Student Beta'));
+new_beta = """    await signInStudent(page);
+    await waitForHomeRendered(page);
+    await renderHomeAndWaitForScheduledGamificationRefresh(page, homeModel('Student Beta'));
     await page.evaluate(({ missions, challenge }) => {
       window.GamificationStudent.xp.render({ xp: { total: 654 } });
       window.GamificationStudent.missions.render(missions);
@@ -299,7 +280,19 @@ new_beta = """    await settleSignInGamification(page);
       challenge: challengePayload(true, 'Beta Class'),
     });
 """
-text = replace_once(text, old_beta, new_beta, 'gate 4 Beta forced-refresh settlement')
+text = replace_once(text, old_beta, new_beta, 'gate 4 Beta settlement')
+
+old_gate8_mock = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
+    await installStaticCapture(page);
+    await installSupabaseMock(page);
+    await openApp(page);
+"""
+new_gate8_mock = """  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {
+    await installStaticCapture(page);
+    await installTrackedSupabaseMock(page);
+    await openApp(page);
+"""
+text = replace_once(text, old_gate8_mock, new_gate8_mock, 'gate 8 tracked mock')
 
 old_gate8_start = """    await signInStudent(page);
     await waitForOption2bRuntime(page);
@@ -317,7 +310,7 @@ gate8_index = text.find(gate8_heading)
 if gate8_index < 0:
     raise RuntimeError('gate 8 heading not found')
 prefix, gate8_tail = text[:gate8_index], text[gate8_index:]
-gate8_tail = replace_once(gate8_tail, old_gate8_start, new_gate8_start, 'gate 8 refresh settlement')
+gate8_tail = replace_once(gate8_tail, old_gate8_start, new_gate8_start, 'gate 8 lifecycle settlement')
 text = prefix + gate8_tail
 
 old_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
