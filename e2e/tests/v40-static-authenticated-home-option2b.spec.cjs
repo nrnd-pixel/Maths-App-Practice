@@ -11,6 +11,9 @@ const {
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
+const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
+  'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
+});
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
   'site/index.html',
@@ -24,6 +27,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
   'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
+  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
 ]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
@@ -523,7 +527,7 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     expect(probe.authSample.display).not.toBe('none');
   });
 
-  test('gate 12 — frozen V39/V40/core/downstream boundaries and complete Supabase tree remain exact', async () => {
+  test('gate 12 — frozen V39/V40/core/downstream boundaries and authorized Supabase successor remain exact', async () => {
     for (const [pathname, expected] of Object.entries(FROZEN_BLOBS)) {
       expect(gitBlob(pathname), `${pathname} changed`).toBe(expected);
     }
@@ -538,8 +542,14 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
       expect(changedSite, `authorized runtime successor missing: ${pathname}`).toContain(pathname);
     }
 
-    const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase']);
-    expect(changedSupabase).toBe('');
+    const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .sort();
+    expect(changedSupabase).toEqual(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS).sort());
+    for (const [pathname, expected] of Object.entries(AUTHORIZED_SUPABASE_SUCCESSORS)) {
+      expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
+    }
     expect(git(['rev-parse', `${BASE_SHA}:supabase`])).toBe(EXPECTED_SUPABASE_TREE);
   });
 });
