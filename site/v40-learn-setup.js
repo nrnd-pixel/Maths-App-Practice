@@ -1,6 +1,7 @@
 /* V4.0C2 — Learn / Practice setup experience.
-   Presentation-only: reorganises the existing mode and filter controls while
-   preserving their IDs, values, handlers and secure start flows. */
+   Option 2C keeps the Learn structure and legacy controls in their final source
+   HTML positions, then progressively enhances those exact nodes. Dynamic
+   construction remains only as a compatibility fallback. */
 (() => {
   'use strict';
 
@@ -291,38 +292,41 @@
     }, 250);
   }
 
-  function keepHomeLearnCardUseful(startButton){
+  function keepHomeLearnCardUseful(){
     const card = document.querySelector('#start [data-action-for="start-btn"]');
-    if (!card || card.querySelector('.v40c-open-learn')) return;
+    if (!card) return;
 
     const title = card.querySelector('.v39-action-title');
     const description = card.querySelector('.v39-action-description');
     if (title) title.textContent = 'Learn';
     if (description) description.textContent = 'Choose Practice or Exam, adjust your activity if needed, then start.';
 
-    const open = document.createElement('button');
-    open.type = 'button';
-    open.className = 'primary v40c-open-learn';
-    open.textContent = 'Open Learn';
-    open.addEventListener('click', scrollToLearn);
-
-    if (startButton.parentElement === card) {
-      card.replaceChild(open, startButton);
-    } else {
+    let open = card.querySelector('.v40c-open-learn');
+    if (!open) {
+      open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'primary v40c-open-learn';
+      open.textContent = 'Open Learn';
+      open.dataset.v40Fallback = 'true';
       card.appendChild(open);
+    }
+
+    if (open.dataset.v40LearnOpenBound !== 'true') {
+      open.dataset.v40LearnOpenBound = 'true';
+      open.addEventListener('click', scrollToLearn);
     }
   }
 
-  function buildLearnSetup(){
+  function buildLearnSetupFallback(){
     const start = document.getElementById('start');
     const modeSwitch = start?.querySelector('.mode-switch');
     const modeNote = document.getElementById('mode-note');
     const startButton = document.getElementById('start-btn');
-
-    if (!start || !modeSwitch || !startButton || start.querySelector('.v40c-learn-setup')) return;
+    if (!start || !modeSwitch || !startButton || start.querySelector('.v40c-learn-setup')) return null;
 
     const setup = document.createElement('section');
     setup.className = 'v40c-learn-setup';
+    setup.dataset.v40Fallback = 'true';
     setup.setAttribute('aria-label', 'Learn setup');
 
     const head = document.createElement('div');
@@ -357,12 +361,7 @@
     `;
 
     const settingsGrid = practiceSummary.querySelector('.v40c-settings-grid');
-    [
-      'practice-strand-wrap',
-      'practice-topic-wrap',
-      'practice-count-wrap',
-      'practice-difficulty-wrap'
-    ].forEach(id => {
+    ['practice-strand-wrap','practice-topic-wrap','practice-count-wrap','practice-difficulty-wrap'].forEach(id => {
       const field = document.getElementById(id);
       if (field) settingsGrid.appendChild(field);
     });
@@ -395,32 +394,77 @@
     setup.append(head, modeSwitch);
     if (modeNote) setup.appendChild(modeNote);
     setup.append(practiceSummary, examPanel, actions);
+    return setup;
+  }
 
-    keepHomeLearnCardUseful(startButton);
+  function structureIsReady(setup){
+    if (!setup) return false;
+    const practiceGrid = setup.querySelector('.v40c-settings-grid');
+    const examGrid = setup.querySelector('.v40c-exam-grid');
+    const actions = setup.querySelector('.v40c-learn-actions');
+    const modeSwitch = setup.querySelector('.mode-switch');
+    const modeNote = setup.querySelector('#mode-note');
+    const startButton = setup.querySelector('#start-btn');
 
-    const change = practiceSummary.querySelector('.v40c-change-settings');
-    change?.addEventListener('click', () => {
-      const open = practiceSummary.classList.toggle('v40c-settings-open');
-      change.setAttribute('aria-expanded', String(open));
-      change.textContent = open ? 'Hide settings' : 'Change settings';
-    });
+    return !!(
+      practiceGrid && examGrid && actions && modeSwitch && modeNote && startButton &&
+      modeSwitch.parentElement === setup &&
+      modeNote.parentElement === setup &&
+      startButton.parentElement === actions &&
+      ['practice-strand-wrap','practice-topic-wrap','practice-count-wrap','practice-difficulty-wrap']
+        .every(id => document.getElementById(id)?.parentElement === practiceGrid) &&
+      ['exam-year-wrap','exam-paper-wrap','exam-paper-note','exam-instructions']
+        .every(id => document.getElementById(id)?.parentElement === examGrid)
+    );
+  }
+
+  function bindLearnEnhancement(setup){
+    const practiceSummary = setup.querySelector('.v40c-practice-summary');
+    const change = practiceSummary?.querySelector('.v40c-change-settings');
+
+    if (change && change.dataset.v40LearnChangeBound !== 'true') {
+      change.dataset.v40LearnChangeBound = 'true';
+      change.addEventListener('click', () => {
+        const open = practiceSummary.classList.toggle('v40c-settings-open');
+        change.setAttribute('aria-expanded', String(open));
+        change.textContent = open ? 'Hide settings' : 'Change settings';
+      });
+    }
 
     ['strand-filter','topic-filter','question-count','difficulty-filter'].forEach(id => {
-      document.getElementById(id)?.addEventListener('change', updatePracticeSummary);
+      const control = document.getElementById(id);
+      if (!control || control.dataset.v40LearnSummaryBound === 'true') return;
+      control.dataset.v40LearnSummaryBound = 'true';
+      control.addEventListener('change', updatePracticeSummary);
     });
 
     ['practice-mode-btn','exam-mode-btn'].forEach(id => {
-      document.getElementById(id)?.addEventListener('click', () => {
-        window.setTimeout(updateModeView, 0);
-      });
+      const button = document.getElementById(id);
+      if (!button || button.dataset.v40LearnModeBound === 'true') return;
+      button.dataset.v40LearnModeBound = 'true';
+      button.addEventListener('click', () => window.setTimeout(updateModeView, 0));
     });
+  }
 
+  function enhanceLearnSetup(){
+    let setup = document.querySelector('#start .v40c-learn-setup');
+    if (!setup) setup = buildLearnSetupFallback();
+    if (!setup) return;
+
+    if (!structureIsReady(setup)) {
+      console.warn('V4.0 static Learn shell is incomplete.');
+      return;
+    }
+
+    keepHomeLearnCardUseful();
+    bindLearnEnhancement(setup);
     updateModeView();
+    setup.dataset.v40LearnEnhanced = 'true';
   }
 
   function applyV40C2(){
     injectStyles();
-    buildLearnSetup();
+    enhanceLearnSetup();
   }
 
   if (document.readyState === 'loading') {
