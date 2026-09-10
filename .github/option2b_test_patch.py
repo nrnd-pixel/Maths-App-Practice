@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Deterministically align the Option 2B hard-gate spec with approved seal scope.
 
-Temporary validation scaffolding only. Gate 4 follows Option B: after the
-Student B V57C Home render, it proves that Student A personalization is absent,
-without coupling the leak-prevention contract to the gamification refresh
-lifecycle. Gate 8 uses state-stability polling (not an arbitrary sleep) before
-injecting its class-challenge fixture. No runtime code is changed here.
+Temporary validation scaffolding only. Gate 4 follows Option B: it waits for
+the second sign-in's genuine V57C Home personalization to render, then proves
+that every distinctive Student A marker is absent. Gate 8 uses state-stability
+polling (not an arbitrary sleep) before injecting its class-challenge fixture.
+No runtime code is changed here.
 """
 from pathlib import Path
 
@@ -31,6 +31,21 @@ def replace_block(text, start_marker, end_marker, replacement, label):
 
 
 text = PATH.read_text(encoding='utf-8')
+
+old_import = """const {
+  installSupabaseMock,
+  openApp,
+  signInStudent,
+} = require('./helpers.cjs');
+"""
+new_import = """const {
+  STUDENT,
+  installSupabaseMock,
+  openApp,
+  signInStudent,
+} = require('./helpers.cjs');
+"""
+text = replace_once(text, old_import, new_import, 'fixture student import')
 
 old_allowed = """const ALLOWED_SITE_CHANGES = new Set([
   'site/index.html',
@@ -122,25 +137,30 @@ gate4 = """  test('gate 4 — Student A logout then Student B render leaves no H
     await waitForOption2bRuntime(page);
     await waitForHomeRendered(page);
 
-    // Drain any sign-in/V57C gamification writes before planting Student A's
-    // distinctive personalization markers. This is stability polling, not a
-    // fixed delay: the state must remain unchanged beyond the 180ms retry path.
+    // Drain the genuine first-sign-in Home/gamification work before planting a
+    // previous-student fixture. This is state-stability polling, not a sleep.
     await waitForStableCardState(page, '#v571a-gamification-card');
     await waitForStableCardState(page, '#v572-weekly-missions-card');
     await waitForStableCardState(page, '#v574-class-challenge-card');
 
-    await page.evaluate(({ model, missions, challenge }) => {
-      window.V57CStudentContinueLearningHome.render(model);
+    // V57C render itself schedules the forced gamification refresh. Let that
+    // real refresh settle first, then plant the distinctive Alpha gamification
+    // markers so they are genuinely present at the logout boundary.
+    await page.evaluate(model => window.V57CStudentContinueLearningHome.render(model), homeModel('Student Alpha'));
+    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Alpha');
+    await waitForStableCardState(page, '#v571a-gamification-card');
+    await waitForStableCardState(page, '#v572-weekly-missions-card');
+    await waitForStableCardState(page, '#v574-class-challenge-card');
+
+    await page.evaluate(({ missions, challenge }) => {
       window.GamificationStudent.xp.render({ xp: { total: 321 } });
       window.GamificationStudent.missions.render(missions);
       window.GamificationStudent.classChallenge.render(challenge);
     }, {
-      model: homeModel('Student Alpha'),
       missions: missionsPayload('Alpha Mission'),
       challenge: challengePayload(true, 'Alpha Class'),
     });
 
-    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Alpha');
     await expect(page.locator('#v571a-gamification-card')).toContainText('321');
     await expect(page.locator('#v572-weekly-missions-card')).toContainText('Alpha Mission');
     await expect(page.locator('#v574-class-challenge-card')).toContainText('Alpha Class');
@@ -153,21 +173,20 @@ gate4 = """  test('gate 4 — Student A logout then Student B render leaves no H
     ).not.toContain('Student Alpha');
 
     const afterLogout = await page.locator('#start .v40c3-home-dashboard').innerText();
+    expect(afterLogout).not.toContain(STUDENT.name);
     expect(afterLogout).not.toContain('321');
     expect(afterLogout).not.toContain('Alpha Mission');
     expect(afterLogout).not.toContain('Alpha Class');
 
+    // Option B: use the real second sign-in fixture as Student B. Because the
+    // logged-out Home was just proven not to contain this name, observing the
+    // fixture name now proves the new V57C personalization render completed;
+    // no manual Beta render can race a later authentic Home refresh.
     await signInStudent(page);
-    await waitForHomeRendered(page);
-
-    // Option B: Gate 4 owns leak prevention, not refresh-cycle timing. A
-    // successful Student Beta V57C render proves the new Home personalization
-    // has completed; after that, every Student Alpha marker must be absent.
-    await page.evaluate(model => window.V57CStudentContinueLearningHome.render(model), homeModel('Student Beta'));
-    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Beta', { timeout: 15_000 });
+    await expect(page.locator('#start .v40-learning-hub-hero')).toContainText(STUDENT.name, { timeout: 15_000 });
 
     const betaText = await page.locator('#start').innerText();
-    expect(betaText).toContain('Student Beta');
+    expect(betaText).toContain(STUDENT.name);
     expect(betaText).not.toContain('Student Alpha');
     expect(betaText).not.toContain('321');
     expect(betaText).not.toContain('Alpha Mission');
@@ -175,7 +194,7 @@ gate4 = """  test('gate 4 — Student A logout then Student B render leaves no H
   });
 
 """
-text = replace_block(text, gate4_start, gate5_start, gate4, 'Gate 4 Option B')
+text = replace_block(text, gate4_start, gate5_start, gate4, 'Gate 4 Option B genuine second sign-in')
 
 gate8_start = "  test('gate 8 — class challenge uses one static card and toggles enabled/disabled without create/remove', async ({ page }) => {"
 gate9_start = "  test('gate 9 — V58A first-use card toggles one static node instead of creating/removing it', async ({ page }) => {"
@@ -230,4 +249,4 @@ new_gate12 = """    const changedSite = git(['diff', '--name-only', BASE_SHA, '-
 text = replace_once(text, old_gate12, new_gate12, 'gate 12 exact authorized scope')
 
 PATH.write_text(text, encoding='utf-8')
-print('Option 2B E2E Option-B leak gate + stability-polled fixture patch applied successfully.')
+print('Option 2B E2E Option-B genuine second-sign-in leak gate + stability polling applied successfully.')
