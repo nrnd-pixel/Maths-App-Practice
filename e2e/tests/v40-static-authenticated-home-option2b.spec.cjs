@@ -9,13 +9,11 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const BASE_SHA = 'cacf5d0a2e1b921275dbde9a1a115576d1046b64';
+const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
   'site/index.html',
-  'site/v40-student-nav.js',
-  'site/v40-learn-setup.js',
 ]);
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
