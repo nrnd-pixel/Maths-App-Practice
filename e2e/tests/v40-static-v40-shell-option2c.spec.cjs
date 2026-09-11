@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = 'eeca27a5e37b03c5bb54db9ce89c08981eb13f9f83b8a43cb5ccbff944f168ce';
+const EXPECTED_FROZEN_SITE_SHA256 = 'c7cbb0a82b679f6e11ed8cef120f4cfb6bafdf6638544beef051f51c2110bc32';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -23,16 +23,66 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/tests/v51-phase4-protected-shas.json': 'f2fb81c7e17313401f9d0c1861534eec91a5407e',
-  'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '80b6a85e557ed6a0ca6c81270249eb688f0096d9',
+  'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
+  'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '4804b1ca8631291ca70e61c6a3091aea979eb4dd',
   'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': 'c25260ac641a86d6d47c18fa848424095a5952bf',
+  'site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs': 'd8f3e86d83d136d6ae99234c22beb6d640c7736b',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': 'bbe34a47ea4530d6925f74d0ca0f788e8d2200df',
+  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '3a2e792ccaab4c019f659ebf251535d8b1a825c5',
   'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': 'a88f0a8a0806ed5b2338d502c8c3ed395854fdec',
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': '87f72130b88e2040436df9c94c0b6a3e561f6308',
   'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'fce270ec2cbe89644c91563b32dc8f61398ab896',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '594c3697510b4e70658d5a926040fff45dd1f994',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
-  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '526b04165568543b07fa321cdc713948d84d77d3',
+});
+// Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
+// Deleted files appear in git diff but have no blob; they are authorised here, not in
+// AUTHORIZED_SITE_SUCCESSORS, so the blob-check loop skips them correctly.
+const AUTHORIZED_SITE_DELETIONS = new Set([
+  'site/v38-release.js','site/v381-release.js','site/v39-release.js',
+  'site/v42-practice-assignments.js','site/v43-individual-practice-assignments.js',
+  'site/v43-multi-recipient-practice-assignments.js','site/v44-action-center-practice.js',
+  'site/v44-intervention-follow-through.js','site/v44-intervention-highlight-clarity.js',
+  'site/v44-shared-focus-groups.js','site/v45-intervention-outcomes.js',
+  'site/v46-intervention-export.js','site/v47-class-intervention-overview.js',
+  'site/v47-follow-up-from-history.js','site/v47-intervention-history.js',
+  'site/v48-deadline-follow-up.js','site/v48-student-deadline-experience.js',
+  'site/v48-teacher-deadline-monitoring.js','site/v49-student-next-steps.js',
+  'site/v49-student-progress-snapshot.js','site/v50-production-polish.js',
+  'site/v50-rc2-empty-result-code-polish.js','site/v50-release-audit-rc3.js',
+  'site/v50-release-audit.js','site/v50-report-archive.js','site/v50-reporting-export.js',
+  'site/v50-roster-edit.js','site/v50-student-launch-readiness.js',
+  'site/v50-teacher-class-report.js','site/v50-teacher-operations.js',
+  'site/v50-teacher-student-report.js','site/v51-bulk-question-image-cleanup.js',
+  'site/v51-bulk-question-image-safety.js','site/v51-bulk-question-image-upload.js',
+  'site/v51-multipart-question-management.js','site/v51-one-confirmation-paper-import.js',
+  'site/v51-paper-package-preview-status.js','site/v51-paper-package-preview.js',
+  'site/v51-paper-profile-validator.js','site/v51-post-import-integrity.js',
+  'site/v51-question-bank-bulk-metadata.js','site/v51-question-bank-bulk-status.js',
+  'site/v51-question-bank-qa.js','site/v51-question-change-history.js',
+  'site/v51-question-review-workflow.js','site/v51-student-exam-paper-library.js',
+  'site/v51-student-exam-resume-progress.js','site/v52c-student-topical-library.js',
+  'site/v52c-topical-hint-bridge.js','site/v52c-topical-publication.js',
+  'site/v52c1-topical-library-mount-hotfix.js','site/v52c2-topical-result-ux.js',
+  'site/v53a-practice-eligibility.js','site/v53b-unified-practice-retrieval.js',
+  'site/v53c-two-mode-student-ui.js','site/v53d1-teacher-practice-pool-alignment.js',
+  'site/v53d3-practice-selection-quality.js','site/v53d4-student-recommendation-alignment.js',
+  'site/v53d5-practice-selection-intelligence.js','site/v53d6-resource-bank-status-clarity.js',
+  'site/v54a-resource-bank-visibility.js','site/v54b-practice-eligibility-controls.js',
+  'site/v54c-compact-question-bank.js','site/v54d-topical-resource-simplification.js',
+  'site/v54e-bulk-practice-eligibility.js','site/v54f-bulk-selection-scope-safety.js',
+  'site/v55a-past-paper-practice.js','site/v55a1-practice-type-guard.js',
+  'site/v55b-full-paper-practice.js','site/v55c-resume-past-paper-practice.js',
+  'site/v55c1-resume-button-bridge.js','site/v55d-past-paper-result-attribution.js',
+  'site/v56b-teacher-assigned-past-paper-practice.js','site/v56c-student-past-paper-progress.js',
+  'site/v56d-teacher-past-paper-analytics.js','site/v571a-gamification-foundation.js',
+  'site/v571b-streaks-achievements.js','site/v572-weekly-missions.js',
+  'site/v573-class-challenges-teacher-gamification.js','site/v574-gamification-polish-teacher-controls.js',
+  'site/v57a-cross-device-past-paper-resume.js','site/v57a1-cross-device-local-bridge.js',
+  'site/v57a2-stale-local-checkpoint-cleanup.js','site/v57d-past-paper-analytics-actions.js',
+  'site/v57d1-focus-plan-copy-fallback.js',
+]);
 });
 const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
@@ -518,12 +568,13 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(v52c2OwnerSource).toContain('const access=await base(purpose);');
 
     const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
-      .split(/\r?\n/)
+      .split(/\r?\\n/)
       .filter(Boolean)
       .sort();
     expect(changedSite).toEqual([
       ...Object.keys(RUNTIME_SUCCESSORS),
       ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
+      ...[...AUTHORIZED_SITE_DELETIONS].sort(),
     ].sort());
 
     for (const [pathname, expected] of Object.entries(RUNTIME_SUCCESSORS)) {

@@ -8,8 +8,9 @@ const config=read('config.js');
 const core=read('past-paper-core.js');
 const resume=read('past-paper-resume.js');
 const results=read('past-paper-results.js');
-const retiredV55b=read('v55b-full-paper-practice.js');
-const v53d5=read('v53d5-practice-selection-intelligence.js');
+const retiredV55b=null; // Phase 5A: v55b-full-paper-practice.js deleted — equivalence check removed
+// Phase 5A: v53d5-practice-selection-intelligence.js deleted — direct content check removed.
+// The core ownership check below still verifies the install marker reference in past-paper-core.js.
 const stable=read('v55-stable-release-checkpoint.js');
 const v56b=read('past-paper-assignments.js');
 const v56c=read('past-paper-progress.js');
@@ -64,8 +65,7 @@ function orderingBlock(source){
   assert.ok(start>=0&&sortStart>start&&end>sortStart,'Could not isolate V55B source-order functions');
   return source.slice(start,end);
 }
-assert.equal(orderingBlock(core),orderingBlock(retiredV55b));
-assert.match(v53d5,/function installSelection\(\)[\s\S]*shuffle = smartShuffle[\s\S]*ROOT\.shuffle = smartShuffle/);
+// Phase 5A: source-equivalence check against v55b-full-paper-practice.js removed (file deleted).
 assert.match(core,/function selectionStackSettled\(\)[\s\S]*__v53d5PracticeSelectionInstalled[\s\S]*__v53d5PracticeSelectionRpcBridge/);
 assert.match(core,/if \(!selectionStackSettled\(\)\) return false;/);
 

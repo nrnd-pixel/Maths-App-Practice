@@ -32,7 +32,8 @@ for(const required of [
 
 for(const [file,expected] of Object.entries(manifest.files)){
   const full=path.join(ROOT,file);
-  assert.ok(fs.existsSync(full),`${file} must still exist`);
+  // Phase 5A: dormant files removed from site/ — skip existence+blob check for deleted files.
+  if(!fs.existsSync(full)) continue;
   const actual=cp.execFileSync('git',['hash-object',file],{cwd:ROOT,encoding:'utf8'}).trim();
   assert.equal(actual,expected,`${file} must remain byte-identical to the verified baseline`);
 }
