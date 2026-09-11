@@ -568,7 +568,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(v52c2OwnerSource).toContain('const access=await base(purpose);');
 
     const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
-      .split(/\r?\\n/)
+      .split(/\r?\n/)
       .filter(Boolean)
       .sort();
     expect(changedSite).toEqual([
