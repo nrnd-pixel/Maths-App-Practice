@@ -806,9 +806,11 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     // Result screen activates — both observers fire here
     await expect(page.locator('#result')).toHaveClass(/active/);
 
-    // Wait long enough for both observers to have had their chance
-    // (generic: immediate; V56B: 120 ms + 200 ms RPC latency → ~320 ms total)
-    await page.waitForTimeout(600);
+    // Wait for exactly one completion RPC to land (generous timeout for CI).
+    // Once it lands, give the delayed observer a further 400 ms to prove it
+    // does NOT fire a second call (the shared lock must block it).
+    await expect.poll(()=>completionCount,{timeout:7000}).toBeGreaterThanOrEqual(1);
+    await page.waitForTimeout(400);
 
     // Exactly one completion RPC must have reached the mock server
     expect(completionCount).toBe(1);
