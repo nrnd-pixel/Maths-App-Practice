@@ -151,7 +151,8 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v58c-parent-summary-workspace-shortcut.js',
   './v58d-content-workflow-consolidation.js',
   './v581a-practice-cloud-result-reconciliation.js',
-  './v58-stable-release-checkpoint.js'
+  './v58-stable-release-checkpoint.js',
+  './v59b-adaptive-diagnostic-pilot.js'
 ]);
 
 Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{

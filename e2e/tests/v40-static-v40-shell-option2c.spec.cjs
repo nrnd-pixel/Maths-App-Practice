@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '9206dc56310038280e02f8e232558194eae6f3899a03d3fd6d4349f3c5f96b14';
+const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -46,6 +46,9 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs': 'c13bfae1ceb6923aa4b4c03c5c61efb1bc7d6c81',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
+  'site/config.js': '3e7500ddbd33c4a76ce8f3120eb386fbd2dc1070',
+  'site/v59b-adaptive-diagnostic-pilot.js': '0c64ba09adcf073bd30e405ce3a55f6114397cc0',
+  'site/tests/verify-v5.9b-adaptive-diagnostic-pilot.cjs': '1217eb906231b5727ad342cdae14aa4513b0d548',
 });
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in

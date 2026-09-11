@@ -10,12 +10,13 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '8f042f3cb96ad1cb59cb8332356c78a16382b1b24c689d43ef5565aee9aa197a';
+const EXPECTED_FROZEN_SITE_SHA256 = '87f9f732061cb5e5251d07af055454e68a91b5fd9d7f0acd6af469b6f70c3de8';
 const EXPECTED_SUPABASE_SHA256 = 'a0ea253719beea93f63c0fe77c4666ee8c61c9cb574abc7f305819b85137ea45';
 const EXPECTED_SUPABASE_TREE = '4e4f573f452e6d9ab628b163329fea356bcb16e9';
 
 const ALLOWED_SITE_CHANGES = new Set([
   'site/assignments-student.js',
+  'site/config.js',
   'site/index.html',
   'site/past-paper-assignments.js',
   'site/tests/v51-phase4-protected-shas.json',
@@ -42,8 +43,10 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
+  'site/tests/verify-v5.9b-adaptive-diagnostic-pilot.cjs',
   'site/v40-start-shell.js',
   'site/v40-student-session.js',
+  'site/v59b-adaptive-diagnostic-pilot.js',
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({

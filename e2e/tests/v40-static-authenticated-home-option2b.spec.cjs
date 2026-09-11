@@ -21,6 +21,7 @@ const AUTHORIZED_RUNTIME_CHANGES = new Set([
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/assignments-student.js',
+  'site/config.js',
   'site/past-paper-assignments.js',
   'site/tests/v51-phase4-protected-shas.json',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs',
@@ -46,6 +47,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
+  'site/tests/verify-v5.9b-adaptive-diagnostic-pilot.cjs',
   'site/v38-release.js',
   'site/v381-release.js',
   'site/v39-release.js',
@@ -131,6 +133,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/v57a2-stale-local-checkpoint-cleanup.js',
   'site/v57d-past-paper-analytics-actions.js',
   'site/v57d1-focus-plan-copy-fallback.js',
+  'site/v59b-adaptive-diagnostic-pilot.js',
 ]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
