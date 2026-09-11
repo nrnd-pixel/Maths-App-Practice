@@ -7,21 +7,15 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'../..');
 const SITE=path.join(ROOT,'site');
 const read=name=>fs.readFileSync(path.join(SITE,name),'utf8');
-const canonical=text=>String(text).replace(/\n+$/,'');
 
 const release=read('v40-release.js');
 const reporting=read('teacher-reporting.js');
 const operations=read('teacher-launch-operations.js');
 const audit=read('release-audit-ui.js');
 
-const reportingSources=['v50-teacher-class-report.js','v50-teacher-student-report.js','v50-reporting-export.js','v50-report-archive.js'];
-const operationsSources=['v50-student-launch-readiness.js','v50-teacher-operations.js','v50-roster-edit.js'];
-const auditSources=['v50-production-polish.js','v50-release-audit.js','v50-rc2-empty-result-code-polish.js','v50-release-audit-rc3.js'];
-const concat=files=>files.map(name=>canonical(read(name))).join('\n\n');
+// Phase 5A: source-body concat checks against the deleted V50 files removed.
+// The consolidated owners still carry all required content, verified below.
 
-assert.equal(canonical(reporting),concat(reportingSources),'teacher-reporting.js must be exact C1 -> C2 -> C3A -> C3B source-body concatenation; only EOF separator newlines are normalized');
-assert.equal(canonical(operations),concat(operationsSources),'teacher-launch-operations.js must be exact D1 -> D2 -> Roster Edit source-body concatenation; only EOF separator newlines are normalized');
-assert.equal(canonical(audit),concat(auditSources),'release-audit-ui.js must be exact Production Polish -> Release Audit -> RC2 polish -> RC3 source-body concatenation; only EOF separator newlines are normalized');
 new vm.Script(reporting,{filename:'teacher-reporting.js'});
 new vm.Script(operations,{filename:'teacher-launch-operations.js'});
 new vm.Script(audit,{filename:'release-audit-ui.js'});
@@ -43,8 +37,12 @@ for(const token of ordered){
   assert.equal(release.indexOf(token,index+1),-1,`${token} must not be duplicated`);
   last=index;
 }
-for(const retired of [...reportingSources,...operationsSources,...auditSources]){
-  assert.ok(!release.includes(`loadScriptOnce('${retired}`),`${retired} must remain dormant/reference only`);
+
+const retired=['v50-teacher-class-report.js','v50-teacher-student-report.js','v50-reporting-export.js',
+  'v50-report-archive.js','v50-student-launch-readiness.js','v50-teacher-operations.js','v50-roster-edit.js',
+  'v50-production-polish.js','v50-release-audit.js','v50-rc2-empty-result-code-polish.js','v50-release-audit-rc3.js'];
+for(const r of retired){
+  assert.ok(!release.includes(`loadScriptOnce('${r}`),`${r} must remain dormant/reference only`);
 }
 
 assert.match(reporting,/Object\.defineProperty\(window,'V50ReportingExport'/);
@@ -68,4 +66,4 @@ assert.doesNotMatch(reporting,/refreshStudentAssignmentAccess\s*=/);
 assert.doesNotMatch(operations,/refreshStudentAssignmentAccess\s*=/);
 assert.doesNotMatch(audit,/refreshStudentAssignmentAccess\s*=/);
 
-console.log('Phase 4 V50 operations/reporting integrity passed: exact source equivalence, loader topology, APIs, DOM contracts and ownership boundaries preserved.');
+console.log('Phase 4 V50 operations/reporting integrity passed: loader topology, APIs, DOM contracts and ownership boundaries preserved.');

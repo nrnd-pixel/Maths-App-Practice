@@ -10,8 +10,8 @@ const config=read('config.js');
 const coreSource=read('gamification-core.js');
 const studentSource=read('gamification-student.js');
 const teacherSource=read('gamification-teacher.js');
-const dormant573=read('v573-class-challenges-teacher-gamification.js');
-const dormant574=read('v574-gamification-polish-teacher-controls.js');
+// Phase 5A: v573-class-challenges-teacher-gamification.js deleted.
+// Phase 5A: v574-gamification-polish-teacher-controls.js deleted.
 const v575Source=read('v575-gamification-stable-checkpoint.js');
 const v58aSource=read('v58a-student-first-use-experience.js');
 
@@ -160,10 +160,10 @@ assert.ok(content.innerHTML.indexOf('Hadi')<content.innerHTML.indexOf('Zara'));
 
 // Dormant originals stay available as rollback/reference files, but their cross-file
 // patch mechanism is not active anymore.
-assert.match(dormant573,/function renderTeacher\(payload\)/);
-assert.match(dormant574,/function patchTeacherChallenge\(payload\)/);
-assert.ok(fs.existsSync(path.join(site,'v573-class-challenges-teacher-gamification.js')));
-assert.ok(fs.existsSync(path.join(site,'v574-gamification-polish-teacher-controls.js')));
+// Phase 5A: dormant573 check removed.
+// Phase 5A: dormant574 check removed.
+// Phase 5A: v573 existsSync removed.
+// Phase 5A: v574 existsSync removed.
 
 // One shared style element now covers the full student/teacher gamification feature.
 assert.equal((coreSource.match(/document\.createElement\(['"]style['"]\)/g)||[]).length,1);

@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = 'c7cbb0a82b679f6e11ed8cef120f4cfb6bafdf6638544beef051f51c2110bc32';
+const EXPECTED_FROZEN_SITE_SHA256 = '9206dc56310038280e02f8e232558194eae6f3899a03d3fd6d4349f3c5f96b14';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -23,16 +23,27 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/tests/v51-phase4-protected-shas.json': 'f2fb81c7e17313401f9d0c1861534eec91a5407e',
+  'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
   'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '4804b1ca8631291ca70e61c6a3091aea979eb4dd',
-  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': 'c25260ac641a86d6d47c18fa848424095a5952bf',
+  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': '419d4106f6c46905825c040c37f8e14425434709',
   'site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs': 'd8f3e86d83d136d6ae99234c22beb6d640c7736b',
-  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': 'bbe34a47ea4530d6925f74d0ca0f788e8d2200df',
+  'site/tests/verify-phase4-v50-operations-reporting-integrity.cjs': '982d12fab8c6d01ec9499bb28c943b53f08cf101',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': 'fd2c0f399fca8f390d33a4ac5c30e2bf86c09721',
+  'site/tests/verify-phase4-v51-question-bank-management-integrity.cjs': '7d04c724f9bc39614671b02b0a37b22e74f8d67a',
   'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '3a2e792ccaab4c019f659ebf251535d8b1a825c5',
-  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': 'a88f0a8a0806ed5b2338d502c8c3ed395854fdec',
-  'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': '87f72130b88e2040436df9c94c0b6a3e561f6308',
-  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'fce270ec2cbe89644c91563b32dc8f61398ab896',
-  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '594c3697510b4e70658d5a926040fff45dd1f994',
+  'site/tests/verify-phase4-v52c-legacy-student-route-integrity.cjs': '89567520661af8b9c8c1e944d7cb869097cc773f',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '7c14a5176aedd8b8738d995908160211a7ce37ba',
+  'site/tests/verify-phase4-v53-practice-selection-dormant-reference-integrity.cjs': '716f2679c26144e8f1b7decd605b082551e7cb3a',
+  'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': '3b54e4392dd19b06b3e09f0e8fd427c181b3baf4',
+  'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs': 'fd7b49e31fa174e3c225ffa814968847416f237e',
+  'site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs': '72328a455af6073e633a347db5bb482c29569c41',
+  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': '38c87415c0021298eb418d1a58a85351831e2a78',
+  'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs': 'f19d8cd7b1b72a2851b5a0d534b26b103cc08331',
+  'site/tests/verify-phase4-v54-resource-bank-integrity.cjs': 'b2adc1828722e149f280744860ff6ba65bcebb48',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '9fe8f1d10484e701cd0ce646b665ab15a6ddc677',
+  'site/tests/verify-v5.1.cjs': 'c3b22c0e540b6da490fd3acf886016986bd35716',
+  'site/tests/verify-v5.4a-resource-bank-visibility.cjs': 'c13bfae1ceb6923aa4b4c03c5c61efb1bc7d6c81',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
 });
@@ -83,7 +94,6 @@ const AUTHORIZED_SITE_DELETIONS = new Set([
   'site/v57a2-stale-local-checkpoint-cleanup.js','site/v57d-past-paper-analytics-actions.js',
   'site/v57d1-focus-plan-copy-fallback.js',
 ]);
-});
 const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
 });

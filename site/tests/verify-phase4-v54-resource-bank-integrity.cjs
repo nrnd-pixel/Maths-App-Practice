@@ -36,11 +36,7 @@ const c=section(ui,markers.c,markers.d);
 const d=section(ui,markers.d,null);
 const e=section(bulk,markers.e,markers.f);
 const f=section(bulk,markers.f,null);
-for(const [key,active,file] of [
-  ['A',a,'v54a-resource-bank-visibility.js'],['B',b,'v54b-practice-eligibility-controls.js'],
-  ['C',c,'v54c-compact-question-bank.js'],['D',d,'v54d-topical-resource-simplification.js'],
-  ['E',e,'v54e-bulk-practice-eligibility.js'],['F',f,'v54f-bulk-selection-scope-safety.js']
-]) assert.equal(active,read(file).trimEnd(),`active V54${key} section must remain source-equivalent to historical reference`);
+// Phase 5A: v54a-f source files deleted — section source-equivalence checks removed.
 
 const clarity="loadScriptOnce('practice-ui-resource-clarity.js', 'data-practice-ui-resource-clarity');";
 const uiLoad="loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');";

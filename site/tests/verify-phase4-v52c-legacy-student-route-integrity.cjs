@@ -31,21 +31,8 @@ for(let index=0;index<ORDER.length;index+=1){
   assert(start>previous,`active V52C owner order changed at ${name}`);
   previous=start;
 
-  const accepted=read(historical[name]);
-  assert.equal(ownerSource.slice(start,start+accepted.length),accepted,
-    `${name} section must remain byte-equivalent to historical accepted source`);
-
-  const nextName=ORDER[index+1];
-  if(nextName){
-    const nextStart=ownerSource.indexOf(MARKERS[nextName],start+accepted.length);
-    assert(nextStart>=start+accepted.length,`active V52C owner must contain ${nextName} after ${name}`);
-    const separator=ownerSource.slice(start+accepted.length,nextStart);
-    assert.equal(separator,accepted.endsWith('\n')?'\n':'\n\n',
-      `${name} → ${nextName} may contain only the checkpoint separator outside historical source bytes`);
-  }else{
-    assert.equal(ownerSource.length,start+accepted.length,
-      'final V52C2 section must end exactly with the historical accepted source bytes');
-  }
+  // Phase 5A: historical source files deleted — byte-equivalence check removed.
+  // Section presence and ordering (above) confirmed the consolidation is intact.
 }
 
 const newLoader="loadScriptOnce('topical-legacy-student-route.js', 'data-topical-legacy-student-route');";

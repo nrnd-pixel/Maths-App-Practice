@@ -76,9 +76,6 @@ assert(loader.includes("loadScriptOnce('practice-ui-resource-clarity.js', 'data-
 assert(loader.includes("loadScriptOnce('resource-bank-ui.js', 'data-resource-bank-ui');"),'Consolidated V54A-D loader wiring must be present');
 assert(loader.indexOf('practice-ui-resource-clarity.js') < loader.indexOf('resource-bank-ui.js'),'V5.4A must load after consolidated D6 so it can reuse D6 topical status elements');
 
-const d5 = fs.readFileSync(require.resolve('../v53d5-practice-selection-intelligence.js'),'utf8');
-assert(d5.includes('adaptiveOrder'),'V5.3D5 historical selection intelligence reference must remain present');
-const exam = fs.readFileSync(require.resolve('../v53b-unified-practice-retrieval.js'),'utf8');
-assert(exam.includes("input.p_exam_year == null"),'Exam routing boundary historical reference must remain explicit');
+// Phase 5A: v53d5 and v53b source files deleted — historical reference checks removed.
 
 console.log('V5.4A unified Teacher Resource Bank visibility checks passed against consolidated owner.');

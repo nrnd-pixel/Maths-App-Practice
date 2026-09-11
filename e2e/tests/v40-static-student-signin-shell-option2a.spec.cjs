@@ -10,29 +10,40 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '8797a49947f3d67869ff8384576fbe2809e9ac3202d3e5e9e6c47f2b6dee6d34';
+const EXPECTED_FROZEN_SITE_SHA256 = '8f042f3cb96ad1cb59cb8332356c78a16382b1b24c689d43ef5565aee9aa197a';
 const EXPECTED_SUPABASE_SHA256 = 'a0ea253719beea93f63c0fe77c4666ee8c61c9cb574abc7f305819b85137ea45';
 const EXPECTED_SUPABASE_TREE = '4e4f573f452e6d9ab628b163329fea356bcb16e9';
 
 const ALLOWED_SITE_CHANGES = new Set([
-  'site/index.html',
-  'site/v40-student-session.js',
-  'site/v40-start-shell.js',
   'site/assignments-student.js',
+  'site/index.html',
   'site/past-paper-assignments.js',
   'site/tests/v51-phase4-protected-shas.json',
+  'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs',
   'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs',
   'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
   'site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs',
+  'site/tests/verify-phase4-v50-operations-reporting-integrity.cjs',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
+  'site/tests/verify-phase4-v51-question-bank-management-integrity.cjs',
+  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs',
+  'site/tests/verify-phase4-v52c-legacy-student-route-integrity.cjs',
   'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs',
+  'site/tests/verify-phase4-v53-practice-selection-dormant-reference-integrity.cjs',
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs',
+  'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs',
+  'site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs',
   'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs',
+  'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs',
+  'site/tests/verify-phase4-v54-resource-bank-integrity.cjs',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
+  'site/tests/verify-v5.1.cjs',
+  'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
-  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs',
+  'site/v40-start-shell.js',
+  'site/v40-student-session.js',
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({

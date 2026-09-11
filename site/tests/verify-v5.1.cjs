@@ -74,11 +74,6 @@ for (const ref of [...configRefs, ...releaseRefs]) {
 const releaseKeys = [...release.matchAll(/loadScriptOnce\([^,]+,\s*'([^']+)'\)/g)].map(match => match[1]);
 assert.equal(new Set(releaseKeys).size, releaseKeys.length, 'Release loader contains duplicate data keys.');
 
-// 2B) Legacy presentation cleanup: old release-label scripts stay archived but are not executed.
-for (const retired of ['v38-release.js', 'v381-release.js', 'v39-release.js']) {
-  assert.ok(fs.existsSync(path.join(siteRoot, retired)), `${retired} must remain recoverable in repository history/source.`);
-  assert.ok(!configRefs.includes(retired), `${retired} must not be loaded by the active config bootstrap.`);
-}
 
 // 3) Current visible identity is owned by version.js and derived from config.js's staged runtime list.
 assert.match(config, /const MATH_APP_STAGED_SCRIPTS = Object\.freeze\(\[/);
@@ -98,8 +93,6 @@ assert.match(release, /student-exam-ui\.js/);
 assert.match(release, /student-exam-ui\.js/);
 assert.doesNotMatch(release, /loadScriptOnce\('v49-student-progress-snapshot\.js/, 'The superseded V4.9A panel must not be loaded after B3 consolidation.');
 assert.doesNotMatch(release, /loadScriptOnce\('v49-student-next-steps\.js/, 'The superseded V4.9C panel must not be loaded after B3 consolidation.');
-assert.ok(fs.existsSync(path.join(siteRoot, 'v49-student-progress-snapshot.js')), 'Archived V4.9A source must remain recoverable in the repository.');
-assert.ok(fs.existsSync(path.join(siteRoot, 'v49-student-next-steps.js')), 'Archived V4.9C source must remain recoverable in the repository.');
 
 // 4) Browser-secret boundary: only the publishable browser key belongs in site code.
 for (const name of ['index.html', 'config.js', ...browserJs]) {
@@ -157,9 +150,7 @@ assert.doesNotMatch(progressOverview, /V4\.9A|V4\.9C/, 'Internal feature labels 
 
 // 10) Student progress presentation modules must remain read-only overlays on existing secure evidence.
 for (const file of [
-  'site/v49-student-progress-snapshot.js',
   'site/v49-student-topic-progress.js',
-  'site/v49-student-next-steps.js',
   'site/v50-student-progress-overview.js'
 ]) {
   const source = read(file);
@@ -187,7 +178,7 @@ console.log(`- ${inlineScripts.length} inline application script block(s) compil
 console.log(`- ${browserJs.length} browser JS files compiled`);
 console.log(`- ${configRefs.length + releaseRefs.length} staged loader references resolved`);
 console.log('- current displayed release identity is config-derived through version.js');
-console.log('- Legacy V3.8/V3.8.1/V3.9 release-label scripts remain archived but are no longer actively loaded');
+console.log('- Legacy V3.8/V3.8.1/V3.9 release-label scripts removed in Phase 5A');
 console.log('- Browser-secret, student-session and Practice/Exam boundaries verified');
 console.log('- AI Help remains Practice-only at the server boundary');
 console.log('- Multi-recipient assignment double-submit guard verified');
