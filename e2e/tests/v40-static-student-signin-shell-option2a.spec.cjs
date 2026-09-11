@@ -10,7 +10,7 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '018a91f0e6c1e9b8ed6dbf76a3f26fccf11c5b4e2a9a6a1175a2f57328816137';
+const EXPECTED_FROZEN_SITE_SHA256 = '75d809cbcb5393f41b307d5794506a129992ef2ba89dd2161ec7438110513212';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -18,6 +18,11 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/index.html',
   'site/v40-student-session.js',
   'site/v40-start-shell.js',
+  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
+  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({

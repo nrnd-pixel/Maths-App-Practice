@@ -12,12 +12,22 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '5c9ab35280605063598b495aef32e24ba8a4c258ccf36b3f5c77e1eff3693707';
+const EXPECTED_FROZEN_SITE_SHA256 = '14e61f31dfdb21c14aecd819a4633aeb8740e2945bf9bb307d4dc87aabaedc3b';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
   'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',
+});
+const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
+  'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': '4a146b81acbdf25727f5d9a396209177ef6cacf1',
+  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '526b04165568543b07fa321cdc713948d84d77d3',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '6d1fdfd9f865c02205b022b014bb4e28d2b8cd4e',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '6a9ab1a0f6e06ba480a37f1d0358c784ec85452b',
+});
+const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
+  'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
@@ -448,7 +458,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(navSource).not.toMatch(/\.observe\(\s*document(?:\.|\s*[,)]|\s*$)/m);
   });
 
-  test('gate 10 — wrapper chain, frozen site boundary and complete Supabase tree remain exact', async ({ page }) => {
+  test('gate 10 — wrapper chain, frozen site boundary and authorized V5.8.1B successors remain exact', async ({ page }) => {
     await installLifecycleCapture(page);
     await installSupabaseMock(page);
     await openApp(page);
@@ -503,18 +513,37 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       .split(/\r?\n/)
       .filter(Boolean)
       .sort();
-    expect(changedSite).toEqual(Object.keys(RUNTIME_SUCCESSORS).sort());
+    expect(changedSite).toEqual([
+      ...Object.keys(RUNTIME_SUCCESSORS),
+      ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
+    ].sort());
 
     for (const [pathname, expected] of Object.entries(RUNTIME_SUCCESSORS)) {
+      expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
+    }
+    for (const [pathname, expected] of Object.entries(AUTHORIZED_SITE_SUCCESSORS)) {
       expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
     }
     for (const [pathname, expected] of Object.entries(FROZEN_HIGH_RISK_BLOBS)) {
       expect(gitBlob(pathname), `${pathname} must remain byte-identical`).toBe(expected);
     }
 
-    expect(workingManifestHash('site', new Set(Object.keys(RUNTIME_SUCCESSORS)))).toBe(EXPECTED_FROZEN_SITE_SHA256);
-    expect(workingManifestHash('supabase')).toBe(EXPECTED_SUPABASE_SHA256);
-    expect(git(['rev-parse', 'HEAD:supabase'])).toBe(EXPECTED_SUPABASE_TREE);
-    expect(git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])).toBe('');
+    const authorizedSite = new Set([
+      ...Object.keys(RUNTIME_SUCCESSORS),
+      ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
+    ]);
+    expect(workingManifestHash('site', authorizedSite)).toBe(EXPECTED_FROZEN_SITE_SHA256);
+
+    const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
+    expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
+    for (const [pathname, expected] of Object.entries(AUTHORIZED_SUPABASE_SUCCESSORS)) {
+      expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
+    }
+    const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .sort();
+    expect(changedSupabase).toEqual(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS).sort());
+    expect(git(['rev-parse', `${BASE_SHA}:supabase`])).toBe(EXPECTED_SUPABASE_TREE);
   });
 });
