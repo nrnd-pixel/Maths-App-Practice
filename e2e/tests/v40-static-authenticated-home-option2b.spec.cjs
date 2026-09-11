@@ -20,7 +20,10 @@ const AUTHORIZED_RUNTIME_CHANGES = new Set([
 ]);
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
+  'site/assignments-student.js',
+  'site/past-paper-assignments.js',
   'site/tests/v51-phase4-protected-shas.json',
+  'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
   'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs',
   'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs',
@@ -30,8 +33,6 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
-  'site/assignments-student.js',
-  'site/past-paper-assignments.js',
 ]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
