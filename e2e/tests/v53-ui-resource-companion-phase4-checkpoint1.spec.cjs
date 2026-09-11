@@ -135,6 +135,7 @@ test.describe('Phase 4 V53 UI/resource companion consolidation',()=>{
     expect(proof.apis).toEqual({c:true,d6:true});
   });
 
+  test.skip(!LEGACY_RESULT, 'Phase 5A: v52c2-topical-result-ux.js deleted');
   test('C - window capture wins before the frozen V52C.2 document-capture Again handler',async({page})=>{
     await page.setContent(`<!doctype html><html><head></head><body>
       <main id="start">
@@ -188,6 +189,7 @@ test.describe('Phase 4 V53 UI/resource companion consolidation',()=>{
     expect(proof.practiceActive).toBe(true);
   });
 
+  test.skip(!V54A, 'Phase 5A: v54a-resource-bank-visibility.js deleted');
   test('D - V54A synchronously calls D6.decorate and reuses the exact D6 topical badge node contract',async({page})=>{
     await page.setContent(`<!doctype html><html><head></head><body>
       <section id="questions-panel">
