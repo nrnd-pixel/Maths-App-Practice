@@ -10,14 +10,17 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '75d809cbcb5393f41b307d5794506a129992ef2ba89dd2161ec7438110513212';
-const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
-const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
+const EXPECTED_FROZEN_SITE_SHA256 = '8287b0768bcdde357978fc82009d113eb0442af2bf6d5c2a4a3422d1d572fb11';
+const EXPECTED_SUPABASE_SHA256 = 'a0ea253719beea93f63c0fe77c4666ee8c61c9cb574abc7f305819b85137ea45';
+const EXPECTED_SUPABASE_TREE = '4e4f573f452e6d9ab628b163329fea356bcb16e9';
 
 const ALLOWED_SITE_CHANGES = new Set([
   'site/index.html',
   'site/v40-student-session.js',
   'site/v40-start-shell.js',
+  'site/assignments-student.js',
+  'site/past-paper-assignments.js',
+  'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
   'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs',

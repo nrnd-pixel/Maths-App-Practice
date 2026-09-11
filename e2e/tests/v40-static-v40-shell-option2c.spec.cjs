@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '14e61f31dfdb21c14aecd819a4633aeb8740e2945bf9bb307d4dc87aabaedc3b';
+const EXPECTED_FROZEN_SITE_SHA256 = 'fb75973afda097b282f0f0659f164cc698a992d682087a1997fcdaa5374f1a72';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -20,6 +20,9 @@ const RUNTIME_SUCCESSORS = Object.freeze({
   'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
+  'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
+  'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
+  'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': '4a146b81acbdf25727f5d9a396209177ef6cacf1',
   'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '526b04165568543b07fa321cdc713948d84d77d3',

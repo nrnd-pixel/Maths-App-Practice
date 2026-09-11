@@ -772,6 +772,15 @@
     if (!result?.classList.contains('active') || !validContext(context) || !resultMatchesContext(context)) return;
     const code=resultCode();
     if (!code) return;
+
+    // Shared cross-observer completion lock — same Map used by assignments-student.js.
+    // Set synchronously before the first await so the generic observer's immediate
+    // fire cannot race through between our guard-check and our first async call.
+    const lockMap=ROOT.__practiceCompletionLock=ROOT.__practiceCompletionLock||new Map();
+    const lockKey=String(context.assignmentId||'');
+    if (lockKey && lockMap.get(lockKey)) return;
+    if (lockKey) lockMap.set(lockKey,true);
+
     resultCompletionBusy=true;
     try {
       const access=typeof validateStudentAccess==='function' ? await validateStudentAccess('practice') : null;
@@ -788,7 +797,10 @@
     } catch(error){
       console.warn('V5.6B could not complete stored Past Paper assignment.',error);
       assignmentResultNote('try','Assignment still in progress',error?.message || 'Complete the full assigned Past Paper Practice set to finish this assignment.');
-    } finally { resultCompletionBusy=false; }
+    } finally {
+      if (lockKey) lockMap.delete(lockKey);
+      resultCompletionBusy=false;
+    }
   }
 
   function wireRuntime(){
