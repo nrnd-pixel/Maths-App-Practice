@@ -273,6 +273,15 @@
       return;
     }
 
+    // Shared cross-observer completion lock — keyed by assignment ID so
+    // concurrent assignments in separate contexts never block each other.
+    // Both this path (targeted Practice) and past-paper-assignments.js
+    // check the same Map before initiating their completion RPC.
+    const lockMap=ROOT.__practiceCompletionLock=ROOT.__practiceCompletionLock||new Map();
+    const lockKey=String(context.assignmentId||'');
+    if (lockKey && lockMap.get(lockKey)) return;
+    if (lockKey) lockMap.set(lockKey,true);
+
     context.completing=true;
     try {
       const {data,error}=await cloud.rpc('complete_student_practice_assignment',{
@@ -292,6 +301,7 @@
       console.warn('Could not complete Practice assignment.',error);
       assignmentResultNote('try','Assignment still in progress',error?.message || 'Complete the full assigned set to finish this assignment.');
     } finally {
+      if (lockKey) lockMap.delete(lockKey);
       activeAssignmentContext=null;
     }
   }

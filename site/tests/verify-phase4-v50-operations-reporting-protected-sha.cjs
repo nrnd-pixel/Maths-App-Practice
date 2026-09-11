@@ -79,14 +79,14 @@ const protectedFiles=Object.freeze({
   'site/assignment-intervention-queue-support.js':'532285487c1510623ba487e5d49647ffc7e96399',
   'site/assignment-interventions.js':'55ed7959677a348907b2857bb2f2ad4d1320273b',
   'site/assignments-core.js':'39e47ff10dd1efdc704a572aea4376e313a9b727',
-  'site/assignments-student.js':'5b5bf1604120df9a8aa037db6c8fa8ab4d0970d2',
+  'site/assignments-student.js':'1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/assignments-teacher.js':'872b3d4f149a96b896bbdf586cabc46ee2765afe',
 
   // Past Paper runtime.
   'site/past-paper-core.js':'8b007f6cae55dbcb32267c97bfbc4b25e4654fe0',
   'site/past-paper-resume.js':'844cf3f514c75736079278ead84d402f39be09d1',
   'site/past-paper-results.js':'ab2a4edc98d042bd6344cbd7ab81fc2175292b81',
-  'site/past-paper-assignments.js':'e67d9018a1ebf42e3ff104ef1cabf6d92c8474fd',
+  'site/past-paper-assignments.js':'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/past-paper-progress.js':'46080d3b78e39fc205d2ef3f7a9fd602e363f8f8',
   'site/past-paper-analytics.js':'db017e8a8fcf45afa3f1530e6f548a29153f509e',
   'site/past-paper-cross-device.js':'cc975d4188f465be9464dd6de7b1d8b8a08ff868',

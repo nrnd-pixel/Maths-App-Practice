@@ -732,4 +732,95 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await expect.poll(()=>teacherRoutes.managerCalls.length,{timeout:5000}).toBe(1);
     expect(teacherRoutes.createCalls).toHaveLength(0);
   });
+
+  test('K — shared completion lock prevents double-fire when both result observers fire for the same Past Paper assignment',async({page})=>{
+    // Scenario: the generic observer (assignments-student.js) fires immediately
+    // when #result becomes active; the V56B observer fires 120 ms later via
+    // setTimeout.  Without the shared lock the completion RPC can be called
+    // twice if the first request is still in flight.
+    //
+    // This test injects artificial latency into the completion RPC so that
+    // the 120 ms delayed observer always fires while the first call is in
+    // flight, then asserts that exactly one completion RPC reached the server.
+
+    const mock=await installSupabaseMock(page);
+    const past=await installPastPaperRoutes(page,{persistServer:true});
+    const assignments=await installAssignmentRoutes(page);
+
+    // Override the completion route with a slow handler (200 ms) so the race
+    // window is guaranteed to be open when the delayed observer fires.
+    let completionCount=0;
+    await page.route('**/rest/v1/rpc/complete_student_practice_assignment_v56b',async route=>{
+      if(route.request().method().toUpperCase()==='OPTIONS'){
+        await route.fulfill({status:204,headers:corsHeaders()});
+        return;
+      }
+      completionCount+=1;
+      const body=requestJson(route.request());
+      assignments.completes.push(body);
+      // 200 ms delay — forces the 120 ms V56B observer to see the lock set
+      // by the generic observer and bail out rather than firing a second RPC.
+      await new Promise(resolve=>setTimeout(resolve,200));
+      await fulfillRpc(route,{completed:true,assignment_id:ASSIGNMENT_ID,mastery_percent:100});
+    });
+
+    await openApp(page);
+    await signInStudent(page);
+    await waitForPhase4Runtime(page);
+
+    // Seed an activeAssignmentContext in the generic observer path so it will
+    // attempt to call completeActivePracticeAssignment when result activates.
+    await page.evaluate(({assignmentId,attemptId,token})=>{
+      // Simulate what startPracticeAssignment sets on the activeAssignmentContext
+      // (module-private in assignments-student.js).  We reach it by invoking the
+      // assignment-start path directly through the exported API surface, or by
+      // manually triggering the state via the studentPracticeRecommendationV35
+      // hook — but the cleanest approach for E2E is to navigate the full start
+      // flow, which also exercises the real path.
+      //
+      // We do not need to set this manually; the full assignment start below
+      // sets it for us via startPracticeAssignment.
+      void 0;
+    },{assignmentId:ASSIGNMENT_ID,attemptId:ATTEMPT_ID,token:'e2e-token'});
+
+    // Full assignment flow: open assignments panel → start → answer all → result
+    const assignmentsHome=page.locator('#start .v57c-assignments');
+    await expect(assignmentsHome).toBeVisible();
+    await assignmentsHome.click();
+    const start=page.locator(`#v42b-student-practice-assignments .v42b-start-practice-assignment[data-id="${ASSIGNMENT_ID}"]`);
+    await expect(start).toBeVisible();
+    await start.click();
+    await expect(page.locator('#quiz')).toHaveClass(/active/);
+    await expect(page.locator('#q-text')).toHaveText(Q1.question_text);
+
+    // Answer all questions to reach the result screen
+    await answerPracticeCorrectly(page);
+    await page.locator('#next-btn').click();
+    await expect(page.locator('#q-text')).toHaveText(Q2.question_text);
+    await answerPracticeCorrectly(page);
+    await page.locator('#next-btn').click();
+    await expect(page.locator('#q-text')).toHaveText(Q3.question_text);
+    await answerPracticeCorrectly(page);
+    await page.locator('#next-btn').click();
+
+    // Result screen activates — both observers fire here
+    await expect(page.locator('#result')).toHaveClass(/active/);
+
+    // Wait for exactly one completion RPC to land (generous timeout for CI).
+    // Once it lands, give the delayed observer a further 400 ms to prove it
+    // does NOT fire a second call (the shared lock must block it).
+    await expect.poll(()=>completionCount,{timeout:7000}).toBeGreaterThanOrEqual(1);
+    await page.waitForTimeout(400);
+
+    // Exactly one completion RPC must have reached the mock server
+    expect(completionCount).toBe(1);
+    expect(assignments.completes).toHaveLength(1);
+    expect(assignments.completes[0].p_attempt_id).toBe(ATTEMPT_ID);
+
+    // Result note from whichever path won must be visible
+    await expect(page.locator('.v42b-assignment-result-note')).toBeVisible();
+    await expect(page.locator('.v42b-assignment-result-note')).toContainText('completed');
+
+    expect(mock.practiceSubmissions).toBe(1);
+  });
 });

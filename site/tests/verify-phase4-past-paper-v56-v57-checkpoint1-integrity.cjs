@@ -61,7 +61,25 @@ assert.ok(pos('v57c-student-continue-learning-home.js') < pos('past-paper-analyt
 assert.ok(pos('past-paper-analytics-actions.js') < pos('v57-stable-release-checkpoint.js'));
 
 // The three V56 owners are exact source moves, not behavioural rewrites.
-assert.equal(normSource(assignments),normSource(retired.v56b),'past-paper-assignments.js must remain source-equivalent to V56B');
+// past-paper-assignments.js carries the V56B source plus the shared completion lock
+// added by Issue #219 — so we check structural equivalence rather than byte identity.
+// The other two owners (progress, analytics) remain byte-identical to their retired files.
+assert.ok(
+  normSource(assignments).startsWith(normSource(retired.v56b).slice(0,200)),
+  'past-paper-assignments.js must retain the V56B file header'
+);
+assert.match(assignments,/__v56bTeacherAssignedPastPaperPracticeInstalled/,
+  'past-paper-assignments.js must retain the V56B install guard');
+assert.match(assignments,/complete_student_practice_assignment_v56b/,
+  'past-paper-assignments.js must retain the V56B completion RPC call');
+assert.match(assignments,/__practiceCompletionLock/,
+  'past-paper-assignments.js must contain the shared completion lock (Issue #219)');
+// Core logic that must NOT have been removed:
+for(const phrase of [
+  'completeStoredAssignmentFromResult','resultCompletionBusy','writeAssignmentContext',
+  'clearAssignmentContext','validContext','resultMatchesContext',
+  'complete_student_practice_assignment_v56b','RPC_MAP','routeStudentRpc'
+]) assert.ok(assignments.includes(phrase),`past-paper-assignments.js must retain V56B feature: ${phrase}`);
 assert.equal(normSource(progress),normSource(retired.v56c),'past-paper-progress.js must remain source-equivalent to V56C');
 assert.equal(normSource(analytics),normSource(retired.v56d),'past-paper-analytics.js must remain source-equivalent to V56D');
 

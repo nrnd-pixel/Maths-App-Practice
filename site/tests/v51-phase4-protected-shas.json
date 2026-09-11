@@ -6,14 +6,14 @@
     "site/assignment-intervention-queue-support.js": "532285487c1510623ba487e5d49647ffc7e96399",
     "site/assignment-interventions.js": "55ed7959677a348907b2857bb2f2ad4d1320273b",
     "site/assignments-core.js": "39e47ff10dd1efdc704a572aea4376e313a9b727",
-    "site/assignments-student.js": "5b5bf1604120df9a8aa037db6c8fa8ab4d0970d2",
+    "site/assignments-student.js": "1004dba36c2d0bfe737b1e4c590360142001d419",
     "site/assignments-teacher.js": "872b3d4f149a96b896bbdf586cabc46ee2765afe",
     "site/gamification-core.js": "87d6175270284e4b40c3a1fbcd196622179d0402",
     "site/gamification-student.js": "d9c4dc0e25cbed50346937db887a703800be5a59",
     "site/gamification-teacher.js": "04b93c670575acbf53e023b4f53edde9171ed034",
     "site/past-paper-analytics-actions.js": "7d1a39376a48fa8c42dc0ce26b3dfd33163e274e",
     "site/past-paper-analytics.js": "db017e8a8fcf45afa3f1530e6f548a29153f509e",
-    "site/past-paper-assignments.js": "e67d9018a1ebf42e3ff104ef1cabf6d92c8474fd",
+    "site/past-paper-assignments.js": "bd05a8b516987bcaa5b16ad9e8be991b947b2894",
     "site/past-paper-core.js": "8b007f6cae55dbcb32267c97bfbc4b25e4654fe0",
     "site/past-paper-cross-device.js": "cc975d4188f465be9464dd6de7b1d8b8a08ff868",
     "site/past-paper-progress.js": "46080d3b78e39fc205d2ef3f7a9fd602e363f8f8",
@@ -95,5 +95,5 @@
     "site/v58c-parent-summary-workspace-shortcut.js": "a6bbf05422d414d94fa7e6164f1d302e27feda51",
     "site/v58d-content-workflow-consolidation.js": "7905fce53236305d946315cae260c4b1bf212be6"
   },
-  "supabase_tree": "19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456"
+  "supabase_tree": "4e4f573f452e6d9ab628b163329fea356bcb16e9"
 }
