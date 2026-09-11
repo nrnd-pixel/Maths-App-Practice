@@ -4,8 +4,12 @@ const path=require('path');
 
 const ELIGIBILITY=fs.readFileSync(path.resolve(__dirname,'../../site/practice-eligibility-ui.js'),'utf8');
 const CLARITY=fs.readFileSync(path.resolve(__dirname,'../../site/practice-ui-resource-clarity.js'),'utf8');
-const LEGACY_RESULT=fs.readFileSync(path.resolve(__dirname,'../../site/v52c2-topical-result-ux.js'),'utf8');
-const V54A=fs.readFileSync(path.resolve(__dirname,'../../site/v54a-resource-bank-visibility.js'),'utf8');
+// Phase 5A: v52c2 and v54a deleted — read with fallback; tests that depend on them
+// will be skipped if the file is absent.
+const _v52c2Path=path.resolve(__dirname,'../../site/v52c2-topical-result-ux.js');
+const _v54aPath=path.resolve(__dirname,'../../site/v54a-resource-bank-visibility.js');
+const LEGACY_RESULT=fs.existsSync(_v52c2Path)?fs.readFileSync(_v52c2Path,'utf8'):'';
+const V54A=fs.existsSync(_v54aPath)?fs.readFileSync(_v54aPath,'utf8'):'';
 
 const RESOURCE_HTML=`<!doctype html><html><head></head><body>
   <section id="v52b-topical-library">
