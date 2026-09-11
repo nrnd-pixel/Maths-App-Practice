@@ -35,9 +35,10 @@ const active = [
 ];
 
 // 1) Historical owners stay dormant while the four phase-preserving owners are staged once.
+// Phase 5A removes the retired source files from disk; the loader-exclusion check remains.
 for (const name of retired) {
   assert.equal(release.includes(name), false, `${name} must be dormant in the active loader`);
-  assert.equal(fs.existsSync(path.join(siteRoot, name)), true, `${name} must remain in the repository as a dormant reference`);
+  // existsSync check removed — Phase 5A deleted these dormant files from site/.
 }
 for (const name of active) {
   assert.equal((release.match(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, 1,
@@ -54,34 +55,10 @@ for (const name of active) {
 assert.match(release, /loadScriptOnce\('v45-intervention-queue\.js\?v=45a-1', 'data-v45a-intervention-queue'\)/,
   'Untouched V45A must remain the external queue owner in its existing loader phase');
 
-// 3) New modules are exact concatenations of the historical owners plus checkpoint boundary comments.
-function expectedCombined(files, boundaries) {
-  let value = read(files[0]);
-  for (let i = 1; i < files.length; i += 1) {
-    value += `\n\n/* Phase 4 checkpoint 2 boundary: ${boundaries[i - 1]} */\n\n` + read(files[i]);
-  }
-  return value;
-}
-assert.equal(interventions, expectedCombined([
-  'v44-action-center-practice.js',
-  'v44-shared-focus-groups.js',
-  'v44-intervention-follow-through.js',
-  'v44-intervention-highlight-clarity.js',
-], ['V44B', 'V44C', 'V44C clarity']), 'V44 source must remain character-for-character equivalent');
-assert.equal(queueSupport, expectedCombined([
-  'v45-intervention-outcomes.js',
-  'v46-intervention-export.js',
-], ['V46A']), 'V45B/V46 source must remain character-for-character equivalent');
-assert.equal(history, expectedCombined([
-  'v47-intervention-history.js',
-  'v47-follow-up-from-history.js',
-  'v47-class-intervention-overview.js',
-], ['V47B', 'V47C']), 'V47 source must remain character-for-character equivalent');
-assert.equal(deadlines, expectedCombined([
-  'v48-teacher-deadline-monitoring.js',
-  'v48-student-deadline-experience.js',
-  'v48-deadline-follow-up.js',
-], ['V48B', 'V48C']), 'V48 source must remain character-for-character equivalent');
+// 3) Source-equivalence checks against the original V44-V48 files removed in Phase 5A.
+// The consolidated owners (assignment-interventions.js, assignment-intervention-queue-support.js,
+// assignment-intervention-history.js, assignment-deadlines.js) retain all key content
+// verified by the DOM token, read-only, and marker checks below.
 
 // 4) The preserved V43B DOM contract remains the only assignment-builder coupling.
 for (const token of ['#v43b-student-options', '#v43b-strand', '#v43b-topic', '#v43b-count']) {

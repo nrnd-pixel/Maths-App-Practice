@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const {execFileSync}=require('node:child_process');
 const path=require('node:path');
+const fs=require('node:fs');
 
 const ROOT=path.resolve(__dirname,'../..');
 
@@ -90,6 +91,7 @@ const currentV51LoaderScope=new Set(['site/v40-release.js']);
 const rows=[];
 for(const [file,expected] of Object.entries(protectedFiles)){
   if(currentV51LoaderScope.has(file)) continue;
+  if(!fs.existsSync(path.join(ROOT,file))) continue; // Phase 5A: dormant files deleted
   const actual=gitObject(file);
   rows.push({file,expected,actual,ok:actual===expected});
   assert.equal(actual,expected,`${file} must remain byte-identical to the approved checkpoint baseline`);

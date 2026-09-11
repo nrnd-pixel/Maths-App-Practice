@@ -9,9 +9,6 @@ const SITE=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(SITE,file),'utf8');
 const eligibility=read('practice-eligibility-ui.js');
 const clarity=read('practice-ui-resource-clarity.js');
-const historicalA=read('v53a-practice-eligibility.js');
-const historicalC=read('v53c-two-mode-student-ui.js');
-const historicalD6=read('v53d6-resource-bank-status-clarity.js');
 const loader=read('v40-release.js');
 const v52c2=v52cSection('result');
 const resourceBankUi=read('resource-bank-ui.js');
@@ -24,13 +21,13 @@ function indexOfRequired(text,token,label){
 
 // Pure relocation/consolidation equivalence: V53A is copied byte-for-byte apart
 // from trailing newline normalization; V53C then V53D6 are copied in that order.
-assert.equal(eligibility.trimEnd(),historicalA.trimEnd(),'active Practice eligibility owner must preserve historical V53A implementation exactly');
+// Phase 5A: v53a-practice-eligibility.js deleted — byte-equivalence check removed.
 const d6Marker='/* V5.3D6 — Resource Bank Status Clarity.';
 const d6Start=indexOfRequired(clarity,d6Marker,'V53D6 section');
 const activeC=clarity.slice(0,d6Start).trimEnd();
 const activeD6=clarity.slice(d6Start).trimEnd();
-assert.equal(activeC,historicalC.trimEnd(),'active clarity owner must preserve historical V53C implementation exactly');
-assert.equal(activeD6,historicalD6.trimEnd(),'active clarity owner must preserve historical V53D6 implementation exactly');
+// Phase 5A: v53c-two-mode-student-ui.js deleted — byte-equivalence check removed.
+// Phase 5A: v53d6-resource-bank-status-clarity.js deleted — byte-equivalence check removed.
 
 // Loader topology is non-negotiable: A remains before the engine; C/D6 remain
 // after the engine and before the consolidated V54 UI owner. No historical entry remains active.

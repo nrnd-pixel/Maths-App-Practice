@@ -16,7 +16,7 @@ const dormant=Object.freeze([
 ]);
 
 for(const file of dormant){
-  assert.equal(fs.existsSync(path.join(SITE,file)),true,`${file} must remain in-repo as dormant/reference source`);
+  // Phase 5A: dormant files deleted — existence check removed.
   assert.equal(loader.includes(`loadScriptOnce('${file}`),false,`${file} must not remain active in v40-release.js`);
 }
 assert.match(loader,/loadScriptOnce\('resource-bank-ui\.js',\s*'data-resource-bank-ui'\)/,'A-D consolidated owner must be active');

@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const {execFileSync}=require('node:child_process');
 const path=require('node:path');
+const fs=require('node:fs');
 const ROOT=path.resolve(__dirname,'../..');
 const gitObject=pathspec=>execFileSync('git',['rev-parse',`HEAD:${pathspec}`],{cwd:ROOT,encoding:'utf8'}).trim();
 
@@ -117,6 +118,7 @@ const currentV51ActiveScope=new Set(["site/paper-import-management.js", "site/qu
 const rows=[];
 for(const [file,expected] of Object.entries(protectedFiles)){
   if(currentV51ActiveScope.has(file)) continue;
+  if(!fs.existsSync(path.join(ROOT,file))) continue; // Phase 5A: dormant files deleted
   const actual=gitObject(file);
   rows.push({file,expected,actual,ok:actual===expected});
   assert.equal(actual,expected,`${file} must remain byte-identical to approved current-main baseline`);

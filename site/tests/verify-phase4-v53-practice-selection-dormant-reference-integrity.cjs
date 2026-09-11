@@ -15,7 +15,7 @@ const dormant=Object.freeze([
 
 for(const file of dormant){
   const full=path.join(SITE,file);
-  assert.equal(fs.existsSync(full),true,`${file} must remain in the repository as dormant/reference source`);
+  // Phase 5A: dormant files deleted — existence check removed.
   assert.equal(loader.includes(`loadScriptOnce('${file}`),false,`${file} must not remain active in v40-release.js`);
 }
 

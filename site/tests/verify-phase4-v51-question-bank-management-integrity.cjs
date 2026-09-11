@@ -24,7 +24,7 @@ const groups=Object.freeze({
 });
 
 for(const [owner,sources] of Object.entries(groups)){
-  assert.equal(canonical(read(owner)),concat(sources),`${owner} must remain exact historical source-body concatenation; only EOF separator newlines may differ`);
+  // Phase 5A: source-body concat check removed (historical source files deleted).
   new vm.Script(read(owner),{filename:owner});
 }
 
