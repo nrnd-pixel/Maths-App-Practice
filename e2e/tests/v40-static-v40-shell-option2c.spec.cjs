@@ -21,6 +21,10 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': '4a146b81acbdf25727f5d9a396209177ef6cacf1',
+  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '526b04165568543b07fa321cdc713948d84d77d3',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '6d1fdfd9f865c02205b022b014bb4e28d2b8cd4e',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '6a9ab1a0f6e06ba480a37f1d0358c784ec85452b',
 });
 const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
