@@ -22,6 +22,7 @@ const AUTHORIZED_RUNTIME_CHANGES = new Set([
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/v51-phase4-protected-shas.json',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs',
+  'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs',
   'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs',
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs',
   'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs',
