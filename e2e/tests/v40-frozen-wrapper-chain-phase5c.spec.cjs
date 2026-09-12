@@ -13,7 +13,19 @@
 //   - v41 Enter-key signin guard      → Option 2A gate 5
 
 const {test,expect} = require('@playwright/test');
+const fs   = require('node:fs');
+const path = require('node:path');
 const helpers = require('./helpers.cjs');
+
+const ROOT = path.resolve(__dirname, '..', '..');
+const SITE = path.join(ROOT, 'site');
+const read = name => fs.readFileSync(path.join(SITE, name), 'utf8');
+
+// Pre-read frozen file sources once
+const sources = Object.freeze({
+  polish:  read('v40-platform-polish.js'),
+  v581a:   read('v581a-practice-cloud-result-reconciliation.js'),
+});
 
 const {
   installSupabaseMock,
@@ -55,8 +67,14 @@ function practiceShell() {
 
 async function loadShellWithFrozenFiles(page, files) {
   await page.setContent(practiceShell());
+  const keyMap = {
+    'v40-platform-polish.js':                     'polish',
+    'v581a-practice-cloud-result-reconciliation.js': 'v581a',
+  };
   for (const src of files) {
-    await page.addScriptTag({ path: `site/${src}` });
+    const key = keyMap[src];
+    if (!key) throw new Error(`Unknown frozen file: ${src}`);
+    await page.addScriptTag({ content: sources[key] });
   }
 }
 
