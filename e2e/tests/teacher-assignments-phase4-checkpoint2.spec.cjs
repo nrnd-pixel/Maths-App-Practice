@@ -331,15 +331,6 @@ async function installHighlightRecorder(page){
   await page.evaluate(()=>{
     window.__phase4AssignmentHighlightEvents=[];
     window.__phase4AssignmentHighlightObserver?.disconnect?.();
-    // The intervention queue uses '#v43b-list'; the assignment admin panel
-    // '#v43b-practice-assignment-admin' is where waitForAssignmentCard adds
-    // v44c-highlight and v44c-highlight-strong. Observe both.
-    const roots=[
-      document.getElementById('v43b-list'),
-      document.getElementById('classes-panel'),
-      document.getElementById('v43b-practice-assignment-admin'),
-    ].filter(Boolean);
-    if(!roots.length) return;
     const record=card=>{
       if(!(card instanceof Element) || !card.classList?.contains('v43b-card')) return;
       const toggle=card.querySelector('.v43b-toggle[data-id]');
@@ -351,7 +342,9 @@ async function installHighlightRecorder(page){
         }
       }
     };
-    roots.forEach(root=>root.querySelectorAll('.v43b-card').forEach(record));
+    // Observe document.body so the recorder catches mutations in any panel,
+    // including panels that don't exist in the DOM at recorder-install time
+    // (e.g. #v43b-practice-assignment-admin is only rendered after openClasses).
     const observer=new MutationObserver(records=>{
       for(const mutation of records){
         if(mutation.type==='attributes') record(mutation.target);
@@ -362,7 +355,7 @@ async function installHighlightRecorder(page){
         });
       }
     });
-    roots.forEach(root=>observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']}));
+    observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
     window.__phase4AssignmentHighlightObserver=observer;
   });
 }
