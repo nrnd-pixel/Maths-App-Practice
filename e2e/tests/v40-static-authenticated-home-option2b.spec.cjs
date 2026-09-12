@@ -22,6 +22,9 @@ const AUTHORIZED_RUNTIME_CHANGES = new Set([
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/assignments-student.js',
   'site/past-paper-assignments.js',
+  'site/config.js',
+  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',
+  'site/v59a-student-home-refresh.js',
   'site/tests/v51-phase4-protected-shas.json',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs',

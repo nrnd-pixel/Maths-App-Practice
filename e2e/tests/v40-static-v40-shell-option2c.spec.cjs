@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '9206dc56310038280e02f8e232558194eae6f3899a03d3fd6d4349f3c5f96b14';
+const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -22,6 +22,9 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
+  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',
+  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': 'ea3f9c98cdb54e935543083455c6a8c9559dfc53',
+  'site/v59a-student-home-refresh.js': '8588c6c8ac7a0ceb6fc33ff94b93af758962fc4e',
   'site/tests/v51-phase4-protected-shas.json': 'f2fb81c7e17313401f9d0c1861534eec91a5407e',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
@@ -100,7 +103,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '2c684d511315a4cd1f76e0ec833e614928e33180',
+  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
