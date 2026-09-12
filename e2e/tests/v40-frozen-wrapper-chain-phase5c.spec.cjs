@@ -52,6 +52,7 @@ function practiceShell() {
     </section>
     <script>
       // Minimal globals that frozen files expect
+      var cloudReady = false;
       var cloud = { rpc: async function(name,args){ return {data:null,error:null}; } };
       var finishPractice = async function basefinishPractice(early){
         return { base: true, early: early };
@@ -237,38 +238,42 @@ test.describe('Phase 5C — frozen-file wrapper-chain hard gates', () => {
   test('F — v581a double-install guard prevents the wrapper being stacked if the script loads twice', async ({ page }) => {
     await loadShellWithFrozenFiles(page, ['v581a-practice-cloud-result-reconciliation.js']);
 
-    const result = await page.evaluate(async () => {
+    const firstLoad = await page.evaluate(async () => {
       const start = Date.now();
       while (Date.now() - start < 8000) {
         if (window.__v581aPracticeCloudResultReconciliationInstalled) break;
         await new Promise(r => setTimeout(r, 100));
       }
 
-      // Capture the current wrapped rpc reference
-      const rpcAfterFirstLoad = cloud.rpc;
-
-      // Simulate a second load by re-executing the install check condition
-      // The installed flag should prevent re-wrapping
-      const alreadyInstalled = window.__v581aPracticeCloudResultReconciliationInstalled;
-      // If we were to call installAssignmentStartGuard again it would return early.
-      // We verify the public API object is frozen and the flag is non-writable.
-      let flagIsStable = true;
-      try {
-        window.__v581aPracticeCloudResultReconciliationInstalled = false;
-        flagIsStable = window.__v581aPracticeCloudResultReconciliationInstalled === true;
-      } catch {
-        // strict mode throws on assignment to non-writable — that's also fine
-        flagIsStable = true;
-      }
+      // Capture the installed wrapper/API references before loading the script again.
+      window.__phase5cRpcAfterFirstLoad = cloud.rpc;
+      window.__phase5cFinishAfterFirstLoad = finishPractice;
+      window.__phase5cApiAfterFirstLoad = window.V581APracticeCloudResultReconciliation;
 
       return {
-        installed:    alreadyInstalled,
-        flagIsStable, // flag resists being reset to false
+        installed: window.__v581aPracticeCloudResultReconciliationInstalled === true,
+        apiFrozen: Object.isFrozen(window.V581APracticeCloudResultReconciliation),
       };
     });
 
-    expect(result.installed).toBe(true);
-    expect(result.flagIsStable).toBe(true);
+    expect(firstLoad.installed).toBe(true);
+    expect(firstLoad.apiFrozen).toBe(true);
+
+    // Execute the real frozen script a second time. Its top-level installed flag
+    // must return early, leaving both wrappers and the public API unstacked.
+    await page.addScriptTag({ content: sources.v581a });
+
+    const secondLoad = await page.evaluate(() => ({
+      flagStillTrue: window.__v581aPracticeCloudResultReconciliationInstalled === true,
+      rpcUnchanged: cloud.rpc === window.__phase5cRpcAfterFirstLoad,
+      finishUnchanged: finishPractice === window.__phase5cFinishAfterFirstLoad,
+      apiUnchanged: window.V581APracticeCloudResultReconciliation === window.__phase5cApiAfterFirstLoad,
+    }));
+
+    expect(secondLoad.flagStillTrue).toBe(true);
+    expect(secondLoad.rpcUnchanged).toBe(true);
+    expect(secondLoad.finishUnchanged).toBe(true);
+    expect(secondLoad.apiUnchanged).toBe(true);
   });
 
   test('G — full student session: finishPractice wrapper chain fires without error on a real practice result', async ({ page }) => {
