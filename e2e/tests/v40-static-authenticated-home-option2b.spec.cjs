@@ -42,6 +42,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
+  'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
