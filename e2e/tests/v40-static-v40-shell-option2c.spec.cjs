@@ -46,6 +46,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs': 'c13bfae1ceb6923aa4b4c03c5c61efb1bc7d6c81',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
+  'site/tests/verify-phase5c-wrapper-chain-coverage.cjs': '8bf3c87f93f1677cb15395e36c7c7600dffb3672',
 });
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
