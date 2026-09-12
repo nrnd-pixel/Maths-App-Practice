@@ -556,6 +556,18 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     await waitForHomeRendered(page);
 
     await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveCount(1, { timeout: 15_000 });
+
+    // The consolidated gamification owner refreshes XP → achievements → missions →
+    // class challenge asynchronously. Complete one authoritative refresh before
+    // injecting the synthetic earned-badge transition so an in-flight owner render
+    // cannot overwrite the test fixture after the event is dispatched.
+    await expect.poll(
+      () => page.evaluate(() => window.GamificationStudent.refresh(true)),
+      { timeout: 15_000 },
+    ).toBe(true);
+    await waitForStableCardState(page, '#v571b-latest-achievement');
+    await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveClass(/locked/);
+
     await page.evaluate(() => window.V58AStudentFirstUseExperience.render());
     await expect(page.locator('#v58a-first-use-card')).not.toHaveClass(/hidden/);
     expect(await page.evaluate(() => window.__option2bCapture.initial.firstUseCard === document.getElementById('v58a-first-use-card'))).toBe(true);
