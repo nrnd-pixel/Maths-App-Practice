@@ -1,0 +1,73 @@
+name: V5.9A Seal Calculator
+
+on:
+  push:
+    branches:
+      - development/197-v59a-student-home-refresh-successor
+
+permissions:
+  contents: read
+
+jobs:
+  calculate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate V5.9A successor seal candidates
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const { execFileSync } = require('node:child_process');
+
+          const extras = new Set([
+            'site/config.js',
+            'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',
+            'site/v59a-student-home-refresh.js',
+          ]);
+
+          function git(args) {
+            return execFileSync('git', args, { encoding:'utf8', stdio:['ignore','pipe','pipe'] }).trim();
+          }
+          function gitBlob(pathname) { return git(['hash-object', pathname]); }
+          function workingManifestHash(root, excluded = new Set()) {
+            const output = git(['ls-files','-co','--exclude-standard',root]);
+            const paths = output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
+            const records = paths
+              .filter(pathname => !excluded.has(pathname))
+              .map(pathname => `${gitBlob(pathname)}  ${pathname}`);
+            return crypto.createHash('sha256')
+              .update(records.length ? `${records.join('\n')}\n` : '')
+              .digest('hex');
+          }
+          function quotedPaths(block) {
+            return [...block.matchAll(/['"](site\/[^'"]+)['"]/g)].map(match => match[1]);
+          }
+          function block(source, start, end) {
+            const a = source.indexOf(start);
+            if (a < 0) throw new Error(`missing start marker: ${start}`);
+            const b = source.indexOf(end, a + start.length);
+            if (b < 0) throw new Error(`missing end marker after: ${start}`);
+            return source.slice(a, b + end.length);
+          }
+
+          const option2a = fs.readFileSync('e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs','utf8');
+          const aBlock = block(option2a, 'const ALLOWED_SITE_CHANGES = new Set([', ']);');
+          const aExcluded = new Set([...quotedPaths(aBlock), ...extras]);
+
+          const option2c = fs.readFileSync('e2e/tests/v40-static-v40-shell-option2c.spec.cjs','utf8');
+          const cRuntime = block(option2c, 'const RUNTIME_SUCCESSORS = Object.freeze({', '});');
+          const cSuccessors = block(option2c, 'const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({', '});');
+          const cExcluded = new Set([...quotedPaths(cRuntime), ...quotedPaths(cSuccessors), ...extras]);
+
+          console.log(`OPTION2A_V59A_FROZEN_SITE_SHA256=${workingManifestHash('site', aExcluded)}`);
+          console.log(`OPTION2C_V59A_FROZEN_SITE_SHA256=${workingManifestHash('site', cExcluded)}`);
+          for (const pathname of [...extras].sort()) {
+            console.log(`V59A_BLOB ${pathname} ${gitBlob(pathname)}`);
+          }
+          NODE
