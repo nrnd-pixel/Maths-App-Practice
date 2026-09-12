@@ -452,6 +452,11 @@ test.describe('Phase 4 teacher assignments checkpoint 2 — full staged UI-contr
     await expect(row.locator('.v44a-assign-practice')).toHaveClass(/hidden/);
     await row.locator('.v44c-review-practice').click();
 
+    // openExistingAssignment navigates to the classes panel and calls
+    // waitForAssignmentCard which retries up to 30×100ms before applying
+    // v44c-highlight. Wait for the card to be present first so the highlight
+    // poll doesn't race against the panel render.
+    await expect(cardForAssignment(page,a.id)).toHaveCount(1,{timeout:5_000});
     await waitForRecordedHighlight(page,a.id,'v44c-highlight');
     await waitForRecordedHighlight(page,a.id,'v44c-highlight-strong');
     await expect(cardForAssignment(page,a.id)).toHaveCount(1);
