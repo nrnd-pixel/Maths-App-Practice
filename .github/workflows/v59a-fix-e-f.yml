@@ -1,0 +1,166 @@
+name: V5.9A Acceptance Fix Finalizer
+
+on:
+  push:
+    branches:
+      - development/197-v59a-student-home-refresh-successor
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply V5.9A E/F fixes and refresh exact blob seal
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { execFileSync } = require('node:child_process');
+
+          function replaceOnce(source, from, to, label) {
+            const count = source.split(from).length - 1;
+            if (count !== 1) throw new Error(`${label}: expected exactly one match, found ${count}`);
+            return source.replace(from, to);
+          }
+
+          const runtimePath = 'site/v59a-student-home-refresh.js';
+          let runtime = fs.readFileSync(runtimePath, 'utf8');
+          runtime = replaceOnce(
+            runtime,
+            "  let retryTimer = 0;\n  let installed = false;",
+            "  let retryTimer = 0;\n  let installed = false;\n  let badgesOpenRequested = false;",
+            'badge state declaration'
+          );
+
+          const oldOpenBadges = `  function openBadges(){
+    if (activeQuiz()) return false;
+    const go = () => {
+      const card = document.getElementById('v571b-latest-achievement');
+      if (!card) return false;
+      const details = card.querySelector('details');
+      if (details) details.open = true;
+      card.scrollIntoView?.({behavior:'smooth',block:'center'});
+      return true;
+    };
+    if (document.getElementById('start')?.classList.contains('active')) return go();
+    returnHome();
+    window.setTimeout(go,100);
+    return true;
+  }`;
+          const newOpenBadges = `  function revealBadges(scroll=false){
+    const card = document.getElementById('v571b-latest-achievement');
+    if (!card) return false;
+    const details = card.querySelector('details');
+    if (details) details.open = true;
+    if (scroll) card.scrollIntoView?.({behavior:'smooth',block:'center'});
+    return true;
+  }
+
+  function openBadges(){
+    if (activeQuiz()) return false;
+    badgesOpenRequested = true;
+    const go = () => revealBadges(true);
+    if (document.getElementById('start')?.classList.contains('active')) return go();
+    returnHome();
+    window.setTimeout(go,100);
+    return true;
+  }`;
+          runtime = replaceOnce(runtime, oldOpenBadges, newOpenBadges, 'openBadges preservation');
+
+          runtime = replaceOnce(
+            runtime,
+            "  function navAction(key){\n    if (activeQuiz() && key !== 'practice') return false;",
+            "  function navAction(key){\n    if (activeQuiz() && key !== 'practice') return false;\n    if (key !== 'badges') badgesOpenRequested = false;",
+            'navigation badge reset'
+          );
+
+          runtime = replaceOnce(
+            runtime,
+            "  function clearPresentation(){\n    document.getElementById(PROFILE_ID)?.remove();",
+            "  function clearPresentation(){\n    badgesOpenRequested = false;\n    document.getElementById(PROFILE_ID)?.remove();",
+            'clear badge state'
+          );
+
+          runtime = replaceOnce(
+            runtime,
+            "    ensureMoreSheet();\n    ensureMobileNav();\n    window.dispatchEvent(new CustomEvent('v59a:home-refreshed'));",
+            "    ensureMoreSheet();\n    ensureMobileNav();\n    if (badgesOpenRequested) revealBadges(false);\n    window.dispatchEvent(new CustomEvent('v59a:home-refreshed'));",
+            'reapply badge-open intent'
+          );
+          fs.writeFileSync(runtimePath, runtime);
+
+          const specPath = 'e2e/tests/v59a-student-home-refresh-acceptance.spec.cjs';
+          let spec = fs.readFileSync(specPath, 'utf8');
+          spec = replaceOnce(
+            spec,
+            `    await openStudentHome(page);
+    await expect(page.locator(MOBILE_NAV)).toBeVisible();
+    await startPractice(page);
+    await expect(page.locator('#quiz')).toHaveClass(/active/);`,
+            `    await openStudentHome(page);
+    await expect(page.locator(MOBILE_NAV)).toBeVisible();
+
+    // V5.9A intentionally hides the legacy Home nav on mobile. Enter Practice
+    // through the preview's own delegated tab, then use the accepted Start flow.
+    await page.locator(\`${MOBILE_NAV} [data-v59a-nav="practice"]\`).click();
+    await expect(page.locator('#start')).toHaveAttribute('data-v40-start-view', 'learn');
+    await startPractice(page);
+    await expect(page.locator('#quiz')).toHaveClass(/active/);`,
+            'Test F preview Practice path'
+          );
+          fs.writeFileSync(specPath, spec);
+
+          const runtimeBlob = execFileSync('git', ['hash-object', runtimePath], {encoding:'utf8'}).trim();
+          const option2cPath = 'e2e/tests/v40-static-v40-shell-option2c.spec.cjs';
+          let option2c = fs.readFileSync(option2cPath, 'utf8');
+          option2c = replaceOnce(
+            option2c,
+            "  'site/v59a-student-home-refresh.js': '8588c6c8ac7a0ceb6fc33ff94b93af758962fc4e',",
+            `  'site/v59a-student-home-refresh.js': '${runtimeBlob}',`,
+            'Option 2C V5.9A runtime blob'
+          );
+          fs.writeFileSync(option2cPath, option2c);
+          console.log(`V59A_RUNTIME_BLOB=${runtimeBlob}`);
+          NODE
+
+      - name: Verify integrity and intended scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=f71b74877f46a10dafd13e2c4a623c00d10f60bf
+          node site/tests/verify-v59a-student-home-refresh-test-contract.cjs
+          test -z "$(git diff --name-only "$BASE" -- supabase)"
+          for frozen in \
+            site/v40-student-session.js \
+            site/v40-platform-polish.js \
+            site/v40-release.js \
+            site/v40-start-shell.js \
+            site/v41-signin-guard.js \
+            site/v51-exam-publication-safety.js \
+            site/v50-security-hardening.js \
+            site/v52b1-question-bank-observer-gate.js \
+            site/v581a-practice-cloud-result-reconciliation.js; do
+            test -z "$(git diff --name-only "$BASE" -- "$frozen")"
+          done
+          git diff --check
+
+      - name: Commit final V5.9A acceptance fixes and remove this workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/v59a-fix-e-f.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/v59a-student-home-refresh.js
+          git add e2e/tests/v59a-student-home-refresh-acceptance.spec.cjs
+          git add e2e/tests/v40-static-v40-shell-option2c.spec.cjs
+          git diff --cached --check
+          git commit -m "fix: preserve V5.9A badge and Practice navigation"
+          git push origin HEAD:development/197-v59a-student-home-refresh-successor
