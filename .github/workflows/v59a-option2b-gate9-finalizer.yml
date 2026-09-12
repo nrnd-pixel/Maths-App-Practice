@@ -1,0 +1,70 @@
+name: V5.9A Option 2B Gate 9 Finalizer
+
+on:
+  push:
+    branches:
+      - development/197-v59a-student-home-refresh-successor
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Stabilize accepted gamification owner before synthetic achievement transition
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('e2e/tests/v40-static-authenticated-home-option2b.spec.cjs')
+          source = path.read_text()
+          old = '''    await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveCount(1, { timeout: 15_000 });
+    await page.evaluate(() => window.V58AStudentFirstUseExperience.render());'''
+          new = '''    await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveCount(1, { timeout: 15_000 });
+
+    // The consolidated gamification owner refreshes XP → achievements → missions →
+    // class challenge asynchronously. Complete one authoritative refresh before
+    // injecting the synthetic earned-badge transition so an in-flight owner render
+    // cannot overwrite the test fixture after the event is dispatched.
+    await expect.poll(
+      () => page.evaluate(() => window.GamificationStudent.refresh(true)),
+      { timeout: 15_000 },
+    ).toBe(true);
+    await waitForStableCardState(page, '#v571b-latest-achievement');
+    await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveClass(/locked/);
+
+    await page.evaluate(() => window.V58AStudentFirstUseExperience.render());'''
+          if source.count(old) != 1:
+              raise SystemExit(f'expected one gate 9 insertion point, found {source.count(old)}')
+          path.write_text(source.replace(old, new))
+          PY
+          git diff --check
+
+      - name: Confirm V5.9A remains preview-only and production scope untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=f71b74877f46a10dafd13e2c4a623c00d10f60bf
+          node site/tests/verify-v59a-student-home-refresh-test-contract.cjs
+          test -z "$(git diff --name-only "$BASE" -- supabase)"
+          for frozen in site/v40-student-session.js site/v40-platform-polish.js site/v40-release.js site/v40-start-shell.js site/v41-signin-guard.js site/v51-exam-publication-safety.js site/v50-security-hardening.js site/v52b1-question-bank-observer-gate.js site/v581a-practice-cloud-result-reconciliation.js; do
+            test -z "$(git diff --name-only "$BASE" -- "$frozen")"
+          done
+
+      - name: Commit deterministic hard-gate setup and remove this workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/v59a-option2b-gate9-finalizer.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
+          git diff --cached --check
+          git commit -m "test: synchronize Option 2B first-use transition"
+          git push origin HEAD:development/197-v59a-student-home-refresh-successor
