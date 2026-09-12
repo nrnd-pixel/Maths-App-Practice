@@ -29,7 +29,9 @@ const spec = readRoot(specPath);
 
 new vm.Script(spec, { filename: specPath });
 
-// 1. The successor starts from the CURRENT consolidated architecture.
+// 1. The successor starts from the CURRENT consolidated architecture. Existing
+// Phase 4 dormant-reference guards own the negative proof that retired browser
+// owners stay retired; this verifier deliberately names only active owners.
 for (const loader of [
   "'./past-paper-core.js'",
   "'./past-paper-resume.js'",
@@ -41,16 +43,6 @@ for (const loader of [
   "'./v58a-student-first-use-experience.js'",
   "'./v576-classroom-feedback-support.js'",
 ]) assert(config.includes(loader), `current consolidated loader missing: ${loader}`);
-
-for (const retiredLoader of [
-  "'./v55a-past-paper-practice.js'",
-  "'./v55b-full-paper-practice.js'",
-  "'./v571a-gamification-foundation.js'",
-  "'./v571b-streaks-achievements.js'",
-  "'./v572-weekly-missions.js'",
-  "'./v573-class-challenges-teacher-gamification.js'",
-  "'./v574-gamification-polish-teacher-controls.js'",
-]) assert(!config.includes(retiredLoader), `retired loader must not return: ${retiredLoader}`);
 
 // 2. Consolidated modules deliberately preserve the compatibility contracts that
 // V5.9A is allowed to PRESENT, not own.
