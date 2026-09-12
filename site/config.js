@@ -100,6 +100,11 @@ window.MATH_APP_CONFIG = {
    browser/localStorage failures cannot mislabel a successful submission as a local
    backup, and it keeps stale pre-assignment results from being presented as the
    completion result for a newly started teacher assignment.
+   V5.9A refreshes the signed-in Student Home as one presentation/navigation layer:
+   profile identity and accepted Level/XP/streak values, a stronger Continue Learning
+   hero, Mixed/Topic/Past Paper shortcuts, compact motivation cards and app-style
+   mobile navigation. It delegates to the consolidated V5.7/V5.8 owners and adds no
+   network, persistence, grading, recommendation, assignment-write or Exam authority.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 
@@ -151,7 +156,8 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v58c-parent-summary-workspace-shortcut.js',
   './v58d-content-workflow-consolidation.js',
   './v581a-practice-cloud-result-reconciliation.js',
-  './v58-stable-release-checkpoint.js'
+  './v58-stable-release-checkpoint.js',
+  './v59a-student-home-refresh.js'
 ]);
 
 Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{
