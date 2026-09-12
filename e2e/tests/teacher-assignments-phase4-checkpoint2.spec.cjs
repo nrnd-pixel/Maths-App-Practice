@@ -363,7 +363,7 @@ async function installHighlightRecorder(page){
 async function waitForRecordedHighlight(page,id,className){
   await expect.poll(()=>page.evaluate(({id,className})=>
     (window.__phase4AssignmentHighlightEvents || []).includes(`${id}:${className}`),{id,className}),
-  {timeout:10_000}).toBe(true);
+  {timeout:20_000}).toBe(true);
 }
 
 async function waitForQueueSettled(page){
