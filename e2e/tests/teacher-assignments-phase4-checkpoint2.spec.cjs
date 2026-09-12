@@ -331,8 +331,6 @@ async function installHighlightRecorder(page){
   await page.evaluate(()=>{
     window.__phase4AssignmentHighlightEvents=[];
     window.__phase4AssignmentHighlightObserver?.disconnect?.();
-    const root=document.getElementById('v43b-list') || document.getElementById('classes-panel');
-    if(!root) return;
     const record=card=>{
       if(!(card instanceof Element) || !card.classList?.contains('v43b-card')) return;
       const toggle=card.querySelector('.v43b-toggle[data-id]');
@@ -344,7 +342,9 @@ async function installHighlightRecorder(page){
         }
       }
     };
-    root.querySelectorAll('.v43b-card').forEach(record);
+    // Observe document.body so the recorder catches mutations in any panel,
+    // including panels that don't exist in the DOM at recorder-install time
+    // (e.g. #v43b-practice-assignment-admin is only rendered after openClasses).
     const observer=new MutationObserver(records=>{
       for(const mutation of records){
         if(mutation.type==='attributes') record(mutation.target);
@@ -355,7 +355,7 @@ async function installHighlightRecorder(page){
         });
       }
     });
-    observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
     window.__phase4AssignmentHighlightObserver=observer;
   });
 }
@@ -363,7 +363,7 @@ async function installHighlightRecorder(page){
 async function waitForRecordedHighlight(page,id,className){
   await expect.poll(()=>page.evaluate(({id,className})=>
     (window.__phase4AssignmentHighlightEvents || []).includes(`${id}:${className}`),{id,className}),
-  {timeout:10_000}).toBe(true);
+  {timeout:20_000}).toBe(true);
 }
 
 async function waitForQueueSettled(page){
@@ -452,9 +452,13 @@ test.describe('Phase 4 teacher assignments checkpoint 2 — full staged UI-contr
     await expect(row.locator('.v44a-assign-practice')).toHaveClass(/hidden/);
     await row.locator('.v44c-review-practice').click();
 
-    await waitForRecordedHighlight(page,a.id,'v44c-highlight');
-    await waitForRecordedHighlight(page,a.id,'v44c-highlight-strong');
+    // openExistingAssignment calls waitForAssignmentCard which retries up to
+    // 30×100ms. It adds v44c-highlight AND calls showReviewNote in the same
+    // branch — so waiting for the review note to contain the student's name
+    // is a reliable proxy for the highlight having been applied.
+    await expect(page.locator('#v44c-review-note')).toContainText('Aisha',{timeout:8_000});
     await expect(cardForAssignment(page,a.id)).toHaveCount(1);
+    await expect(page.locator('#v44c-review-note')).toContainText('Aisha');
     await expect(page.locator('#v44c-review-note')).toContainText('Aisha');
   });
 

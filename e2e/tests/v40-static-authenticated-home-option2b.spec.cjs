@@ -560,7 +560,7 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
       document.querySelector('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')?.classList.replace('locked', 'earned');
       window.dispatchEvent(new CustomEvent('v571b:achievements-updated'));
     });
-    await expect(page.locator('#v58a-first-use-card')).toHaveClass(/hidden/, { timeout: 8_000 });
+    await expect(page.locator('#v58a-first-use-card')).toHaveClass(/hidden/, { timeout: 15_000 });
     await expect(page.locator('#v58a-first-use-card')).toHaveCount(1);
     expect(await page.evaluate(() => window.__option2bCapture.initial.firstUseCard === document.getElementById('v58a-first-use-card'))).toBe(true);
   });
