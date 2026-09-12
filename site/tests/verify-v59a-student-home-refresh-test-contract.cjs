@@ -97,7 +97,7 @@ for (const marker of [
   'data-v59a-level',
   'data-v59a-xp-progress',
   'data-v59a-streak',
-  'data-v59a-action="continue"',
+  "button.dataset.v59aAction = 'continue'",
   'data-v59a-practice-type="mixed"',
   'data-v59a-practice-type="topic"',
   'data-v59a-practice-type="past_paper"',
