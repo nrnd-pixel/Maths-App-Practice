@@ -331,8 +331,15 @@ async function installHighlightRecorder(page){
   await page.evaluate(()=>{
     window.__phase4AssignmentHighlightEvents=[];
     window.__phase4AssignmentHighlightObserver?.disconnect?.();
-    const root=document.getElementById('v43b-list') || document.getElementById('classes-panel');
-    if(!root) return;
+    // The intervention queue uses '#v43b-list'; the assignment admin panel
+    // '#v43b-practice-assignment-admin' is where waitForAssignmentCard adds
+    // v44c-highlight and v44c-highlight-strong. Observe both.
+    const roots=[
+      document.getElementById('v43b-list'),
+      document.getElementById('classes-panel'),
+      document.getElementById('v43b-practice-assignment-admin'),
+    ].filter(Boolean);
+    if(!roots.length) return;
     const record=card=>{
       if(!(card instanceof Element) || !card.classList?.contains('v43b-card')) return;
       const toggle=card.querySelector('.v43b-toggle[data-id]');
@@ -344,7 +351,7 @@ async function installHighlightRecorder(page){
         }
       }
     };
-    root.querySelectorAll('.v43b-card').forEach(record);
+    roots.forEach(root=>root.querySelectorAll('.v43b-card').forEach(record));
     const observer=new MutationObserver(records=>{
       for(const mutation of records){
         if(mutation.type==='attributes') record(mutation.target);
@@ -355,7 +362,7 @@ async function installHighlightRecorder(page){
         });
       }
     });
-    observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    roots.forEach(root=>observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']}));
     window.__phase4AssignmentHighlightObserver=observer;
   });
 }
