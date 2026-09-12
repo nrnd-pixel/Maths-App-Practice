@@ -116,17 +116,22 @@ jobs:
             test -z "$(git diff --name-only "$BASE" -- "$frozen")"
           done
 
-      - name: Run maintained static verifier suite
+      - name: Run exact maintained static verifier suite
         shell: bash
         run: |
           set -euo pipefail
-          count=0
-          for verifier in site/tests/*.cjs; do
+          mapfile -t verifiers < <(
+            sed -n '/^[[:space:]]*verifiers=(/,/^[[:space:]]*)/p' .github/workflows/ci.yml \
+              | grep -o '"site/tests/[^" ]*\.cjs"' \
+              | tr -d '"'
+          )
+          test "${#verifiers[@]}" -gt 0
+          echo "Running ${#verifiers[@]} maintained verifier scripts from ci.yml..."
+          for verifier in "${verifiers[@]}"; do
             echo "==> $verifier"
             node "$verifier"
-            count=$((count + 1))
           done
-          echo "Maintained static verifiers passed: $count"
+          echo "Maintained static verifiers passed: ${#verifiers[@]}"
 
       - name: Commit sealed successor and remove temporary workflow
         shell: bash
