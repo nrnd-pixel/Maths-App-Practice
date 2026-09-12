@@ -160,6 +160,7 @@ jobs:
             "site/tests/verify-v5.8.1b-checkpoint-attribution.cjs"
             "site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs"
             "site/tests/verify-phase5c-wrapper-chain-coverage.cjs"
+            "site/tests/verify-v59a-student-home-refresh-test-contract.cjs"
             "site/tests/verify-v5.8-intervention-workflow.cjs"
             "site/tests/verify-v5.8-stable-release-checkpoint.cjs"
           )
