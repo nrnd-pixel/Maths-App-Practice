@@ -1,4 +1,4 @@
-name: V5.9A Seal Calculator
+name: V5.9A Seal Finalizer
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
       - development/197-v59a-student-home-refresh-successor
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  calculate:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -17,57 +17,127 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Calculate V5.9A successor seal candidates
+      - name: Apply exact V5.9A successor seals
         shell: bash
         run: |
           node <<'NODE'
           const fs = require('node:fs');
-          const crypto = require('node:crypto');
-          const { execFileSync } = require('node:child_process');
 
-          const extras = new Set([
-            'site/config.js',
-            'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',
-            'site/v59a-student-home-refresh.js',
-          ]);
-
-          function git(args) {
-            return execFileSync('git', args, { encoding:'utf8', stdio:['ignore','pipe','pipe'] }).trim();
-          }
-          function gitBlob(pathname) { return git(['hash-object', pathname]); }
-          function workingManifestHash(root, excluded = new Set()) {
-            const output = git(['ls-files','-co','--exclude-standard',root]);
-            const paths = output ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort() : [];
-            const records = paths
-              .filter(pathname => !excluded.has(pathname))
-              .map(pathname => `${gitBlob(pathname)}  ${pathname}`);
-            return crypto.createHash('sha256')
-              .update(records.length ? `${records.join('\n')}\n` : '')
-              .digest('hex');
-          }
-          function quotedPaths(block) {
-            return [...block.matchAll(/['"](site\/[^'"]+)['"]/g)].map(match => match[1]);
-          }
-          function block(source, start, end) {
-            const a = source.indexOf(start);
-            if (a < 0) throw new Error(`missing start marker: ${start}`);
-            const b = source.indexOf(end, a + start.length);
-            if (b < 0) throw new Error(`missing end marker after: ${start}`);
-            return source.slice(a, b + end.length);
+          function replaceOnce(source, from, to, label) {
+            const count = source.split(from).length - 1;
+            if (count !== 1) throw new Error(`${label}: expected exactly one match, found ${count}`);
+            return source.replace(from, to);
           }
 
-          const option2a = fs.readFileSync('e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs','utf8');
-          const aBlock = block(option2a, 'const ALLOWED_SITE_CHANGES = new Set([', ']);');
-          const aExcluded = new Set([...quotedPaths(aBlock), ...extras]);
-
-          const option2c = fs.readFileSync('e2e/tests/v40-static-v40-shell-option2c.spec.cjs','utf8');
-          const cRuntime = block(option2c, 'const RUNTIME_SUCCESSORS = Object.freeze({', '});');
-          const cSuccessors = block(option2c, 'const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({', '});');
-          const cExcluded = new Set([...quotedPaths(cRuntime), ...quotedPaths(cSuccessors), ...extras]);
-
-          console.log(`OPTION2A_V59A_FROZEN_SITE_SHA256=${workingManifestHash('site', aExcluded)}`);
-          console.log(`OPTION2C_V59A_FROZEN_SITE_SHA256=${workingManifestHash('site', cExcluded)}`);
-          for (const pathname of [...extras].sort()) {
-            console.log(`V59A_BLOB ${pathname} ${gitBlob(pathname)}`);
+          function requireAbsent(source, marker, label) {
+            if (source.includes(marker)) throw new Error(`${label}: marker already present: ${marker}`);
           }
+
+          const option2aPath = 'e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs';
+          let option2a = fs.readFileSync(option2aPath, 'utf8');
+          option2a = replaceOnce(
+            option2a,
+            "const EXPECTED_FROZEN_SITE_SHA256 = '8f042f3cb96ad1cb59cb8332356c78a16382b1b24c689d43ef5565aee9aa197a';",
+            "const EXPECTED_FROZEN_SITE_SHA256 = '87f9f732061cb5e5251d07af055454e68a91b5fd9d7f0acd6af469b6f70c3de8';",
+            'Option 2A frozen-site hash'
+          );
+          for (const marker of [
+            "  'site/config.js',",
+            "  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',",
+            "  'site/v59a-student-home-refresh.js',",
+          ]) requireAbsent(option2a, marker, 'Option 2A allowlist');
+          option2a = replaceOnce(
+            option2a,
+            "  'site/index.html',\n",
+            "  'site/index.html',\n  'site/config.js',\n  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',\n  'site/v59a-student-home-refresh.js',\n",
+            'Option 2A allowlist insertion'
+          );
+          fs.writeFileSync(option2aPath, option2a);
+
+          const option2bPath = 'e2e/tests/v40-static-authenticated-home-option2b.spec.cjs';
+          let option2b = fs.readFileSync(option2bPath, 'utf8');
+          for (const marker of [
+            "  'site/config.js',",
+            "  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',",
+            "  'site/v59a-student-home-refresh.js',",
+          ]) requireAbsent(option2b, marker, 'Option 2B successor seal allowlist');
+          option2b = replaceOnce(
+            option2b,
+            "  'site/past-paper-assignments.js',\n",
+            "  'site/past-paper-assignments.js',\n  'site/config.js',\n  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',\n  'site/v59a-student-home-refresh.js',\n",
+            'Option 2B successor seal insertion'
+          );
+          fs.writeFileSync(option2bPath, option2b);
+
+          const option2cPath = 'e2e/tests/v40-static-v40-shell-option2c.spec.cjs';
+          let option2c = fs.readFileSync(option2cPath, 'utf8');
+          option2c = replaceOnce(
+            option2c,
+            "const EXPECTED_FROZEN_SITE_SHA256 = '9206dc56310038280e02f8e232558194eae6f3899a03d3fd6d4349f3c5f96b14';",
+            "const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';",
+            'Option 2C frozen-site hash'
+          );
+          for (const marker of [
+            "  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',",
+            "  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': 'ea3f9c98cdb54e935543083455c6a8c9559dfc53',",
+            "  'site/v59a-student-home-refresh.js': '8588c6c8ac7a0ceb6fc33ff94b93af758962fc4e',",
+          ]) requireAbsent(option2c, marker, 'Option 2C successor blobs');
+          option2c = replaceOnce(
+            option2c,
+            "  'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',\n",
+            "  'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',\n  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',\n  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': 'ea3f9c98cdb54e935543083455c6a8c9559dfc53',\n  'site/v59a-student-home-refresh.js': '8588c6c8ac7a0ceb6fc33ff94b93af758962fc4e',\n",
+            'Option 2C successor blob insertion'
+          );
+          option2c = replaceOnce(
+            option2c,
+            "  'site/config.js': '2c684d511315a4cd1f76e0ec833e614928e33180',",
+            "  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',",
+            'Option 2C config high-risk successor pin'
+          );
+          fs.writeFileSync(option2cPath, option2c);
           NODE
+
+      - name: Verify exact intended scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=f71b74877f46a10dafd13e2c4a623c00d10f60bf
+          test -z "$(git diff --name-only "$BASE" -- supabase)"
+          for frozen in \
+            site/v40-student-session.js \
+            site/v40-platform-polish.js \
+            site/v40-release.js \
+            site/v40-start-shell.js \
+            site/v41-signin-guard.js \
+            site/v51-exam-publication-safety.js \
+            site/v50-security-hardening.js \
+            site/v52b1-question-bank-observer-gate.js \
+            site/v581a-practice-cloud-result-reconciliation.js; do
+            test -z "$(git diff --name-only "$BASE" -- "$frozen")"
+          done
+
+      - name: Run maintained static verifier suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=0
+          for verifier in site/tests/*.cjs; do
+            echo "==> $verifier"
+            node "$verifier"
+            count=$((count + 1))
+          done
+          echo "Maintained static verifiers passed: $count"
+
+      - name: Commit sealed successor and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/v59a-seal-calc.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs
+          git add e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
+          git add e2e/tests/v40-static-v40-shell-option2c.spec.cjs
+          git diff --cached --check
+          git commit -m "test: seal V5.9A preview successor"
+          git push origin HEAD:development/197-v59a-student-home-refresh-successor
