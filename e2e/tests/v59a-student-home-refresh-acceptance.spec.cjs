@@ -216,6 +216,11 @@ test.describe('V5.9A successor — Student Home acceptance contract', () => {
   test('F — bottom navigation cannot bypass an active Practice session', async ({ page }) => {
     await openStudentHome(page);
     await expect(page.locator(MOBILE_NAV)).toBeVisible();
+
+    // V5.9A intentionally hides the legacy Home nav on mobile. Enter Practice
+    // through the preview's own delegated tab, then use the accepted Start flow.
+    await page.locator(`${MOBILE_NAV} [data-v59a-nav="practice"]`).click();
+    await expect(page.locator('#start')).toHaveAttribute('data-v40-start-view', 'learn');
     await startPractice(page);
     await expect(page.locator('#quiz')).toHaveClass(/active/);
 

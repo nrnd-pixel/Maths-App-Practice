@@ -19,6 +19,7 @@
   const DASHBOARD_SELECTOR = '#start .v40c3-home-dashboard';
   let retryTimer = 0;
   let installed = false;
+  let badgesOpenRequested = false;
 
   const trim = value => String(value ?? '').trim();
   const esc = value => String(value ?? '')
@@ -409,16 +410,19 @@
     return false;
   }
 
+  function revealBadges(scroll=false){
+    const card = document.getElementById('v571b-latest-achievement');
+    if (!card) return false;
+    const details = card.querySelector('details');
+    if (details) details.open = true;
+    if (scroll) card.scrollIntoView?.({behavior:'smooth',block:'center'});
+    return true;
+  }
+
   function openBadges(){
     if (activeQuiz()) return false;
-    const go = () => {
-      const card = document.getElementById('v571b-latest-achievement');
-      if (!card) return false;
-      const details = card.querySelector('details');
-      if (details) details.open = true;
-      card.scrollIntoView?.({behavior:'smooth',block:'center'});
-      return true;
-    };
+    badgesOpenRequested = true;
+    const go = () => revealBadges(true);
     if (document.getElementById('start')?.classList.contains('active')) return go();
     returnHome();
     window.setTimeout(go,100);
@@ -463,6 +467,7 @@
 
   function navAction(key){
     if (activeQuiz() && key !== 'practice') return false;
+    if (key !== 'badges') badgesOpenRequested = false;
     if (key === 'home') return returnHome();
     if (key === 'practice'){
       if (!document.getElementById('start')?.classList.contains('active')){
@@ -515,6 +520,7 @@
   }
 
   function clearPresentation(){
+    badgesOpenRequested = false;
     document.getElementById(PROFILE_ID)?.remove();
     document.getElementById(SHORTCUTS_ID)?.remove();
     document.getElementById(MOBILE_NAV_ID)?.classList.add('hidden');
@@ -541,6 +547,7 @@
     enhanceMissions();
     ensureMoreSheet();
     ensureMobileNav();
+    if (badgesOpenRequested) revealBadges(false);
     window.dispatchEvent(new CustomEvent('v59a:home-refreshed'));
     return true;
   }
