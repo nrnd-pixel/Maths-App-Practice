@@ -2,29 +2,82 @@
 
 Last updated: 2026-09-13 (Brunei, UTC+08:00)
 
-Status: **post-review reconciliation artifact / no schema or production metadata write**.
+Status: **calibration gate passed for schema design only / no schema or production metadata write**.
 
 Repository baseline: `8445ad060438c22b9c31054a1bd0e1b2f1a58c07`
 
-Use only **after** Reviewer B has completed `docs/QUESTION_METADATA_V2_REVIEWER_B_PACKET.md` without reading Reviewer-A scores.
+Issue: #246
+
+Reviewer-B blind result was frozen first in `docs/QUESTION_METADATA_V2_REVIEWER_B_RESULT.md` at commit `2e0739576a0035d5c9bde67daa495a91a73341cb`. Reviewer-A scores were read only after that commit existed.
 
 ## Acceptance rule
 
-Do not average disagreements automatically.
+Do not average disagreements automatically. Resolve each difference against the written rubric boundary; preserve source-dependent uncertainty as `HOLD`.
 
-For each difference:
+Before schema design, there must be no unresolved disagreement greater than one level on any dimension.
 
-1. identify the exact rubric boundary each reviewer used;
-2. classify the cause as source evidence, wording ambiguity, or genuine judgement difference;
-3. revise the rubric only if the boundary itself is unclear;
-4. re-score after any rubric revision;
-5. preserve source-dependent uncertainty as `HOLD`.
+## Calibration comparison
 
-Before schema implementation, there should be no unresolved disagreement greater than one level on any dimension, and remaining adjacent-level disagreements should be explainable consistently.
+| Paper / Q | Proc A/B | Concept A/B | Reading A/B | Visual A/B | Response A/B | Status |
+|---|---:|---:|---:|---:|---:|---|
+| 2025 P1 Q2 | 1/1 | 0/0 | 0/0 | 0/0 | 0/0 | exact |
+| 2025 P1 Q14 | 2/2 | 1/2 | 0/0 | 0/0 | 1/1 | one adjacent difference |
+| 2025 P1 Q20 | 2/2 | 1/1 | 1/1 | 0/0 | 0/0 | exact |
+| 2025 P1 Q34 | 3/3 | 3/3 | 2/2 | 0/0 | 0/0 | exact |
+| 2025 P2 Q3 | 2/2 | 0/0 | 0/0 | 0/0 | 0/0 | exact |
+| 2025 P2 Q4 | 3/3 | 1/0 | 0/0 | 0/0 | 1/1 | one adjacent difference |
+| 2025 P2 Q11 | 2/2 | 1/1 | 1/0 | 0/0 | 1/1 | one adjacent difference |
+| 2025 P2 Q24 | 3/3 | 2/2 | 2/2 | 0/0 | 1/1 | exact |
 
-## Reviewer-A reference scores
+Across the eight-question sample there are **40 scored dimensions**:
 
-| Paper / Q | Proc A | Concept A | Reading A | Visual A | Response A |
+- exact agreements: **37/40 (92.5%)**;
+- adjacent one-level differences: **3/40 (7.5%)**;
+- differences greater than one level: **0**;
+- source-dependent HOLDs in the core eight: **0**.
+
+## Reconciliation of adjacent differences
+
+### 1. 2025 P1 Q14 — conceptual reasoning
+
+- Reviewer A: **1** (`familiar representation/choice`).
+- Reviewer B: **2** (`linked relationships / unstated intermediate idea`).
+
+Reviewer B treated the coordination of four values across percentage, decimal and fraction forms as several linked representation relationships.
+
+The full rubric explicitly places **compare equivalent forms (fraction/decimal/percentage)** at Concept **1**. The multiple conversions/order operations raise procedural demand to 2, but they do not create a separate unstated conceptual structure.
+
+**Reconciled score: 1.**
+
+Cause: reasonable adjacent judgement difference from the condensed blind packet. No rubric wording change required because the full rubric already states this boundary explicitly.
+
+### 2. 2025 P2 Q4 — conceptual reasoning
+
+- Reviewer A: **1** (`familiar transformation choice`).
+- Reviewer B: **0** (`direct execution`).
+
+Reviewer B intentionally separated the long standard algorithm from conceptual demand and treated the item as direct execution.
+
+The full rubric defines Concept **1** to include choosing a standard transformation/representation. Converting the mixed number before fraction division is therefore a familiar representation choice even though the overall procedure is routine.
+
+**Reconciled score: 1.**
+
+Cause: adjacent interpretation difference. No rubric wording change required.
+
+### 3. 2025 P2 Q11 — reading/context load
+
+- Reviewer A: **1** (`short single-relation context`).
+- Reviewer B: **0** (`symbolic/minimal text`).
+
+Reviewer B treated the short direct instruction as minimal text. The full rubric explicitly uses a percentage-of-distance/unit-conversion statement of this form as a Reading **1** example, because the learner must parse the quantity relationship and unit context from natural language.
+
+**Reconciled score: 1.**
+
+Cause: adjacent boundary difference caused by the deliberately condensed blind packet. No rubric wording change required because the full rubric contains an explicit matching example.
+
+## Reconciled calibration scores
+
+| Paper / Q | Proc | Concept | Reading | Visual | Response |
 |---|---:|---:|---:|---:|---:|
 | 2025 P1 Q2 | 1 | 0 | 0 | 0 | 0 |
 | 2025 P1 Q14 | 2 | 1 | 0 | 0 | 1 |
@@ -35,82 +88,25 @@ Before schema implementation, there should be no unresolved disagreement greater
 | 2025 P2 Q11 | 2 | 1 | 1 | 0 | 1 |
 | 2025 P2 Q24 | 3 | 2 | 2 | 0 | 1 |
 
-## Reconciliation worksheet
-
-Fill in Reviewer-B values after the blind review, then record whether each dimension agrees exactly, differs by one level, differs by more than one level, or is on `HOLD`.
-
-| Paper / Q | Dimension | A | B | Delta/status | Boundary used by A | Boundary used by B | Resolution |
-|---|---|---:|---:|---|---|---|---|
-| 2025 P1 Q2 | Procedural | 1 |  |  | single routine procedure |  |  |
-| 2025 P1 Q2 | Conceptual | 0 |  |  | direct execution |  |  |
-| 2025 P1 Q2 | Reading | 0 |  |  | symbolic/minimal text |  |  |
-| 2025 P1 Q2 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P1 Q2 | Response | 0 |  |  | single simple response |  |  |
-| 2025 P1 Q14 | Procedural | 2 |  |  | convert/compare then order |  |  |
-| 2025 P1 Q14 | Conceptual | 1 |  |  | familiar representation/choice |  |  |
-| 2025 P1 Q14 | Reading | 0 |  |  | symbolic/minimal text |  |  |
-| 2025 P1 Q14 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P1 Q14 | Response | 1 |  |  | ordered sequence |  |  |
-| 2025 P1 Q20 | Procedural | 2 |  |  | fraction-of-set plus remainder |  |  |
-| 2025 P1 Q20 | Conceptual | 1 |  |  | familiar remaining-part interpretation |  |  |
-| 2025 P1 Q20 | Reading | 1 |  |  | short single-relation context |  |  |
-| 2025 P1 Q20 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P1 Q20 | Response | 0 |  |  | single simple response |  |  |
-| 2025 P1 Q34 | Procedural | 3 |  |  | reverse/reconstruction sequence |  |  |
-| 2025 P1 Q34 | Conceptual | 3 |  |  | reverse modelling/coordinated constraints |  |  |
-| 2025 P1 Q34 | Reading | 2 |  |  | several quantities/events |  |  |
-| 2025 P1 Q34 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P1 Q34 | Response | 0 |  |  | single simple response |  |  |
-| 2025 P2 Q3 | Procedural | 2 |  |  | two linked arithmetic operations |  |  |
-| 2025 P2 Q3 | Conceptual | 0 |  |  | direct execution |  |  |
-| 2025 P2 Q3 | Reading | 0 |  |  | symbolic/minimal text |  |  |
-| 2025 P2 Q3 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P2 Q3 | Response | 0 |  |  | single simple response |  |  |
-| 2025 P2 Q4 | Procedural | 3 |  |  | mixed conversion + reciprocal multiplication + simplification |  |  |
-| 2025 P2 Q4 | Conceptual | 1 |  |  | familiar transformation choice |  |  |
-| 2025 P2 Q4 | Reading | 0 |  |  | symbolic/minimal text |  |  |
-| 2025 P2 Q4 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P2 Q4 | Response | 1 |  |  | simplest-form fraction |  |  |
-| 2025 P2 Q11 | Procedural | 2 |  |  | percentage then unit conversion |  |  |
-| 2025 P2 Q11 | Conceptual | 1 |  |  | familiar percentage + unit connection |  |  |
-| 2025 P2 Q11 | Reading | 1 |  |  | short single-relation context |  |  |
-| 2025 P2 Q11 | Visual | 0 |  |  | no visual dependency |  |  |
-| 2025 P2 Q11 | Response | 1 |  |  | number + unit |  |  |
-| 2025 P2 Q24 | Procedural | 3 |  |  | whole/eaten/remaining sequence |  |  |
-| 2025 P2 Q24 | Conceptual | 2 |  |  | linked whole/remainder relationships |  |  |
-| 2025 P2 Q24 | Reading | 2 |  |  | multiple quantities/events |  |  |
-| 2025 P2 Q24 | Visual | 0 |  |  | no visual dependency in stored prompt |  |  |
-| 2025 P2 Q24 | Response | 1 |  |  | simplest-form fraction |  |  |
-
-## Reviewer-B summary
-
-- Exact agreements:
-- Adjacent-level disagreements:
-- >1-level disagreements:
-- HOLDs:
-- Rubric wording changes required:
-- Source evidence still needed:
-
 ## Optional source-hold check — 2025 Paper 2 Q30
 
-Reviewer A provisional values from stored text only:
+Reviewer A provisional values from stored text only were Proc 3 / Concept 3 / Reading 3 / Visual HOLD / Response 0.
 
-- Procedural: 3
-- Conceptual: 3
-- Reading: 3
-- Visual: HOLD
-- Response: 0
+Reviewer B independently scored Proc HOLD / Concept HOLD / Reading 3 / Visual HOLD / Response 0 because the stored prompt references a missing authoritative `Table 2`.
 
-Do not resolve the visual score until the authoritative Table 2 source is available.
+For project safety, retain the **more conservative HOLD** for procedural, conceptual and visual demand until the authoritative table is available. This optional source-hold challenge is not part of the eight-question acceptance denominator and demonstrates the intended rule: missing source evidence is never averaged into a confident score.
 
-## Gate to the next phase
+## Gate result
 
-The Metadata V2 schema-design phase may begin only after:
+The initial Metadata V2 calibration gate **passes**:
 
-- Reviewer B has independently completed the eight-question sample;
-- reconciliation is recorded here;
+- Reviewer B completed all eight questions blind;
+- reconciliation occurred only afterward;
+- 37/40 dimensions agreed exactly;
+- the remaining 3 differences were adjacent and are resolved by existing rubric boundaries;
 - there are no unresolved >1-level disagreements;
-- source-dependent HOLDs remain explicit rather than guessed;
-- any rubric revisions are reflected back into `docs/QUESTION_METADATA_V2_RUBRIC.md`.
+- no core-sample source HOLD remains hidden;
+- Q30 source uncertainty remains explicit as HOLD;
+- no rubric wording change is required at this checkpoint.
 
-Passing this gate authorizes **schema design only**, not a production migration, Question Bank bulk write, curriculum-map expansion or V5.9B rollout.
+Passing this gate authorizes **schema design only**. It does not authorize a production migration, Question Bank bulk write, curriculum-map expansion, or V5.9B adaptive rollout.
