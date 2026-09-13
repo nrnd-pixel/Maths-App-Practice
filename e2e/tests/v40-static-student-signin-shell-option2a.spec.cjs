@@ -82,9 +82,7 @@ function gitBlob(pathname) {
 function workingManifestHash(root, excluded = new Set()) {
   const output = git(['ls-files', '-co', '--exclude-standard', root]);
   const paths = output
-    ? [...new Set(output.split(/
-?
-/).filter(Boolean))].sort()
+    ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort()
     : [];
 
   const records = paths
@@ -93,9 +91,7 @@ function workingManifestHash(root, excluded = new Set()) {
 
   return crypto
     .createHash('sha256')
-    .update(records.length ? `${records.join('
-')}
-` : '')
+    .update(records.length ? `${records.join('\n')}\n` : '')
     .digest('hex');
 }
 
