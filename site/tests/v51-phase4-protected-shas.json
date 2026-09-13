@@ -71,7 +71,7 @@
     "site/v56c-student-past-paper-progress.js": "46080d3b78e39fc205d2ef3f7a9fd602e363f8f8",
     "site/v56d-teacher-past-paper-analytics.js": "db017e8a8fcf45afa3f1530e6f548a29153f509e",
     "site/v57-stable-release-checkpoint.js": "2da69f03191491726a81332fd79b9268bf8bea63",
-    "site/v571a-gamification-foundation.js": "57a1245642ca0ebbc134b7c82df95b5f60e02af2",
+    "site/v571a-gamification-foundation.js": "57a1245642ca0ebbc134b7c82d2cac527a12f9c",
     "site/v571b-streaks-achievements.js": "7ec9ee7f3ed730a1943a14db82d2cac527a12f9c",
     "site/v572-weekly-missions.js": "f1a929eca0834f9f5edc8ff391fcb1d99198d537",
     "site/v573-class-challenges-teacher-gamification.js": "c40606aff4f584a09f6446db860903165b739e52",
@@ -95,5 +95,5 @@
     "site/v58c-parent-summary-workspace-shortcut.js": "a6bbf05422d414d94fa7e6164f1d302e27feda51",
     "site/v58d-content-workflow-consolidation.js": "7905fce53236305d946315cae260c4b1bf212be6"
   },
-  "supabase_tree": "4e4f573f452e6d9ab628b163329fea356bcb16e9"
+  "supabase_tree": "b59a55911e695465f9fceb3aa55edbd564862ecd"
 }
