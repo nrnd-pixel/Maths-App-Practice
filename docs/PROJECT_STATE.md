@@ -10,7 +10,7 @@ This file is the short operational checkpoint for humans and AI assistants. It m
 - Live site: `https://magical-pixie-a61111.netlify.app`
 - Stack: vanilla JavaScript, Supabase/PostgreSQL, Netlify static hosting
 - Production release: V5.9
-- Verified `main`: `7dcd65c9ada0c08bf6b5584fd6b5a86590a9d0ab`
+- Verified `main`: `6f230b33700199a081d65c8465de4a0bd559d218`
 - Verified Supabase tree SHA: `4e4f573f452e6d9ab628b163329fea356bcb16e9`
 - Historical seal BASE_SHA: `653aec5e06e1bf1669b4c9c0cd3e91069715de45`
 
@@ -31,8 +31,31 @@ The accepted V5.9 Student Home is now the production baseline. Avoid further cos
 - PR #239 — Phase 5C wrapper-chain Playwright coverage — merged.
 - PR #240 — accepted V5.9 Student Home Refresh production promotion — merged.
 - PR #242 — V5.9 demo/viewer/student-question routes — merged.
+- PR #243 — shared project state, roadmap and AI handoff records — merged.
+- PR #244 — V56/V57 Student Home readiness Playwright synchronisation — merged after exact-head Consolidated CI run #285 passed all maintained verifiers, hard gates and core browser tests.
 
-PR #242 added isolated `/demo/`, `/viewer-demo/`, and `/demo-student/` routes without changing the normal `/` runtime or Supabase SQL.
+PR #244 was test-only and did not change production runtime behavior.
+
+## Current Question Bank Integrity checkpoint
+
+A read-only source + production-data audit has been completed from verified `main` `6f230b33700199a081d65c8465de4a0bd559d218`.
+
+Durable findings are recorded in:
+
+- `docs/QUESTION_BANK_INTEGRITY_AUDIT.md`
+- `docs/MISSING_SKILL_REMEDIATION_MAP.md`
+
+Key conclusions:
+
+- the current Practice-eligible pool is structurally healthy for marking;
+- no unresolved-review or inactive rows are currently entering ordinary Practice;
+- response-type/configuration checks on the live Practice pool found no structural blockers;
+- the main live metadata debt is 123 Practice-eligible rows with a missing `skill` field, concentrated in 2013, 2018 and 2019 Paper 1;
+- all 123 missing-skill rows now have candidate skill labels in the remediation map, derived from stored source question text/answer structure and the existing skill vocabulary; these are review candidates only, not production-approved changes;
+- diagram/table/context-dependent candidates are explicitly marked Medium confidence and require original-source verification before any database write;
+- known excluded/problematic Past Paper rows are inactive and ineligible, but their exclusion rationale is not consistently captured in review/audit fields;
+- Practice eligibility and legacy `active` are intentionally separate exposure domains and must not be collapsed by future QA;
+- the existing Question Bank QA runtime is inside the sealed/frozen site boundary, so direct enhancement requires an explicit successor/seal plan rather than an opportunistic patch.
 
 ## Open / parked work
 
@@ -42,9 +65,17 @@ PR #242 added isolated `/demo/`, `/viewer-demo/`, and `/demo-student/` routes wi
 
 ## Immediate next engineering action
 
-Create a tiny standalone housekeeping change for the known V56/V57 Playwright Home-readiness race. The intended fix is test synchronisation against the existing V5.7C readiness contract (`data-v57c-rendered="true"`) before the affected automated Assignments clicks. Do not weaken assertions or increase timeouts merely to hide the race.
+Remain within Question Bank Integrity before moving to Question Metadata V2.
 
-After CI reliability is clean, continue with the Question Bank Integrity checkpoint described in `ROADMAP.md`.
+Safest next substantive step:
+
+1. verify every Medium-confidence missing-skill candidate against the original paper image/PDF/source;
+2. spot-check High-confidence multipart and visually dependent rows;
+3. prepare an explicit reviewed change set keyed by immutable question `id`, but make no production write until a separate data-change plan is accepted;
+4. define the future integrity guard contract, including the distinction between hard blockers and warnings;
+5. only then decide whether an authorised successor to the existing QA owner or a separate maintained integrity surface is justified.
+
+Do not modify frozen Supabase SQL or `site/question-bank-selection-qa.js` during the initial remediation review.
 
 ## Frozen / high-risk files
 
@@ -105,5 +136,7 @@ This repository is the cross-assistant memory shared between ChatGPT, Claude and
 3. `docs/ROADMAP.md`
 4. `docs/DECISIONS.md`
 5. `docs/KNOWN_ISSUES.md`
+6. `docs/QUESTION_BANK_INTEGRITY_AUDIT.md` while Question Bank Integrity / Metadata V2 work is active
+7. `docs/MISSING_SKILL_REMEDIATION_MAP.md` while missing-skill remediation is active
 
 Then verify current GitHub `main`, open PRs and relevant CI directly before acting.
