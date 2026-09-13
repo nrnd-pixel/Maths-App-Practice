@@ -243,6 +243,15 @@ test.describe('V5.9A successor — Student Home acceptance contract', () => {
   test('H — V5.9A adds no Exam promotion and pure Home presentation interactions add no RPC/write authority', async ({ page }) => {
     const mock = await openStudentHome(page);
 
+    // Settle the accepted gamification owner's asynchronous Home refresh before
+    // recording the authority baseline. This keeps the assertion scoped to the
+    // V5.9A presentation interactions below instead of counting owner reads that
+    // were already in flight when the refreshed Home first became visible.
+    await expect.poll(
+      () => page.evaluate(() => window.GamificationStudent?.refresh?.(true)),
+      { timeout: 15_000 },
+    ).toBe(true);
+
     const rpcBefore = mock.rpcCalls.length;
     const writesBefore = mock.unexpectedWrites.length;
     const unhandledBefore = mock.unhandledRpcCalls.length;
