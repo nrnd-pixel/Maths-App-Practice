@@ -3,7 +3,7 @@
 ## V5.9.1 — Demo routes (unreleased)
 
 - Added , ,  — self-contained Netlify viewer routes reflecting V5.9 UI
-- All three: isolated, no Supabase, no writes, CSP-blocked network
+- All three: isolated, no Supabase, no writes, CSP-blocked network, noindex
 
 
 This changelog consolidates the version-specific deployment notes, migration records, release checkpoints, upgrade notes and smoke-test records that previously lived as separate files under `site/`, `site/tests/` and `docs/`.
