@@ -6,10 +6,12 @@ const path=require('node:path');
 const vm=require('node:vm');
 
 const SITE=path.resolve(__dirname,'..');
+const SUPABASE=path.resolve(SITE,'..','supabase');
 const read=name=>fs.readFileSync(path.join(SITE,name),'utf8');
 const loader=read('v40-release.js');
 const ui=read('resource-bank-ui.js');
 const bulk=read('resource-bank-bulk.js');
+const reviewSafety=fs.readFileSync(path.join(SUPABASE,'v54h_practice_review_safety.sql'),'utf8');
 
 new vm.Script(ui,{filename:'resource-bank-ui.js'});
 new vm.Script(bulk,{filename:'resource-bank-bulk.js'});
@@ -71,6 +73,18 @@ assert.match(b,/label:'Managed by set'/,'B topical rows must remain whole-set ma
 assert.ok(e.includes('canRun:selectedList.length > 0 && topical.length === 0 && groups.length > 0 && changingRows > 0'),'E bulk plan must reject topical selection');
 assert.match(f,/addEventListener\('click',[\s\S]*true\);/,'F scope guard must remain capture-phase');
 assert.match(f,/stopImmediatePropagation\(\)/,'F scope guard must block competing scope handlers');
+
+// V54H adds one database-authority invariant without changing browser owners or historical V54 migrations.
+assert.ok(reviewSafety.includes('V5.4H — Practice eligibility / review-state safety'),'V54H migration marker must remain exact');
+assert.ok(reviewSafety.includes("q.practice_eligible = true\n      and q.review_status = 'needs_review'"),'migration preflight must reject pre-existing conflicts');
+assert.ok(reviewSafety.includes('create or replace function public.guard_question_practice_review_safety_v54h()'),'database guard function must exist');
+assert.ok(reviewSafety.includes("new.practice_eligible = true\n     and new.review_status = 'needs_review'"),'guard must reject only the unresolved-review Practice conflict');
+assert.ok(reviewSafety.includes('before insert or update of practice_eligible, review_status on public.questions'),'all relevant future question writes must pass the database guard');
+assert.ok(reviewSafety.includes('Remove it from Practice before marking Needs Review, or resolve the review before enabling Practice.'),'guard failure must be actionable');
+assert.ok(reviewSafety.includes('revoke all on function public.guard_question_practice_review_safety_v54h() from public, anon, authenticated'),'guard function must not become a callable application RPC');
+assert.doesNotMatch(reviewSafety,/update\s+public\.questions\s+set/i,'V54H must not silently mutate existing question rows');
+assert.doesNotMatch(reviewSafety,/set\s+active\s*=/i,'V54H must preserve legacy active independently');
+assert.doesNotMatch(reviewSafety,/set\s+practice_eligible\s*=/i,'V54H must reject conflicts rather than silently de-eligibilize rows');
 
 // Frozen stable checkpoint/V54G remain outside consolidation.
 assert.equal(fs.existsSync(path.join(SITE,'v54-stable-release-checkpoint.js')),true);
