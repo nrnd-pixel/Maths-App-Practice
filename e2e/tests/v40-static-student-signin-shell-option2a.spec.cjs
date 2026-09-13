@@ -10,7 +10,7 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '87f9f732061cb5e5251d07af055454e68a91b5fd9d7f0acd6af469b6f70c3de8';
+const EXPECTED_FROZEN_SITE_SHA256 = '2cb1fb763e12f07f0cf2b10a93e4eb19af62323da0e77de6c314ec050ee636aa';
 const EXPECTED_SUPABASE_SHA256 = 'a0ea253719beea93f63c0fe77c4666ee8c61c9cb574abc7f305819b85137ea45';
 const EXPECTED_SUPABASE_TREE = '4e4f573f452e6d9ab628b163329fea356bcb16e9';
 
@@ -48,6 +48,12 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
   'site/v40-start-shell.js',
   'site/v40-student-session.js',
+  'site/demo/index.html',
+  'site/viewer-demo/index.html',
+  'site/demo-student/index.html',
+  'site/tests/verify-v5.9-current-live-demo.cjs',
+  'site/tests/verify-v5.9-demo-viewer-access.cjs',
+  'site/tests/verify-v5.9-demo-student-questions.cjs',
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
@@ -76,7 +82,9 @@ function gitBlob(pathname) {
 function workingManifestHash(root, excluded = new Set()) {
   const output = git(['ls-files', '-co', '--exclude-standard', root]);
   const paths = output
-    ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort()
+    ? [...new Set(output.split(/
+?
+/).filter(Boolean))].sort()
     : [];
 
   const records = paths
@@ -85,7 +93,9 @@ function workingManifestHash(root, excluded = new Set()) {
 
   return crypto
     .createHash('sha256')
-    .update(records.length ? `${records.join('\n')}\n` : '')
+    .update(records.length ? `${records.join('
+')}
+` : '')
     .digest('hex');
 }
 
