@@ -24,7 +24,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/config.js': '48690f4ffec9f49a154214f9f45abd0fb5cae051',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '229ac351a469e2474f2c12a993893b8b3244e812',
-  'site/v59a-student-home-refresh.js': '97e8e3e15a4d80502e7844bbd0955d85aa0b7222',
+  'site/v59a-student-home-refresh.js': 'a5e01d31cd5d6b4266826a2e401bc41c549b0294',
   'site/tests/v51-phase4-protected-shas.json': 'f2fb81c7e17313401f9d0c1861534eec91a5407e',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',

@@ -98,7 +98,6 @@
     style.id = STYLE_ID;
     style.textContent = `
       body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:0}
-      #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}
       #start.v40-shell-authenticated[data-v40-start-view="home"]>.header{display:none!important}
       #start.v40-shell-authenticated[data-v40-start-view="home"] .v39-teacher-zone,
       #start.v40-shell-authenticated[data-v40-start-view="home"]> .info{display:none!important}
@@ -189,6 +188,7 @@
 
       @media(max-width:760px){
         body.v59a-student-active{padding-bottom:84px}
+        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}
         #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}
         #${MOBILE_NAV_ID}{display:grid}
         #start.v40-shell-authenticated[data-v40-start-view="home"]{padding-top:0!important}
