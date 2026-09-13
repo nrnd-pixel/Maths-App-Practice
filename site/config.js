@@ -100,10 +100,10 @@ window.MATH_APP_CONFIG = {
    browser/localStorage failures cannot mislabel a successful submission as a local
    backup, and it keeps stale pre-assignment results from being presented as the
    completion result for a newly started teacher assignment.
-   V5.9A Student Home Refresh remains TEST-ONLY until manual acceptance. It is not
-   part of MATH_APP_STAGED_SCRIPTS and therefore does not change the accepted release
-   identity. An explicit ?v59aPreview=1 query opt-in loads the single presentation
-   module after the accepted staged runtime for branch/manual testing only.
+   V5.9A Student Home Refresh is accepted as the V5.9 production presentation layer.
+   It remains a single presentation/navigation module over the established learning
+   owners and adds no direct network, persistence, grading, assignment-write,
+   recommendation or Exam authority.
    Legacy release-label-only scripts remain archived in the repository; current
    staged loading remains coordinated by v40-release.js. */
 
@@ -155,7 +155,8 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v58c-parent-summary-workspace-shortcut.js',
   './v58d-content-workflow-consolidation.js',
   './v581a-practice-cloud-result-reconciliation.js',
-  './v58-stable-release-checkpoint.js'
+  './v58-stable-release-checkpoint.js',
+  './v59a-student-home-refresh.js'
 ]);
 
 Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{
@@ -163,15 +164,6 @@ Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{
   writable:false,
   configurable:false
 });
-
-const V59A_PREVIEW_SRC = './v59a-student-home-refresh.js';
-function v59aPreviewEnabled(){
-  try {
-    return new URLSearchParams(window.location.search).get('v59aPreview') === '1';
-  } catch {
-    return false;
-  }
-}
 
 window.addEventListener('load', () => {
   MATH_APP_STAGED_SCRIPTS.forEach(src => {
@@ -181,11 +173,4 @@ window.addEventListener('load', () => {
     document.body.appendChild(script);
   });
 
-  if (v59aPreviewEnabled()) {
-    const preview = document.createElement('script');
-    preview.src = V59A_PREVIEW_SRC;
-    preview.async = false;
-    preview.dataset.v59aPreview = 'true';
-    document.body.appendChild(preview);
-  }
 }, { once: true });

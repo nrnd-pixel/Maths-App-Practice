@@ -17,13 +17,13 @@ const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9ede
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89',
+  'site/index.html': '94b7b0f22cd4c25f41ef1b17fdf693dcba85fe72',
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',
-  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': 'ea3f9c98cdb54e935543083455c6a8c9559dfc53',
+  'site/config.js': '48690f4ffec9f49a154214f9f45abd0fb5cae051',
+  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '229ac351a469e2474f2c12a993893b8b3244e812',
   'site/v59a-student-home-refresh.js': 'ba8ffac38d359782370431d938c331fcd966d3a8',
   'site/tests/v51-phase4-protected-shas.json': 'f2fb81c7e17313401f9d0c1861534eec91a5407e',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
@@ -103,7 +103,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2',
+  'site/config.js': '48690f4ffec9f49a154214f9f45abd0fb5cae051',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
@@ -530,7 +530,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(navSource).not.toMatch(/\.observe\(\s*document(?:\.|\s*[,)]|\s*$)/m);
   });
 
-  test('gate 10 — wrapper chain, frozen site boundary and authorized V5.8.1B successors remain exact', async ({ page }) => {
+  test('gate 10 — wrapper chain, frozen site boundary and authorized V5.9 successors remain exact', async ({ page }) => {
     await installLifecycleCapture(page);
     await installSupabaseMock(page);
     await openApp(page);

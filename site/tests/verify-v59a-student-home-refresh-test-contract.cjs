@@ -1,7 +1,7 @@
 'use strict';
-// V5.9A successor — TEST-ONLY Student Home integrity + acceptance contract.
-// Locks one preview-gated presentation/navigation layer over current owners while
-// keeping the accepted staged release identity unchanged until manual acceptance.
+// V5.9A successor — accepted V5.9 Student Home integrity + acceptance contract.
+// Locks one staged presentation/navigation layer over current owners after manual
+// acceptance, while preserving all learning/data ownership boundaries.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -69,16 +69,15 @@ assert(firstUse.includes("const CARD_ID='v58a-first-use-card'"), 'V5.8A first-us
 assert(firstUse.includes("document.getElementById('start-btn')"), 'V5.8A must continue delegating to accepted Practice start');
 assert(feedback.includes("const STUDENT_TRIGGER_ID='v576-send-feedback'"), 'accepted student feedback trigger contract missing');
 
-// 2. V5.9A stays OUTSIDE the staged release until manual acceptance and loads only
-// through one explicit query opt-in after the accepted staged scripts are queued.
+// 2. Accepted V5.9A is now part of the authoritative staged release and the
+// preview-only loader path is removed after manual acceptance.
 const staged = config.match(/const MATH_APP_STAGED_SCRIPTS = Object\.freeze\(\[([\s\S]*?)\]\);/);
 assert(staged, 'unable to locate authoritative staged-script list');
-assert(!staged[1].includes('v59a-student-home-refresh.js'), 'test-only V5.9A must not change the staged release identity');
-assert(config.includes("const V59A_PREVIEW_SRC = './v59a-student-home-refresh.js'"), 'V5.9A preview source marker missing');
-assert(config.includes("get('v59aPreview') === '1'"), 'V5.9A preview must require explicit ?v59aPreview=1 opt-in');
-assert(config.includes('preview.src = V59A_PREVIEW_SRC'), 'V5.9A preview script injection missing');
-assert(config.includes("preview.dataset.v59aPreview = 'true'"), 'V5.9A preview script must be visibly marked');
-assert(config.includes('V5.9A Student Home Refresh remains TEST-ONLY until manual acceptance'), 'V5.9A test-only loader narrative missing');
+assert(staged[1].includes('v59a-student-home-refresh.js'), 'accepted V5.9A must be part of the staged release identity');
+assert(!config.includes('V59A_PREVIEW_SRC'), 'accepted V5.9A must not retain a preview-only source marker');
+assert(!config.includes("get('v59aPreview')"), 'accepted V5.9A must not require a preview query');
+assert(!config.includes('dataset.v59aPreview'), 'accepted V5.9A must not retain preview injection metadata');
+assert(config.includes('V5.9A Student Home Refresh is accepted as the V5.9 production presentation layer'), 'V5.9 accepted loader narrative missing');
 for (const retiredSuccessor of ['v59a1-student-home-design-system.js','v59a2-student-home-mobile-density.js','v59a3-student-home-layout-correction.js','v59a4-student-home-concept-enrichment.js']) {
   assert(!fs.existsSync(path.join(SITE, retiredSuccessor)), `retired V5.9A patch layer must not be recreated: ${retiredSuccessor}`);
   assert(!config.includes(retiredSuccessor), `config must not load retired V5.9A patch layer: ${retiredSuccessor}`);
@@ -137,11 +136,10 @@ for (const forbidden of [
 assert(!/data-v59a-(?:practice-type|nav)=["']exam/i.test(runtime), 'V5.9A must not add an Exam destination');
 assert(!/Exam Mode/i.test(runtime), 'V5.9A must not promote Exam Mode');
 
-// 5. Playwright acceptance contract A-H remains real, preview-gated and non-skipped.
+// 5. Playwright acceptance contract A-H remains real, staged at the normal root and non-skipped.
 for (const marker of [
-  "const FUTURE_RUNTIME = 'site/v59a-student-home-refresh.js'",
-  "const PREVIEW_QUERY = '?v59aPreview=1'",
-  'page.goto(`/${PREVIEW_QUERY}`)',
+  "const ACCEPTED_RUNTIME = 'site/v59a-student-home-refresh.js'",
+  "page.goto('/')",
   "test('A — one presentation module renders profile identity from accepted student + gamification state'",
   "test('B — Continue Learning delegates to the existing V5.7C primary action'",
   "test('C — Mixed, Topic and Past Paper tiles set the accepted Past Paper core Practice type'",
@@ -159,10 +157,10 @@ for (const forbidden of ['test.skip(', 'test.fixme(', 'test.only(', 'describe.sk
   assert(!spec.includes(forbidden), `V5.9A acceptance coverage must not be weakened/bypass shared mock: ${forbidden}`);
 }
 
-console.log('V5.9A Student Home TEST-ONLY successor integrity contract: PASS');
-console.log('- accepted staged release identity stays unchanged until manual V5.9A acceptance');
-console.log('- one V5.9A presentation module loads only with ?v59aPreview=1');
+console.log('V5.9A Student Home accepted V5.9 integrity contract: PASS');
+console.log('- V5.9A is staged in the authoritative release list after manual acceptance');
+console.log('- preview-only query injection has been removed');
 console.log('- consolidated Past Paper, Continue Learning, gamification, first-use and feedback owners remain authoritative');
 console.log('- retired V59A.1–V59A.4 patch chain is not recreated');
 console.log('- runtime contains no direct network, persistence, grading, assignment-write or Exam authority');
-console.log('- Playwright acceptance gates A–H remain preview-gated and non-skipped');
+console.log('- Playwright acceptance gates A–H run at the normal staged app root and remain non-skipped');

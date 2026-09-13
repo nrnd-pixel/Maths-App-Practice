@@ -1,7 +1,7 @@
 'use strict';
 // V5.9A successor — test-first acceptance contract for the refreshed Student Home.
 //
-// This spec intentionally targets the TEST-ONLY preview presentation layer while
+// This spec targets the accepted V5.9 Student Home presentation layer while
 // exercising the CURRENT consolidated learning owners underneath it. It must not
 // be weakened to make implementation easier. The runtime delegates to accepted
 // Practice, Continue Learning, gamification, first-use, feedback and navigation
@@ -15,15 +15,14 @@ const {
   startPractice,
 } = require('./helpers.cjs');
 
-const FUTURE_RUNTIME = 'site/v59a-student-home-refresh.js';
-const PREVIEW_QUERY = '?v59aPreview=1';
+const ACCEPTED_RUNTIME = 'site/v59a-student-home-refresh.js';
 const PROFILE = '#v59a-student-profile';
 const SHORTCUTS = '#v59a-practice-shortcuts';
 const MOBILE_NAV = '#v59a-mobile-nav';
 const MORE_SHEET = '#v59a-more-sheet';
 
-async function openPreviewApp(page) {
-  await page.goto(`/${PREVIEW_QUERY}`);
+async function openAcceptedApp(page) {
+  await page.goto('/');
   await expect(page.locator('#start')).toHaveClass(/active/);
   await expect(page.locator('#cloud-status')).toContainText('Cloud Connected');
   await expect(page.locator('#v40c-student-signin')).toBeVisible();
@@ -33,7 +32,7 @@ async function openPreviewApp(page) {
 async function openStudentHome(page) {
   await page.setViewportSize({ width: 390, height: 844 });
   const mock = await installSupabaseMock(page);
-  await openPreviewApp(page);
+  await openAcceptedApp(page);
   await signInStudent(page);
 
   await expect(page.locator('#start')).toHaveAttribute('data-v40-start-view', 'home');
@@ -280,7 +279,6 @@ test.describe('V5.9A successor — Student Home acceptance contract', () => {
   });
 });
 
-// Static contract readers use these literals to ensure the successor remains one
-// gated V5.9A runtime layer rather than recreating the old v59a1-v59a4 patch chain.
-void FUTURE_RUNTIME;
-void PREVIEW_QUERY;
+// Static contract readers use this literal to ensure the accepted release remains one
+// V5.9A runtime layer rather than recreating the old v59a1-v59a4 patch chain.
+void ACCEPTED_RUNTIME;
