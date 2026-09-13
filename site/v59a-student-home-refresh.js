@@ -188,7 +188,6 @@
 
       @media(max-width:760px){
         body.v59a-student-active{padding-bottom:84px}
-        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}
         #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}
         #${MOBILE_NAV_ID}{display:grid}
         #start.v40-shell-authenticated[data-v40-start-view="home"]{padding-top:0!important}
