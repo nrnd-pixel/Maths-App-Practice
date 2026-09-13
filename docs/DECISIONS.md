@@ -81,6 +81,17 @@ Real students are using the bank, and source anomalies can create false learning
 Implication:
 Questions with unresolved source inconsistencies must be excluded from automated modelling. Preserve audit flags for corrected source material.
 
+## 2026-09-13 — V5.4H review safety is a database invariant, not a Reviewed-only policy
+
+Decision:
+Ordinary Practice must reject only the explicitly conflicting state `review_status='needs_review' AND practice_eligible=true`. Do not require `review_status='reviewed'` for ordinary Practice, do not tie the invariant to legacy `active`, and do not silently auto-remove questions from Practice.
+
+Reason:
+All 655 Practice-eligible production questions at the audit checkpoint used `review_status='none'`, so a Reviewed-only policy would have incorrectly blocked the existing healthy Practice pool. `active` and `practice_eligible` are intentionally separate exposure domains. A database-level invariant covers current and future write paths more reliably than browser-only checks.
+
+Implication:
+PR #245 added `supabase/v54h_practice_review_safety.sql`; exact-head Consolidated CI run #288 passed before merge. Production migration `20260913091929_v54h_practice_review_safety` is active. Conflicting transitions are rejected explicitly while `none` and `reviewed` remain valid and `active` remains independent.
+
 ## 2026-09-13 — Phase 7B is behaviour-neutral first
 
 Decision:
