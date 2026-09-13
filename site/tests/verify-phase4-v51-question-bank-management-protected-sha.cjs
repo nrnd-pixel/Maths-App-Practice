@@ -15,7 +15,7 @@ const retiredProtected=Object.freeze([
 ]);
 
 assert.equal(manifest.baseline,'51863ca14e54658fa3921dee5ece9aac59b6f74c','protected manifest must remain pinned to the verified V50/main baseline');
-assert.equal(manifest.supabase_tree,'b59a55911e695465f9fceb3aa55edbd564862ecd','protected manifest must retain the verified Supabase tree');
+assert.equal(manifest.supabase_tree,'b6b74bafce4fd410b153ee789678a6678deea507','protected manifest must retain the verified Supabase tree');
 assert.ok(Object.keys(manifest.files||{}).length>60,'protected manifest must cover the broad frozen V51/downstream boundary set');
 
 for(const retired of retiredProtected){

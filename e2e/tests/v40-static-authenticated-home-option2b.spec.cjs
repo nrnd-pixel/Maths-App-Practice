@@ -12,6 +12,7 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
+  'supabase/question_metadata_v2_demand_profile.sql': 'afdd7ded59ca373026a51453ade760a4b203d9e3',
   'supabase/v54h_practice_review_safety.sql': '75e36c2e3474cabba39c2bb2f8910e96564a3c2b',
   'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
 });
@@ -46,6 +47,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
+  'site/tests/verify-question-metadata-v2-schema-contract.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',

@@ -124,6 +124,7 @@ jobs:
             "site/tests/verify-v5.4f-bulk-selection-scope-safety.cjs"
             "site/tests/verify-v5.4g-paged-manual-bulk-selection.cjs"
             "site/tests/verify-v5.4-stable-release-checkpoint.cjs"
+            "site/tests/verify-question-metadata-v2-schema-contract.cjs"
             "site/tests/verify-v5.5a-past-paper-practice.cjs"
             "site/tests/verify-v5.5a1-practice-type-guard.cjs"
             "site/tests/verify-v5.5b-full-paper-practice.cjs"
