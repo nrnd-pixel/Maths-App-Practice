@@ -1,4 +1,4 @@
-name: V5.9A Production Promotion
+name: V5.9 Desktop Nav Compatibility Fix
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  promote:
+  fix:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -20,147 +20,71 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Promote accepted V5.9A into the staged V5.9 runtime
+      - name: Preserve desktop V40 nav while keeping accepted mobile V5.9 nav
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "bf19e8d1e75eabe2fcd65f0e889dea9100479629"
+          test "$(git rev-parse HEAD)" = "b442f8d18d35c0b6ef97087871c927466e330466"
+
           python <<'PY'
           from pathlib import Path
-          import re
 
-          config_path = Path('site/config.js')
-          config = config_path.read_text()
-          old_narrative = """   V5.9A Student Home Refresh remains TEST-ONLY until manual acceptance. It is not
-             part of MATH_APP_STAGED_SCRIPTS and therefore does not change the accepted release
-             identity. An explicit ?v59aPreview=1 query opt-in loads the single presentation
-             module after the accepted staged runtime for branch/manual testing only.
-          """
-          new_narrative = """   V5.9A Student Home Refresh is accepted as the V5.9 production presentation layer.
-             It remains a single presentation/navigation module over the established learning
-             owners and adds no direct network, persistence, grading, assignment-write,
-             recommendation or Exam authority.
-          """
-          assert old_narrative in config, 'V5.9A preview narrative changed unexpectedly'
-          config = config.replace(old_narrative, new_narrative, 1)
-          old_tail = """  './v581a-practice-cloud-result-reconciliation.js',
-            './v58-stable-release-checkpoint.js'
-          ]);"""
-          new_tail = """  './v581a-practice-cloud-result-reconciliation.js',
-            './v58-stable-release-checkpoint.js',
-            './v59a-student-home-refresh.js'
-          ]);"""
-          assert old_tail in config, 'staged-list tail changed unexpectedly'
-          config = config.replace(old_tail, new_tail, 1)
-          config, count = re.subn(r"\nconst V59A_PREVIEW_SRC = '\./v59a-student-home-refresh\.js';\nfunction v59aPreviewEnabled\(\)\{[\s\S]*?\n\}\n\n", "\n", config, count=1)
-          assert count == 1, 'preview helper block not found exactly once'
-          config, count = re.subn(r"\n  if \(v59aPreviewEnabled\(\)\) \{[\s\S]*?\n  \}\n", "\n", config, count=1)
-          assert count == 1, 'preview injection block not found exactly once'
-          assert 'v59aPreview' not in config
-          config_path.write_text(config)
+          path = Path('site/v59a-student-home-refresh.js')
+          text = path.read_text()
 
-          index_path = Path('site/index.html')
-          index = index_path.read_text()
-          assert index.count('Math Practice V5.8.1') == 1
-          assert index.count('Version 5.8.1') == 1
-          assert index.count('V5.8.1:') == 1
-          index = index.replace('Math Practice V5.8.1', 'Math Practice V5.9', 1)
-          index = index.replace('Version 5.8.1', 'Version 5.9', 1)
-          index = index.replace('V5.8.1:', 'V5.9:', 1)
-          index_path.write_text(index)
+          old_body = 'body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:86px}'
+          new_body = 'body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:0}'
+          assert text.count(old_body) == 1
+          text = text.replace(old_body, new_body, 1)
 
-          spec_path = Path('e2e/tests/v59a-student-home-refresh-acceptance.spec.cjs')
-          spec = spec_path.read_text()
-          spec = spec.replace('// This spec intentionally targets the TEST-ONLY preview presentation layer while\n// exercising the CURRENT consolidated learning owners underneath it. It must not\n', '// This spec targets the accepted V5.9 Student Home presentation layer while\n// exercising the CURRENT consolidated learning owners underneath it. It must not\n', 1)
-          spec = spec.replace("const FUTURE_RUNTIME = 'site/v59a-student-home-refresh.js';\nconst PREVIEW_QUERY = '?v59aPreview=1';\n", "const ACCEPTED_RUNTIME = 'site/v59a-student-home-refresh.js';\n", 1)
-          spec = spec.replace('async function openPreviewApp(page) {\n  await page.goto(`/${PREVIEW_QUERY}`);', "async function openAcceptedApp(page) {\n  await page.goto('/');", 1)
-          spec = spec.replace('await openPreviewApp(page);', 'await openAcceptedApp(page);')
-          spec = spec.replace('// Static contract readers use these literals to ensure the successor remains one\n// gated V5.9A runtime layer rather than recreating the old v59a1-v59a4 patch chain.\nvoid FUTURE_RUNTIME;\nvoid PREVIEW_QUERY;', '// Static contract readers use this literal to ensure the accepted release remains one\n// V5.9A runtime layer rather than recreating the old v59a1-v59a4 patch chain.\nvoid ACCEPTED_RUNTIME;', 1)
-          assert 'PREVIEW_QUERY' not in spec
-          assert 'openPreviewApp' not in spec
-          spec_path.write_text(spec)
+          global_hide = '      #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}\n'
+          assert text.count(global_hide) == 1
+          text = text.replace(global_hide, '', 1)
 
-          verifier_path = Path('site/tests/verify-v59a-student-home-refresh-test-contract.cjs')
-          verifier = verifier_path.read_text()
-          verifier = verifier.replace("'use strict';\n// V5.9A successor — TEST-ONLY Student Home integrity + acceptance contract.\n// Locks one preview-gated presentation/navigation layer over current owners while\n// keeping the accepted staged release identity unchanged until manual acceptance.\n", "'use strict';\n// V5.9A successor — accepted V5.9 Student Home integrity + acceptance contract.\n// Locks one staged presentation/navigation layer over current owners after manual\n// acceptance, while preserving all learning/data ownership boundaries.\n", 1)
-          start = verifier.index('// 2. V5.9A stays OUTSIDE')
-          end = verifier.index('// 3. Runtime identity')
-          accepted_section = """// 2. Accepted V5.9A is now part of the authoritative staged release and the
-          // preview-only loader path is removed after manual acceptance.
-          const staged = config.match(/const MATH_APP_STAGED_SCRIPTS = Object\\.freeze\\(\\[([\\s\\S]*?)\\]\\);/);
-          assert(staged, 'unable to locate authoritative staged-script list');
-          assert(staged[1].includes('v59a-student-home-refresh.js'), 'accepted V5.9A must be part of the staged release identity');
-          assert(!config.includes('V59A_PREVIEW_SRC'), 'accepted V5.9A must not retain a preview-only source marker');
-          assert(!config.includes("get('v59aPreview')"), 'accepted V5.9A must not require a preview query');
-          assert(!config.includes('dataset.v59aPreview'), 'accepted V5.9A must not retain preview injection metadata');
-          assert(config.includes('V5.9A Student Home Refresh is accepted as the V5.9 production presentation layer'), 'V5.9 accepted loader narrative missing');
-          for (const retiredSuccessor of ['v59a1-student-home-design-system.js','v59a2-student-home-mobile-density.js','v59a3-student-home-layout-correction.js','v59a4-student-home-concept-enrichment.js']) {
-            assert(!fs.existsSync(path.join(SITE, retiredSuccessor)), `retired V5.9A patch layer must not be recreated: ${retiredSuccessor}`);
-            assert(!config.includes(retiredSuccessor), `config must not load retired V5.9A patch layer: ${retiredSuccessor}`);
-          }
+          old_nav = '#${MOBILE_NAV_ID}{position:fixed;z-index:46;left:0;right:0;bottom:0;height:78px;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:color-mix(in srgb,var(--card) 94%,transparent);border-top:1px solid var(--border);box-shadow:0 -9px 28px rgba(15,23,42,.09);backdrop-filter:blur(14px)}'
+          new_nav = '#${MOBILE_NAV_ID}{position:fixed;z-index:46;left:0;right:0;bottom:0;height:78px;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));display:none;grid-template-columns:repeat(5,1fr);gap:3px;background:color-mix(in srgb,var(--card) 94%,transparent);border-top:1px solid var(--border);box-shadow:0 -9px 28px rgba(15,23,42,.09);backdrop-filter:blur(14px)}'
+          assert text.count(old_nav) == 1
+          text = text.replace(old_nav, new_nav, 1)
 
-          """
-          verifier = verifier[:start] + accepted_section + verifier[end:]
-          verifier = verifier.replace('// 5. Playwright acceptance contract A-H remains real, preview-gated and non-skipped.', '// 5. Playwright acceptance contract A-H remains real, staged at the normal root and non-skipped.', 1)
-          verifier = verifier.replace('  "const FUTURE_RUNTIME = \'site/v59a-student-home-refresh.js\'",\n  "const PREVIEW_QUERY = \'?v59aPreview=1\'",\n  \'page.goto(`/${PREVIEW_QUERY}`)\',', '  "const ACCEPTED_RUNTIME = \'site/v59a-student-home-refresh.js\'",\n  "page.goto(\'/\')",', 1)
-          verifier = verifier.replace("console.log('V5.9A Student Home TEST-ONLY successor integrity contract: PASS');\nconsole.log('- accepted staged release identity stays unchanged until manual V5.9A acceptance');\nconsole.log('- one V5.9A presentation module loads only with ?v59aPreview=1');", "console.log('V5.9A Student Home accepted V5.9 integrity contract: PASS');\nconsole.log('- V5.9A is staged in the authoritative release list after manual acceptance');\nconsole.log('- preview-only query injection has been removed');", 1)
-          verifier = verifier.replace("console.log('- Playwright acceptance gates A–H remain preview-gated and non-skipped');", "console.log('- Playwright acceptance gates A–H run at the normal staged app root and remain non-skipped');", 1)
-          assert 'PREVIEW_QUERY' not in verifier
-          verifier_path.write_text(verifier)
+          mobile_anchor = '      @media(max-width:760px){\n        body.v59a-student-active{padding-bottom:84px}\n'
+          mobile_replacement = '      @media(max-width:760px){\n        body.v59a-student-active{padding-bottom:84px}\n        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}\n        #${MOBILE_NAV_ID}{display:grid}\n'
+          assert text.count(mobile_anchor) == 1
+          text = text.replace(mobile_anchor, mobile_replacement, 1)
+
+          path.write_text(text)
           PY
 
-          export INDEX_BLOB="$(git hash-object site/index.html)"
-          export CONFIG_BLOB="$(git hash-object site/config.js)"
-          export VERIFIER_BLOB="$(git hash-object site/tests/verify-v59a-student-home-refresh-test-contract.cjs)"
+          export RUNTIME_BLOB="$(git hash-object site/v59a-student-home-refresh.js)"
           python <<'PY'
           from pathlib import Path
           import os
-          p = Path('e2e/tests/v40-static-v40-shell-option2c.spec.cjs')
-          s = p.read_text()
-          replacements = [
-              ("'site/index.html': 'f2c0dffc49a2e673f001975b0a707bc4a8fa0b89'", f"'site/index.html': '{os.environ['INDEX_BLOB']}'", 1),
-              ("'site/config.js': '6c2c009511d0ba56d6be68e0cc096c4c1c0540d2'", f"'site/config.js': '{os.environ['CONFIG_BLOB']}'", 2),
-              ("'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': 'ea3f9c98cdb54e935543083455c6a8c9559dfc53'", f"'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '{os.environ['VERIFIER_BLOB']}'", 1),
-              ('authorized V5.8.1B successors remain exact', 'authorized V5.9 successors remain exact', 1),
-          ]
-          for old, new, expected in replacements:
-              actual = s.count(old)
-              assert actual == expected, f'{old}: expected {expected}, got {actual}'
-              s = s.replace(old, new)
-          p.write_text(s)
+
+          path = Path('e2e/tests/v40-static-v40-shell-option2c.spec.cjs')
+          text = path.read_text()
+          old = "'site/v59a-student-home-refresh.js': 'ba8ffac38d359782370431d938c331fcd966d3a8'"
+          new = f"'site/v59a-student-home-refresh.js': '{os.environ['RUNTIME_BLOB']}'"
+          assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          path.write_text(text)
           PY
 
-          node --check e2e/tests/v59a-student-home-refresh-acceptance.spec.cjs
+          node --check site/v59a-student-home-refresh.js
           node --check e2e/tests/v40-static-v40-shell-option2c.spec.cjs
-          node site/tests/verify-phase2-version-source-integrity.cjs
           node site/tests/verify-v59a-student-home-refresh-test-contract.cjs
 
           python <<'PY'
           import subprocess
+          changed = sorted(subprocess.check_output(['git','diff','--name-only'], text=True).splitlines())
           expected = sorted([
               'e2e/tests/v40-static-v40-shell-option2c.spec.cjs',
-              'e2e/tests/v59a-student-home-refresh-acceptance.spec.cjs',
-              'site/config.js',
-              'site/index.html',
-              'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',
+              'site/v59a-student-home-refresh.js',
           ])
-          changed = subprocess.check_output(['git','diff','--name-only'], text=True).splitlines()
-          assert sorted(changed) == expected, (changed, expected)
+          assert changed == expected, (changed, expected)
           assert not subprocess.check_output(['git','diff','--name-only','--','supabase'], text=True).strip()
-          frozen = {
-              'site/v40-student-session.js','site/v40-platform-polish.js','site/v40-release.js',
-              'site/v40-start-shell.js','site/v41-signin-guard.js','site/v51-exam-publication-safety.js',
-              'site/v50-security-hardening.js','site/v52b1-question-bank-observer-gate.js',
-              'site/v581a-practice-cloud-result-reconciliation.js',
-          }
-          assert not frozen.intersection(changed), frozen.intersection(changed)
           PY
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add e2e/tests/v40-static-v40-shell-option2c.spec.cjs \
-                  e2e/tests/v59a-student-home-refresh-acceptance.spec.cjs \
-                  site/config.js site/index.html \
-                  site/tests/verify-v59a-student-home-refresh-test-contract.cjs
-          git commit -m 'release: promote accepted V5.9A Student Home to V5.9'
+          git add site/v59a-student-home-refresh.js e2e/tests/v40-static-v40-shell-option2c.spec.cjs
+          git commit -m 'fix: preserve protected desktop navigation in V5.9'
           git push origin HEAD:development/197-v59a-student-home-refresh-successor
