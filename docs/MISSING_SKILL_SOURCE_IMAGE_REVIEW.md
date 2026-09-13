@@ -67,7 +67,11 @@ Purpose: provide a durable, question-by-question path from each Medium-confidenc
 
 Candidate: `Use a mean to find the mean of remaining values`.
 
-The live row has no `image_url`, so this item remains **HOLD** until the authoritative Paper 1 source is available through another trusted source. Do not promote it from Medium based on stored text alone.
+The live row has no `image_url`, but the live multipart group does preserve this shared context in `group_prompt`:
+
+`Four boys obtained a total of 184 marks. There are 2 girls. The average of all 6 pupils is 57.`
+
+Together with Q39(a)'s total-of-six calculation and Q39(b)'s stored answer of `79`, that context fully supports the mathematical action represented by the candidate label. The original-paper provenance is still not independently verified, so keep **source review pending** rather than treating the stored digital context as equivalent to the authoritative paper.
 
 ## Review outcome fields
 
