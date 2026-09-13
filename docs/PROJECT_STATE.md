@@ -70,17 +70,36 @@ A read-only source + production-data audit has been completed and preserved in:
 - `docs/QUESTION_BANK_INTEGRITY_AUDIT.md`
 - `docs/MISSING_SKILL_REMEDIATION_MAP.md`
 - `docs/PRACTICE_ELIGIBILITY_REVIEW_SAFETY_MAP.md`
+- `docs/QUESTION_METADATA_V2_MAP.md`
 
 Key conclusions:
 
 - the current Practice-eligible pool is structurally healthy for marking;
-- the V5.4H database invariant now protects unresolved-review content from entering/remainining in ordinary Practice;
+- the V5.4H database invariant now protects unresolved-review content from entering/remaining in ordinary Practice;
 - response-type/configuration checks on the live Practice pool found no structural blockers;
 - the main live metadata debt is 123 Practice-eligible rows with a missing `skill` field, concentrated in 2013, 2018 and 2019 Paper 1;
 - all 123 rows have candidate skill labels in the remediation map; candidates are review evidence only, not production-approved changes;
 - diagram/table/context-dependent candidates are Medium confidence and require authoritative source verification before any database write;
 - known excluded/problematic Past Paper rows are inactive and ineligible, but their exclusion rationale is not consistently captured in durable review/audit fields;
 - Practice eligibility and legacy `active` are intentionally separate exposure domains and must not be collapsed by future QA.
+
+## Question Metadata V2 mapping checkpoint
+
+Metadata V2 source/consumer mapping is complete at the no-write architecture stage.
+
+Important findings:
+
+- legacy `questions.strand/topic/subtopic/skill/difficulty` are active compatibility fields used by current Practice retrieval, mixed-practice selection and historical/teacher analytics;
+- `session_answers` snapshots `strand/topic/subtopic/skill`, so historical attempt metadata must not be silently rewritten during Question Bank cleanup;
+- production already has a curriculum registry (`curriculum_domains`, `curriculum_skills`, `curriculum_subskills`, `question_skill_map`, `skill_relationships`, `misconceptions`, `scaffolds`);
+- the registry contains 297 skills and 752 subskills across Years 1–6, but is still `1.0-draft` and question mapping coverage is small;
+- only 21 of 655 Practice questions currently have an active PRIMARY curriculum mapping;
+- none of the 123 missing-legacy-skill questions currently have PRIMARY/SECONDARY curriculum mappings;
+- the graph already models embedded/secondary skills and prerequisite relationships and should be expanded rather than duplicated in a second skill system;
+- a separate per-question demand/evidence profile is the preferred future additive surface for procedural/conceptual/reading/visual/response-demand metadata, subject to explicit schema acceptance;
+- authored demand metadata must remain separate from later empirical performance calibration.
+
+See `docs/QUESTION_METADATA_V2_MAP.md` for the proposed staged architecture and non-goals.
 
 ## Open / parked work
 
@@ -90,16 +109,17 @@ Key conclusions:
 
 ## Immediate next engineering action
 
-Remain within Question Bank Integrity / Question Metadata V2 preparation.
+Remain within Question Metadata V2 evidence preparation. Do **not** create a schema migration yet.
 
 Safest next substantive sequence:
 
-1. verify every Medium-confidence missing-skill candidate against an authoritative original Paper 1 source when available;
-2. spot-check High-confidence candidates, especially multipart and visually dependent rows;
-3. prepare an immutable-question-ID change set, but make no production metadata write without a separate accepted data-change plan;
-4. design Question Metadata V2 alongside the existing `skill` remediation rather than overloading the legacy `skill` field;
-5. keep richer dimensions separate: embedded/secondary skills, prerequisites, procedural demand, conceptual reasoning, reading/context load, visual-spatial demand, response complexity, paper-position profile and source-confidence/audit status;
-6. only after metadata quality is trustworthy should the V5.9B adaptive diagnostic pilot be reconsidered.
+1. define the exact 0–3 Metadata V2 demand rubric with concrete Year 6 examples and clear boundaries between levels;
+2. test inter-reviewer consistency on a small already-mapped 2025 Paper 1/2 sample before scaling the rubric;
+3. continue authoritative source verification of Medium-confidence 2013/2018/2019 Paper 1 missing-skill candidates;
+4. map verified legacy skill candidates to exactly one PRIMARY curriculum skill plus genuine SECONDARY embedded skills;
+5. prepare immutable-question-ID change sets, but make no production metadata write without a separate accepted data-change plan;
+6. only after rubric/mapping evidence is stable should an additive demand-profile schema PR be proposed;
+7. keep V5.9B adaptive expansion isolated until reusable metadata/adaptive-readiness rules are accepted.
 
 Do not bulk-fill the 123 missing skills from topic labels alone.
 
@@ -164,5 +184,6 @@ At the start of a new session, read:
 6. `docs/QUESTION_BANK_INTEGRITY_AUDIT.md` while Question Bank Integrity / Metadata V2 work is active
 7. `docs/MISSING_SKILL_REMEDIATION_MAP.md` while missing-skill remediation is active
 8. `docs/PRACTICE_ELIGIBILITY_REVIEW_SAFETY_MAP.md` for the V5.4H rationale and implementation checkpoint
+9. `docs/QUESTION_METADATA_V2_MAP.md` while Metadata V2 work is active
 
 Then verify current GitHub `main`, open PRs and relevant CI directly before acting.
