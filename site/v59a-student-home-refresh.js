@@ -97,8 +97,7 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:86px}
-      #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}
+      body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:0}
       #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}
       #start.v40-shell-authenticated[data-v40-start-view="home"]>.header{display:none!important}
       #start.v40-shell-authenticated[data-v40-start-view="home"] .v39-teacher-zone,
@@ -169,7 +168,7 @@
       #start #v574-class-challenge-card,#start #v573-class-challenge-card{position:relative;overflow:hidden}
       #start #v574-class-challenge-card::after,#start #v573-class-challenge-card::after{content:'🏆';position:absolute;right:24px;bottom:16px;font-size:54px;opacity:.86;pointer-events:none}
 
-      #${MOBILE_NAV_ID}{position:fixed;z-index:46;left:0;right:0;bottom:0;height:78px;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:color-mix(in srgb,var(--card) 94%,transparent);border-top:1px solid var(--border);box-shadow:0 -9px 28px rgba(15,23,42,.09);backdrop-filter:blur(14px)}
+      #${MOBILE_NAV_ID}{position:fixed;z-index:46;left:0;right:0;bottom:0;height:78px;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));display:none;grid-template-columns:repeat(5,1fr);gap:3px;background:color-mix(in srgb,var(--card) 94%,transparent);border-top:1px solid var(--border);box-shadow:0 -9px 28px rgba(15,23,42,.09);backdrop-filter:blur(14px)}
       #${MOBILE_NAV_ID}.hidden{display:none!important}
       #${MOBILE_NAV_ID} button{min-width:0;min-height:55px;padding:4px 2px;border:0;border-radius:12px;background:transparent;color:var(--muted);display:grid;place-items:center;align-content:center;gap:2px;font-size:10px;font-weight:850}
       #${MOBILE_NAV_ID} button span:first-child{font-size:20px;line-height:1}
@@ -190,6 +189,8 @@
 
       @media(max-width:760px){
         body.v59a-student-active{padding-bottom:84px}
+        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}
+        #${MOBILE_NAV_ID}{display:grid}
         #start.v40-shell-authenticated[data-v40-start-view="home"]{padding-top:0!important}
         #start #${PROFILE_ID}{grid-template-columns:62px minmax(0,1fr) auto;gap:9px;min-height:190px;padding:13px 12px 72px}
         #start #${PROFILE_ID} .v59a-avatar{width:62px;height:62px;border-width:4px}
