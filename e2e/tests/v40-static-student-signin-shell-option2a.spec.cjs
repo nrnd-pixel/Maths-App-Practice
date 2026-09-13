@@ -11,8 +11,8 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const EXPECTED_FROZEN_SITE_SHA256 = '87f9f732061cb5e5251d07af055454e68a91b5fd9d7f0acd6af469b6f70c3de8';
-const EXPECTED_SUPABASE_SHA256 = 'a0ea253719beea93f63c0fe77c4666ee8c61c9cb574abc7f305819b85137ea45';
-const EXPECTED_SUPABASE_TREE = '4e4f573f452e6d9ab628b163329fea356bcb16e9';
+const EXPECTED_SUPABASE_SHA256 = '475b8e1d6d0c4470aa56920269929deb1dccb02c90318f855913b1a2009d4c1a';
+const EXPECTED_SUPABASE_TREE = 'b59a55911e695465f9fceb3aa55edbd564862ecd';
 
 const ALLOWED_SITE_CHANGES = new Set([
   'site/assignments-student.js',

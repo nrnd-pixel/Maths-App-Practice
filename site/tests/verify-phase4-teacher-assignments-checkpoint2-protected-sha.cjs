@@ -11,7 +11,7 @@ const gitObject = objectPath => execFileSync('git', ['rev-parse', `HEAD:${object
 
 // Approved main baseline after PR #217: d9ea9ca66a286e020a1bfa27e11bef68c6d432b8
 // Updated for Issue #219 fix: assignments-student.js and past-paper-assignments.js
-// carry the shared completion lock addition; supabase tree updated after PR #234 (v581b).
+// carry the shared completion lock addition; Supabase tree updated for the authorised V54H review-safety successor.
 const protectedBlobs = {
   'site/assignments-core.js': '39e47ff10dd1efdc704a572aea4376e313a9b727',
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
@@ -55,7 +55,7 @@ for (const [file, expected] of Object.entries(protectedBlobs)) {
   assert.equal(gitObject(file), expected, `${file} must remain byte-identical to approved main`);
 }
 
-const expectedSupabaseTree = '4e4f573f452e6d9ab628b163329fea356bcb16e9';
+const expectedSupabaseTree = 'b59a55911e695465f9fceb3aa55edbd564862ecd';
 assert.equal(
   gitObject('supabase'),
   expectedSupabaseTree,
