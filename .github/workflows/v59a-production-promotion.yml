@@ -1,4 +1,4 @@
-name: V5.9 Desktop Nav Compatibility Fix
+name: V5.9 Desktop Session Compatibility Fix
 
 on:
   push:
@@ -20,11 +20,11 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Preserve desktop V40 nav while keeping accepted mobile V5.9 nav
+      - name: Preserve desktop session controls while keeping accepted mobile V5.9 layout
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "b442f8d18d35c0b6ef97087871c927466e330466"
+          test "$(git rev-parse HEAD)" = "be96ccf908f846fc2b2f190c705781947b0ac3f7"
 
           python <<'PY'
           from pathlib import Path
@@ -32,22 +32,12 @@ jobs:
           path = Path('site/v59a-student-home-refresh.js')
           text = path.read_text()
 
-          old_body = 'body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:86px}'
-          new_body = 'body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:0}'
-          assert text.count(old_body) == 1
-          text = text.replace(old_body, new_body, 1)
-
-          global_hide = '      #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}\n'
+          global_hide = '      #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}\n'
           assert text.count(global_hide) == 1
           text = text.replace(global_hide, '', 1)
 
-          old_nav = '#${MOBILE_NAV_ID}{position:fixed;z-index:46;left:0;right:0;bottom:0;height:78px;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:color-mix(in srgb,var(--card) 94%,transparent);border-top:1px solid var(--border);box-shadow:0 -9px 28px rgba(15,23,42,.09);backdrop-filter:blur(14px)}'
-          new_nav = '#${MOBILE_NAV_ID}{position:fixed;z-index:46;left:0;right:0;bottom:0;height:78px;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));display:none;grid-template-columns:repeat(5,1fr);gap:3px;background:color-mix(in srgb,var(--card) 94%,transparent);border-top:1px solid var(--border);box-shadow:0 -9px 28px rgba(15,23,42,.09);backdrop-filter:blur(14px)}'
-          assert text.count(old_nav) == 1
-          text = text.replace(old_nav, new_nav, 1)
-
           mobile_anchor = '      @media(max-width:760px){\n        body.v59a-student-active{padding-bottom:84px}\n'
-          mobile_replacement = '      @media(max-width:760px){\n        body.v59a-student-active{padding-bottom:84px}\n        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40-student-nav{display:none!important}\n        #${MOBILE_NAV_ID}{display:grid}\n'
+          mobile_replacement = '      @media(max-width:760px){\n        body.v59a-student-active{padding-bottom:84px}\n        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}\n'
           assert text.count(mobile_anchor) == 1
           text = text.replace(mobile_anchor, mobile_replacement, 1)
 
@@ -57,14 +47,14 @@ jobs:
           export RUNTIME_BLOB="$(git hash-object site/v59a-student-home-refresh.js)"
           python <<'PY'
           from pathlib import Path
-          import os
+          import os, re
 
           path = Path('e2e/tests/v40-static-v40-shell-option2c.spec.cjs')
           text = path.read_text()
-          old = "'site/v59a-student-home-refresh.js': 'ba8ffac38d359782370431d938c331fcd966d3a8'"
-          new = f"'site/v59a-student-home-refresh.js': '{os.environ['RUNTIME_BLOB']}'"
-          assert text.count(old) == 1
-          text = text.replace(old, new, 1)
+          pattern = r"'site/v59a-student-home-refresh\.js': '[0-9a-f]{40}'"
+          replacement = f"'site/v59a-student-home-refresh.js': '{os.environ['RUNTIME_BLOB']}'"
+          text, count = re.subn(pattern, replacement, text, count=1)
+          assert count == 1, count
           path.write_text(text)
           PY
 
@@ -81,10 +71,17 @@ jobs:
           ])
           assert changed == expected, (changed, expected)
           assert not subprocess.check_output(['git','diff','--name-only','--','supabase'], text=True).strip()
+          frozen = {
+              'site/v40-student-session.js','site/v40-platform-polish.js','site/v40-release.js',
+              'site/v40-start-shell.js','site/v41-signin-guard.js','site/v51-exam-publication-safety.js',
+              'site/v50-security-hardening.js','site/v52b1-question-bank-observer-gate.js',
+              'site/v581a-practice-cloud-result-reconciliation.js',
+          }
+          assert not frozen.intersection(changed), frozen.intersection(changed)
           PY
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add site/v59a-student-home-refresh.js e2e/tests/v40-static-v40-shell-option2c.spec.cjs
-          git commit -m 'fix: preserve protected desktop navigation in V5.9'
+          git commit -m 'fix: preserve protected desktop session controls in V5.9'
           git push origin HEAD:development/197-v59a-student-home-refresh-successor
