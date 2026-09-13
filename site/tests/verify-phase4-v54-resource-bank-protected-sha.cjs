@@ -105,7 +105,8 @@ const protectedFiles=Object.freeze({
   // Explicit V54 SQL contracts (also covered by the complete Supabase tree).
   'supabase/v54b_teacher_practice_eligibility_controls.sql':'b3ad6cf8b0d2605cc9de16406900959b1dac1e3d',
   'supabase/v54e_bulk_practice_eligibility_controls.sql':'b91b909ca85f76a5e0dec9dc1a1a5fe4e1dbc4e3',
-  'supabase/v54b_retire_legacy_v54a_writer.sql':'05be3fb1108d1e4b512aec91ca5d94a19a118398'
+  'supabase/v54b_retire_legacy_v54a_writer.sql':'05be3fb1108d1e4b512aec91ca5d94a19a118398',
+  'supabase/v54h_practice_review_safety.sql':'75e36c2e3474cabba39c2bb2f8910e96564a3c2b'
 });
 
 const currentV51ActiveScope=new Set(["site/paper-import-management.js", "site/question-bank-audit-multipart.js", "site/question-bank-metadata-review.js", "site/question-bank-selection-qa.js", "site/student-exam-ui.js"]);
@@ -118,7 +119,7 @@ for(const [file,expected] of Object.entries(protectedFiles)){
   assert.equal(actual,expected,`${file} must remain byte-identical to approved current-main baseline`);
 }
 console.table(rows);
-const expectedSupabaseTree='4e4f573f452e6d9ab628b163329fea356bcb16e9';
+const expectedSupabaseTree='b59a55911e695465f9fceb3aa55edbd564862ecd';
 const actualSupabaseTree=gitObject('supabase');
 console.table([{tree:'supabase/',expected:expectedSupabaseTree,actual:actualSupabaseTree,ok:actualSupabaseTree===expectedSupabaseTree}]);
 assert.equal(actualSupabaseTree,expectedSupabaseTree,'complete Supabase Git tree must remain byte-identical');
