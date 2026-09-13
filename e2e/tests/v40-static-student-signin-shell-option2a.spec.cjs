@@ -438,9 +438,9 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
 
     expect(identity.sameBadge).toBe(true);
     expect(identity.badgeCount).toBe(1);
-    expect(identity.releaseVersion).toBe('5.8.1');
+    expect(identity.releaseVersion).toBe('5.9');
     expect(identity.badgeText).toBe(identity.releaseBadge);
-    expect(identity.badgeText).toBe('Version 5.8.1 • Stable Release');
+    expect(identity.badgeText).toBe('Version 5.9 • Stable Release');
   });
 
   test('gate 11 — V40 staged order and nested V41/current consolidated loader topology are unchanged', async ({ page }) => {
