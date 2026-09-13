@@ -71,7 +71,27 @@ The complete 123-row snapshot fingerprint is recorded in `MISSING_SKILL_PRECHANG
 
 Any future write must re-run the snapshot/drift check first. If any target row has changed, stop and review rather than forcing the update.
 
-## 5. Future write contract — if separately approved
+## 5. Historical-attempt impact
+
+A read-only production check was run against `session_answers` and `student_practice_answer_events` for the eight immutable question IDs.
+
+Result:
+
+- 2013 P1 Q1 — 0 historical session answers;
+- 2013 P1 Q2 — **2 historical session answers**, both with a blank saved `skill` snapshot;
+- 2013 P1 Q4(a) — 0 historical session answers;
+- 2013 P1 Q7 — 0 historical session answers;
+- 2013 P1 Q9 — 0 historical session answers;
+- 2013 P1 Q13 — 0 historical session answers;
+- 2013 P1 Q17 — 0 historical session answers;
+- 2013 P1 Q18 — 0 historical session answers;
+- none of the eight had rows in `student_practice_answer_events` at this checkpoint.
+
+The two Q2 historical answer snapshots are evidence of what the metadata was at attempt time and **must not be backfilled or rewritten**. If Batch 1 is eventually accepted, only future attempts should inherit the repaired question-level `skill` value.
+
+This keeps historical analytics auditable and avoids retroactively changing the meaning of saved student evidence.
+
+## 6. Future write contract — if separately approved
 
 A future Batch 1 metadata change should:
 
@@ -81,12 +101,13 @@ A future Batch 1 metadata change should:
 4. require no unresolved `needs_review` state;
 5. update **only** the `skill` column;
 6. never change `active`, `practice_eligible`, answers, marks, response configuration, source attribution, hints/explanations or review state;
-7. fail rather than silently broadening to additional rows;
-8. verify exactly eight rows changed;
-9. re-run Question Bank integrity checks after the change;
-10. confirm student Practice availability and total question counts are unchanged.
+7. never rewrite historical `session_answers` skill/topic/subtopic snapshots;
+8. fail rather than silently broadening to additional rows;
+9. verify exactly eight question rows changed;
+10. re-run Question Bank integrity checks after the change;
+11. confirm student Practice availability and total question counts are unchanged.
 
-## 6. Deliberately excluded from Batch 1
+## 7. Deliberately excluded from Batch 1
 
 The following categories stay out even when their candidate is currently High:
 
@@ -98,13 +119,13 @@ The following categories stay out even when their candidate is currently High:
 
 Examples deliberately deferred include 2013 Q3(a), Q6(a), Q6(b) and Q15 because their proposed phrases are established but not under the exact same current topic, and all source-dependent questions remain in the separate visual review queue.
 
-## 7. Relationship to Metadata V2
+## 8. Relationship to Metadata V2
 
 Batch 1 repairs only the legacy human-readable `questions.skill` field. It does not add curriculum PRIMARY/SECONDARY mappings, demand scores, prerequisite relationships or adaptive eligibility.
 
 Metadata V2 remains blocked on independent Reviewer-B calibration in Issue #246.
 
-## 8. Current decision boundary
+## 9. Current decision boundary
 
 This document is ready for review as a proposed first metadata remediation tranche.
 
