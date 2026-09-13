@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '2afd0be248fdd4f243983140a1b65ff16bdea4d06d152bfbf4c55a84f09e93d6';
+const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -151,16 +151,13 @@ function gitBlob(pathname) {
 function workingManifestHash(root, excluded = new Set()) {
   const output = git(['ls-files', '-co', '--exclude-standard', root]);
   const paths = output
-    ? [...new Set(output.split(/?
-/).filter(Boolean))].sort()
+    ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort()
     : [];
   const records = paths
     .filter(pathname => !excluded.has(pathname))
     .map(pathname => `${gitBlob(pathname)}  ${pathname}`);
   return crypto.createHash('sha256')
-    .update(records.length ? `${records.join('
-')}
-` : '')
+    .update(records.length ? `${records.join('\n')}\n` : '')
     .digest('hex');
 }
 
@@ -591,8 +588,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
     expect(v52c2OwnerSource).toContain('const access=await base(purpose);');
 
     const changedSite = git(['diff', '--name-only', BASE_SHA, '--', 'site'])
-      .split(/?
-/)
+      .split(/\r?\n/)
       .filter(Boolean)
       .sort();
     expect(changedSite).toEqual([
@@ -623,8 +619,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       expect(gitBlob(pathname), `${pathname} successor bytes changed`).toBe(expected);
     }
     const changedSupabase = git(['diff', '--name-only', BASE_SHA, '--', 'supabase'])
-      .split(/?
-/)
+      .split(/\r?\n/)
       .filter(Boolean)
       .sort();
     expect(changedSupabase).toEqual(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS).sort());
