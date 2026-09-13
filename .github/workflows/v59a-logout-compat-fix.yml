@@ -1,0 +1,42 @@
+name: V5.9 Logout Compatibility Fix
+
+on:
+  push:
+    branches:
+      - development/197-v59a-student-home-refresh-successor
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Apply exact presentation fix and refresh seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime='site/v59a-student-home-refresh.js'
+          seal='e2e/tests/v40-static-v40-shell-option2c.spec.cjs'
+          helper='.github/workflows/v59a-logout-compat-fix.yml'
+          old_line='        #start.v40-shell-authenticated[data-v40-start-view="home"]>.v40c-session-panel{display:none!important}'
+          count=$(grep -Fxc "$old_line" "$runtime" || true)
+          test "$count" = '1'
+          sed -i '\|#start.v40-shell-authenticated\[data-v40-start-view="home"\]>.v40c-session-panel{display:none!important}|d' "$runtime"
+          old_sha='a5e01d31cd5d6b4266826a2e401bc41c549b0294'
+          new_sha=$(git hash-object "$runtime")
+          grep -Fq "'site/v59a-student-home-refresh.js': '$old_sha'" "$seal"
+          sed -i "s/'site\/v59a-student-home-refresh.js': '$old_sha'/'site\/v59a-student-home-refresh.js': '$new_sha'/" "$seal"
+          node site/tests/verify-v59a-student-home-refresh-test-contract.cjs
+          rm "$helper"
+          git config user.name 'nrnd-pixel'
+          git config user.email '318081169+nrnd-pixel@users.noreply.github.com'
+          git add "$runtime" "$seal" "$helper"
+          git diff --cached --check
+          git commit -m 'fix(v5.9): preserve accepted student logout on mobile Home'
+          git push origin HEAD:development/197-v59a-student-home-refresh-successor
