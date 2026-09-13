@@ -29,7 +29,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
   'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '4804b1ca8631291ca70e61c6a3091aea979eb4dd',
-  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': '419d4106f6c46905825c040c37f8e14425434709',
+  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': 'bd71266217c75e7371f827606c8ef0d28789c214',
   'site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs': 'd8f3e86d83d136d6ae99234c22beb6d640c7736b',
   'site/tests/verify-phase4-v50-operations-reporting-integrity.cjs': '982d12fab8c6d01ec9499bb28c943b53f08cf101',
   'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': 'a5a6cd547591faae990795dcf362fc8b1d4e85ef',
