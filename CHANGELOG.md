@@ -1,5 +1,11 @@
 # Maths Practice App — Running Changelog
 
+## V5.9.1 — Demo routes (unreleased)
+
+- Added , ,  — self-contained Netlify viewer routes reflecting V5.9 UI
+- All three: isolated, no Supabase, no writes, CSP-blocked network, noindex
+
+
 This changelog consolidates the version-specific deployment notes, migration records, release checkpoints, upgrade notes and smoke-test records that previously lived as separate files under `site/`, `site/tests/` and `docs/`.
 
 The consolidation was prepared from the exact source files present at pre-cleanup `main` commit `a30cb2144e01874fdae3b478b9a3bc6a717ac0fe`. The original files remain recoverable from Git history at that commit. The V3.2G.1 full-package snapshot is separately preserved on branch `archive/v3.2G.1-snapshot` at commit `32d1e96c74cf75405bc6554a709431c87e00068b`.

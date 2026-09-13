@@ -48,6 +48,12 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs',
   'site/v40-start-shell.js',
   'site/v40-student-session.js',
+  'site/demo/index.html',
+  'site/viewer-demo/index.html',
+  'site/demo-student/index.html',
+  'site/tests/verify-v5.9-current-live-demo.cjs',
+  'site/tests/verify-v5.9-demo-viewer-access.cjs',
+  'site/tests/verify-v5.9-demo-student-questions.cjs',
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({

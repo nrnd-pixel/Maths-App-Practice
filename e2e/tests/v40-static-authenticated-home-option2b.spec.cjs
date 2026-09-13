@@ -135,6 +135,12 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/v57a2-stale-local-checkpoint-cleanup.js',
   'site/v57d-past-paper-analytics-actions.js',
   'site/v57d1-focus-plan-copy-fallback.js',
+  'site/demo/index.html',
+  'site/viewer-demo/index.html',
+  'site/demo-student/index.html',
+  'site/tests/verify-v5.9-current-live-demo.cjs',
+  'site/tests/verify-v5.9-demo-viewer-access.cjs',
+  'site/tests/verify-v5.9-demo-student-questions.cjs',
 ]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
