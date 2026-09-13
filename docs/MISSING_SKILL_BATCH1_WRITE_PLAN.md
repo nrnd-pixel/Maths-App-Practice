@@ -47,7 +47,25 @@ Seven of the eight questions currently have no `session_answers` rows.
 
 The production change must update only `public.questions.skill`; it must not backfill or rewrite `session_answers.skill` or any other answer/event table.
 
-## 4. Guarded transaction contract
+## 4. Trigger and audit side effects
+
+A read-only trigger audit confirmed the effects expected from updating `public.questions.skill`:
+
+- `questions_set_updated_at` is a `BEFORE UPDATE` trigger and will set each changed question's `updated_at` to the current time;
+- `questions_change_history_v51b2d` is an `AFTER UPDATE` trigger and will insert one Question Bank history entry for each changed row, recording `skill` in `changed_fields` with the old and new value;
+- `questions_practice_review_safety_v54h` only fires on updates of `practice_eligible` or `review_status`, so a skill-only Batch 1 update does not invoke that guard;
+- `questions_published_exam_integrity_v51b3` is a deferred constraint trigger on Past Paper updates, but there is no `exam_paper_settings` row for 2013 Paper 1, so its readiness assertion returns without blocking this change;
+- none of these triggers writes to `session_answers` or other historical student-answer tables.
+
+Audit baseline for the eight target UUIDs immediately before execution planning:
+
+- each target currently has exactly **1** existing `question_change_history` row;
+- each target's latest history timestamp is `2026-09-01 23:25:59.580904+00`;
+- after a successful Batch 1 repair, each target should therefore have exactly **2** history rows, with the new row recording only the `skill` change.
+
+These audit/history writes and `updated_at` refreshes are expected side effects and must not be mistaken for unintended mutation.
+
+## 5. Guarded transaction contract
 
 The production write, if explicitly approved, should use the following logic in a single transaction:
 
@@ -111,7 +129,7 @@ commit;
 
 The production execution should use an assertion-capable wrapper/transaction rather than blindly running the representative SQL above without checking counts.
 
-## 5. Mandatory post-write verification
+## 6. Mandatory post-write verification
 
 After an approved write, verify all of the following before declaring success:
 
@@ -124,10 +142,13 @@ After an approved write, verify all of the following before declaring success:
 - total Question Bank row count is unchanged;
 - Practice-eligible count is unchanged;
 - `session_answers` historical snapshots are unchanged, including the two blank snapshots for 2013 P1 Q2;
+- exactly 8 new `question_change_history` rows were created for the target UUIDs;
+- each new history row records `changed_fields = ['skill']` only and the expected old/new skill values;
+- each target's `updated_at` advanced as expected from the standard update trigger;
 - Question Bank integrity queries remain clean;
 - the remaining blank-skill Practice count decreases by exactly 8 (from 123 to 115, assuming no concurrent legitimate changes).
 
-## 6. Stop conditions
+## 7. Stop conditions
 
 Do not execute the production write if:
 
@@ -139,7 +160,7 @@ Do not execute the production write if:
 - any target `updated_at` differs from the frozen value;
 - an unexpected trigger or dependency would rewrite historical answer records.
 
-## 7. Decision boundary
+## 8. Decision boundary
 
 This file records the exact safe execution contract only.
 
