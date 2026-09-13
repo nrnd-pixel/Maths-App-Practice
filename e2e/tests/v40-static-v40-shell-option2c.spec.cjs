@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';
+const EXPECTED_FROZEN_SITE_SHA256 = '2ecf06f2562e13f25542e233dda98ed1842bfd17d67370529a93a9f00a7feee7';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -50,6 +50,12 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs': '8bf3c87f93f1677cb15395e36c7c7600dffb3672',
+  'site/demo/index.html': '631153822067f4efc48794be719e8d6bbb4e96df',
+  'site/viewer-demo/index.html': '9f1338facc7ddefde9640959a6fbfce7d1aac517',
+  'site/demo-student/index.html': '72df4461ed816b40133b4a34e1434ef4f994c144',
+  'site/tests/verify-v5.9-current-live-demo.cjs': '23ec8bbc994fe7d37af3c8fa7f55e7e11e03157b',
+  'site/tests/verify-v5.9-demo-viewer-access.cjs': 'db303e51de65f4cb61485d0fba00393498348511',
+  'site/tests/verify-v5.9-demo-student-questions.cjs': 'e94f0096fa18394b5c4c95d66ab2160bf1bac86b',
 });
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
