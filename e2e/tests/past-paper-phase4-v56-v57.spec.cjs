@@ -377,6 +377,11 @@ async function waitForPhase4Runtime(page){
   );
 }
 
+async function waitForStudentHomeReady(page){
+  await expect(page.locator('#start .v40c3-home-dashboard'))
+    .toHaveAttribute('data-v57c-rendered','true');
+}
+
 async function openLearn(page){
   const startButton=page.locator('#start-btn');
   if(!(await startButton.isVisible())){
@@ -597,6 +602,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await openApp(page);
     await signInStudent(page);
     await waitForPhase4Runtime(page);
+    await waitForStudentHomeReady(page);
 
     const assignmentsHome=page.locator('#start .v57c-assignments');
     await expect(assignmentsHome).toBeVisible();
@@ -767,6 +773,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await openApp(page);
     await signInStudent(page);
     await waitForPhase4Runtime(page);
+    await waitForStudentHomeReady(page);
 
     // Seed an activeAssignmentContext in the generic observer path so it will
     // attempt to call completeActivePracticeAssignment when result activates.
