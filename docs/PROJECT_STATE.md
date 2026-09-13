@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-13 (Brunei, UTC+08:00)
 
-This file is the short operational checkpoint for humans and AI assistants. It must be read together with current GitHub state. If GitHub has moved since this file was updated, current repository/PR/CI state is authoritative and this file should be refreshed after the next accepted checkpoint.
+This file is the short operational checkpoint for humans and AI assistants. Read it together with current GitHub/Supabase state. If GitHub or production has moved, live state is authoritative.
 
 ## Repository and production
 
@@ -11,127 +11,241 @@ This file is the short operational checkpoint for humans and AI assistants. It m
 - Stack: vanilla JavaScript, Supabase/PostgreSQL, Netlify static hosting
 - Production release: V5.9
 - Verified `main`: `8445ad060438c22b9c31054a1bd0e1b2f1a58c07`
+- Latest merged PR: #245 — V5.4H Practice eligibility / review-state hardening
 - Verified repository Supabase tree SHA: `b59a55911e695465f9fceb3aa55edbd564862ecd`
 - Production Supabase V5.4H migration: `20260913091929_v54h_practice_review_safety`
 - Historical seal BASE_SHA: `653aec5e06e1bf1669b4c9c0cd3e91069715de45`
 
+Active documentation/evidence branch:
+
+`docs/question-bank-integrity-v54h-checkpoint`
+
+This branch contains Question Bank Integrity, Metadata V2 calibration and schema-design evidence. It is not production `main`.
+
 ## Current focus
 
-Students are actively using the live Maths app for practice. Current development priorities are:
+Students are actively using the live Maths app. Current development priorities remain:
 
 1. production stability and trustworthy CI;
-2. question-bank/content integrity;
-3. richer question metadata and diagnostics;
-4. measured learning improvements before new product breadth;
-5. architecture cleanup only after behavioural equivalence is protected.
+2. Question Bank/content integrity;
+3. richer reviewed question metadata and diagnostics;
+4. measured learning improvements before product breadth;
+5. architecture cleanup only with behavioural equivalence coverage.
 
-The accepted V5.9 Student Home is the production baseline. Avoid further cosmetic redesign unless a real student usability problem is demonstrated.
+The accepted V5.9 Student Home is the production baseline. Avoid cosmetic churn without a demonstrated student usability problem.
 
-## Recently completed checkpoints
+## Recently completed repository checkpoints
 
 - PR #239 — Phase 5C wrapper-chain Playwright coverage — merged.
-- PR #240 — accepted V5.9 Student Home Refresh production promotion — merged.
+- PR #240 — V5.9 Student Home Refresh — merged.
+- PR #241 — Phase 5C named CI hard gate — merged.
 - PR #242 — V5.9 demo/viewer/student-question routes — merged.
-- PR #243 — shared project state, roadmap and AI handoff records — merged.
-- PR #244 — V56/V57 Student Home readiness Playwright synchronisation — merged after exact-head Consolidated CI run #285 passed all maintained verifiers, hard gates and core browser tests.
-- PR #245 — V5.4H Practice eligibility / review-state hardening — merged after exact-head Consolidated CI run #288 passed all maintained verifiers, named hard gates and the full `npm test` browser suite.
+- PR #243 — shared project state / roadmap / handoff records — merged.
+- PR #244 — V56/V57 Student Home readiness Playwright synchronisation — merged after green exact-head CI.
+- PR #245 — V5.4H Practice eligibility / review-state hardening — merged after green exact-head CI.
 
-Verified current main after PR #245: `8445ad060438c22b9c31054a1bd0e1b2f1a58c07`.
+Verified current main remains:
 
-## V5.4H production status
+`8445ad060438c22b9c31054a1bd0e1b2f1a58c07`
 
-V5.4H is active in the production Maths Supabase project.
+## V5.4H production invariant
 
-Invariant enforced at the database boundary:
+Production enforces:
 
 > `review_status='needs_review'` must never coexist with `practice_eligible=true`.
 
-Important preserved behaviour:
+Preserved behaviour:
 
-- `review_status='none'` remains valid for ordinary Practice;
-- `review_status='reviewed'` remains valid for ordinary Practice;
-- legacy `active` remains an independent exposure domain;
-- the guard rejects conflicting transitions rather than silently changing another field;
-- no existing question row was changed by the migration.
+- `review_status='none'` and `reviewed` remain valid for ordinary Practice;
+- `active` remains a separate exposure domain;
+- conflicts are rejected rather than silently mutating another field;
+- the migration changed no existing question rows.
 
-Production preflight immediately before application found:
+Current review conflicts remain zero.
 
-- 655 Practice-eligible rows;
-- 0 `needs_review` rows;
-- 0 conflicting `needs_review + practice_eligible=true` rows;
-- the V5.4H guard function/trigger not previously installed.
+## Question Bank Integrity — legacy skill remediation
 
-Post-application verification found the same 655 Practice-eligible rows and 0 conflicts. Trigger `questions_practice_review_safety_v54h` is installed/enabled, and `anon` / `authenticated` cannot directly execute the guard function.
+The original integrity audit found **123** Practice-eligible questions with blank legacy `questions.skill`, concentrated in older Paper 1 material.
 
-## Current Question Bank Integrity checkpoint
+Three conservative production repair batches have now completed.
 
-A read-only source + production-data audit has been completed and preserved in:
+### Batch 1 — completed
 
-- `docs/QUESTION_BANK_INTEGRITY_AUDIT.md`
-- `docs/MISSING_SKILL_REMEDIATION_MAP.md`
-- `docs/PRACTICE_ELIGIBILITY_REVIEW_SAFETY_MAP.md`
-- `docs/QUESTION_METADATA_V2_MAP.md`
+- 8 high-confidence 2013 Paper 1 rows repaired.
+- Blank Practice skills: **123 → 115**.
+- Historical attempt snapshots preserved.
 
-Key conclusions:
+Result record:
 
-- the current Practice-eligible pool is structurally healthy for marking;
-- the V5.4H database invariant now protects unresolved-review content from entering/remaining in ordinary Practice;
-- response-type/configuration checks on the live Practice pool found no structural blockers;
-- the main live metadata debt is 123 Practice-eligible rows with a missing `skill` field, concentrated in 2013, 2018 and 2019 Paper 1;
-- all 123 rows have candidate skill labels in the remediation map; candidates are review evidence only, not production-approved changes;
-- diagram/table/context-dependent candidates are Medium confidence and require authoritative source verification before any database write;
-- known excluded/problematic Past Paper rows are inactive and ineligible, but their exclusion rationale is not consistently captured in durable review/audit fields;
-- Practice eligibility and legacy `active` are intentionally separate exposure domains and must not be collapsed by future QA.
+`docs/MISSING_SKILL_BATCH1_RESULT.md`
 
-## Question Metadata V2 mapping checkpoint
+### Batch 2 — completed
 
-Metadata V2 source/consumer mapping is complete at the no-write architecture stage.
+- 8 high-confidence 2018/2019 Paper 1 rows repaired.
+- Blank Practice skills: **115 → 107**.
+- Historical attempt snapshots preserved.
 
-Important findings:
+Result record:
 
-- legacy `questions.strand/topic/subtopic/skill/difficulty` are active compatibility fields used by current Practice retrieval, mixed-practice selection and historical/teacher analytics;
-- `session_answers` snapshots `strand/topic/subtopic/skill`, so historical attempt metadata must not be silently rewritten during Question Bank cleanup;
-- production already has a curriculum registry (`curriculum_domains`, `curriculum_skills`, `curriculum_subskills`, `question_skill_map`, `skill_relationships`, `misconceptions`, `scaffolds`);
-- the registry contains 297 skills and 752 subskills across Years 1–6, but is still `1.0-draft` and question mapping coverage is small;
-- only 21 of 655 Practice questions currently have an active PRIMARY curriculum mapping;
-- none of the 123 missing-legacy-skill questions currently have PRIMARY/SECONDARY curriculum mappings;
-- the graph already models embedded/secondary skills and prerequisite relationships and should be expanded rather than duplicated in a second skill system;
-- a separate per-question demand/evidence profile is the preferred future additive surface for procedural/conceptual/reading/visual/response-demand metadata, subject to explicit schema acceptance;
-- authored demand metadata must remain separate from later empirical performance calibration.
+`docs/MISSING_SKILL_BATCH2_RESULT.md`
 
-See `docs/QUESTION_METADATA_V2_MAP.md` for the proposed staged architecture and non-goals.
+### Batch 3 — completed
+
+Issue #251 is closed as completed.
+
+Exactly 6 additional high-confidence 2018/2019 Paper 1 `skill` values were repaired in one guarded production transaction.
+
+Post-write verification:
+
+- total questions: **1003** — unchanged;
+- Practice-eligible questions: **655** — unchanged;
+- blank Practice skills: **107 → 101**;
+- correct target skills: **6/6**;
+- safe target state: **6/6**;
+- exactly 6 `question_change_history` entries, all `skill`-only;
+- 2018 P1 Q11 historical blank skill snapshot preserved;
+- review conflicts: 0;
+- inactive-but-Practice-eligible: 0;
+- invalid Practice marks: 0;
+- missing Practice text/topic/strand/answer: 0;
+- unknown non-null Practice response types: 0.
+
+Result record:
+
+`docs/MISSING_SKILL_BATCH3_RESULT.md`
+
+Across Batches 1–3, **22** high-confidence legacy skill rows have been repaired, reducing blank Practice skills from **123 to 101**.
+
+Do not bulk-fill the remaining 101 rows. Source/visual-dependent candidates remain HOLD until authoritative evidence is available.
+
+## Metadata V2 — architecture checkpoint
+
+The existing curriculum registry must be reused rather than duplicated:
+
+- `curriculum_domains`
+- `curriculum_skills`
+- `curriculum_subskills`
+- `question_skill_map`
+- `skill_relationships`
+- `misconceptions`
+- `scaffolds`
+- related heuristic tables
+
+Important compatibility conclusions:
+
+- legacy `questions.strand/topic/subtopic/skill/difficulty` remain active runtime/reporting fields;
+- `session_answers` snapshots legacy metadata and historical snapshots must not be rewritten;
+- `question_skill_map` is the structured skill layer;
+- one active PRIMARY mapping per question is already protected by `question_skill_map_one_active_primary_idx`;
+- PRIMARY/SECONDARY skill lists and prerequisite relationships should be derived from the existing graph rather than duplicated into new `questions` columns;
+- sparse `question_skill_map.cognitive_level`, `question_purpose` and edge-level `difficulty` are not the canonical V2 demand model;
+- current production function inspection found no function reading those sparse fields.
+
+Architecture map:
+
+`docs/QUESTION_METADATA_V2_MAP.md`
+
+## Metadata V2 — demand rubric calibration COMPLETE
+
+Issue #246 — independent Reviewer-B calibration — is closed as completed.
+
+The blind-review sequence was preserved:
+
+1. Reviewer B read only `QUESTION_METADATA_V2_REVIEWER_B_PACKET.md`;
+2. all eight questions were scored independently;
+3. the result was frozen in `QUESTION_METADATA_V2_REVIEWER_B_RESULT.md` at commit `2e0739576a0035d5c9bde67daa495a91a73341cb`;
+4. only afterward were Reviewer-A ratings/reconciliation opened;
+5. reconciliation was committed in `QUESTION_METADATA_V2_RECONCILIATION.md`.
+
+Calibration result across 8 questions × 5 dimensions = 40 scores:
+
+- exact agreements: **37/40 (92.5%)**;
+- adjacent one-level differences: **3/40 (7.5%)**;
+- disagreements >1 level: **0**;
+- unresolved HOLDs in the core eight: **0**.
+
+The three adjacent differences were resolved using existing full-rubric boundaries. No rubric wording change was required.
+
+Optional 2025 Paper 2 Q30 remains deliberately conservative:
+
+- procedural: HOLD;
+- conceptual: HOLD;
+- reading/context: 3;
+- visual/spatial: HOLD;
+- response: 0;
+
+until authoritative Table 2 evidence is available.
+
+The Metadata V2 calibration gate therefore **passes for schema design only**.
+
+## Metadata V2 — schema design proposal
+
+Current open checkpoint:
+
+**Issue #255 — Metadata V2: review additive demand-profile schema design**
+
+Design document:
+
+`docs/QUESTION_METADATA_V2_SCHEMA_DESIGN.md`
+
+Proposed direction:
+
+- additive `question_demand_profile_v2` table;
+- one profile per physical `question_id`;
+- five calibrated 0–3 typed demand dimensions;
+- explicit per-dimension HOLD representation;
+- separate `source_evidence_status` and `adaptive_use_status`;
+- safe defaults: `draft`, `needs_review`, `hold`;
+- database invariant preventing adaptive `eligible` unless profile is reviewed, source verified and contains no held dimensions;
+- teacher-only direct RLS using existing `is_teacher()`;
+- no anon/student direct table access;
+- separate append-only demand-profile audit history;
+- no reuse/repurposing of sparse `question_skill_map` demand-like fields;
+- `assessment_stage` deferred until separately calibrated.
+
+The design explicitly proposes **no current runtime consumer** and no automatic adaptive-readiness view in the first migration.
+
+## Immediate next action
+
+Remain at **Issue #255 schema technical review**.
+
+Before any DDL:
+
+1. review the proposed table/constraints/RLS/audit design;
+2. confirm HOLD representation and adaptive-eligibility invariant;
+3. confirm no current runtime/SQL consumer needs modification;
+4. confirm the schema-only PR boundary and expected seal/CI impact;
+5. only after a separate explicit instruction, create a fresh implementation branch from the exact then-current `main`;
+6. schema-only PR must contain no profile data, curriculum-map expansion, runtime JS change or adaptive expansion;
+7. full static + named hard gates + `npm test` + exact-head CI required;
+8. never merge without explicit instruction.
+
+Passing Issue #255 review would authorize preparation of a **schema-only migration/PR**, not production profile population.
+
+The first data pilot must be a separate checkpoint after schema acceptance. Recommended first data set: the eight source-complete 2025 P1/P2 calibration questions, excluding Q30.
 
 ## Open / parked work
 
 - PR #237 — V5.9B adaptive diagnostic pilot — DRAFT / PILOT ONLY / DO NOT MERGE without a new explicit acceptance cycle.
-- PR #180 — Science V0.2 standalone pilot — PARKED. It was built from an old baseline and must be re-mapped/re-created from then-current main before any renewed work.
-- PR #204 and PR #205 — old V5.8.1 demo drafts — superseded by PR #242; do not merge.
+- PR #180 — Science V0.2 standalone pilot — PARKED; old baseline, must be re-mapped/re-created from then-current main.
+- PR #204/#205 — superseded by merged PR #242; do not merge.
+- Issue #255 — ACTIVE documentation/design checkpoint.
 
-## Immediate next engineering action
+## Security boundary
 
-Remain within Question Metadata V2 evidence preparation. Do **not** create a schema migration yet.
+A previous Supabase advisor scan reported broader pre-existing warnings such as SECURITY DEFINER exposure patterns, RLS/no-policy tables and leaked-password protection being disabled.
 
-Safest next substantive sequence:
+Do not mass-revoke or rewrite these. Several RPCs intentionally use token-based access and some RLS/no-policy tables are intentionally service/RPC-only. Any security follow-up requires its own usage/authority map and equivalence tests.
 
-1. define the exact 0–3 Metadata V2 demand rubric with concrete Year 6 examples and clear boundaries between levels;
-2. test inter-reviewer consistency on a small already-mapped 2025 Paper 1/2 sample before scaling the rubric;
-3. continue authoritative source verification of Medium-confidence 2013/2018/2019 Paper 1 missing-skill candidates;
-4. map verified legacy skill candidates to exactly one PRIMARY curriculum skill plus genuine SECONDARY embedded skills;
-5. prepare immutable-question-ID change sets, but make no production metadata write without a separate accepted data-change plan;
-6. only after rubric/mapping evidence is stable should an additive demand-profile schema PR be proposed;
-7. keep V5.9B adaptive expansion isolated until reusable metadata/adaptive-readiness rules are accepted.
+Metadata V2 schema design should reuse the existing teacher predicate:
 
-Do not bulk-fill the 123 missing skills from topic labels alone.
+`public.is_teacher()` → teacher exists in `teacher_profiles` for `auth.uid()`.
 
-## Security advisor watchlist
-
-A post-V5.4H Supabase security-advisor scan did not flag the new guard function. It did report broader pre-existing warnings, including SECURITY DEFINER RPC exposure, RLS-enabled tables without policies, and leaked-password protection being disabled.
-
-Do not mass-revoke or rewrite these items. Several student RPCs intentionally use token-based access and some RLS/no-policy tables may intentionally be service/RPC-only. Any security follow-up must start with a separate architecture/usage map and equivalence tests.
+The new demand profile should not create a second authorization model.
 
 ## Frozen / high-risk files
 
-Do not modify without an explicit map, equivalence coverage, seal review and user acceptance:
+Do not modify without explicit mapping, equivalence coverage, seal review and user acceptance:
 
 - `site/v40-student-session.js`
 - `site/v40-platform-polish.js`
@@ -146,44 +260,39 @@ Do not modify without an explicit map, equivalence coverage, seal review and use
 
 ## Seal architecture
 
-Option 2A / 2B / 2C Playwright specs protect the frozen site boundary and authorised Supabase successors.
+Option 2A / 2B / 2C Playwright specs protect frozen site/Supabase boundaries.
 
-Never alter seal logic merely to make CI pass. First establish why bytes/tree hashes changed and whether the successor is authorised.
+A future Metadata V2 schema PR will add a Supabase migration and likely a static verifier, so its exact successor bytes/tree changes must be authorised in the maintained hard gates. Never weaken seal logic merely to pass CI.
 
-## CI expectations
+## CI and merge rules
 
-A production-facing change is not accepted on local/static evidence alone.
-
-Required standard:
+For production-facing changes:
 
 - maintained static verifiers under `site/tests/*.cjs`;
 - named Playwright hard gates;
 - full `npm test` browser suite;
 - exact PR-head CI inspection;
-- no test weakening to achieve green;
+- no test weakening;
 - merge only after explicit user instruction.
 
-## Branching / merge rules
+Always branch from exact verified current `main`; never commit production work directly to `main`.
 
-- Always branch from the exact verified current `main` SHA.
-- Never commit directly to `main`.
-- Map actual source and ownership before coding.
-- Keep changes small and reversible.
-- Flag usage-heavy actions before running them.
-- Never merge without the user's explicit merge instruction.
+## Shared AI startup order
 
-## Shared AI workflow
-
-At the start of a new session, read:
+At a fresh session read:
 
 1. `docs/AI_HANDOFF.md`
 2. `docs/PROJECT_STATE.md`
 3. `docs/ROADMAP.md`
 4. `docs/DECISIONS.md`
 5. `docs/KNOWN_ISSUES.md`
-6. `docs/QUESTION_BANK_INTEGRITY_AUDIT.md` while Question Bank Integrity / Metadata V2 work is active
-7. `docs/MISSING_SKILL_REMEDIATION_MAP.md` while missing-skill remediation is active
-8. `docs/PRACTICE_ELIGIBILITY_REVIEW_SAFETY_MAP.md` for the V5.4H rationale and implementation checkpoint
-9. `docs/QUESTION_METADATA_V2_MAP.md` while Metadata V2 work is active
+6. `docs/QUESTION_BANK_INTEGRITY_AUDIT.md`
+7. `docs/MISSING_SKILL_REMEDIATION_MAP.md`
+8. `docs/PRACTICE_ELIGIBILITY_REVIEW_SAFETY_MAP.md`
+9. `docs/QUESTION_METADATA_V2_MAP.md`
+10. `docs/QUESTION_METADATA_V2_RUBRIC.md`
+11. `docs/QUESTION_METADATA_V2_REVIEWER_B_RESULT.md`
+12. `docs/QUESTION_METADATA_V2_RECONCILIATION.md`
+13. `docs/QUESTION_METADATA_V2_SCHEMA_DESIGN.md`
 
-Then verify current GitHub `main`, open PRs and relevant CI directly before acting.
+Then verify current GitHub `main`, open PRs/issues and production Supabase state directly before acting.
