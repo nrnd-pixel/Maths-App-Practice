@@ -22,6 +22,9 @@ const AUTHORIZED_RUNTIME_CHANGES = new Set([
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/assignments-student.js',
   'site/past-paper-assignments.js',
+  'site/config.js',
+  'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',
+  'site/v59a-student-home-refresh.js',
   'site/tests/v51-phase4-protected-shas.json',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs',
@@ -553,6 +556,18 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     await waitForHomeRendered(page);
 
     await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveCount(1, { timeout: 15_000 });
+
+    // The consolidated gamification owner refreshes XP → achievements → missions →
+    // class challenge asynchronously. Complete one authoritative refresh before
+    // injecting the synthetic earned-badge transition so an in-flight owner render
+    // cannot overwrite the test fixture after the event is dispatched.
+    await expect.poll(
+      () => page.evaluate(() => window.GamificationStudent.refresh(true)),
+      { timeout: 15_000 },
+    ).toBe(true);
+    await waitForStableCardState(page, '#v571b-latest-achievement');
+    await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveClass(/locked/);
+
     await page.evaluate(() => window.V58AStudentFirstUseExperience.render());
     await expect(page.locator('#v58a-first-use-card')).not.toHaveClass(/hidden/);
     expect(await page.evaluate(() => window.__option2bCapture.initial.firstUseCard === document.getElementById('v58a-first-use-card'))).toBe(true);
