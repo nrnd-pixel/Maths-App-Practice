@@ -18,6 +18,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/20260907073416_add_adaptive_route_preview_v1.sql': 'd00b2284dd639f58ef16de880cb995346b5532d9',
   'supabase/20260907080542_adaptive_pilot_feature_gate_v1.sql': '5565dfd1a4e67384cf69a61188b1e3452a24af39',
   'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
+  'supabase/20260914134600_student_adaptive_question_readiness_v2.sql': 'da88c946334f07912735c3afd3c27073ab318d24',
 });
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
@@ -51,6 +52,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
   'site/tests/verify-question-metadata-v2-schema-contract.cjs',
+  'site/tests/verify-adaptive-question-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
@@ -421,15 +423,10 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     await waitForOption2bRuntime(page);
     await waitForHomeRendered(page);
 
-    // Drain the genuine first-sign-in Home/gamification work before planting a
-    // previous-student fixture. This is state-stability polling, not a sleep.
     await waitForStableCardState(page, '#v571a-gamification-card');
     await waitForStableCardState(page, '#v572-weekly-missions-card');
     await waitForStableCardState(page, '#v574-class-challenge-card');
 
-    // V57C render itself schedules the forced gamification refresh. Let that
-    // real refresh settle first, then plant the distinctive Alpha gamification
-    // markers so they are genuinely present at the logout boundary.
     await page.evaluate(model => window.V57CStudentContinueLearningHome.render(model), homeModel('Student Alpha'));
     await expect(page.locator('#start .v40-learning-hub-hero')).toContainText('Student Alpha');
     await waitForStableCardState(page, '#v571a-gamification-card');
@@ -462,10 +459,6 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     expect(afterLogout).not.toContain('Alpha Mission');
     expect(afterLogout).not.toContain('Alpha Class');
 
-    // Option B: use the real second sign-in fixture as Student B. Because the
-    // logged-out Home was just proven not to contain this name, observing the
-    // fixture name now proves the new V57C personalization render completed;
-    // no manual Beta render can race a later authentic Home refresh.
     await signInStudent(page);
     await expect(page.locator('#start .v40-learning-hub-hero')).toContainText(STUDENT.name, { timeout: 15_000 });
 
@@ -542,9 +535,6 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
     await signInStudent(page);
     await waitForOption2bRuntime(page);
 
-    // Prove the real sign-in/V57C challenge state has stopped changing before
-    // injecting the 6B fixture. The >180ms stability window covers the retry
-    // path without relying on an arbitrary setTimeout.
     await waitForStableCardState(page, '#v574-class-challenge-card');
 
     await page.evaluate(payload => window.GamificationStudent.classChallenge.render(payload), challengePayload(true, '6B'));
@@ -569,10 +559,6 @@ test.describe('Option 2B static authenticated Home hard gates', () => {
 
     await expect(page.locator('#v571b-latest-achievement .v571b-badge[data-badge-id="first_practice"]')).toHaveCount(1, { timeout: 15_000 });
 
-    // The consolidated gamification owner refreshes XP → achievements → missions →
-    // class challenge asynchronously. Complete one authoritative refresh before
-    // injecting the synthetic earned-badge transition so an in-flight owner render
-    // cannot overwrite the test fixture after the event is dispatched.
     await expect.poll(
       () => page.evaluate(() => window.GamificationStudent.refresh(true)),
       { timeout: 15_000 },

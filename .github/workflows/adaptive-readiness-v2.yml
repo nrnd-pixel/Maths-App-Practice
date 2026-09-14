@@ -1,0 +1,32 @@
+name: Adaptive Readiness V2 Integrity
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/20260914134600_student_adaptive_question_readiness_v2.sql'
+      - 'site/tests/verify-adaptive-question-readiness-v2.cjs'
+      - '.github/workflows/adaptive-readiness-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify fail-closed adaptive readiness V2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run adaptive readiness V2 verifier
+        run: node site/tests/verify-adaptive-question-readiness-v2.cjs
