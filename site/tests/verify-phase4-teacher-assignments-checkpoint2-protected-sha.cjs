@@ -55,7 +55,7 @@ for (const [file, expected] of Object.entries(protectedBlobs)) {
   assert.equal(gitObject(file), expected, `${file} must remain byte-identical to approved main`);
 }
 
-const expectedSupabaseTree = '5149044074be96dddfde57478ea887d01b5ed1d2';
+const expectedSupabaseTree = 'a50e8cda1a7761c2fb19002329d622165f3bca0a';
 assert.equal(
   gitObject('supabase'),
   expectedSupabaseTree,

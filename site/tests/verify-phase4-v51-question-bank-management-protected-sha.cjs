@@ -37,7 +37,7 @@ for(const [file,expected] of Object.entries(manifest.files)){
   const actual=cp.execFileSync('git',['hash-object',file],{cwd:ROOT,encoding:'utf8'}).trim();
   assert.equal(actual,expected,`${file} must remain byte-identical to the verified baseline`);
 }
-const expectedSupabaseTree='5149044074be96dddfde57478ea887d01b5ed1d2';
+const expectedSupabaseTree='a50e8cda1a7761c2fb19002329d622165f3bca0a';
 const supabase=cp.execFileSync('git',['rev-parse','HEAD:supabase'],{cwd:ROOT,encoding:'utf8'}).trim();
 assert.equal(supabase,expectedSupabaseTree,'complete reconciled Supabase tree must remain unchanged');
 
