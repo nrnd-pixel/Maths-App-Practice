@@ -12,7 +12,12 @@ const {
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const EXPECTED_FROZEN_SITE_SHA256 = '87f9f732061cb5e5251d07af055454e68a91b5fd9d7f0acd6af469b6f70c3de8';
 const EXPECTED_SUPABASE_SHA256 = 'b9ce6bc01ead2f39b3aadab4f0a0688fa5c54bf8129258e776972636c17b4ef3';
-const EXPECTED_SUPABASE_TREE = 'b6b74bafce4fd410b153ee789678a6678deea507';
+const EXPECTED_SUPABASE_TREE = '5149044074be96dddfde57478ea887d01b5ed1d2';
+const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
+  'supabase/20260907073416_add_adaptive_route_preview_v1.sql': 'd00b2284dd639f58ef16de880cb995346b5532d9',
+  'supabase/20260907080542_adaptive_pilot_feature_gate_v1.sql': '5565dfd1a4e67384cf69a61188b1e3452a24af39',
+  'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
+});
 
 const ALLOWED_SITE_CHANGES = new Set([
   'site/assignments-student.js',
@@ -492,7 +497,11 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     expect(EXPECTED_SUPABASE_SHA256).not.toContain('__EXPECTED_');
 
     expect(workingManifestHash('site', ALLOWED_SITE_CHANGES)).toBe(EXPECTED_FROZEN_SITE_SHA256);
-    expect(workingManifestHash('supabase')).toBe(EXPECTED_SUPABASE_SHA256);
+    const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_RECONCILIATION));
+    expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
+    for (const [pathname, expected] of Object.entries(AUTHORIZED_SUPABASE_RECONCILIATION)) {
+      expect(gitBlob(pathname), `${pathname} reconciled production bytes changed`).toBe(expected);
+    }
     expect(git(['rev-parse', 'HEAD:supabase'])).toBe(EXPECTED_SUPABASE_TREE);
 
     for (const [pathname, expected] of Object.entries(FROZEN_HIGH_RISK_BLOBS)) {

@@ -1,0 +1,28 @@
+name: Adaptive production source reconciliation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/20260907073416_add_adaptive_route_preview_v1.sql'
+      - 'supabase/20260907080542_adaptive_pilot_feature_gate_v1.sql'
+      - 'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql'
+      - 'tests/verify-adaptive-production-source-reconciliation.cjs'
+      - '.github/workflows/adaptive-production-source-reconciliation.yml'
+      - 'e2e/tests/v40-static-student-signin-shell-option2a.spec.cjs'
+      - 'e2e/tests/v40-static-authenticated-home-option2b.spec.cjs'
+      - 'e2e/tests/v40-static-v40-shell-option2c.spec.cjs'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify exact deployed adaptive migration sources
+        run: node tests/verify-adaptive-production-source-reconciliation.cjs

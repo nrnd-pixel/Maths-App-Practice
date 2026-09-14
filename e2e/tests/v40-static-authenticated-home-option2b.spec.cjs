@@ -15,6 +15,9 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/question_metadata_v2_demand_profile.sql': 'afdd7ded59ca373026a51453ade760a4b203d9e3',
   'supabase/v54h_practice_review_safety.sql': '75e36c2e3474cabba39c2bb2f8910e96564a3c2b',
   'supabase/v581b_assignment_checkpoint_attribution_hardening.sql': 'd47da7bce5621fc5dc84fb7e37cf6efe598359d6',
+  'supabase/20260907073416_add_adaptive_route_preview_v1.sql': 'd00b2284dd639f58ef16de880cb995346b5532d9',
+  'supabase/20260907080542_adaptive_pilot_feature_gate_v1.sql': '5565dfd1a4e67384cf69a61188b1e3452a24af39',
+  'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
 });
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
