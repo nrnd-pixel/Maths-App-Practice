@@ -648,6 +648,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await openApp(page);
     await signInStudent(page);
     await waitForPhase4Runtime(page);
+    await waitForStudentHomeReady(page);
     await seedLocalIdentity(page,checkpoint({nextIndex:1,savedAt:'2026-09-08T04:00:00.000Z'}));
 
     const progressHome=page.locator('#start .v57c-secondary .v57c-progress');
