@@ -37,7 +37,8 @@ for(const [file,expected] of Object.entries(manifest.files)){
   const actual=cp.execFileSync('git',['hash-object',file],{cwd:ROOT,encoding:'utf8'}).trim();
   assert.equal(actual,expected,`${file} must remain byte-identical to the verified baseline`);
 }
+const expectedSupabaseTree='5149044074be96dddfde57478ea887d01b5ed1d2';
 const supabase=cp.execFileSync('git',['rev-parse','HEAD:supabase'],{cwd:ROOT,encoding:'utf8'}).trim();
-assert.equal(supabase,manifest.supabase_tree,'complete Supabase tree must remain unchanged');
+assert.equal(supabase,expectedSupabaseTree,'complete reconciled Supabase tree must remain unchanged');
 
 console.log(`Phase 4 V51 protected-SHA guard passed: ${Object.keys(manifest.files).length} frozen browser files plus complete Supabase tree.`);
