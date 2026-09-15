@@ -1,0 +1,47 @@
+name: Adaptive Browser Pilot V2 Integrity
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'site/config.js'
+      - 'site/v59b-adaptive-diagnostic-pilot-v2.js'
+      - 'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs'
+      - 'e2e/tests/v59b-adaptive-diagnostic-pilot-v2.spec.cjs'
+      - '.github/workflows/adaptive-browser-pilot-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify fail-closed adaptive browser pilot V2
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run adaptive browser pilot V2 static verifier
+        run: node site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run adaptive browser pilot V2 hard gates
+        working-directory: e2e
+        run: npx playwright test tests/v59b-adaptive-diagnostic-pilot-v2.spec.cjs --reporter=line
