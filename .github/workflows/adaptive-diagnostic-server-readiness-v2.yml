@@ -1,0 +1,36 @@
+name: Adaptive Diagnostic Server Readiness V2 Integrity
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/20260915023000_adaptive_diagnostic_server_readiness_v2.sql'
+      - 'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs'
+      - 'site/tests/verify-adaptive-question-readiness-v2.cjs'
+      - '.github/workflows/adaptive-diagnostic-server-readiness-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify adaptive diagnostic server readiness V2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Stage 1 adaptive readiness verifier
+        run: node site/tests/verify-adaptive-question-readiness-v2.cjs
+
+      - name: Run adaptive diagnostic server hardening verifier
+        run: node site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs
