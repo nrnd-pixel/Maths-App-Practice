@@ -1,12 +1,13 @@
 const { test, expect } = require('@playwright/test');
+const fs = require('node:fs');
 const path = require('node:path');
 
-const MODULE_PATH = path.resolve(
+const CONFIG_PATH = path.resolve(
   __dirname,
   '..',
   '..',
   'site',
-  'v59b-adaptive-pilot-smoke-selector.js',
+  'config.js',
 );
 
 const PREVIEW = 'http://deploy-preview-271--magical-pixie-a61111.netlify.app';
@@ -90,11 +91,25 @@ async function installHarness(page, url){
     };
   }, { q9a: Q9A, q9b: Q9B, q4: Q4, q30: Q30 });
 
-  await page.addScriptTag({ path: MODULE_PATH });
+  // config.js contains the deploy-preview-only helper. Because this script is
+  // injected after the harness page has already loaded, its normal window-load
+  // staged-script loader does not fire in this isolated test.
+  await page.addScriptTag({ path: CONFIG_PATH });
 }
 
 test.describe('V5.9B deploy-preview smoke selector hard gates', () => {
-  test('gate 1 — selector stays absent without the pilot flag or outside deploy-preview', async ({ page }) => {
+  test('gate 1 — source is preview+flag gated and adds no direct data/adaptive authority', async () => {
+    const source = fs.readFileSync(CONFIG_PATH, 'utf8');
+    expect(source).toContain("/^deploy-preview-\\d+--.+\\.netlify\\.app$/i");
+    expect(source).toContain("params.get('adaptivePilot')!=='2'");
+    expect(source).toContain('await startPractice()');
+    expect(source).toContain('state.questions=[item]');
+    expect(source).not.toMatch(/startPractice\s*=/);
+    expect(source).not.toContain(".from('questions')");
+    expect(source).not.toContain('student_adaptive_trigger_check_v1');
+  });
+
+  test('gate 2 — selector stays absent without the pilot flag or outside deploy-preview', async ({ page }) => {
     await installHarness(page, PREVIEW);
     await page.waitForTimeout(150);
     await expect(page.locator('#v59b2-smoke-selector')).toHaveCount(0);
@@ -104,7 +119,7 @@ test.describe('V5.9B deploy-preview smoke selector hard gates', () => {
     await expect(page.locator('#v59b2-smoke-selector')).toHaveCount(0);
   });
 
-  test('gate 2 — Q4 launches through ordinary startPractice and restores Learn controls', async ({ page }) => {
+  test('gate 3 — Q4 launches through ordinary startPractice and restores Learn controls', async ({ page }) => {
     await installHarness(page, `${PREVIEW}/?adaptivePilot=2`);
     await expect(page.locator('#v59b2-smoke-selector')).toBeVisible();
 
@@ -142,7 +157,7 @@ test.describe('V5.9B deploy-preview smoke selector hard gates', () => {
     });
   });
 
-  test('gate 3 — Q9(b) pins the ordinary multipart item instead of fabricating a standalone question', async ({ page }) => {
+  test('gate 4 — Q9(b) pins the ordinary multipart item instead of fabricating a standalone question', async ({ page }) => {
     await installHarness(page, `${PREVIEW}/?adaptivePilot=2`);
     await expect(page.locator('#v59b2-smoke-selector')).toBeVisible();
 
