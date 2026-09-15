@@ -49,6 +49,23 @@ assert.doesNotMatch(source, /validateStudentAccess\s*\(/,
 assert.match(source, /s\?\.accessToken[\s\S]*activeStudentAccess\?\.access_token/,
   'pilot must use the same existing Practice-ticket sources as authoritative grading');
 
+assert.match(source, /function activeItemQuestionIds\(question\)/,
+  'pilot must identify the physical question ids inside the active Practice item');
+assert.match(source, /question\?\._kind\s*===\s*['"]multipart['"][\s\S]*question\.parts[\s\S]*part\?\.id/,
+  'multipart Practice items must expose their individual part ids to the pilot');
+assert.doesNotMatch(source, /if \(!s \|\| !q \|\| q\?\._kind === ['"]multipart['"]\) return null/,
+  'pilot must not blanket-reject multipart Practice items');
+assert.match(source, /function completedWrongCandidates\(snapshot\)/,
+  'pilot must derive candidates only from answers appended by the completed ordinary submit');
+assert.match(source, /s\.answers\s*\.slice\(snapshot\.answersLength\)/,
+  'pilot must inspect only newly appended ordinary Practice answer records');
+assert.match(source, /allowedIds\.has\(questionId\)/,
+  'new answer records must be constrained to the active standalone question or multipart parts');
+assert.match(source, /answer\?\.correct\s*===\s*false/,
+  'only completed wrong ordinary Practice answers may become adaptive candidates');
+assert.match(source, /for \(const candidate of candidates\)/,
+  'multipart candidates must be checked independently so an ineligible sibling cannot block an eligible part');
+
 const triggerAt = source.indexOf("rpc('student_adaptive_trigger_check_v1'");
 const readinessAt = source.indexOf("rpc('student_adaptive_question_readiness_v2'");
 const planAt = source.indexOf("rpc('student_adaptive_diagnostic_plan_v1'");
@@ -81,8 +98,6 @@ for (const forbidden of [
     `pilot must not expose/bypass protected data authority: ${forbidden}`);
 }
 
-assert.match(source, /latestCompletedWrongAnswer/,
-  'adaptive checks must run only after ordinary Practice records a completed wrong answer');
 assert.match(source, /restoreNormalPractice/,
   'pilot must provide a normal-Practice restoration path');
 assert.match(source, /diagnostic plan unavailable[\s\S]*restoreNormalPractice\(\)/,
@@ -95,6 +110,8 @@ assert.match(source, /This retry is for learning only and does not change your P
 console.log('V5.9B adaptive diagnostic pilot V2 integrity checks passed.');
 console.log('- explicit ?adaptivePilot=2 gate; disabled path makes no runtime wrapper changes');
 console.log('- wraps only ordinary submit after authoritative grading; no cloud.rpc wrapper');
+console.log('- standalone and multipart completed-wrong answer records are inspected only after grading');
+console.log('- multipart siblings are checked independently; non-pilot parts cannot block eligible parts');
 console.log('- requires pilot trigger + Metadata V2 readiness before loading diagnostics');
 console.log('- diagnostics and target retry use only student_adaptive_diagnostic_grade_v1');
 console.log('- no answer-key/table access, no Practice result/XP/mastery write path');
