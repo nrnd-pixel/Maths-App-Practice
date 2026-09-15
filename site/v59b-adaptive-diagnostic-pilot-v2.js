@@ -109,24 +109,26 @@
     return String(value || '').trim();
   }
 
-  function latestCompletedWrongAnswer(questionId, previousAnswerCount){
-    const s = practiceState();
-    if (!s?.done || !Array.isArray(s.answers)) return null;
-    if (s.answers.length <= previousAnswerCount) return null;
-
-    const latest = s.answers[s.answers.length - 1];
-    if (normaliseQuestionId(latest?.questionId) !== questionId) return null;
-    if (latest?.manualReview || latest?.correct !== false) return null;
-    return latest;
+  function activeItemQuestionIds(question){
+    if (!question) return [];
+    if (question?._kind === 'multipart' && Array.isArray(question.parts)) {
+      return question.parts
+        .map(part => normaliseQuestionId(part?.id))
+        .filter(Boolean);
+    }
+    const id = normaliseQuestionId(question.id);
+    return id ? [id] : [];
   }
 
   function captureBeforeSubmit(){
     const s = practiceState();
     const q = activeQuestion();
-    if (!s || !q || q?._kind === 'multipart') return null;
+    if (!s || !q) return null;
+    const questionIds = activeItemQuestionIds(q);
+    if (!questionIds.length) return null;
     return {
       index: Number(s.index),
-      questionId: normaliseQuestionId(q.id),
+      questionIds,
       answersLength: Array.isArray(s.answers) ? s.answers.length : 0,
     };
   }
@@ -134,65 +136,92 @@
   function sameQuestionStillActive(snapshot){
     const s = practiceState();
     const q = activeQuestion();
-    return !!(
-      snapshot &&
-      s &&
-      q &&
-      Number(s.index) === snapshot.index &&
-      normaliseQuestionId(q.id) === snapshot.questionId &&
-      document.getElementById('quiz')?.classList.contains('active')
-    );
+    if (
+      !snapshot ||
+      !s ||
+      !q ||
+      Number(s.index) !== snapshot.index ||
+      !document.getElementById('quiz')?.classList.contains('active')
+    ) return false;
+
+    const currentIds = activeItemQuestionIds(q);
+    return currentIds.length === snapshot.questionIds.length &&
+      currentIds.every((id, index) => id === snapshot.questionIds[index]);
+  }
+
+  function completedWrongCandidates(snapshot){
+    const s = practiceState();
+    if (!s?.done || !Array.isArray(s.answers)) return [];
+    if (s.answers.length <= snapshot.answersLength) return [];
+
+    const allowedIds = new Set(snapshot.questionIds);
+    return s.answers
+      .slice(snapshot.answersLength)
+      .map(answer => ({
+        answer,
+        questionId: normaliseQuestionId(answer?.questionId),
+      }))
+      .filter(({ answer, questionId }) =>
+        questionId &&
+        allowedIds.has(questionId) &&
+        !answer?.manualReview &&
+        answer?.correct === false
+      );
   }
 
   async function maybeOfferAfterOrdinarySubmit(snapshot){
     if (!snapshot || phase !== Phase.WATCHING) return;
     if (!sameQuestionStillActive(snapshot)) return;
-    if (handledQuestions.has(snapshot.questionId)) return;
-    if (!latestCompletedWrongAnswer(snapshot.questionId, snapshot.answersLength)) return;
 
-    handledQuestions.add(snapshot.questionId);
-    phase = Phase.CHECKING;
+    const candidates = completedWrongCandidates(snapshot);
+    if (!candidates.length) return;
 
     const token = currentAccessToken();
-    if (!token) {
-      phase = Phase.WATCHING;
-      return;
-    }
+    if (!token) return;
+
+    phase = Phase.CHECKING;
 
     try {
-      const trigger = await rpc('student_adaptive_trigger_check_v1', {
-        p_access_token: token,
-        p_question_id: snapshot.questionId,
-      });
+      for (const candidate of candidates) {
+        const questionId = candidate.questionId;
+        if (handledQuestions.has(questionId)) continue;
+        handledQuestions.add(questionId);
 
-      if (
-        trigger?.status !== 'READY' ||
-        trigger?.should_offer !== true
-      ) {
-        phase = Phase.WATCHING;
+        const trigger = await rpc('student_adaptive_trigger_check_v1', {
+          p_access_token: token,
+          p_question_id: questionId,
+        });
+
+        if (
+          trigger?.status !== 'READY' ||
+          trigger?.should_offer !== true
+        ) {
+          continue;
+        }
+
+        const readiness = await rpc('student_adaptive_question_readiness_v2', {
+          p_access_token: token,
+          p_question_id: questionId,
+          p_require_diagnostic_route: true,
+        });
+
+        if (readiness?.status !== 'READY') {
+          continue;
+        }
+
+        adaptiveSession = {
+          accessToken: token,
+          targetQuestionId: questionId,
+          plan: null,
+          stepIndex: 0,
+        };
+
+        phase = Phase.OFFER;
+        renderOffer();
         return;
       }
 
-      const readiness = await rpc('student_adaptive_question_readiness_v2', {
-        p_access_token: token,
-        p_question_id: snapshot.questionId,
-        p_require_diagnostic_route: true,
-      });
-
-      if (readiness?.status !== 'READY') {
-        phase = Phase.WATCHING;
-        return;
-      }
-
-      adaptiveSession = {
-        accessToken: token,
-        targetQuestionId: snapshot.questionId,
-        plan: null,
-        stepIndex: 0,
-      };
-
-      phase = Phase.OFFER;
-      renderOffer();
+      phase = Phase.WATCHING;
     } catch (error) {
       console.warn('V5.9B V2 adaptive readiness check failed closed.', error);
       phase = Phase.WATCHING;
