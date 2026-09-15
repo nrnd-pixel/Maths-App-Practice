@@ -1,8 +1,8 @@
 # Maths Practice App — Roadmap
 
-Last updated: 2026-09-13
+Last updated: 2026-09-16
 
-This roadmap prioritises the live Maths experience because students are actively using the app for practice. It deliberately deprioritises breadth (for example Science expansion and additional demo work) until the Maths practice system is more reliable, diagnostically useful and maintainable.
+This roadmap prioritises the live Maths experience because students are actively using the app for practice. It deliberately deprioritises breadth, including Science expansion, until the Maths practice system is more reliable, diagnostically useful and maintainable.
 
 ## Guiding principles
 
@@ -10,8 +10,9 @@ This roadmap prioritises the live Maths experience because students are actively
 2. Improve learning value, not feature count.
 3. Treat question/content quality as a production concern.
 4. Build adaptive behaviour on richer evidence than topic labels alone.
-5. Modernise architecture only with strict behavioural equivalence.
-6. Keep risky replacements last and map before code.
+5. Require pilot evidence before broadening adaptive access.
+6. Modernise architecture only with strict behavioural equivalence.
+7. Keep risky replacements last and map before code.
 
 ## P0 — Live stability and trustworthy foundations
 
@@ -32,16 +33,13 @@ Exit condition: no known high-severity live regression; production flows have re
 
 ### P0.2 CI / Playwright reliability housekeeping
 
-Outcome: eliminate known deterministic timing races without weakening tests.
+Status: the known V56/V57 Student Home readiness races have been repaired without weakening assertions.
 
-Immediate item:
-- V56/V57 Past Paper tests F/K sometimes click Assignments while the V5.7C Home dashboard has `data-v57c-rendered="false"`.
-- Synchronise the test with the existing readiness contract before clicking.
+Relevant checkpoints:
+- PR #244 — synchronised Tests F/K with the existing V5.7C Home readiness contract;
+- PR #269 — added the same accepted readiness wait to Gate G.
 
-Rules:
-- do not increase timeouts as the primary fix;
-- do not remove assertions;
-- do not change production runtime for a test-only race unless real browser evidence shows a production bug.
+Continue to treat new timing failures as defects to diagnose rather than reasons to inflate timeouts or remove assertions.
 
 ### P0.3 Question Bank Integrity checkpoint
 
@@ -62,6 +60,7 @@ Target checks include:
 Known Paper 2 audit examples to preserve:
 - 2022 Q30: printed prices/ratio/stated total are internally inconsistent; keep excluded from automated modelling until resolved.
 - 2023 Q30: printed answer line uses `cm²` although the demanded quantity is a length; mathematical correction is `cm`, with source audit retained.
+- 2025 P2 Q30 adaptive target: authoritative original source/Table 2 has not yet been directly verified for Metadata V2; keep unprofiled/ineligible and fail closed.
 
 ## P1 — Better learning intelligence
 
@@ -69,45 +68,52 @@ Known Paper 2 audit examples to preserve:
 
 Outcome: supplement the current topic/difficulty fields with metadata that describes what a question actually demands.
 
-Do not immediately replace the existing production fields. Add richer metadata alongside them and validate usefulness first.
+Current checkpoint:
+- schema foundation merged under PR #256;
+- production currently has 41 Metadata V2 profiles;
+- two profiles are explicitly adaptive-eligible: 2025 P1 Q9(b) and 2025 P2 Q4;
+- 2025 P2 Q30 remains unprofiled/ineligible;
+- eligibility remains a permission/readiness signal, not a student-weakness model.
 
-Candidate dimensions:
-- primary topic;
-- secondary/embedded skills;
-- prerequisites;
-- procedural-step count;
-- conceptual-reasoning demand;
-- reading/context load;
-- visual-spatial demand;
-- number of concepts combined;
-- response complexity;
-- paper-section profile (early fluency / middle mixed / late applied);
-- source-confidence/audit status;
-- calibrated difficulty from real performance data, when enough evidence exists.
+Continue to expand metadata only from verified source evidence and reviewed calibration. Do not use the small profiled subset to filter the broader Practice bank.
 
-Evidence from the 2020, 2022-2025 Paper 2 analysis:
-- 169 of 170 digitised rows currently share the `standard` difficulty label, so the current field is not discriminating enough for adaptation.
-- topic labels can hide embedded skills such as unit conversion or percentage reasoning.
-- the papers show a stable demand progression even when contexts rotate.
+### P1.2 V5.9B Adaptive Diagnostic — controlled pilot evidence
 
-### P1.2 V5.9B Adaptive Diagnostic — controlled pilot refinement
+Outcome: diagnose prerequisite/reasoning failures rather than simply reacting to a top-level topic label.
 
-Outcome: diagnose prerequisite/reasoning failures rather than simply reacting to the top-level topic label.
+Implementation checkpoint:
+- Stage 0 source reconciliation — PR #267 merged;
+- Stage 1 fail-closed readiness RPC — PR #268 merged and deployed;
+- Stage 2 verified tiny eligibility subset — Q9(b) + Q4 eligible; Q30 remains ineligible;
+- server authority hardening — PR #272 merged and deployed;
+- Stage 3 browser pilot V2 — PR #271 merged after exact-head CI and manual smoke testing.
 
-Keep PR #237 pilot-only until re-based/reviewed from current main and a new acceptance cycle is completed.
+Current pilot boundary:
+- browser flow dormant unless `?adaptivePilot=2` is present;
+- server pilot remains `allow_all_students=false`;
+- exactly one allowed student;
+- three allow-listed target IDs, but only Q9(b) and Q4 pass Metadata V2 readiness;
+- Q30 must fail closed;
+- ordinary Practice grading, score, XP, mastery and answer history remain authoritative.
 
-Desired direction:
-- identify which prerequisite or reasoning step is likely failing;
-- serve a very short diagnostic/intervention sequence;
-- preserve normal Practice scoring and authority;
-- keep diagnostic grading server-side;
-- measure whether the student succeeds on a subsequent retry;
-- do not generalise to all students until pilot evidence supports it.
+Next step: collect controlled pilot evidence. Measure trigger behaviour, diagnostic completion, target-retry outcome and usability. A successful technical smoke test is not evidence of learning effectiveness.
 
-Example target pattern:
-`fraction of whole -> remainder -> fraction of remainder -> retry original structure`.
+Do not broaden student access, add targets, or generalise adaptive sequencing until the evidence justifies a specific next hypothesis.
 
-### P1.3 Paper 2 Blueprint Practice
+### P1.3 Stage 4 demand-aware Mixed Practice — deferred
+
+Issue #266 originally reserved a future Stage 4 for demand-aware Mixed Practice. It remains deliberately deferred.
+
+Before any experiment:
+- define a student-level learning objective;
+- define a minimum metadata/evidence coverage threshold;
+- specify how unprofiled questions fail open to the accepted V5.3D5 ordering;
+- prove no Topic/assignment/Past Paper/topical/Exam route leakage;
+- obtain explicit approval for the experiment.
+
+Do not create arbitrary demand quotas merely because Metadata V2 scores exist.
+
+### P1.4 Paper 2 Blueprint Practice
 
 Outcome: an optional practice mode that mirrors the observed Paper 2 demand progression without pretending to predict exact future questions.
 
@@ -126,7 +132,7 @@ Stable templates worth dedicated practice include:
 - later multi-step angle reasoning;
 - procedural and applied fraction reasoning.
 
-### P1.4 Student weakness / teacher insight model
+### P1.5 Student weakness / teacher insight model
 
 Outcome: analytics progress from broad topic percentages to actionable learning patterns.
 
@@ -136,7 +142,7 @@ Examples:
 - individual angle facts secure; multi-step angle reasoning weak;
 - recurring unit-conversion weakness across Time/Mass/Capacity questions.
 
-This depends on Question Metadata V2 and trustworthy content data.
+This depends on trustworthy content data, richer metadata and enough student evidence to avoid over-interpreting sparse results.
 
 ## P2 — Authentic practice and engineering modernisation
 
@@ -201,25 +207,21 @@ Implementation begins only after the map and equivalence plan are accepted.
 ## Parked for now
 
 These are not rejected; they are simply low priority while students are using Maths for active practice:
-
 - Science V0.2 expansion (PR #180);
-- further demo-route development beyond maintenance of the routes already merged;
+- further demo-route development beyond maintenance of the merged routes;
 - additional Student Home cosmetic redesign;
 - broad new product areas not tied to current Maths learning/stability needs.
 
-## Order of execution
+## Current order of execution
 
-Current recommended sequence:
+1. maintain V5.9 production stability and trustworthy CI;
+2. continue Question Bank Integrity work;
+3. maintain/extend Metadata V2 only from verified evidence;
+4. collect V5.9B controlled pilot evidence;
+5. decide whether the evidence supports another adaptive refinement or whether to proceed to Paper 2 Blueprint Practice;
+6. richer student/teacher learning insights;
+7. authentic response coverage and observability;
+8. Phase 7B module bundling;
+9. Phase 7C mapping and eventual replacement.
 
-1. shared project record/documentation;
-2. V5.9 production + CI stabilisation;
-3. Question Bank Integrity checkpoint;
-4. Question Metadata V2;
-5. V5.9B controlled adaptive pilot refinement;
-6. Paper 2 Blueprint Practice;
-7. richer student/teacher learning insights;
-8. authentic response coverage and observability;
-9. Phase 7B module bundling;
-10. Phase 7C mapping and eventual replacement.
-
-Each phase should be re-evaluated against real student use before automatically moving to the next one.
+Stage 4 demand-aware Mixed Practice is not an automatic next step; it requires a separate evidence-backed proposal and explicit acceptance.

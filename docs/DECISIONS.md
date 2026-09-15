@@ -1,8 +1,52 @@
 # Maths Practice App — Decisions
 
-Last updated: 2026-09-13
+Last updated: 2026-09-16
 
 This file records important project decisions and the reason behind them. It is intentionally concise: record durable decisions, not every debugging step.
+
+## 2026-09-16 — V5.9B is accepted only as a tightly controlled pilot
+
+Decision:
+Keep the merged V5.9B adaptive diagnostic flow restricted to the explicit browser pilot flag plus the existing server-side allow-list. Do not generalise it to all students or targets from the fact that the implementation and smoke tests passed.
+
+Reason:
+PR #271 proved the browser flow can preserve ordinary Practice authority and fail closed correctly, but a successful technical smoke test does not establish learning effectiveness.
+
+Implication:
+The next adaptive step is controlled evidence collection, not broader rollout. Current production scope remains one allowed student and three allow-listed target IDs, of which only Q9(b) and Q4 pass Metadata V2 readiness; Q30 remains ineligible.
+
+## 2026-09-16 — Adaptive readiness must be enforced at the server authority boundary
+
+Decision:
+Diagnostic plan delivery and diagnostic grading must independently enforce `student_adaptive_question_readiness_v2`, not rely only on the browser having called readiness first.
+
+Reason:
+Review of the initial Stage 3 candidate found that a modified client could otherwise bypass the browser readiness check and directly call the plan/grader RPCs for an old allow-listed but Metadata-ineligible target such as Q30.
+
+Implication:
+PR #272 is part of the accepted adaptive architecture. Future adaptive endpoints that deliver protected diagnostic content or write adaptive evidence must fail closed independently at the server boundary.
+
+## 2026-09-16 — Metadata V2 eligibility is permission, not diagnosis
+
+Decision:
+Treat Metadata V2 adaptive eligibility as a fail-closed permission/readiness gate. Continue to use the curated skill graph, prerequisite relationships, misconceptions and diagnostic plans as the authority for the actual diagnostic route.
+
+Reason:
+Demand scores describe question characteristics. They do not, by themselves, identify a student's misconception or prerequisite gap.
+
+Implication:
+Do not infer a diagnostic route from topic labels or demand scores. Do not interpret a high demand score as proof that a particular student is weak in that dimension without student-level evidence.
+
+## 2026-09-16 — Demand-aware Mixed Practice remains deferred
+
+Decision:
+Do not move automatically from the controlled V5.9B pilot into demand-aware Mixed Practice.
+
+Reason:
+Metadata coverage remains small relative to the full Practice bank, and there is not yet enough pilot evidence to justify a particular adaptive selection objective or quota.
+
+Implication:
+Any future Stage 4 experiment must define a learning objective, coverage threshold, fail-open behaviour to the accepted V5.3D5 ordering, isolation boundaries and an explicit evidence-backed acceptance plan before implementation.
 
 ## 2026-09-13 — GitHub repository becomes the cross-assistant project memory
 
@@ -37,17 +81,6 @@ They supersede the older V5.8.1 demo drafts and were reviewed with isolation ver
 Implication:
 PR #204 and PR #205 must not be merged; close them as superseded when housekeeping is performed.
 
-## 2026-09-13 — V5.9B remains a controlled pilot
-
-Decision:
-Do not promote the adaptive diagnostic pilot broadly until it is re-based/reviewed from current main and evaluated with controlled pilot evidence.
-
-Reason:
-Adaptive behaviour can affect learning pathways. It should diagnose real prerequisite/reasoning needs and prove useful before broad release.
-
-Implication:
-PR #237 remains draft/pilot-only. Existing Practice scoring and server authority remain authoritative.
-
 ## 2026-09-13 — Question metadata will be enriched before adaptive expansion
 
 Decision:
@@ -57,7 +90,7 @@ Reason:
 The Paper 2 analysis found the existing difficulty field is not discriminating enough (169 of 170 digitised rows labelled `standard`) and that top-level topic labels hide embedded skills and different cognitive demands.
 
 Implication:
-Adaptive logic should eventually consider prerequisites, procedural steps, conceptual reasoning, reading load, visual-spatial demand, combined concepts, response complexity and source-confidence—not topic alone.
+Adaptive logic should use richer evidence only after source verification/calibration, and should not treat topic alone as the diagnostic explanation.
 
 ## 2026-09-13 — Paper 2 patterns guide practice design, not prediction
 
