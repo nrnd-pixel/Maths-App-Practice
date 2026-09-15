@@ -17,6 +17,8 @@ const CLASS_ID = 'e2e-class-1';
 const ROSTER_ID = 'e2e-roster-student-1';
 const ASSIGNMENT_ID = 'e2e-past-paper-assignment-1';
 const ATTEMPT_ID = 'e2e-past-paper-attempt-1';
+const FIXTURE_NOW_MS = Date.now();
+const fixtureIso = minutesFromNow => new Date(FIXTURE_NOW_MS + minutesFromNow * 60 * 1000).toISOString();
 
 function pastPaperQuestion(number,id,paper=PAPER){
   return {
@@ -106,7 +108,7 @@ function answerEvidence(question,index){
 function checkpoint({
   paper=PAPER,
   nextIndex=1,
-  savedAt='2026-09-08T02:00:00.000Z',
+  savedAt=fixtureIso(-120),
   assignmentContext=null,
 }={}){
   const ids=QUESTIONS.map(row=>row.id);
@@ -126,7 +128,7 @@ function checkpoint({
     hints:0,
     second:0,
     answers,
-    startedAt:'2026-09-08T01:00:00.000Z',
+    startedAt:fixtureIso(-180),
     savedAt,
     ...(assignmentContext ? {assignmentContext} : {}),
   };
@@ -545,30 +547,32 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
   });
 
   test('D — V57A1 keeps newer local evidence and intercepts a local resume button when server evidence is authoritative',async({page})=>{
-    const server=checkpoint({nextIndex:2,savedAt:'2026-09-08T04:00:00.000Z'});
+    const server=checkpoint({nextIndex:2,savedAt:fixtureIso(-120)});
     await signInWithPastPaper(page,{serverCheckpoint:server,persistServer:true});
     await selectPastPaper(page,{scope:'all'});
 
-    const precedence=await page.evaluate(({older,newer})=>{
+    const precedence=await page.evaluate(({older,newer,rejectedAt,acceptedAt})=>{
       const api=window.V55CResumePastPaperPractice;
       const bridge=window.V57A1CrossDeviceLocalBridge;
       const key=api.identityKey(older.studentId,older.studentName,older.yearLevel,older.examYear,older.paper);
       api.writeStore(localStorage,{[key]:older});
-      const rejected=bridge.mirror({...newer,savedAt:'2026-09-08T03:00:00.000Z'});
+      const rejected=bridge.mirror({...newer,savedAt:rejectedAt});
       const afterReject=api.readStore(localStorage)[key];
-      const accepted=bridge.mirror({...newer,savedAt:'2026-09-08T05:00:00.000Z'});
+      const accepted=bridge.mirror({...newer,savedAt:acceptedAt});
       const afterAccept=api.readStore(localStorage)[key];
       return {rejected,afterReject:afterReject.nextIndex,accepted,afterAccept:afterAccept.nextIndex};
     },{
-      older:checkpoint({nextIndex:1,savedAt:'2026-09-08T04:30:00.000Z'}),
+      older:checkpoint({nextIndex:1,savedAt:fixtureIso(-90)}),
       newer:server,
+      rejectedAt:fixtureIso(-180),
+      acceptedAt:fixtureIso(-60),
     });
     expect(precedence).toEqual({rejected:false,afterReject:1,accepted:true,afterAccept:2});
 
     // Put a deliberately newer but less-progressed local snapshot back in storage.
     // Clicking the local V55 button must still be intercepted and restored from
     // the authoritative server checkpoint currently held by V57A.
-    await seedLocal(page,checkpoint({nextIndex:1,savedAt:'2026-09-08T06:00:00.000Z'}),'intercept-local');
+    await seedLocal(page,checkpoint({nextIndex:1,savedAt:fixtureIso(-30)}),'intercept-local');
     await page.locator('#v55a-paper-name').dispatchEvent('change');
     const localResume=page.locator('#v55c-resume-card [data-v55c-resume]');
     await expect(localResume).toHaveCount(1);
@@ -580,12 +584,12 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
 
   test('E — V57A2 prunes only stale same-device checkpoints older than server completion watermarks',async({page})=>{
     const completions=[
-      {examYear:EXAM_YEAR,paper:PAPER,completedAt:'2026-09-08T05:00:00.000Z'},
-      {examYear:EXAM_YEAR,paper:PAPER_2,completedAt:'2026-09-08T05:00:00.000Z'},
+      {examYear:EXAM_YEAR,paper:PAPER,completedAt:fixtureIso(-60)},
+      {examYear:EXAM_YEAR,paper:PAPER_2,completedAt:fixtureIso(-60)},
     ];
     await signInWithPastPaper(page,{persistServer:false,completions});
-    await seedLocal(page,checkpoint({paper:PAPER,nextIndex:1,savedAt:'2026-09-08T04:00:00.000Z'}),'old');
-    await seedLocal(page,checkpoint({paper:PAPER_2,nextIndex:1,savedAt:'2026-09-08T06:00:00.000Z'}),'new');
+    await seedLocal(page,checkpoint({paper:PAPER,nextIndex:1,savedAt:fixtureIso(-120)}),'old');
+    await seedLocal(page,checkpoint({paper:PAPER_2,nextIndex:1,savedAt:fixtureIso(-30)}),'new');
 
     const removed=await page.evaluate(()=>window.V57A2StaleLocalCheckpointCleanup.refresh(true));
     expect(removed).toBe(1);
@@ -649,7 +653,7 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
     await signInStudent(page);
     await waitForPhase4Runtime(page);
     await waitForStudentHomeReady(page);
-    await seedLocalIdentity(page,checkpoint({nextIndex:1,savedAt:'2026-09-08T04:00:00.000Z'}));
+    await seedLocalIdentity(page,checkpoint({nextIndex:1,savedAt:fixtureIso(-60)}));
 
     const progressHome=page.locator('#start .v57c-secondary .v57c-progress');
     await expect(progressHome).toBeVisible();

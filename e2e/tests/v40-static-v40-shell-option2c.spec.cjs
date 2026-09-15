@@ -22,9 +22,11 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': '48690f4ffec9f49a154214f9f45abd0fb5cae051',
+  'site/config.js': 'cd748641389f8c3143cc7f34ab81868b8e7caacb',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '229ac351a469e2474f2c12a993893b8b3244e812',
   'site/v59a-student-home-refresh.js': 'b4e2f290061f061c22d00fc23e87d9adecf7cde9',
+  'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'ee1452ac1de129de3dea51ec74c0b68e606137ba',
+  'site/v59b-adaptive-diagnostic-pilot-v2.js': '8a054eb58e374c8eefac64225ebba6cff68c827e',
   'site/tests/v51-phase4-protected-shas.json': '2742c6d060a1a631774524710680e9287f32aea3',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
@@ -119,7 +121,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '48690f4ffec9f49a154214f9f45abd0fb5cae051',
+  'site/config.js': 'cd748641389f8c3143cc7f34ab81868b8e7caacb',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
