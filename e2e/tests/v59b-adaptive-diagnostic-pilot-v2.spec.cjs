@@ -9,6 +9,7 @@ const MODULE_PATH = path.resolve(
   'v59b-adaptive-diagnostic-pilot-v2.js',
 );
 
+const Q9A = 'dc49cfed-b945-49d1-abc2-1983b732da32';
 const Q9B = 'c4feda04-6c85-4123-baf6-8e38deb1d1fa';
 const Q30 = '077872ec-2c3c-402f-9c51-491c77500791';
 
@@ -17,6 +18,7 @@ async function installHarness(page, {
   targetId = Q9B,
   mode = 'eligible',
   completeWrong = true,
+  multipart = false,
 } = {}) {
   await page.route('http://pilot.test/**', async route => {
     await route.fulfill({
@@ -38,15 +40,34 @@ async function installHarness(page, {
     ? 'http://pilot.test/?adaptivePilot=2'
     : 'http://pilot.test/');
 
-  await page.evaluate(({ targetId, mode, completeWrong }) => {
+  await page.evaluate(({ targetId, mode, completeWrong, multipart, q9a }) => {
     window.__rpcCalls = [];
     window.__completeWrong = completeWrong;
     window.__baseSubmitCount = 0;
     window.cloudReady = true;
     window.activeStudentAccess = { access_token: 'practice-ticket' };
+
+    const standalone = { id: targetId, question_text: 'Target question' };
+    const multipartQuestion = {
+      _kind: 'multipart',
+      question_number: '9',
+      parts: [
+        {
+          id: q9a,
+          part_label: 'a',
+          question_text: 'Fill in the correct symbol (<, > or =): 8.5 kg __ 8 500 g',
+        },
+        {
+          id: targetId,
+          part_label: 'b',
+          question_text: 'Fill in the correct symbol (<, > or =): 17 hundredths __ 1.7',
+        },
+      ],
+    };
+
     window.state = {
       accessToken: 'practice-ticket',
-      questions: [{ id: targetId, question_text: 'Target question' }],
+      questions: [multipart ? multipartQuestion : standalone],
       index: 0,
       done: false,
       answers: [],
@@ -74,11 +95,28 @@ async function installHarness(page, {
         return;
       }
       window.state.done = true;
-      window.state.answers.push({
-        questionId: targetId,
-        correct: false,
-        manualReview: false,
-      });
+      if (multipart) {
+        // Mirror finishMultipartGroup(): every physical part is appended only
+        // after the ordinary multipart grader has completed the whole item.
+        window.state.answers.push(
+          {
+            questionId: q9a,
+            correct: false,
+            manualReview: false,
+          },
+          {
+            questionId: targetId,
+            correct: false,
+            manualReview: false,
+          },
+        );
+      } else {
+        window.state.answers.push({
+          questionId: targetId,
+          correct: false,
+          manualReview: false,
+        });
+      }
       document.getElementById('check-btn').disabled = true;
       document.getElementById('next-btn').disabled = false;
     };
@@ -113,6 +151,9 @@ async function installHarness(page, {
           if (mode === 'not_allowed') {
             return { data: { status: 'DISABLED', should_offer: false }, error: null };
           }
+          if (multipart && args.p_question_id === q9a) {
+            return { data: { status: 'NOT_IN_PILOT', should_offer: false }, error: null };
+          }
           return { data: { status: 'READY', should_offer: true }, error: null };
         }
         if (name === 'student_adaptive_question_readiness_v2') {
@@ -140,7 +181,7 @@ async function installHarness(page, {
         return { data: null, error: { message: `Unexpected RPC ${name}` } };
       },
     };
-  }, { targetId, mode, completeWrong });
+  }, { targetId, mode, completeWrong, multipart, q9a: Q9A });
 
   await page.addScriptTag({ path: MODULE_PATH });
 
@@ -185,7 +226,7 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
     await page.waitForTimeout(100);
 
     expect(await rpcNames(page)).toEqual([]);
-    await expect(page.locator(`#v59b2-adaptive-overlay`)).toHaveCount(0);
+    await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
     expect(await page.evaluate(() => window.__baseSubmitCount)).toBe(1);
   });
 
@@ -197,15 +238,25 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
       'student_adaptive_trigger_check_v1',
       'student_adaptive_question_readiness_v2',
     ]);
-    await expect(page.locator(`#v59b2-adaptive-overlay`)).toHaveCount(0);
+    await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
   });
 
-  test('gate 4 — eligible target runs diagnostics + unscored retry without changing Practice scores/results', async ({ page }) => {
-    await installHarness(page, { targetId: Q9B, mode: 'eligible' });
+  test('gate 4 — real Q9 multipart shape reaches eligible Q9(b) after non-pilot Q9(a), then stays unscored', async ({ page }) => {
+    await installHarness(page, { targetId: Q9B, mode: 'eligible', multipart: true });
     await clickOrdinaryCheck(page);
 
     await expect(page.locator('#v59b2-adaptive-overlay')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Want a little extra help?' })).toBeVisible();
+
+    const gatingCalls = await page.evaluate(() => window.__rpcCalls.map(call => ({
+      name: call.name,
+      questionId: call.args.p_question_id || null,
+    })));
+    expect(gatingCalls).toEqual([
+      { name: 'student_adaptive_trigger_check_v1', questionId: Q9A },
+      { name: 'student_adaptive_trigger_check_v1', questionId: Q9B },
+      { name: 'student_adaptive_question_readiness_v2', questionId: Q9B },
+    ]);
 
     await page.locator('[data-v59b2-action="start"]').click();
     await expect(page.getByRole('heading', { name: 'Step 1 of 1' })).toBeVisible();
@@ -225,21 +276,26 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
     const stateSnapshot = await page.evaluate(() => ({
       first: window.state.first,
       mastered: window.state.mastered,
-      answers: window.state.answers.length,
-      answerCorrect: window.state.answers[0]?.correct,
+      answers: window.state.answers.map(answer => ({
+        questionId: answer.questionId,
+        correct: answer.correct,
+      })),
       nextDisabled: document.getElementById('next-btn').disabled,
       checkDisabled: document.getElementById('check-btn').disabled,
     }));
     expect(stateSnapshot).toEqual({
       first: 3,
       mastered: 4,
-      answers: 1,
-      answerCorrect: false,
+      answers: [
+        { questionId: Q9A, correct: false },
+        { questionId: Q9B, correct: false },
+      ],
       nextDisabled: false,
       checkDisabled: true,
     });
 
     expect(await rpcNames(page)).toEqual([
+      'student_adaptive_trigger_check_v1',
       'student_adaptive_trigger_check_v1',
       'student_adaptive_question_readiness_v2',
       'student_adaptive_diagnostic_plan_v1',
