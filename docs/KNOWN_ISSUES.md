@@ -1,25 +1,36 @@
 # Maths Practice App — Known Issues and Watchlist
 
-Last updated: 2026-09-13
+Last updated: 2026-09-16
 
-This file records unresolved defects, test flakes, stale branches and data-quality risks that may affect future work.
+This file records unresolved defects, stale branches and data-quality risks that may affect future work. Resolved timing/test issues are kept only where the lesson remains operationally useful.
 
-## 1. V56/V57 Playwright Home-readiness race
+## 1. Controlled V5.9B pilot effectiveness is not yet established
 
-Status: known test flake; production runtime not proven faulty.
+Status: implementation accepted; learning-effectiveness evidence still pending.
 
-Observed in:
-- `e2e/tests/past-paper-phase4-v56-v57.spec.cjs`
-- Test F: teacher-assigned Past Paper end-to-end checkpoint flow
-- Test K: shared completion lock / double-fire protection
+Verified technical state:
+- merged browser pilot: PR #271;
+- server readiness hardening: PR #272;
+- pilot remains `allow_all_students=false` with exactly one allowed student and three allow-listed target IDs;
+- only 2025 P1 Q9(b) and 2025 P2 Q4 are Metadata V2 adaptive-eligible;
+- 2025 P2 Q30 remains unprofiled/ineligible and must fail closed.
 
-Failure mode:
-The test can click the V5.7C Home Assignments action while the dashboard has `data-v57c-rendered="false"`. The runtime click handler intentionally ignores navigation until the dashboard is rendered. The same unchanged PR head later passed on rerun, confirming timing sensitivity.
+Risk:
+A green smoke test proves the flow works technically, not that the diagnostic sequence improves learning or is well understood by students.
 
-Preferred fix:
-Wait for the existing readiness contract (`data-v57c-rendered="true"`) before the automated Assignments click. Do not weaken assertions or merely increase timeouts.
+Preferred action:
+Collect controlled evidence before expanding students, targets or adaptive selection logic. Track trigger timing, diagnostic completion/correctness, target retry result, score/XP/mastery invariants and usability friction.
 
-## 2. `/demo-student/` hint counter can double-count
+## 2. 2025 Paper 2 Q30 adaptive target remains source-blocked
+
+Status: unprofiled / ineligible.
+
+The pilot allow-list still contains Q30, but an authoritative original 2025 Paper 2 Q30 source page/Table 2 has not yet been directly verified for Metadata V2 calibration.
+
+Handling:
+Keep Q30 unprofiled/ineligible. The browser and server readiness contracts must continue to fail closed for this target. Do not calibrate from transformed/question-bank wording alone.
+
+## 3. `/demo-student/` hint counter can double-count
 
 Status: minor demo-only issue; no production Practice impact.
 
@@ -32,7 +43,17 @@ Only the static demo completion statistic. No Supabase, real student record, sco
 Priority:
 Low. Fix opportunistically if it stays isolated and does not create unnecessary seal/CI churn.
 
-## 3. Old demo PRs #204 and #205 remain open
+## 4. Superseded adaptive PRs #209 and #237 remain open
+
+Status: stale / superseded by merged PR #271.
+
+Risk:
+Both branches predate the accepted Stage 3 architecture and can create confusion because their browser contracts are no longer authoritative.
+
+Rule:
+Do not merge or revive them. Close them as superseded during housekeeping, linking PR #271.
+
+## 5. Old demo PRs #204 and #205 remain open
 
 Status: superseded.
 
@@ -41,28 +62,16 @@ PR #242 consolidated the maintained V5.9 demo routes. PRs #204 and #205 are base
 Preferred action:
 Close them as superseded during housekeeping.
 
-## 4. PR #237 adaptive diagnostic pilot is intentionally not production-ready
-
-Status: draft/pilot-only.
-
-Risks:
-- branch predates the current verified main;
-- adaptive behaviour requires renewed source/architecture mapping before any promotion;
-- pilot effectiveness must be evaluated, not inferred from implementation alone.
-
-Rule:
-Do not merge or broaden access without a new explicit acceptance cycle.
-
-## 5. PR #180 Science V0.2 is parked on an old baseline
+## 6. PR #180 Science V0.2 is parked on an old baseline
 
 Status: parked.
 
 It was built from an older Maths baseline and should not be revived by simply merging/rebasing blindly.
 
 Preferred action if resumed:
-Map current architecture and re-create/re-base the isolated Science pilot from the then-current verified main.
+Map current architecture and re-create/re-base the isolated Science pilot from the then-current verified main. Current scope remains Maths-first, so do not resume it now.
 
-## 6. Paper 2 source/data audit issues
+## 7. Paper 2 source/data audit issues
 
 ### 2022 Q30
 Printed prices, ratio and stated total are internally inconsistent.
@@ -76,7 +85,7 @@ Printed answer line uses `cm²` although the question asks for a length; the mat
 Handling:
 Use the corrected mathematical unit while preserving a source audit flag.
 
-## 7. Current difficulty metadata is not discriminating enough
+## 8. Current difficulty metadata is not discriminating enough
 
 Observed evidence from the combined Paper 2 analysis:
 - 169 of 170 digitised rows are labelled `standard`;
@@ -86,9 +95,9 @@ Impact:
 The current field should not be treated as sufficient evidence for adaptive sequencing or cross-year difficulty analysis.
 
 Preferred direction:
-Question Metadata V2 with multidimensional demand descriptors plus later calibration from real performance data.
+Continue Question Metadata V2 calibration from verified sources and later calibrate against real performance data.
 
-## 8. Topic labels can hide embedded skills
+## 9. Topic labels can hide embedded skills
 
 Examples include percentage reasoning or unit conversion embedded inside Time, Mass, Capacity, Money or other labelled topics.
 
@@ -96,12 +105,27 @@ Impact:
 Topic-only analytics can misdiagnose a shared underlying weakness as several unrelated topic weaknesses.
 
 Preferred direction:
-Secondary/embedded skill tags and prerequisite metadata before richer automatic recommendations.
+Use secondary/embedded skill and prerequisite evidence before richer automatic recommendations.
+
+## Resolved checkpoints worth remembering
+
+### V56/V57 Student Home readiness Playwright races
+
+Resolved by:
+- PR #244 for the F/K Assignments readiness race;
+- PR #269 for the corresponding Gate G Progress readiness race.
+
+Lesson:
+Synchronise tests with the existing runtime readiness contract (`data-v57c-rendered="true"`) rather than increasing timeouts or weakening assertions.
+
+### PR #237 no longer represents the accepted adaptive implementation
+
+PR #271 rebuilt Stage 3 from current main and passed exact-head CI plus manual smoke testing. PR #237 is now only stale history and must not be used as a source-of-truth implementation.
 
 ## Watchlist discipline
 
 When an item is resolved:
 1. link the resolving PR/commit;
-2. state the verified main SHA;
+2. state the verified main SHA where useful;
 3. move any durable architectural lesson to `DECISIONS.md`;
-4. remove or mark this issue resolved rather than leaving ambiguous stale warnings.
+4. remove or mark the warning resolved rather than leaving ambiguous stale guidance.
