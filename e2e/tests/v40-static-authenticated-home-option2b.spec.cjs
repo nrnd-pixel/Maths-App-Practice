@@ -19,6 +19,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/20260907080542_adaptive_pilot_feature_gate_v1.sql': '5565dfd1a4e67384cf69a61188b1e3452a24af39',
   'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
   'supabase/20260914134600_student_adaptive_question_readiness_v2.sql': 'da88c946334f07912735c3afd3c27073ab318d24',
+  'supabase/20260915023000_adaptive_diagnostic_server_readiness_v2.sql': 'fe61768b9dbbb9d8fbfb6909a71e799dbfdd2c95',
 });
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
@@ -53,6 +54,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs',
   'site/tests/verify-question-metadata-v2-schema-contract.cjs',
   'site/tests/verify-adaptive-question-readiness-v2.cjs',
+  'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
