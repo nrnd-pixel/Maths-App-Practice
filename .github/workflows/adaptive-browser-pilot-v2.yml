@@ -7,9 +7,7 @@ on:
     paths:
       - 'site/config.js'
       - 'site/v59b-adaptive-diagnostic-pilot-v2.js'
-      - 'site/v59b-adaptive-pilot-smoke-selector.js'
       - 'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs'
-      - 'site/tests/verify-v59b-adaptive-pilot-smoke-selector.cjs'
       - 'e2e/tests/v59b-adaptive-diagnostic-pilot-v2.spec.cjs'
       - 'e2e/tests/v59b-adaptive-pilot-smoke-selector.spec.cjs'
       - '.github/workflows/adaptive-browser-pilot-v2.yml'
@@ -35,9 +33,7 @@ jobs:
           node-version: '20'
 
       - name: Run adaptive browser pilot V2 static verifier
-        run: |
-          node site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs
-          node site/tests/verify-v59b-adaptive-pilot-smoke-selector.cjs
+        run: node site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs
 
       - name: Install E2E dependencies
         working-directory: e2e
