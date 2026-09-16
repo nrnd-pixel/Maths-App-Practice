@@ -8,6 +8,7 @@ on:
       - 'site/config.js'
       - 'site/v59b-adaptive-diagnostic-pilot-v2.js'
       - 'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs'
+      - 'supabase/20260916010000_adaptive_pilot_lifecycle_telemetry_v1.sql'
       - 'e2e/tests/v59b-adaptive-diagnostic-pilot-v2.spec.cjs'
       - '.github/workflows/adaptive-browser-pilot-v2.yml'
   workflow_dispatch:
