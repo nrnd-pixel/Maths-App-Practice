@@ -12,6 +12,8 @@
      Metadata V2 readiness RPC.
    - Diagnostic checks and target retry use only the dedicated server-side
      diagnostic grader, so Practice score/mastery/XP/session answers are untouched.
+   - Stage 3E lifecycle telemetry is evidence-only and non-blocking: telemetry
+     failure must never prevent adaptive help or ordinary Practice restoration.
    - Any adaptive RPC/DOM failure restores ordinary Practice interaction.
 */
 (() => {
@@ -103,6 +105,32 @@
     const { data, error } = await cloud.rpc(name, args);
     if (error) throw error;
     return data;
+  }
+
+  function queueLifecycleEvent(eventType, session = adaptiveSession){
+    if (!session?.accessToken || !session?.targetQuestionId) return;
+
+    const previous = session.telemetryTail || Promise.resolve();
+    session.telemetryTail = previous
+      .catch(() => undefined)
+      .then(async () => {
+        if (eventType !== 'offer_shown' && !session.flowId) return;
+
+        const result = await rpc('student_adaptive_lifecycle_event_v1', {
+          p_access_token: session.accessToken,
+          p_target_question_id: session.targetQuestionId,
+          p_event_type: eventType,
+          p_flow_id: eventType === 'offer_shown' ? null : session.flowId,
+        });
+
+        if (result?.status !== 'READY') return;
+        if (eventType === 'offer_shown' && result?.flow_id) {
+          session.flowId = String(result.flow_id);
+        }
+      })
+      .catch(error => {
+        console.warn('V5.9B Stage 3E lifecycle telemetry unavailable.', error);
+      });
   }
 
   function normaliseQuestionId(value){
@@ -214,10 +242,13 @@
           targetQuestionId: questionId,
           plan: null,
           stepIndex: 0,
+          flowId: null,
+          telemetryTail: Promise.resolve(),
         };
 
         phase = Phase.OFFER;
         renderOffer();
+        queueLifecycleEvent('offer_shown');
         return;
       }
 
@@ -326,6 +357,20 @@
     phase = Phase.WATCHING;
   }
 
+  function returnToPractice(eventType = null){
+    const session = adaptiveSession;
+    if (eventType) queueLifecycleEvent(eventType, session);
+    queueLifecycleEvent('returned_to_practice', session);
+    restoreNormalPractice();
+  }
+
+  function recoverToPractice(){
+    const session = adaptiveSession;
+    queueLifecycleEvent('adaptive_error_recovered', session);
+    queueLifecycleEvent('returned_to_practice', session);
+    restoreNormalPractice();
+  }
+
   function overlayCard(){
     injectStyles();
     document.getElementById(OVERLAY_ID)?.remove();
@@ -348,10 +393,10 @@
     return element;
   }
 
-  function addReturnAction(actions, label = 'Continue Practice'){
+  function addReturnAction(actions, label = 'Continue Practice', eventType = null){
     const back = button(label, 'outline');
     back.dataset.v59b2Action = 'return';
-    back.addEventListener('click', restoreNormalPractice);
+    back.addEventListener('click', () => returnToPractice(eventType));
     actions.appendChild(back);
     return back;
   }
@@ -368,9 +413,12 @@
     actions.className = 'v59b2-actions';
     const start = button('Start skill check');
     start.dataset.v59b2Action = 'start';
-    start.addEventListener('click', loadPlan);
+    start.addEventListener('click', () => {
+      queueLifecycleEvent('offer_accepted');
+      loadPlan();
+    });
     actions.appendChild(start);
-    addReturnAction(actions);
+    addReturnAction(actions, 'Continue Practice', 'offer_declined');
     card.appendChild(actions);
   }
 
@@ -396,7 +444,7 @@
         !Array.isArray(plan?.steps) ||
         !plan.steps.length
       ) {
-        restoreNormalPractice();
+        recoverToPractice();
         return;
       }
 
@@ -406,7 +454,7 @@
       renderDiagnosticStep();
     } catch (error) {
       console.warn('V5.9B V2 diagnostic plan unavailable.', error);
-      restoreNormalPractice();
+      recoverToPractice();
     }
   }
 
@@ -464,7 +512,7 @@
     const step = steps[adaptiveSession.stepIndex];
     const question = safeQuestion(step);
     if (!step || !question) {
-      restoreNormalPractice();
+      recoverToPractice();
       return;
     }
 
@@ -480,7 +528,7 @@
       renderQuestionBody(card, question);
     } catch (error) {
       console.warn('V5.9B V2 could not render diagnostic question.', error);
-      restoreNormalPractice();
+      recoverToPractice();
       return;
     }
 
@@ -490,7 +538,7 @@
     check.dataset.v59b2Action = 'check-diagnostic';
     check.addEventListener('click', () => gradeDiagnostic(step, question, card, check));
     actions.appendChild(check);
-    addReturnAction(actions, 'Skip and continue Practice');
+    addReturnAction(actions, 'Skip and continue Practice', 'diagnostic_skipped');
     card.appendChild(actions);
   }
 
@@ -527,11 +575,14 @@
       if (!result.correct && result.hint_2) details.push(`Next hint: ${result.hint_2}`);
       feedbackBox(card, details.filter(Boolean).join(' '));
 
+      const isLastDiagnostic = adaptiveSession.stepIndex + 1 >= adaptiveSession.plan.steps.length;
+      if (isLastDiagnostic) queueLifecycleEvent('diagnostic_completed');
+
       const actions = card.querySelector('.v59b2-actions');
       actions.innerHTML = '';
-      const nextLabel = adaptiveSession.stepIndex + 1 < adaptiveSession.plan.steps.length
-        ? 'Next skill check'
-        : 'Try the original question again';
+      const nextLabel = isLastDiagnostic
+        ? 'Try the original question again'
+        : 'Next skill check';
       const next = button(nextLabel);
       next.dataset.v59b2Action = 'next-diagnostic';
       next.addEventListener('click', () => {
@@ -544,7 +595,7 @@
         }
       });
       actions.appendChild(next);
-      addReturnAction(actions, 'Skip and continue Practice');
+      addReturnAction(actions, 'Skip and continue Practice', 'diagnostic_skipped');
     } catch (error) {
       console.warn('V5.9B V2 diagnostic grading failed.', error);
       checkButton.disabled = false;
@@ -554,7 +605,7 @@
 
   function renderTargetRetry(){
     if (!adaptiveSession?.plan?.target || phase !== Phase.TARGET_RETRY) {
-      restoreNormalPractice();
+      recoverToPractice();
       return;
     }
 
@@ -570,7 +621,7 @@
       renderQuestionBody(card, question);
     } catch (error) {
       console.warn('V5.9B V2 could not render target retry.', error);
-      restoreNormalPractice();
+      recoverToPractice();
       return;
     }
 
@@ -580,7 +631,7 @@
     check.dataset.v59b2Action = 'check-target-retry';
     check.addEventListener('click', () => gradeTargetRetry(question, card, check));
     actions.appendChild(check);
-    addReturnAction(actions, 'Skip and continue Practice');
+    addReturnAction(actions, 'Skip and continue Practice', 'diagnostic_skipped');
     card.appendChild(actions);
   }
 
@@ -612,6 +663,7 @@
 
       if (result?.status !== 'READY') throw new Error('Target retry grading was not ready.');
 
+      queueLifecycleEvent('target_retry_submitted');
       feedbackBox(card, result.feedback || (result.correct
         ? 'Good — this skill looks secure.'
         : 'Keep practising this skill.'));
@@ -665,6 +717,7 @@
       getSession: () => adaptiveSession ? {
         targetQuestionId: adaptiveSession.targetQuestionId,
         stepIndex: adaptiveSession.stepIndex,
+        flowId: adaptiveSession.flowId || null,
       } : null,
       exit: restoreNormalPractice,
     }),
