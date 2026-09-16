@@ -12,6 +12,7 @@ const MODULE_PATH = path.resolve(
 const Q9A = 'dc49cfed-b945-49d1-abc2-1983b732da32';
 const Q9B = 'c4feda04-6c85-4123-baf6-8e38deb1d1fa';
 const Q30 = '077872ec-2c3c-402f-9c51-491c77500791';
+const FLOW_ID = '11111111-2222-4333-8444-555555555555';
 
 async function installHarness(page, {
   flag = true,
@@ -19,6 +20,7 @@ async function installHarness(page, {
   mode = 'eligible',
   completeWrong = true,
   multipart = false,
+  telemetryError = false,
 } = {}) {
   await page.route('http://pilot.test/**', async route => {
     await route.fulfill({
@@ -40,7 +42,7 @@ async function installHarness(page, {
     ? 'http://pilot.test/?adaptivePilot=2'
     : 'http://pilot.test/');
 
-  await page.evaluate(({ targetId, mode, completeWrong, multipart, q9a }) => {
+  await page.evaluate(({ targetId, mode, completeWrong, multipart, q9a, telemetryError, flowId }) => {
     window.__rpcCalls = [];
     window.__completeWrong = completeWrong;
     window.__baseSubmitCount = 0;
@@ -96,8 +98,6 @@ async function installHarness(page, {
       }
       window.state.done = true;
       if (multipart) {
-        // Mirror finishMultipartGroup(): every physical part is appended only
-        // after the ordinary multipart grader has completed the whole item.
         window.state.answers.push(
           {
             questionId: q9a,
@@ -162,6 +162,20 @@ async function installHarness(page, {
           }
           return { data: { status: 'READY', diagnostic_route_ready: true }, error: null };
         }
+        if (name === 'student_adaptive_lifecycle_event_v1') {
+          if (telemetryError) {
+            return { data: null, error: { message: 'telemetry unavailable' } };
+          }
+          return {
+            data: {
+              status: 'READY',
+              flow_id: args.p_event_type === 'offer_shown' ? flowId : args.p_flow_id,
+              event_type: args.p_event_type,
+              recorded: true,
+            },
+            error: null,
+          };
+        }
         if (name === 'student_adaptive_diagnostic_plan_v1') {
           if (mode === 'plan_error') {
             return { data: null, error: { message: 'network unavailable' } };
@@ -181,7 +195,7 @@ async function installHarness(page, {
         return { data: null, error: { message: `Unexpected RPC ${name}` } };
       },
     };
-  }, { targetId, mode, completeWrong, multipart, q9a: Q9A });
+  }, { targetId, mode, completeWrong, multipart, q9a: Q9A, telemetryError, flowId: FLOW_ID });
 
   await page.addScriptTag({ path: MODULE_PATH });
 
@@ -199,6 +213,21 @@ async function clickOrdinaryCheck(page){
 
 async function rpcNames(page){
   return page.evaluate(() => window.__rpcCalls.map(call => call.name));
+}
+
+async function nonTelemetryRpcNames(page){
+  return page.evaluate(() => window.__rpcCalls
+    .filter(call => call.name !== 'student_adaptive_lifecycle_event_v1')
+    .map(call => call.name));
+}
+
+async function lifecycleEvents(page){
+  return page.evaluate(() => window.__rpcCalls
+    .filter(call => call.name === 'student_adaptive_lifecycle_event_v1')
+    .map(call => ({
+      eventType: call.args.p_event_type,
+      flowId: call.args.p_flow_id,
+    })));
 }
 
 test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
@@ -241,22 +270,29 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
     await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
   });
 
-  test('gate 4 — real Q9 multipart shape reaches eligible Q9(b) after non-pilot Q9(a), then stays unscored', async ({ page }) => {
+  test('gate 4 — real Q9 multipart shape reaches eligible Q9(b), records the lifecycle, then stays unscored', async ({ page }) => {
     await installHarness(page, { targetId: Q9B, mode: 'eligible', multipart: true });
     await clickOrdinaryCheck(page);
 
     await expect(page.locator('#v59b2-adaptive-overlay')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Want a little extra help?' })).toBeVisible();
 
-    const gatingCalls = await page.evaluate(() => window.__rpcCalls.map(call => ({
-      name: call.name,
-      questionId: call.args.p_question_id || null,
-    })));
+    const gatingCalls = await page.evaluate(() => window.__rpcCalls
+      .filter(call => call.name !== 'student_adaptive_lifecycle_event_v1')
+      .map(call => ({
+        name: call.name,
+        questionId: call.args.p_question_id || null,
+      })));
     expect(gatingCalls).toEqual([
       { name: 'student_adaptive_trigger_check_v1', questionId: Q9A },
       { name: 'student_adaptive_trigger_check_v1', questionId: Q9B },
       { name: 'student_adaptive_question_readiness_v2', questionId: Q9B },
     ]);
+
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+    ]);
+    expect(await page.evaluate(() => window.V59BAdaptiveDiagnosticPilotV2.getSession()?.flowId)).toBe(FLOW_ID);
 
     await page.locator('[data-v59b2-action="start"]').click();
     await expect(page.getByRole('heading', { name: 'Step 1 of 1' })).toBeVisible();
@@ -272,6 +308,13 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
     await page.locator('[data-v59b2-action="return"]').click();
 
     await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+      { eventType: 'offer_accepted', flowId: FLOW_ID },
+      { eventType: 'diagnostic_completed', flowId: FLOW_ID },
+      { eventType: 'target_retry_submitted', flowId: FLOW_ID },
+      { eventType: 'returned_to_practice', flowId: FLOW_ID },
+    ]);
 
     const stateSnapshot = await page.evaluate(() => ({
       first: window.state.first,
@@ -294,7 +337,7 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
       checkDisabled: true,
     });
 
-    expect(await rpcNames(page)).toEqual([
+    expect(await nonTelemetryRpcNames(page)).toEqual([
       'student_adaptive_trigger_check_v1',
       'student_adaptive_trigger_check_v1',
       'student_adaptive_question_readiness_v2',
@@ -309,13 +352,22 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
     expect(stages).toEqual(['diagnostic', 'target_retry']);
   });
 
-  test('gate 5 — diagnostic network failure restores the completed ordinary Practice question', async ({ page }) => {
+  test('gate 5 — diagnostic network failure records recovery best-effort and restores ordinary Practice', async ({ page }) => {
     await installHarness(page, { targetId: Q9B, mode: 'plan_error' });
     await clickOrdinaryCheck(page);
     await expect(page.locator('#v59b2-adaptive-overlay')).toBeVisible();
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+    ]);
 
     await page.locator('[data-v59b2-action="start"]').click();
     await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+      { eventType: 'offer_accepted', flowId: FLOW_ID },
+      { eventType: 'adaptive_error_recovered', flowId: FLOW_ID },
+      { eventType: 'returned_to_practice', flowId: FLOW_ID },
+    ]);
 
     const controls = await page.evaluate(() => ({
       nextDisabled: document.getElementById('next-btn').disabled,
@@ -331,7 +383,7 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
     });
   });
 
-  test('gate 6 — server pilot denial prevents readiness/plan calls even when URL flag is present', async ({ page }) => {
+  test('gate 6 — server pilot denial prevents readiness, telemetry and plan calls even when URL flag is present', async ({ page }) => {
     await installHarness(page, { mode: 'not_allowed' });
     await clickOrdinaryCheck(page);
 
@@ -339,5 +391,92 @@ test.describe('V5.9B adaptive diagnostic pilot V2 hard gates', () => {
       'student_adaptive_trigger_check_v1',
     ]);
     await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
+  });
+
+  test('gate 7 — declining the offer records decline + return and never loads diagnostics', async ({ page }) => {
+    await installHarness(page);
+    await clickOrdinaryCheck(page);
+    await expect(page.getByRole('heading', { name: 'Want a little extra help?' })).toBeVisible();
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+    ]);
+
+    await page.getByRole('button', { name: 'Continue Practice' }).click();
+    await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+      { eventType: 'offer_declined', flowId: FLOW_ID },
+      { eventType: 'returned_to_practice', flowId: FLOW_ID },
+    ]);
+    expect(await nonTelemetryRpcNames(page)).toEqual([
+      'student_adaptive_trigger_check_v1',
+      'student_adaptive_question_readiness_v2',
+    ]);
+  });
+
+  test('gate 8 — skipping after acceptance records skip + return without diagnostic grading', async ({ page }) => {
+    await installHarness(page);
+    await clickOrdinaryCheck(page);
+    await expect(page.getByRole('heading', { name: 'Want a little extra help?' })).toBeVisible();
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+    ]);
+
+    await page.locator('[data-v59b2-action="start"]').click();
+    await expect(page.getByRole('heading', { name: 'Step 1 of 1' })).toBeVisible();
+    await page.getByRole('button', { name: 'Skip and continue Practice' }).click();
+    await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
+
+    await expect.poll(() => lifecycleEvents(page)).toEqual([
+      { eventType: 'offer_shown', flowId: null },
+      { eventType: 'offer_accepted', flowId: FLOW_ID },
+      { eventType: 'diagnostic_skipped', flowId: FLOW_ID },
+      { eventType: 'returned_to_practice', flowId: FLOW_ID },
+    ]);
+    expect(await nonTelemetryRpcNames(page)).toEqual([
+      'student_adaptive_trigger_check_v1',
+      'student_adaptive_question_readiness_v2',
+      'student_adaptive_diagnostic_plan_v1',
+    ]);
+  });
+
+  test('gate 9 — telemetry failure is non-blocking: adaptive grading and return still work', async ({ page }) => {
+    await installHarness(page, { telemetryError: true });
+    await clickOrdinaryCheck(page);
+    await expect(page.getByRole('heading', { name: 'Want a little extra help?' })).toBeVisible();
+
+    await page.locator('[data-v59b2-action="start"]').click();
+    await expect(page.getByRole('heading', { name: 'Step 1 of 1' })).toBeVisible();
+    await page.locator('#v59b2-response-text').fill('6.705');
+    await page.locator('[data-v59b2-action="check-diagnostic"]').click();
+    await expect(page.locator('.v59b2-feedback')).toContainText('Good');
+    await page.locator('[data-v59b2-action="next-diagnostic"]').click();
+    await page.locator('#v59b2-response-text').fill('<');
+    await page.locator('[data-v59b2-action="check-target-retry"]').click();
+    await expect(page.locator('.v59b2-feedback')).toContainText('Good');
+    await page.locator('[data-v59b2-action="return"]').click();
+
+    await expect(page.locator('#v59b2-adaptive-overlay')).toHaveCount(0);
+    expect(await nonTelemetryRpcNames(page)).toEqual([
+      'student_adaptive_trigger_check_v1',
+      'student_adaptive_question_readiness_v2',
+      'student_adaptive_diagnostic_plan_v1',
+      'student_adaptive_diagnostic_grade_v1',
+      'student_adaptive_diagnostic_grade_v1',
+    ]);
+    expect((await rpcNames(page)).filter(name => name === 'student_adaptive_lifecycle_event_v1').length).toBe(1);
+
+    const stateSnapshot = await page.evaluate(() => ({
+      first: window.state.first,
+      mastered: window.state.mastered,
+      answerCount: window.state.answers.length,
+      nextDisabled: document.getElementById('next-btn').disabled,
+    }));
+    expect(stateSnapshot).toEqual({
+      first: 3,
+      mastered: 4,
+      answerCount: 1,
+      nextDisabled: false,
+    });
   });
 });

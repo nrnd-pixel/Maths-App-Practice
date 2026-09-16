@@ -12,13 +12,14 @@ const {
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const EXPECTED_FROZEN_SITE_SHA256 = '87f9f732061cb5e5251d07af055454e68a91b5fd9d7f0acd6af469b6f70c3de8';
 const EXPECTED_SUPABASE_SHA256 = 'b9ce6bc01ead2f39b3aadab4f0a0688fa5c54bf8129258e776972636c17b4ef3';
-const EXPECTED_SUPABASE_TREE = 'dffaaa1d6991d54e25ab26d6267739f4525327bf';
+const EXPECTED_SUPABASE_TREE = '27b8fdc47b6e56b4e54f6ad749827e631ce84110';
 const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
   'supabase/20260907073416_add_adaptive_route_preview_v1.sql': 'd00b2284dd639f58ef16de880cb995346b5532d9',
   'supabase/20260907080542_adaptive_pilot_feature_gate_v1.sql': '5565dfd1a4e67384cf69a61188b1e3452a24af39',
   'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
   'supabase/20260914134600_student_adaptive_question_readiness_v2.sql': 'da88c946334f07912735c3afd3c27073ab318d24',
   'supabase/20260915023000_adaptive_diagnostic_server_readiness_v2.sql': 'fe61768b9dbbb9d8fbfb6909a71e799dbfdd2c95',
+  'supabase/20260916010000_adaptive_pilot_lifecycle_telemetry_v1.sql': 'c37fb6a97185cc58035ed03715c2ff803086bcf3',
 });
 
 const ALLOWED_SITE_CHANGES = new Set([

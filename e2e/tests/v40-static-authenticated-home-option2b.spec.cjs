@@ -20,6 +20,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
   'supabase/20260914134600_student_adaptive_question_readiness_v2.sql': 'da88c946334f07912735c3afd3c27073ab318d24',
   'supabase/20260915023000_adaptive_diagnostic_server_readiness_v2.sql': 'fe61768b9dbbb9d8fbfb6909a71e799dbfdd2c95',
+  'supabase/20260916010000_adaptive_pilot_lifecycle_telemetry_v1.sql': 'c37fb6a97185cc58035ed03715c2ff803086bcf3',
 });
 
 const AUTHORIZED_RUNTIME_CHANGES = new Set([
