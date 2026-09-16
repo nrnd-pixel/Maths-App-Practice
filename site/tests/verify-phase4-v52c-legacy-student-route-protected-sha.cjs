@@ -125,5 +125,5 @@ console.table(rows);
 const expectedSupabaseTree='27b8fdc47b6e56b4e54f6ad749827e631ce84110';
 const actualSupabaseTree=gitObject('supabase');
 console.table([{tree:'supabase/',expected:expectedSupabaseTree,actual:actualSupabaseTree,ok:actualSupabaseTree===expectedSupabaseTree}]);
-assert.equal(actualSupabaseTree,expectedSupabaseTree,'complete Supabase Git tree must remain byte-identical');
+assert.equal(actualSupabaseTree,expectedSupabaseTree,'complete Supabase Git tree must remain byte-identical to current main');
 console.log(`Phase 4 V52C protected SHA audit passed: ${rows.length} files + complete Supabase tree.`);
