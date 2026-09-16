@@ -175,3 +175,88 @@ window.addEventListener('load', () => {
   });
 
 }, { once: true });
+
+/* Stage 3F deploy-preview-only supervised pilot selector.
+   Temporary supervised classroom pilot aid only. It is inert unless all gates hold:
+   Netlify deploy-preview hostname, ?adaptivePilot=2, and one of the five explicitly
+   approved pilot roster UUIDs. It delegates to ordinary startPractice(), then pins
+   an item already returned by the normal eligible Practice pool. No direct
+   Supabase/adaptive RPC is introduced. */
+(() => {
+  const marker='__v59bAdaptivePilotSupervisedSelectorInstalled';
+  const pilotRosters=new Set([
+    '5e386522-ae0f-4c82-8cf3-6bf0979272f7',
+    '02a5b3b6-c5d7-4ab4-bd35-2c7989b6b3d1',
+    '7dae8fc9-cb6a-441f-9549-2de1f0ba158d',
+    'd8ef6d90-f1f3-4f60-8a26-0f8d927b2c07',
+    '7e4457ae-ba55-4bc4-8814-4a8bdf92ee6d'
+  ]);
+  const params=new URLSearchParams(location.search);
+  const preview=/^deploy-preview-\d+--.+\.netlify\.app$/i.test(location.hostname);
+  if(!preview||params.get('adaptivePilot')!=='2'||window[marker])return;
+  window[marker]=true;
+
+  const targets={
+    q9b:{id:'c4feda04-6c85-4123-baf6-8e38deb1d1fa',label:'2025 P1 Q9(b)',topic:'Decimals'},
+    q4:{id:'c2041abf-d204-47b3-ba92-3129c97681ae',label:'2025 P2 Q4',topic:'Fractions'}
+  };
+
+  const isPilot=()=>{
+    try{
+      return typeof activeStudentAccess!=='undefined'&&
+        pilotRosters.has(String(activeStudentAccess?.roster_student_id||''));
+    }catch{return false;}
+  };
+  const pick=(id,wanted)=>{
+    const s=document.getElementById(id);if(!s)return false;
+    const o=[...s.options].find(x=>String(x.value)===String(wanted)||String(x.textContent||'').trim()===String(wanted));
+    if(!o)return false;s.value=o.value;s.dispatchEvent(new Event('change',{bubbles:true}));return true;
+  };
+  const contains=(item,id)=>String(item?.id||'')===id||(item?._kind==='multipart'&&Array.isArray(item.parts)&&item.parts.some(p=>String(p?.id||'')===id));
+  const status=(text,error=false)=>{const el=document.getElementById('v59b2-smoke-status');if(el){el.textContent=text;el.style.color=error?'var(--danger,#b42318)':'var(--muted,#667085)';}};
+
+  async function launch(key){
+    const target=targets[key];if(!target)return;
+    if(!isPilot()){status('This selector is available only to approved pilot accounts.',true);return;}
+    if(typeof startPractice!=='function'||typeof renderQuestion!=='function'){status('Normal Practice is not ready yet.',true);return;}
+    const ids=['year-level','strand-filter','topic-filter','difficulty-filter','question-count'];
+    const saved=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)?.value??null]));
+    try{
+      document.getElementById('practice-mode-btn')?.click();
+      if(!pick('year-level','6')||!pick('strand-filter','number'))throw new Error('Year 6 Number Practice controls are unavailable.');
+      await new Promise(r=>setTimeout(r,0));
+      if(!pick('topic-filter',target.topic)||!pick('difficulty-filter','standard'))throw new Error(`${target.topic} Standard Practice controls are unavailable.`);
+      const count=document.getElementById('question-count');if(!count)throw new Error('Question-count control is unavailable.');
+      const option=document.createElement('option');option.value='500';option.textContent='500';option.dataset.v59b2SmokeCount='true';count.appendChild(option);count.value='500';
+      status(`Loading ${target.label} through normal Practice…`);
+      await startPractice();
+      if(typeof state==='undefined'||!Array.isArray(state?.questions))throw new Error('Normal Practice did not start.');
+      const item=state.questions.find(q=>contains(q,target.id));
+      if(!item)throw new Error(`${target.label} was not returned by the normal eligible Practice pool.`);
+      state.questions=[item];state.index=0;state.count=1;renderQuestion();
+      status(`${target.label} loaded. Complete it using the normal Practice controls.`);
+    }catch(error){
+      console.warn('V5.9B deploy-preview supervised pilot selector failed.',error);
+      try{if(typeof show==='function')show('start');}catch{}
+      status(error?.message||'Could not launch the selected target.',true);
+    }finally{
+      document.querySelector('#question-count option[data-v59b2-smoke-count="true"]')?.remove();
+      const year=document.getElementById('year-level');if(year&&saved['year-level']!==null)year.value=saved['year-level'];
+      const strand=document.getElementById('strand-filter');if(strand&&saved['strand-filter']!==null){strand.value=saved['strand-filter'];strand.dispatchEvent(new Event('change',{bubbles:true}));}
+      const topic=document.getElementById('topic-filter');if(topic&&saved['topic-filter']!==null)topic.value=saved['topic-filter'];
+      const difficulty=document.getElementById('difficulty-filter');if(difficulty&&saved['difficulty-filter']!==null)difficulty.value=saved['difficulty-filter'];
+      const count=document.getElementById('question-count');if(count&&saved['question-count']!==null)count.value=saved['question-count'];
+    }
+  }
+
+  function install(){
+    if(document.getElementById('v59b2-smoke-selector'))return true;
+    if(!isPilot())return false;
+    const setup=document.querySelector('#start .v40c-learn-setup');const actions=setup?.querySelector('.v40c-learn-actions');if(!setup||!actions)return false;
+    const panel=document.createElement('section');panel.id='v59b2-smoke-selector';panel.style.cssText='margin:0 18px 18px;padding:14px;border:1px dashed var(--primary,#2563eb);border-radius:14px;background:var(--card,#fff)';
+    panel.innerHTML='<strong style="display:block;margin-bottom:4px">Adaptive pilot practice</strong><p style="margin:0 0 10px;color:var(--muted,#667085);font-size:12px">Choose the question your teacher asks you to try. Pilot preview only.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="outline" data-v59b2-smoke-target="q9b">2025 P1 Q9(b)</button><button type="button" class="outline" data-v59b2-smoke-target="q4">2025 P2 Q4</button></div><p id="v59b2-smoke-status" aria-live="polite" style="margin:10px 0 0;font-size:12px"></p>';
+    panel.querySelectorAll('[data-v59b2-smoke-target]').forEach(b=>b.addEventListener('click',()=>launch(b.dataset.v59b2SmokeTarget)));
+    actions.insertAdjacentElement('beforebegin',panel);return true;
+  }
+  let tries=0;const timer=setInterval(()=>{tries+=1;if(install()||tries>=600)clearInterval(timer);},100);
+})();
