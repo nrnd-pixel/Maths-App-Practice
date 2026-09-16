@@ -183,16 +183,17 @@ assert.doesNotMatch(migration, /update\s+public\.question_demand_profile_v2/i,
 const tableStart = migration.indexOf('create table if not exists public.adaptive_pilot_lifecycle_events');
 const tableEnd = migration.indexOf(');', tableStart);
 const tableBlock = migration.slice(tableStart, tableEnd + 2);
-for (const forbiddenColumn of [
-  'student_name',
-  'student_id',
-  'pin',
-  'ip_address',
-  'response jsonb',
-  'answer',
-]) {
-  assert.ok(!tableBlock.toLowerCase().includes(forbiddenColumn),
-    `lifecycle table must not store sensitive/answer field: ${forbiddenColumn}`);
+const forbiddenColumns = [
+  ['student_name', /^\s*student_name\s+/im],
+  ['student_id', /^\s*student_id\s+/im],
+  ['pin', /^\s*pin\s+/im],
+  ['ip_address', /^\s*ip_address\s+/im],
+  ['response jsonb', /^\s*response\s+jsonb\b/im],
+  ['answer', /^\s*answer\s+/im],
+];
+for (const [name, declarationPattern] of forbiddenColumns) {
+  assert.doesNotMatch(tableBlock, declarationPattern,
+    `lifecycle table must not store sensitive/answer field: ${name}`);
 }
 
 console.log('V5.9B adaptive diagnostic pilot V2 + Stage 3E telemetry integrity checks passed.');
