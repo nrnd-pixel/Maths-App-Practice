@@ -26,7 +26,9 @@ create table if not exists public.adaptive_pilot_lifecycle_events (
   id uuid primary key default gen_random_uuid(),
   flow_id uuid not null,
   roster_student_id uuid not null references public.class_students(id) on delete cascade,
-  practice_ticket_id uuid not null references public.student_access_tickets(id) on delete cascade,
+  -- Snapshot identifier only. Intentionally not a foreign key: routine expiry/cleanup
+  -- of short-lived Practice tickets must not erase pilot evidence retrospectively.
+  practice_ticket_id uuid not null,
   target_question_id uuid not null references public.questions(id) on delete cascade,
   event_type text not null check (event_type in (
     'offer_shown',
@@ -73,7 +75,9 @@ declare
   v_has_offer boolean := false;
   v_has_accept boolean := false;
   v_has_decline boolean := false;
+  v_has_skipped boolean := false;
   v_has_completed boolean := false;
+  v_has_returned boolean := false;
   v_inserted uuid;
 begin
   if v_event_type not in (
@@ -123,7 +127,7 @@ begin
       p_target_question_id
     );
     if coalesce(v_trigger->>'status','') <> 'READY'
-       or coalesce((v_trigger->>'should_offer')::boolean,false) is distinct from true then
+       or coalesce(v_trigger->>'should_offer','false') <> 'true' then
       return jsonb_build_object('status','TRIGGER_BLOCKED');
     end if;
 
@@ -158,33 +162,69 @@ begin
       return jsonb_build_object('status','INVALID_TRANSITION');
     end if;
   elsif v_event_type in ('diagnostic_skipped','diagnostic_completed') then
-    select exists(
-      select 1 from public.adaptive_pilot_lifecycle_events e
-      where e.flow_id=v_flow_id and e.event_type='offer_accepted'
-    ), exists(
-      select 1 from public.adaptive_pilot_lifecycle_events e
-      where e.flow_id=v_flow_id and e.event_type='offer_declined'
-    ) into v_has_accept, v_has_decline;
+    select
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='offer_accepted'
+      ),
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='offer_declined'
+      ),
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='diagnostic_skipped'
+      ),
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='diagnostic_completed'
+      )
+    into v_has_accept, v_has_decline, v_has_skipped, v_has_completed;
+
+    if not v_has_accept or v_has_decline or v_has_skipped or v_has_completed then
+      return jsonb_build_object('status','INVALID_TRANSITION');
+    end if;
+  elsif v_event_type='target_retry_submitted' then
+    select
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='diagnostic_completed'
+      ),
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='returned_to_practice'
+      )
+    into v_has_completed, v_has_returned;
+
+    if not v_has_completed or v_has_returned then
+      return jsonb_build_object('status','INVALID_TRANSITION');
+    end if;
+  elsif v_event_type='adaptive_error_recovered' then
+    select
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='offer_accepted'
+      ),
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='offer_declined'
+      )
+    into v_has_accept, v_has_decline;
 
     if not v_has_accept or v_has_decline then
       return jsonb_build_object('status','INVALID_TRANSITION');
     end if;
-  elsif v_event_type='target_retry_submitted' then
-    select exists(
-      select 1 from public.adaptive_pilot_lifecycle_events e
-      where e.flow_id=v_flow_id and e.event_type='diagnostic_completed'
-    ) into v_has_completed;
-    if not v_has_completed then
-      return jsonb_build_object('status','INVALID_TRANSITION');
-    end if;
   elsif v_event_type='returned_to_practice' then
-    select exists(
-      select 1 from public.adaptive_pilot_lifecycle_events e
-      where e.flow_id=v_flow_id and e.event_type='offer_accepted'
-    ), exists(
-      select 1 from public.adaptive_pilot_lifecycle_events e
-      where e.flow_id=v_flow_id and e.event_type='offer_declined'
-    ) into v_has_accept, v_has_decline;
+    select
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='offer_accepted'
+      ),
+      exists(
+        select 1 from public.adaptive_pilot_lifecycle_events e
+        where e.flow_id=v_flow_id and e.event_type='offer_declined'
+      )
+    into v_has_accept, v_has_decline;
 
     if not v_has_accept and not v_has_decline then
       return jsonb_build_object('status','INVALID_TRANSITION');
@@ -222,9 +262,9 @@ grant execute on function public.student_adaptive_lifecycle_event_v1(text,uuid,t
   to anon, authenticated, postgres, service_role;
 
 comment on table public.adaptive_pilot_lifecycle_events is
-  'Stage 3E append-only adaptive-pilot lifecycle evidence. Stores pseudonymous flow/ticket/roster/target identifiers and a small event enum only; no answer text, answer keys, student names, student IDs, PINs, IP addresses or Metadata V2 evidence.';
+  'Stage 3E append-only adaptive-pilot lifecycle evidence. Stores pseudonymous flow/ticket/roster/target identifiers and a small event enum only; no answer text, answer keys, student names, student IDs, PINs, IP addresses or Metadata V2 evidence. Practice ticket UUID is retained as a snapshot identifier and intentionally has no FK so ticket cleanup cannot erase evidence.';
 
 comment on function public.student_adaptive_lifecycle_event_v1(text,uuid,text,uuid) is
-  'Stage 3E non-scoring lifecycle telemetry contract. Reuses pilot access, independently requires readiness V2, requires the authoritative trigger for offer_shown, generates the flow UUID server-side, and enforces simple fail-closed event transitions.';
+  'Stage 3E non-scoring lifecycle telemetry contract. Reuses pilot access, independently requires readiness V2, requires the authoritative trigger for offer_shown, generates the flow UUID server-side, and enforces fail-closed lifecycle transitions.';
 
 commit;
