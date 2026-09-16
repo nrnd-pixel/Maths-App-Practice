@@ -25,8 +25,8 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/config.js': 'cd748641389f8c3143cc7f34ab81868b8e7caacb',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '229ac351a469e2474f2c12a993893b8b3244e812',
   'site/v59a-student-home-refresh.js': 'b4e2f290061f061c22d00fc23e87d9adecf7cde9',
-  'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'ee1452ac1de129de3dea51ec74c0b68e606137ba',
-  'site/v59b-adaptive-diagnostic-pilot-v2.js': '8a054eb58e374c8eefac64225ebba6cff68c827e',
+  'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': '40ffd7d06873d87a7222c299b475c0075faef93b',
+  'site/v59b-adaptive-diagnostic-pilot-v2.js': '42fc17368432f3558f6bf7caa66749e8ae02805b',
   'site/tests/v51-phase4-protected-shas.json': '2742c6d060a1a631774524710680e9287f32aea3',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
@@ -118,6 +118,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/20260907150643_v59b_interactive_adaptive_diagnostic_pilot.sql': '28454d0b3bb19972be5915271842b36d920d3aba',
   'supabase/20260914134600_student_adaptive_question_readiness_v2.sql': 'da88c946334f07912735c3afd3c27073ab318d24',
   'supabase/20260915023000_adaptive_diagnostic_server_readiness_v2.sql': 'fe61768b9dbbb9d8fbfb6909a71e799dbfdd2c95',
+  'supabase/20260916010000_adaptive_pilot_lifecycle_telemetry_v1.sql': 'c37fb6a97185cc58035ed03715c2ff803086bcf3',
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
