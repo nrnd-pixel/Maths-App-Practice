@@ -196,6 +196,48 @@ for (const [name, declarationPattern] of forbiddenColumns) {
     `lifecycle table must not store sensitive/answer field: ${name}`);
 }
 
+const selectorMarker = '/* Stage 3F deploy-preview-only supervised pilot selector.';
+const selectorAt = config.indexOf(selectorMarker);
+assert.ok(selectorAt >= 0,
+  'temporary Stage 3F supervised selector must be explicitly marked in config.js');
+const selector = config.slice(selectorAt);
+assert.ok(selector.includes("const preview=/^deploy-preview-\\d+--.+\\.netlify\\.app$/i.test(location.hostname);"),
+  'temporary selector must be deploy-preview-only');
+assert.ok(selector.includes("params.get('adaptivePilot')!=='2'"),
+  'temporary selector must require ?adaptivePilot=2');
+for (const rosterId of [
+  '5e386522-ae0f-4c82-8cf3-6bf0979272f7',
+  '02a5b3b6-c5d7-4ab4-bd35-2c7989b6b3d1',
+  '7dae8fc9-cb6a-441f-9549-2de1f0ba158d',
+  'd8ef6d90-f1f3-4f60-8a26-0f8d927b2c07',
+  '7e4457ae-ba55-4bc4-8814-4a8bdf92ee6d',
+]) {
+  assert.ok(selector.includes(`'${rosterId}'`),
+    `temporary selector must include approved pilot roster ${rosterId}`);
+}
+assert.ok(selector.includes("pilotRosters.has(String(activeStudentAccess?.roster_student_id||''))"),
+  'temporary selector must verify active roster membership in the explicit pilot set');
+assert.ok(selector.includes("q9b:{id:'c4feda04-6c85-4123-baf6-8e38deb1d1fa'"),
+  'temporary selector must expose exact Q9(b) target');
+assert.ok(selector.includes("q4:{id:'c2041abf-d204-47b3-ba92-3129c97681ae'"),
+  'temporary selector must expose exact Q4 target');
+assert.ok(!selector.includes('077872ec-2c3c-402f-9c51-491c77500791'),
+  'Q30 must not be exposed by the Stage 3F supervised selector');
+assert.ok(selector.includes('await startPractice();'),
+  'temporary selector must delegate retrieval to ordinary Practice');
+assert.ok(selector.includes('state.questions=[item];state.index=0;state.count=1;renderQuestion();'),
+  'temporary selector may only pin an item already returned by ordinary Practice');
+for (const forbidden of [
+  'cloud.rpc(',
+  ".from('questions')",
+  'student_adaptive_lifecycle_event_v1',
+  'student_adaptive_trigger_check_v1',
+  'student_adaptive_question_readiness_v2',
+]) {
+  assert.ok(!selector.includes(forbidden),
+    `temporary selector must not own server/data authority: ${forbidden}`);
+}
+
 console.log('V5.9B adaptive diagnostic pilot V2 + Stage 3E telemetry integrity checks passed.');
 console.log('- explicit ?adaptivePilot=2 gate; disabled path makes no runtime wrapper changes');
 console.log('- wraps only ordinary submit after authoritative grading; no cloud.rpc wrapper');
@@ -205,5 +247,6 @@ console.log('- diagnostics and target retry use only student_adaptive_diagnostic
 console.log('- Stage 3E telemetry is queued, non-blocking and server-authorised');
 console.log('- telemetry stores only pseudonymous flow/ticket/roster/target ids plus a lifecycle enum');
 console.log('- ticket cleanup cannot erase lifecycle evidence and contradictory outcomes fail closed');
+console.log('- temporary Stage 3F selector is preview+flag+five-roster gated and delegates to ordinary Practice');
 console.log('- no answer-key/table access, no Practice result/XP/mastery write path');
 console.log('- failure/skip restores ordinary Practice interaction');
