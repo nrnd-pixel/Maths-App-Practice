@@ -113,6 +113,10 @@ assert.match(source, /queueLifecycleEvent\('offer_accepted'\);\s*loadPlan\(\)/,
   'acceptance telemetry must not replace the plan-loading action');
 assert.match(source, /isLastDiagnostic[\s\S]*queueLifecycleEvent\('diagnostic_completed'\)/,
   'diagnostic_completed must be tied to completing the final diagnostic step');
+assert.match(source, /addReturnAction\(actions, 'Skip and continue Practice', isLastDiagnostic \? null : 'diagnostic_skipped'\)/,
+  'completed final diagnostic must not also be labelled as diagnostic_skipped');
+assert.match(source, /renderTargetRetry\(\)[\s\S]*addReturnAction\(actions, 'Skip and continue Practice'\);/,
+  'leaving an unsubmitted target retry must not be mislabelled as diagnostic_skipped');
 assert.match(source, /queueLifecycleEvent\('target_retry_submitted'\);[\s\S]*feedbackBox/,
   'target_retry_submitted must be queued only after the dedicated grader returns READY');
 
@@ -143,6 +147,10 @@ assert.match(migration, /create table if not exists public\.adaptive_pilot_lifec
   'Stage 3E must add an isolated lifecycle evidence table');
 assert.match(migration, /unique \(flow_id, event_type\)/,
   'lifecycle events must be idempotent per flow/event type');
+assert.match(migration, /practice_ticket_id uuid not null,/,
+  'lifecycle evidence must retain the Practice ticket UUID as a snapshot identifier');
+assert.doesNotMatch(migration, /practice_ticket_id uuid not null references public\.student_access_tickets/,
+  'routine Practice-ticket cleanup must not cascade-delete lifecycle evidence');
 assert.match(migration, /alter table public\.adaptive_pilot_lifecycle_events enable row level security/,
   'lifecycle table must have RLS enabled');
 assert.match(migration, /revoke all on public\.adaptive_pilot_lifecycle_events from public, anon, authenticated/,
@@ -159,6 +167,10 @@ assert.match(migration, /p_flow_id is not null[\s\S]*INVALID_FLOW[\s\S]*gen_rand
   'offer_shown must receive a server-generated flow id rather than trusting the browser');
 assert.match(migration, /FLOW_NOT_FOUND/,
   'later lifecycle events must require a matching recorded offer flow');
+assert.match(migration, /v_has_skipped[\s\S]*v_has_completed[\s\S]*INVALID_TRANSITION/,
+  'diagnostic completed/skipped outcomes must be mutually exclusive server-side');
+assert.match(migration, /v_event_type='adaptive_error_recovered'[\s\S]*v_has_accept[\s\S]*INVALID_TRANSITION/,
+  'error recovery evidence must require an accepted adaptive flow');
 assert.match(migration, /on conflict \(flow_id,event_type\) do nothing/,
   'duplicate browser events must be harmless and idempotent');
 assert.doesNotMatch(migration, /create or replace function public\.student_adaptive_diagnostic_grade_v1/,
@@ -191,5 +203,6 @@ console.log('- requires pilot trigger + Metadata V2 readiness before loading dia
 console.log('- diagnostics and target retry use only student_adaptive_diagnostic_grade_v1');
 console.log('- Stage 3E telemetry is queued, non-blocking and server-authorised');
 console.log('- telemetry stores only pseudonymous flow/ticket/roster/target ids plus a lifecycle enum');
+console.log('- ticket cleanup cannot erase lifecycle evidence and contradictory outcomes fail closed');
 console.log('- no answer-key/table access, no Practice result/XP/mastery write path');
 console.log('- failure/skip restores ordinary Practice interaction');
