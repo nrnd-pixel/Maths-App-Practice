@@ -587,12 +587,20 @@ test.describe('Phase 4 V56/V57 Past Paper checkpoint hard gates',()=>{
       {examYear:EXAM_YEAR,paper:PAPER,completedAt:fixtureIso(-60)},
       {examYear:EXAM_YEAR,paper:PAPER_2,completedAt:fixtureIso(-60)},
     ];
-    await signInWithPastPaper(page,{persistServer:false,completions});
+    const {past}=await signInWithPastPaper(page,{persistServer:false,completions});
     await seedLocal(page,checkpoint({paper:PAPER,nextIndex:1,savedAt:fixtureIso(-120)}),'old');
     await seedLocal(page,checkpoint({paper:PAPER_2,nextIndex:1,savedAt:fixtureIso(-30)}),'new');
 
-    const removed=await page.evaluate(()=>window.V57A2StaleLocalCheckpointCleanup.refresh(true));
-    expect(removed).toBe(1);
+    // V57A2 intentionally uses a single-flight loading guard. A sign-in-triggered
+    // cleanup may already be in flight here, so a second refresh(true) can validly
+    // return 0 while that authoritative watermark read is about to prune storage.
+    // Assert the observable cleanup result instead of racing the internal guard.
+    await page.evaluate(()=>window.V57A2StaleLocalCheckpointCleanup.refresh(true));
+    await expect.poll(async()=>{
+      const store=await localStore(page);
+      return {old:!!store.old,new:!!store.new};
+    },{timeout:5000}).toEqual({old:false,new:true});
+    expect(past.completionReads).toBeGreaterThan(0);
     const store=await localStore(page);
     expect(store.old).toBeUndefined();
     expect(store.new).toBeTruthy();
