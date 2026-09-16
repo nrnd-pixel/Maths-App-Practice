@@ -595,7 +595,7 @@
         }
       });
       actions.appendChild(next);
-      addReturnAction(actions, 'Skip and continue Practice', 'diagnostic_skipped');
+      addReturnAction(actions, 'Skip and continue Practice', isLastDiagnostic ? null : 'diagnostic_skipped');
     } catch (error) {
       console.warn('V5.9B V2 diagnostic grading failed.', error);
       checkButton.disabled = false;
@@ -631,7 +631,7 @@
     check.dataset.v59b2Action = 'check-target-retry';
     check.addEventListener('click', () => gradeTargetRetry(question, card, check));
     actions.appendChild(check);
-    addReturnAction(actions, 'Skip and continue Practice', 'diagnostic_skipped');
+    addReturnAction(actions, 'Skip and continue Practice');
     card.appendChild(actions);
   }
 
