@@ -13,7 +13,7 @@
     "verify:v58c-production": "node verify-v58c-production-bundle.cjs",
     "test:v58c-equivalence": "node verify-v58c-shadow-compatibility.cjs",
     "build:v58ab-shadow": "node build-v58ab-shadow-iife.cjs",
-    "test:v58ab-shadow": "node verify-v58ab-shadow-compatibility.cjs"
+    "test:v58ab-shadow": "node verify-v58ab-shadow-compatibility.cjs && node emit-v58ab-production-diagnostic.cjs"
   },
   "engines": {
     "node": ">=20"
