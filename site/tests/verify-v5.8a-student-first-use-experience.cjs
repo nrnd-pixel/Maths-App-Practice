@@ -50,7 +50,7 @@ for(const token of forbidden){
 
 const loaderToken="'./v58a-student-first-use-experience.js'";
 assert(config.includes(loaderToken),'config.js must load V5.8A');
-assert(config.indexOf(loaderToken)>config.indexOf("'./v5763-teacher-feedback-header-icon.js'"),'V5.8A must load after the accepted V5.7.6.3 layer');
+assert(config.indexOf(loaderToken)>config.indexOf("'./v576-feedback-presentation-bundle.js'"),'V5.8A must load after the accepted V5.7.6 presentation bundle');
 
 assert(achievementSql.includes("select 'first_practice'::text as id"),'achievement SQL must retain First Practice badge');
 assert(achievementSql.includes('(select min(completed_at) from completed_sessions) as first_practice_at'),'First Practice must remain tied to the first completed Practice session');

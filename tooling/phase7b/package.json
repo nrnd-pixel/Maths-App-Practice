@@ -2,12 +2,13 @@
   "name": "maths-app-phase7b-shadow-tooling",
   "version": "0.0.0",
   "private": true,
-  "description": "Non-production loader verification and per-source shadow analysis",
+  "description": "Phase 7B loader verification, shadow analysis and deterministic production bundles",
   "scripts": {
     "verify": "node verify-loader-manifest.cjs",
     "analyze": "node analyze-shadow-sources.cjs",
-    "build:v576-shadow": "node build-v576-shadow-iife.cjs",
-    "test:v576-shadow": "node verify-v576-shadow-compatibility.cjs"
+    "build:v576-production": "node build-v576-production-bundle.cjs",
+    "verify:v576-production": "node verify-v576-production-bundle.cjs",
+    "test:v576-equivalence": "node verify-v576-shadow-compatibility.cjs"
   },
   "engines": { "node": ">=20" },
   "devDependencies": {

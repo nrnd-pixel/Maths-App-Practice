@@ -197,15 +197,20 @@ jobs:
         working-directory: e2e
         run: npx playwright install --with-deps chromium
 
-      - name: Install Phase 7B shadow tooling dependencies
+      - name: Install Phase 7B tooling dependencies
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: tooling/phase7b
         run: npm ci --no-audit --no-fund
 
-      - name: Run Phase 7B-C V576 shadow compatibility checkpoint
+      - name: Verify deterministic Phase 7B-D V576 production bundle
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: tooling/phase7b
-        run: npm run test:v576-shadow
+        run: npm run verify:v576-production
+
+      - name: Run Phase 7B-D V576 production equivalence checkpoint
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: tooling/phase7b
+        run: npm run test:v576-equivalence
 
       - name: Run Option 2C static V40 shell hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}

@@ -10,10 +10,10 @@ const normalize = source => source.replace(/\r\n/g, '\n');
 
 function verify(root = ROOT) {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'tooling/phase7b/loader-manifest.json'), 'utf8'));
-  assert.equal(manifest.schemaVersion, 1, 'Unsupported manifest schema');
+  assert.equal(manifest.schemaVersion, 2, 'Unsupported manifest schema');
   assert.equal(manifest.tiers.length, 2, 'Expected exactly two loader tiers');
   const owners = ['site/config.js', 'site/v40-release.js'];
-  const counts = [49, 41];
+  const counts = [48, 41];
   const targets = new Set();
   const dataKeys = new Set();
   const entries = [];
@@ -51,14 +51,37 @@ function verify(root = ROOT) {
       entries.push({ ...entry, target, owner: tier.source });
     }
   });
+
+  const expectedSourceOnly = [
+    'site/v5761-feedback-trigger-position.js',
+    'site/v5763-teacher-feedback-header-icon.js',
+  ];
+  assert(Array.isArray(manifest.sourceOnly), 'Expected a sourceOnly manifest array');
+  assert.deepEqual(manifest.sourceOnly.map(entry => entry.path), expectedSourceOnly,
+    'sourceOnly must contain exactly the two canonical V576 inputs in build order');
+  const sourceOnlyTargets = new Set();
+  for (const entry of manifest.sourceOnly) {
+    assert.match(entry.path, /^site\/[A-Za-z0-9_-]+\.js$/, 'Expected a root-level site source-only path');
+    assert.match(entry.sha256, /^[a-f0-9]{64}$/, `${entry.path}: invalid exact-byte SHA-256`);
+    assert.match(entry.reason, /v576-feedback-presentation-bundle\.js/,
+      `${entry.path}: source-only reason must name its generated successor`);
+    const target = path.basename(entry.path);
+    assert(!targets.has(target), `${entry.path}: source-only input must not appear in the loaded chain`);
+    assert(!sourceOnlyTargets.has(target), `Duplicate source-only target: ${target}`);
+    sourceOnlyTargets.add(target);
+    const bytes = fs.readFileSync(path.join(root, entry.path));
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256,
+      `${entry.path}: source-only exact bytes drifted`);
+  }
   const inventory = fs.readdirSync(path.join(root, 'site')).filter(name => name.endsWith('.js')).sort();
-  assert.deepEqual(inventory, ['config.js', ...targets].sort(), 'Unexpected or missing root-level site JavaScript');
+  assert.deepEqual(inventory, ['config.js', ...targets, ...sourceOnlyTargets].sort(),
+    'Unexpected or missing root-level site JavaScript outside loaded + sourceOnly ownership');
   return entries;
 }
 
 if (require.main === module) {
   try {
-    console.log(`PASS: loader manifest matches 49 + 41 entries (${verify().length} total), sources and site inventory`);
+    console.log(`PASS: loader manifest matches 48 + 41 loaded entries (${verify().length} total), 2 source-only inputs and site inventory`);
   } catch (error) {
     console.error(`FAIL: ${error.message}`);
     process.exitCode = 1;

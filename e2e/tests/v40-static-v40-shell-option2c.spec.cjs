@@ -22,7 +22,12 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': 'cd748641389f8c3143cc7f34ab81868b8e7caacb',
+  'site/config.js': '4ed5a5c989eedde1aa7f08e34a58aed4432848b6',
+  'site/v576-feedback-presentation-bundle.js': 'dfa88c4e560eee8d5f58ed2d3ccee62b7a6942f0',
+  'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '10a72e71103ec68500f40bb8e7969d16f14c5cf6',
+  'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': 'ff883537f921bb09c931adfbd52a6468d02bdebd',
+  'site/tests/verify-v5.8a-student-first-use-experience.cjs': '5eb9f4a13a00946daa16f4863dafb6f510893185',
+  'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'a2605605589f80db1d9f65410c98675470c109bc',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '229ac351a469e2474f2c12a993893b8b3244e812',
   'site/v59a-student-home-refresh.js': 'b4e2f290061f061c22d00fc23e87d9adecf7cde9',
   'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'd85d55d045847255714607ced0cb441af94d2bd0',
@@ -122,7 +127,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': 'cd748641389f8c3143cc7f34ab81868b8e7caacb',
+  'site/config.js': '4ed5a5c989eedde1aa7f08e34a58aed4432848b6',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
@@ -136,6 +141,16 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/gamification-student.js': 'd9c4dc0e25cbed50346937db887a703800be5a59',
   'site/v57c-student-continue-learning-home.js': '196225cf94035363869b8051bc33cdd3c03993f9',
   'site/v58a-student-first-use-experience.js': '8e0279e86b1ece862586238f99c760129c13465f',
+});
+
+// Phase 7B-D authorizes exact successors for these maintained verifiers. Keep
+// their pre-successor blobs in the historical remainder calculation so the
+// established frozen hash continues to prove every other site byte unchanged.
+const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '8033886865b0621313fbb8a0f9d6af38e53d499b',
+  'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': '844feccd2cee26352f3c0d38219f03ee9e246e48',
+  'site/tests/verify-v5.8a-student-first-use-experience.cjs': '0b65819da2d6285841e719c43d2606b2b2d15b69',
+  'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'c78833c57b21792f4f1960baa5a54a906d4a4a9b',
 });
 
 const SCREEN_CONFIG = Object.freeze({
@@ -161,14 +176,14 @@ function gitBlob(pathname) {
   return git(['hash-object', pathname]);
 }
 
-function workingManifestHash(root, excluded = new Set()) {
+function workingManifestHash(root, excluded = new Set(), baselineBlobs = {}) {
   const output = git(['ls-files', '-co', '--exclude-standard', root]);
   const paths = output
     ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort()
     : [];
   const records = paths
-    .filter(pathname => !excluded.has(pathname))
-    .map(pathname => `${gitBlob(pathname)}  ${pathname}`);
+    .filter(pathname => !excluded.has(pathname) || baselineBlobs[pathname])
+    .map(pathname => `${baselineBlobs[pathname] || gitBlob(pathname)}  ${pathname}`);
   return crypto.createHash('sha256')
     .update(records.length ? `${records.join('\n')}\n` : '')
     .digest('hex');
@@ -624,7 +639,11 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       ...Object.keys(RUNTIME_SUCCESSORS),
       ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
     ]);
-    expect(workingManifestHash('site', authorizedSite)).toBe(EXPECTED_FROZEN_SITE_SHA256);
+    expect(workingManifestHash(
+      'site',
+      authorizedSite,
+      PHASE7BD_REPLACED_SITE_BASELINE_BLOBS,
+    )).toBe(EXPECTED_FROZEN_SITE_SHA256);
 
     const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
     expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);

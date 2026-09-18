@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 1,
-  "baseline": "a079e646d9aa98eaa5650535c04d0f4ce41e002f",
-  "description": "Loader ownership tiers in source order, preserving URLs and data keys; not a browser execution trace. Source SHA-256 normalizes CRLF to LF only.",
+  "schemaVersion": 2,
+  "baseline": "3c86c73ab6e07bb72662d92e21b368ca7c188f82",
+  "description": "Production loader tiers plus reviewed source-only JavaScript inputs. Loader SHA-256 normalizes CRLF to LF; source-only SHA-256 covers exact file bytes.",
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "167836732d223ed1b7a60f00146972498939bb3a0a35f69c3f141431067dd14c",
+      "sourceSha256": "97a55d68cd80010097db3d1ad6b36e00e128c3d7d85c309e3cba90f5376cea3c",
       "entries": [
         {
           "src": "./version.js"
@@ -122,10 +122,7 @@
           "src": "./v576-classroom-feedback-support.js"
         },
         {
-          "src": "./v5761-feedback-trigger-position.js"
-        },
-        {
-          "src": "./v5763-teacher-feedback-header-icon.js"
+          "src": "./v576-feedback-presentation-bundle.js"
         },
         {
           "src": "./v58a-student-first-use-experience.js"
@@ -325,6 +322,41 @@
           "dataKey": "data-resource-bank-bulk"
         }
       ]
+    }
+  ],
+  "sourceOnly": [
+    {
+      "path": "site/v5761-feedback-trigger-position.js",
+      "sha256": "927091065139af76ac3a49cd7592c5b6cb26a906a517af15ee176643f75c5f9a",
+      "reason": "Canonical ordered source input 1 of 2 for site/v576-feedback-presentation-bundle.js; not loaded directly."
+    },
+    {
+      "path": "site/v5763-teacher-feedback-header-icon.js",
+      "sha256": "d7d1e8df6b4daea1e5c3560d9dcabba00ec2dad6806bbaa2ec412f50b47d9332",
+      "reason": "Canonical ordered source input 2 of 2 for site/v576-feedback-presentation-bundle.js; not loaded directly."
+    }
+  ],
+  "generatedBundles": [
+    {
+      "path": "site/v576-feedback-presentation-bundle.js",
+      "inputs": [
+        "site/v5761-feedback-trigger-position.js",
+        "site/v5763-teacher-feedback-header-icon.js"
+      ],
+      "tool": "esbuild",
+      "toolVersion": "0.28.2",
+      "entrySourcefile": "v576-production-entry.js",
+      "options": {
+        "bundle": true,
+        "format": "iife",
+        "platform": "browser",
+        "target": "es2020",
+        "sourcemap": false,
+        "legalComments": "none",
+        "minify": false,
+        "charset": "utf8"
+      },
+      "sha256": "a0bcbe034f7ddf805f288a97876c9ca31999c69de60d893b4b6d237411d56083"
     }
   ]
 }
