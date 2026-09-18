@@ -69,8 +69,13 @@ test.describe('Phase 7B-F V58C production successor', () => {
       globalThis.analyticsFinalExamPercent = globalThis.analyticsFinalExamPercent || (() => null);
       globalThis.analyticsKey = globalThis.analyticsKey || (value => value?.key || '');
       globalThis.STRANDS = globalThis.STRANDS || {};
+      const detail = document.getElementById('analytics-student-detail');
+      detail?.classList.remove('hidden');
+      if (detail) detail.dataset.phase7bfSelectedFixture = 'true';
     });
 
+    await expect(page.locator('#analytics-student-detail')).toBeVisible();
+    await expect(page.locator('#v58c-open-parent-summary')).toBeVisible();
     await page.locator('#v58c-open-parent-summary').click();
     await expect(page.locator('#v58c-parent-summary-overlay')).toBeVisible();
     await expect(page.locator('#v58c-parent-summary-title')).toContainText('Alya');
