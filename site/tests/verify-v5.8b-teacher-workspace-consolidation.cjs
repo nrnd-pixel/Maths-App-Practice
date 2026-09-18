@@ -5,6 +5,8 @@ const vm=require('vm');
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'v58b-teacher-workspace-consolidation.js'),'utf8');
 const config=fs.readFileSync(path.join(root,'config.js'),'utf8');
+const productionBundle=fs.readFileSync(path.join(root,'v58ab-first-use-workspace-bundle.js'),'utf8');
+const phase7bManifest=JSON.parse(fs.readFileSync(path.resolve(root,'..','tooling','phase7b','loader-manifest.json'),'utf8'));
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const actionCenter=fs.readFileSync(path.join(root,'v42-teacher-action-center.js'),'utf8');
 const operationsOwner=fs.readFileSync(path.join(root,'teacher-launch-operations.js'),'utf8');
@@ -16,6 +18,7 @@ const feedback=fs.readFileSync(path.join(root,'v5763-teacher-feedback-header-ico
 
 function assert(condition,message){ if(!condition) throw new Error(message); }
 new vm.Script(source,{filename:'v58b-teacher-workspace-consolidation.js'});
+new vm.Script(productionBundle,{filename:'v58ab-first-use-workspace-bundle.js'});
 new vm.Script(operationsOwner,{filename:'teacher-launch-operations.js'});
 new vm.Script(reportingOwner,{filename:'teacher-reporting.js'});
 
@@ -74,9 +77,21 @@ for(const token of forbidden){
   assert(!source.includes(token),`V5.8B must remain presentation/navigation only: ${token}`);
 }
 
-const loader="'./v58b-teacher-workspace-consolidation.js'";
-assert(config.includes(loader),'config.js must load V5.8B');
-assert(config.indexOf(loader)>config.indexOf("'./v58a-student-first-use-experience.js'"),'V5.8B must load after accepted V5.8A');
-assert(config.indexOf(loader)>config.indexOf("'./v576-feedback-presentation-bundle.js'"),'V5.8B must load after accepted teacher feedback presentation bundle');
+const bundleLoader="'./v58ab-first-use-workspace-bundle.js'";
+assert(config.includes(bundleLoader),'config.js must load the generated V5.8A/V5.8B production bundle');
+assert(!config.includes("'./v58b-teacher-workspace-consolidation.js'"),'canonical V5.8B source must not load directly after bundle promotion');
+assert(config.indexOf(bundleLoader)>config.indexOf("'./v576-feedback-presentation-bundle.js'"),'V5.8A/V5.8B bundle must load after accepted teacher feedback presentation bundle');
+assert(config.indexOf("'./v58c-parent-summary-presentation-bundle.js'")>config.indexOf(bundleLoader),'V5.8C bundle must load after accepted V5.8A/V5.8B bundle');
+const contract=phase7bManifest.generatedBundles.find(entry=>entry.path==='site/v58ab-first-use-workspace-bundle.js');
+assert(contract,'missing V5.8A/V5.8B generated bundle contract');
+assert(JSON.stringify(contract.inputs)===JSON.stringify([
+  'site/v58a-student-first-use-experience.js',
+  'site/v58b-teacher-workspace-consolidation.js'
+]),'V5.8A/V5.8B generated bundle input order changed');
+const sourceOnly=phase7bManifest.sourceOnly.find(entry=>entry.path==='site/v58b-teacher-workspace-consolidation.js');
+assert(sourceOnly && sourceOnly.reason.includes('v58ab-first-use-workspace-bundle.js'),'V5.8B canonical source must remain reviewed source-only');
+for(const token of forbidden){
+  assert(!productionBundle.includes(token),`V5.8A/V5.8B production bundle introduced forbidden authority: ${token}`);
+}
 
 console.log('V5.8B Teacher Workspace Consolidation regression: PASS');
