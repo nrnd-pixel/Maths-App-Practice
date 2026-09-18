@@ -27,6 +27,10 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/index.html',
   'site/config.js',
   'site/v576-feedback-presentation-bundle.js',
+  'site/v58c-parent-summary-presentation-bundle.js',
+  'site/tests/verify-v5.8c-parent-friendly-student-report.cjs',
+  'site/tests/verify-v5.8d-content-workflow-consolidation.cjs',
+  'site/tests/verify-v5.8-stable-release-checkpoint.cjs',
   'site/tests/verify-v5.7.6-classroom-feedback-support.cjs',
   'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs',
   'site/tests/verify-v5.8a-student-first-use-experience.cjs',
@@ -93,6 +97,9 @@ const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
   'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': '844feccd2cee26352f3c0d38219f03ee9e246e48',
   'site/tests/verify-v5.8a-student-first-use-experience.cjs': '0b65819da2d6285841e719c43d2606b2b2d15b69',
   'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'c78833c57b21792f4f1960baa5a54a906d4a4a9b',
+  'site/tests/verify-v5.8c-parent-friendly-student-report.cjs': '8cb7a721f645c39d9198cc90127c63696929df1a',
+  'site/tests/verify-v5.8d-content-workflow-consolidation.cjs': '700c94d2ab07b3585a96194ce87a89eaf00f1ed0',
+  'site/tests/verify-v5.8-stable-release-checkpoint.cjs': 'eabecf938d48ce6040973a0cd4e8c65ac9401818',
 });
 
 function git(args) {
