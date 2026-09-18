@@ -29,7 +29,7 @@ function readManifest() {
 
 function verifyProductionContract() {
   const manifest = readManifest();
-  assert.equal(manifest.generatedBundles.length, 2, 'Expected exactly two reviewed production bundles');
+  assert.equal(manifest.generatedBundles.length, 3, 'Expected exactly three reviewed production bundles');
   const contract = manifest.generatedBundles.find(entry => entry.path === EXPECTED_OUTPUT);
   assert(contract, 'Missing reviewed V58C production bundle contract');
   assert.deepEqual(contract.inputs, EXPECTED_INPUTS, 'V58C production input order drift');
@@ -53,10 +53,10 @@ function verifyProductionContract() {
   }
   const bundleIndex = loaded.indexOf(path.basename(contract.path));
   assert.deepEqual(loaded.slice(bundleIndex - 1, bundleIndex + 2), [
-    'v58b-teacher-workspace-consolidation.js',
+    'v58ab-first-use-workspace-bundle.js',
     'v58c-parent-summary-presentation-bundle.js',
     'v58d-content-workflow-consolidation.js',
-  ], 'V58B -> V58C production bundle -> V58D loader order drift');
+  ], 'V58AB production bundle -> V58C production bundle -> V58D loader order drift');
   return contract;
 }
 
