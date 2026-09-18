@@ -4,10 +4,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('@playwright/test');
-const { ROOT, SOURCES, buildShadowIife, verifyCandidateOrder } = require('./build-v58c-shadow-iife.cjs');
+const {
+  ROOT,
+  EXPECTED_INPUTS,
+  EXPECTED_OUTPUT,
+  buildProductionIife,
+  verifyProductionContract,
+} = require('./build-v58c-production-bundle.cjs');
 const { verify: verifyLoaderManifest } = require('./verify-loader-manifest.cjs');
 
-const classicSources = SOURCES.map(source => fs.readFileSync(path.join(ROOT, source), 'utf8'));
+const classicSources = EXPECTED_INPUTS.map(source => fs.readFileSync(path.join(ROOT, source), 'utf8'));
 const forbiddenAuthority = /\bcloud\s*\.\s*(?:rpc|from)\b|\bfetch\s*\(|\b(?:localStorage|sessionStorage|XMLHttpRequest)\b|\b(?:startPractice|finishPractice|submitAnswer|startExam|publishExam|createAssignment)\b|grade_practice_response|request_practice_hint|submit_practice_session|finalize_exam_attempt/i;
 
 const readyFixture = `<!doctype html><html><head><title>Math App</title></head><body>
@@ -355,30 +361,32 @@ async function runScenario(browser, mode, scenario, bundle) {
 }
 
 async function main() {
-  assert.equal(verifyLoaderManifest().length, 89, 'Phase 7B production loader verification must stay green');
-  verifyCandidateOrder();
+  assert.equal(verifyLoaderManifest().length, 88, 'Phase 7B production loader verification must stay green');
+  verifyProductionContract();
   for (const source of classicSources) {
     assert.doesNotMatch(source, forbiddenAuthority,
-      'V58C shadow candidate contains forbidden network/storage/learning/Exam/assignment authority');
+      'V58C canonical source contains forbidden network/storage/learning/Exam/assignment authority');
   }
-  const bundle = await buildShadowIife();
+  const bundle = await buildProductionIife();
+  assert.equal(fs.readFileSync(path.join(ROOT, EXPECTED_OUTPUT), 'utf8'), bundle,
+    'V58C equivalence harness must execute the exact committed production bundle bytes');
   assert.doesNotMatch(bundle, forbiddenAuthority,
-    'V58C shadow IIFE contains forbidden network/storage/learning/Exam/assignment authority');
+    'V58C production IIFE contains forbidden network/storage/learning/Exam/assignment authority');
 
   const browser = await chromium.launch({ headless: true });
   try {
     for (const scenario of ['ready', 'late']) {
       const classic = await runScenario(browser, 'classic', scenario, bundle);
-      const shadow = await runScenario(browser, 'shadow', scenario, bundle);
+      const production = await runScenario(browser, 'production', scenario, bundle);
       assertContract(classic);
-      assertContract(shadow);
-      assert.deepEqual(shadow, classic, `${scenario}: V58C shadow IIFE diverged from classic scripts`);
-      console.log(`PASS: ${scenario} DOM — classic V58C scripts and shadow IIFE are structurally equivalent`);
+      assertContract(production);
+      assert.deepEqual(production, classic, `${scenario}: V58C production IIFE diverged from classic scripts`);
+      console.log(`PASS: ${scenario} DOM — classic V58C scripts and committed production IIFE are structurally equivalent`);
     }
   } finally {
     await browser.close();
   }
-  console.log('PASS: Phase 7B-E V58C shadow compatibility contract');
+  console.log('PASS: Phase 7B-F V58C production equivalence contract');
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; });
