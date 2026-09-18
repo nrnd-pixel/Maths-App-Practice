@@ -207,6 +207,7 @@ jobs:
         working-directory: tooling/phase7b
         run: |
           npm run verify:v576-production
+          npm run verify:v58ab-production
           npm run verify:v58c-production
 
       - name: Run Phase 7B production equivalence checkpoints
@@ -214,12 +215,8 @@ jobs:
         working-directory: tooling/phase7b
         run: |
           npm run test:v576-equivalence
+          npm run test:v58ab-equivalence
           npm run test:v58c-equivalence
-
-      - name: Run Phase 7B-H V58A/V58B shadow compatibility checkpoint
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
-        working-directory: tooling/phase7b
-        run: npm run test:v58ab-shadow
 
       - name: Run Phase 7B-F V58C production smoke
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
