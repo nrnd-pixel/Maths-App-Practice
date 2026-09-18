@@ -88,7 +88,7 @@ for(const forbidden of [
 
 const loader="'./v58d-content-workflow-consolidation.js'";
 assert(config.includes(loader),'config.js must load V5.8D');
-assert(config.indexOf(loader)>config.indexOf("'./v58c-parent-summary-workspace-shortcut.js'"),'V5.8D must load after accepted V5.8C');
+assert(config.indexOf(loader)>config.indexOf("'./v58c-parent-summary-presentation-bundle.js'"),'V5.8D must load after the accepted V5.8C production bundle');
 assert(config.indexOf(loader)>config.indexOf("'./v58b-teacher-workspace-consolidation.js'"),'V5.8D must load after accepted V5.8B');
 
 console.log('V5.8D Content Workflow Consolidation regression: PASS');
