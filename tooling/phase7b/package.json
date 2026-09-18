@@ -8,7 +8,7 @@
     "analyze": "node analyze-shadow-sources.cjs",
     "build:v576-production": "node build-v576-production-bundle.cjs",
     "verify:v576-production": "node verify-v576-production-bundle.cjs",
-    "test:v576-equivalence": "node verify-v576-shadow-compatibility.cjs && node verify-v58c-shadow-compatibility.cjs",
+    "test:v576-equivalence": "node verify-v576-shadow-compatibility.cjs && node verify-v58c-shadow-compatibility.cjs && node emit-v58c-production-diagnostic.cjs",
     "build:v58c-shadow": "node build-v58c-shadow-iife.cjs",
     "test:v58c-shadow": "node verify-v58c-shadow-compatibility.cjs"
   },
