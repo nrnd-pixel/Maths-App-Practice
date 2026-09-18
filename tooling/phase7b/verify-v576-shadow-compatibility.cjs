@@ -4,11 +4,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('@playwright/test');
-const { ROOT, SOURCES, buildShadowIife } = require('./build-v576-shadow-iife.cjs');
+const {
+  ROOT,
+  EXPECTED_INPUTS,
+  EXPECTED_OUTPUT,
+  buildProductionIife,
+} = require('./build-v576-production-bundle.cjs');
+const { forbiddenAuthority } = require('./verify-v576-production-bundle.cjs');
 const { verify: verifyLoaderManifest } = require('./verify-loader-manifest.cjs');
 
-const classicSources = SOURCES.map(source => fs.readFileSync(path.join(ROOT, source), 'utf8'));
-const forbiddenAuthority = /\bcloud\s*\.\s*(?:rpc|from)\b|\bfetch\s*\(|\b(?:startPractice|finishPractice|submitAnswer|startExam|publishExam|createAssignment)\b/;
+const classicSources = EXPECTED_INPUTS.map(source => fs.readFileSync(path.join(ROOT, source), 'utf8'));
 
 const fixture = `<!doctype html><html><head></head><body>
   <main id="start"><section class="v40-learning-hub-hero"><div id="student-source-host"><button id="v576-send-feedback">Original student feedback</button></div></section></main>
@@ -289,26 +294,28 @@ async function runScenario(browser, mode, scenario, bundle) {
 }
 
 async function main() {
-  assert.equal(verifyLoaderManifest().length, 90, 'Phase 7B loader verification must stay green');
+  assert.equal(verifyLoaderManifest().length, 89, 'Phase 7B production loader verification must stay green');
   for (const source of classicSources) {
     assert.doesNotMatch(source, forbiddenAuthority, 'Candidate source contains forbidden runtime authority');
   }
-  const bundle = await buildShadowIife();
+  const bundle = await buildProductionIife();
+  assert.equal(fs.readFileSync(path.join(ROOT, EXPECTED_OUTPUT), 'utf8'), bundle,
+    'Equivalence harness must execute the exact committed production bundle bytes');
   assert.doesNotMatch(bundle, forbiddenAuthority, 'Shadow bundle contains forbidden runtime authority');
   const browser = await chromium.launch({ headless: true });
   try {
     for (const scenario of ['ready', 'late']) {
       const classic = await runScenario(browser, 'classic', scenario, bundle);
-      const shadow = await runScenario(browser, 'shadow', scenario, bundle);
+      const production = await runScenario(browser, 'production', scenario, bundle);
       assertContract(classic, scenario);
-      assertContract(shadow, scenario);
-      assert.deepEqual(shadow, classic, `${scenario}: shadow IIFE diverged from classic scripts`);
-      console.log(`PASS: ${scenario} DOM — classic scripts and shadow IIFE are structurally equivalent`);
+      assertContract(production, scenario);
+      assert.deepEqual(production, classic, `${scenario}: production IIFE diverged from classic sources`);
+      console.log(`PASS: ${scenario} DOM — classic sources and committed production IIFE are structurally equivalent`);
     }
   } finally {
     await browser.close();
   }
-  console.log('PASS: Phase 7B-C V576 compatibility contract (10 invariant groups)');
+  console.log('PASS: Phase 7B-D V576 production equivalence contract (10 invariant groups)');
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; });

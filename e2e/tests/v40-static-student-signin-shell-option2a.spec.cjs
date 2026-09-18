@@ -26,6 +26,11 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/assignments-student.js',
   'site/index.html',
   'site/config.js',
+  'site/v576-feedback-presentation-bundle.js',
+  'site/tests/verify-v5.7.6-classroom-feedback-support.cjs',
+  'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs',
+  'site/tests/verify-v5.8a-student-first-use-experience.cjs',
+  'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs',
   'site/v59a-student-home-refresh.js',
   'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs',
@@ -80,6 +85,16 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/version.js': 'fa82bfbdb978bb927a9e0fb930cd692816571b0d',
 });
 
+// Phase 7B-D authorizes exact successors for these maintained verifiers. Keep
+// their pre-successor blobs in the historical remainder calculation so the
+// established frozen hash continues to prove every other site byte unchanged.
+const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '8033886865b0621313fbb8a0f9d6af38e53d499b',
+  'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': '844feccd2cee26352f3c0d38219f03ee9e246e48',
+  'site/tests/verify-v5.8a-student-first-use-experience.cjs': '0b65819da2d6285841e719c43d2606b2b2d15b69',
+  'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'c78833c57b21792f4f1960baa5a54a906d4a4a9b',
+});
+
 function git(args) {
   return execFileSync('git', args, {
     cwd: REPO_ROOT,
@@ -92,15 +107,15 @@ function gitBlob(pathname) {
   return git(['hash-object', pathname]);
 }
 
-function workingManifestHash(root, excluded = new Set()) {
+function workingManifestHash(root, excluded = new Set(), baselineBlobs = {}) {
   const output = git(['ls-files', '-co', '--exclude-standard', root]);
   const paths = output
     ? [...new Set(output.split(/\r?\n/).filter(Boolean))].sort()
     : [];
 
   const records = paths
-    .filter(pathname => !excluded.has(pathname))
-    .map(pathname => `${gitBlob(pathname)}  ${pathname}`);
+    .filter(pathname => !excluded.has(pathname) || baselineBlobs[pathname])
+    .map(pathname => `${baselineBlobs[pathname] || gitBlob(pathname)}  ${pathname}`);
 
   return crypto
     .createHash('sha256')
@@ -503,7 +518,11 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     expect(EXPECTED_FROZEN_SITE_SHA256).not.toContain('__EXPECTED_');
     expect(EXPECTED_SUPABASE_SHA256).not.toContain('__EXPECTED_');
 
-    expect(workingManifestHash('site', ALLOWED_SITE_CHANGES)).toBe(EXPECTED_FROZEN_SITE_SHA256);
+    expect(workingManifestHash(
+      'site',
+      ALLOWED_SITE_CHANGES,
+      PHASE7BD_REPLACED_SITE_BASELINE_BLOBS,
+    )).toBe(EXPECTED_FROZEN_SITE_SHA256);
     const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_RECONCILIATION));
     expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
     for (const [pathname, expected] of Object.entries(AUTHORIZED_SUPABASE_RECONCILIATION)) {

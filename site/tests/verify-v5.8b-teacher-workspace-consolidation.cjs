@@ -77,6 +77,6 @@ for(const token of forbidden){
 const loader="'./v58b-teacher-workspace-consolidation.js'";
 assert(config.includes(loader),'config.js must load V5.8B');
 assert(config.indexOf(loader)>config.indexOf("'./v58a-student-first-use-experience.js'"),'V5.8B must load after accepted V5.8A');
-assert(config.indexOf(loader)>config.indexOf("'./v5763-teacher-feedback-header-icon.js'"),'V5.8B must load after accepted teacher header polish');
+assert(config.indexOf(loader)>config.indexOf("'./v576-feedback-presentation-bundle.js'"),'V5.8B must load after accepted teacher feedback presentation bundle');
 
 console.log('V5.8B Teacher Workspace Consolidation regression: PASS');

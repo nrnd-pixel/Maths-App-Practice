@@ -9,11 +9,24 @@ const read=name=>fs.readFileSync(path.join(site,name),'utf8');
 const config=read('config.js');
 const feedbackSource=read('v576-classroom-feedback-support.js');
 const teacherIconSource=read('v5763-teacher-feedback-header-icon.js');
+const productionBundle=read('v576-feedback-presentation-bundle.js');
+const phase7bManifest=JSON.parse(fs.readFileSync(path.resolve(site,'..','tooling','phase7b','loader-manifest.json'),'utf8'));
 
 new vm.Script(teacherIconSource,{filename:'v5763-teacher-feedback-header-icon.js'});
 
 // V5.7.6.3 remains a presentation-only layer after the accepted feedback workflow.
-assert.match(config,/\.\/v576-classroom-feedback-support\.js'[\s\S]*\.\/v5761-feedback-trigger-position\.js'[\s\S]*\.\/v5763-teacher-feedback-header-icon\.js'/);
+assert.match(config,/\.\/v576-classroom-feedback-support\.js',\s*'\.\/v576-feedback-presentation-bundle\.js',\s*'\.\/v58a-student-first-use-experience\.js'/);
+assert.doesNotMatch(config,/\.\/v5761-feedback-trigger-position\.js'|\.\/v5763-teacher-feedback-header-icon\.js'/,
+  'Canonical V5761/V5763 sources must be source-only after bundle promotion.');
+assert.deepEqual(phase7bManifest.sourceOnly.map(entry=>entry.path),[
+  'site/v5761-feedback-trigger-position.js',
+  'site/v5763-teacher-feedback-header-icon.js'
+]);
+assert.equal(phase7bManifest.generatedBundles.length,1);
+assert.equal(phase7bManifest.generatedBundles[0].path,'site/v576-feedback-presentation-bundle.js');
+assert.deepEqual(phase7bManifest.generatedBundles[0].inputs,phase7bManifest.sourceOnly.map(entry=>entry.path));
+assert.match(productionBundle,/__v5761FeedbackTriggerPositionInstalled/);
+assert.match(productionBundle,/__v5763TeacherFeedbackHeaderIconInstalled/);
 assert.match(teacherIconSource,/__v5763TeacherFeedbackHeaderIconInstalled/);
 assert.match(teacherIconSource,/const SOURCE_ID='v576-feedback-inbox'/);
 assert.match(teacherIconSource,/const ICON_ID='v5763-teacher-feedback-icon'/);
@@ -50,9 +63,12 @@ assert.doesNotMatch(teacherIconSource,/appendChild\(source\)|insertAdjacentEleme
 // Toolbar polish must remain presentation-only.
 assert.doesNotMatch(teacherIconSource,/cloud\.rpc\(|cloud\.from\(|supabase|fetch\(/i,'Teacher toolbar polish must not make network/data calls.');
 assert.doesNotMatch(teacherIconSource,/grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt/,'Teacher toolbar polish must not touch learning or Exam authority.');
+assert.doesNotMatch(productionBundle,/cloud\.rpc\(|cloud\.from\(|fetch\(|grade_practice_response|request_practice_hint|finalize_exam_attempt|submit_practice_session|save_exam_attempt|create_teacher_past_paper_assignments/i,
+  'Generated V576 presentation successor must not introduce network, learning, Exam or assignment authority.');
 
 console.log('V5.7.6.3 Teacher Feedback Toolbar checks passed.');
 console.log('- desktop Feedback is grouped with Refresh and Home as a normal utility action');
 console.log('- Change Password and Sign Out stay together as account actions');
 console.log('- mobile Feedback collapses to an accessible 42px chat button');
 console.log('- original V5.7.6 inbox remains the workflow owner with no new network/data calls');
+console.log('- generated production bundle is the sole loader successor for the two canonical presentation sources');

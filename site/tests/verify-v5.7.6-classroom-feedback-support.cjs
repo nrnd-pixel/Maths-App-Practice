@@ -33,7 +33,9 @@ assert.match(moduleSource,/If a problem is visual, showing your teacher a screen
 // V5.7.6 is a feature layer after the accepted V5.7.5 stable checkpoint.
 // The checkpoint keeps its historical V5.7.5 note but delegates the current
 // visible title/badge to the Phase 2 shared version source.
-assert.match(config,/\.\/v575-gamification-stable-checkpoint\.js'[\s\S]*\.\/v576-classroom-feedback-support\.js'[\s\S]*\.\/v5761-feedback-trigger-position\.js'/);
+assert.match(config,/\.\/v575-gamification-stable-checkpoint\.js'[\s\S]*\.\/v576-classroom-feedback-support\.js'[\s\S]*\.\/v576-feedback-presentation-bundle\.js'/);
+assert.doesNotMatch(config,/\.\/v5761-feedback-trigger-position\.js'|\.\/v5763-teacher-feedback-header-icon\.js'/,
+  'Canonical V576 presentation sources must not be loaded directly after bundle promotion.');
 assert.match(stable,/MathAppVersion/);
 assert.match(stable,/V5\.7\.5 Gamified Practice Release:/);
 assert.doesNotMatch(stable,/const TITLE = 'Math Practice V5\.7\.5'/);
