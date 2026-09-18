@@ -56,8 +56,8 @@ function verifyProductionContract() {
   assert.deepEqual(loaded.slice(bundleIndex - 1, bundleIndex + 2), [
     'v576-classroom-feedback-support.js',
     'v576-feedback-presentation-bundle.js',
-    'v58a-student-first-use-experience.js',
-  ], 'V576 workflow owner -> production bundle -> V58A loader order drift');
+    'v58ab-first-use-workspace-bundle.js',
+  ], 'V576 workflow owner -> production bundle -> V58AB loader order drift');
   return contract;
 }
 
