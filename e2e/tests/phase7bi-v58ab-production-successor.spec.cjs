@@ -98,6 +98,12 @@ test.describe('Phase 7B-I V58AB production successor', () => {
 
     await page.locator('#v58b-teacher-workspace [data-v58b-tool="analytics"]').click();
     await page.locator('#v58b-teacher-workspace [data-v58b-tool="feedback"]').click();
+
+    await expect(page.locator('#v576-feedback-inbox-overlay')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => window.__phase7biTeacher.feedbackClicks)).toBe(1);
+    await page.locator('#v576-teacher-close').click();
+    await expect(page.locator('#v576-feedback-inbox-overlay')).toHaveClass(/hidden/);
+
     await page.locator('#v58b-teacher-workspace [data-v58b-tool="student-reports"]').click();
 
     await expect.poll(() => page.evaluate(() => window.__phase7biTeacher)).toEqual({
