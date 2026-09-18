@@ -22,8 +22,12 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': '4ed5a5c989eedde1aa7f08e34a58aed4432848b6',
+  'site/config.js': 'a11d3684b22e4f0b621c67d10bb258251b39518b',
   'site/v576-feedback-presentation-bundle.js': 'dfa88c4e560eee8d5f58ed2d3ccee62b7a6942f0',
+  'site/v58c-parent-summary-presentation-bundle.js': '74dd51284bbc626a1f8789ba1312f039675a23c3',
+  'site/tests/verify-v5.8c-parent-friendly-student-report.cjs': 'a0c5f4a92eef6d8957309d5f0f52b246cd1e2812',
+  'site/tests/verify-v5.8d-content-workflow-consolidation.cjs': 'ead9443286d1cb476b98c7746fb48008a446f2f5',
+  'site/tests/verify-v5.8-stable-release-checkpoint.cjs': '1ae1f6dedb7740578696cdd285a25c05e09f06dc',
   'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '10a72e71103ec68500f40bb8e7969d16f14c5cf6',
   'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': 'ff883537f921bb09c931adfbd52a6468d02bdebd',
   'site/tests/verify-v5.8a-student-first-use-experience.cjs': '5eb9f4a13a00946daa16f4863dafb6f510893185',
@@ -127,7 +131,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '4ed5a5c989eedde1aa7f08e34a58aed4432848b6',
+  'site/config.js': 'a11d3684b22e4f0b621c67d10bb258251b39518b',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
@@ -151,6 +155,9 @@ const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
   'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': '844feccd2cee26352f3c0d38219f03ee9e246e48',
   'site/tests/verify-v5.8a-student-first-use-experience.cjs': '0b65819da2d6285841e719c43d2606b2b2d15b69',
   'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'c78833c57b21792f4f1960baa5a54a906d4a4a9b',
+  'site/tests/verify-v5.8c-parent-friendly-student-report.cjs': '8cb7a721f645c39d9198cc90127c63696929df1a',
+  'site/tests/verify-v5.8d-content-workflow-consolidation.cjs': '700c94d2ab07b3585a96194ce87a89eaf00f1ed0',
+  'site/tests/verify-v5.8-stable-release-checkpoint.cjs': 'eabecf938d48ce6040973a0cd4e8c65ac9401818',
 });
 
 const SCREEN_CONFIG = Object.freeze({
