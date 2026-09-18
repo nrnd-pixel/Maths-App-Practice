@@ -40,8 +40,8 @@ test.describe('Phase 7B-F V58C production successor', () => {
     await expect(page.locator('#v58c-open-parent-summary')).toHaveCount(1);
     await expect(page.locator('#v58c-workspace-parent-summary')).toHaveCount(1);
 
-    await page.evaluate(() => {
-      globalThis.analyticsVisibleRows = [{
+    const selectedSnapshot = await page.evaluate(() => {
+      analyticsVisibleRows = [{
         key: 'phase7bf-student',
         student_name: 'Alya',
         student_id: 'S001',
@@ -60,20 +60,16 @@ test.describe('Phase 7B-F V58C production successor', () => {
         examPercents: [],
         lastActivity: '',
       }];
-      globalThis.selectedAnalyticsStudentKey = 'phase7bf-student';
-      globalThis.analyticsLearningRows = [];
-      globalThis.analyticsContext = { sessions: [], attempts: [], answers: [] };
-      globalThis.learningBand = globalThis.learningBand || (() => ({ key: '', label: 'Learning evidence' }));
-      globalThis.aggregateLearning = globalThis.aggregateLearning || (() => []);
-      globalThis.analyticsAnswerScore = globalThis.analyticsAnswerScore || (() => ({ pending: false, possible: 0, awarded: 0 }));
-      globalThis.analyticsFinalExamPercent = globalThis.analyticsFinalExamPercent || (() => null);
-      globalThis.analyticsKey = globalThis.analyticsKey || (value => value?.key || '');
-      globalThis.STRANDS = globalThis.STRANDS || {};
+      selectedAnalyticsStudentKey = 'phase7bf-student';
+      analyticsLearningRows = [];
+      analyticsContext = { sessions: [], attempts: [], answers: [] };
       const detail = document.getElementById('analytics-student-detail');
       detail?.classList.remove('hidden');
       if (detail) detail.dataset.phase7bfSelectedFixture = 'true';
+      return window.V50ReportingExport?.buildStudentSnapshot?.()?.studentName || null;
     });
 
+    expect(selectedSnapshot).toBe('Alya');
     await expect(page.locator('#analytics-student-detail')).toBeVisible();
     await expect(page.locator('#v58c-open-parent-summary')).toBeVisible();
     await page.locator('#v58c-open-parent-summary').click();
