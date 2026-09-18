@@ -36,6 +36,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Verify Phase 7B loader manifest
+        run: node tooling/phase7b/verify-loader-manifest.cjs
+
       - name: Run maintained verifier suite
         id: verifiers
         continue-on-error: true
