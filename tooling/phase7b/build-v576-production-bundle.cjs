@@ -29,7 +29,7 @@ function readManifest() {
 
 function verifyProductionContract() {
   const manifest = readManifest();
-  assert.equal(manifest.generatedBundles.length, 2, 'Expected exactly two reviewed production bundles');
+  assert.equal(manifest.generatedBundles.length, 3, 'Expected exactly three reviewed production bundles');
   const contract = manifest.generatedBundles.find(entry => entry.path === EXPECTED_OUTPUT);
   assert(contract, 'Missing reviewed V576 production bundle contract');
   assert.equal(contract.path, EXPECTED_OUTPUT, 'Unexpected V576 production bundle path');
