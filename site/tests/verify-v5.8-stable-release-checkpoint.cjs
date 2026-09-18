@@ -46,8 +46,7 @@ for (const phrase of [
 // so version.js derives the newer current identity without changing V5.8 checkpoint semantics.
 for (const loader of [
   './version.js',
-  './v58a-student-first-use-experience.js',
-  './v58b-teacher-workspace-consolidation.js',
+  './v58ab-first-use-workspace-bundle.js',
   './v58c-parent-summary-presentation-bundle.js',
   './v58d-content-workflow-consolidation.js',
   './v581a-practice-cloud-result-reconciliation.js',
@@ -55,10 +54,10 @@ for (const loader of [
 ]) {
   assert(config.includes(loader),`Current runtime loader missing: ${loader}`);
 }
-assert.match(config,/\.\/version\.js'[\s\S]*\.\/v58a-student-first-use-experience\.js/,
-  'version.js must load before the release checkpoint chain.');
-assert.match(config,/\.\/v58c-parent-summary-presentation-bundle\.js'[\s\S]*\.\/v58d-content-workflow-consolidation\.js'[\s\S]*\.\/v581a-practice-cloud-result-reconciliation\.js'[\s\S]*\.\/v58-stable-release-checkpoint\.js'/,
-  'V5.8C bundle, V5.8D and V5.8.1A must remain ordered before the final V5.8 checkpoint.');
+assert.match(config,/\.\/version\.js'[\s\S]*\.\/v58ab-first-use-workspace-bundle\.js/,
+  'version.js must load before the V5.8A/V5.8B production bundle and release checkpoint chain.');
+assert.match(config,/\.\/v58ab-first-use-workspace-bundle\.js'[\s\S]*\.\/v58c-parent-summary-presentation-bundle\.js'[\s\S]*\.\/v58d-content-workflow-consolidation\.js'[\s\S]*\.\/v581a-practice-cloud-result-reconciliation\.js'[\s\S]*\.\/v58-stable-release-checkpoint\.js'/,
+  'V5.8A/V5.8B bundle, V5.8C bundle, V5.8D and V5.8.1A must remain ordered before the final V5.8 checkpoint.');
 
 // Browser checkpoint checks correspond to the accepted historical V5.8 module markers.
 assert.match(v58a,/__v58aStudentFirstUseExperienceInstalled/);
