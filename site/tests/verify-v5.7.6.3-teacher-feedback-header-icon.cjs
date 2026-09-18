@@ -18,13 +18,18 @@ new vm.Script(teacherIconSource,{filename:'v5763-teacher-feedback-header-icon.js
 assert.match(config,/\.\/v576-classroom-feedback-support\.js',\s*'\.\/v576-feedback-presentation-bundle\.js',\s*'\.\/v58a-student-first-use-experience\.js'/);
 assert.doesNotMatch(config,/\.\/v5761-feedback-trigger-position\.js'|\.\/v5763-teacher-feedback-header-icon\.js'/,
   'Canonical V5761/V5763 sources must be source-only after bundle promotion.');
-assert.deepEqual(phase7bManifest.sourceOnly.map(entry=>entry.path),[
+const v576Inputs=[
   'site/v5761-feedback-trigger-position.js',
   'site/v5763-teacher-feedback-header-icon.js'
-]);
-assert.equal(phase7bManifest.generatedBundles.length,1);
-assert.equal(phase7bManifest.generatedBundles[0].path,'site/v576-feedback-presentation-bundle.js');
-assert.deepEqual(phase7bManifest.generatedBundles[0].inputs,phase7bManifest.sourceOnly.map(entry=>entry.path));
+];
+assert.deepEqual(
+  phase7bManifest.sourceOnly.filter(entry=>v576Inputs.includes(entry.path)).map(entry=>entry.path),
+  v576Inputs,
+  'V576 canonical inputs must remain source-only in reviewed build order.'
+);
+const v576Bundle=phase7bManifest.generatedBundles.find(entry=>entry.path==='site/v576-feedback-presentation-bundle.js');
+assert(v576Bundle,'V576 generated production bundle contract missing.');
+assert.deepEqual(v576Bundle.inputs,v576Inputs,'V576 generated bundle input order changed.');
 assert.match(productionBundle,/__v5761FeedbackTriggerPositionInstalled/);
 assert.match(productionBundle,/__v5763TeacherFeedbackHeaderIconInstalled/);
 assert.match(teacherIconSource,/__v5763TeacherFeedbackHeaderIconInstalled/);
