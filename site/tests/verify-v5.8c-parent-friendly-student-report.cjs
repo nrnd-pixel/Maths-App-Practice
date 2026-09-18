@@ -8,11 +8,14 @@ const shortcut=fs.readFileSync(path.join(root,'v58c-parent-summary-workspace-sho
 const config=fs.readFileSync(path.join(root,'config.js'),'utf8');
 const reportingOwner=fs.readFileSync(path.join(root,'teacher-reporting.js'),'utf8');
 const workspace=fs.readFileSync(path.join(root,'v58b-teacher-workspace-consolidation.js'),'utf8');
+const productionBundle=fs.readFileSync(path.join(root,'v58c-parent-summary-presentation-bundle.js'),'utf8');
+const phase7bManifest=JSON.parse(fs.readFileSync(path.resolve(root,'..','tooling','phase7b','loader-manifest.json'),'utf8'));
 
 function assert(condition,message){ if(!condition) throw new Error(message); }
 new vm.Script(source,{filename:'v58c-parent-friendly-student-report.js'});
 new vm.Script(shortcut,{filename:'v58c-parent-summary-workspace-shortcut.js'});
 new vm.Script(reportingOwner,{filename:'teacher-reporting.js'});
+new vm.Script(productionBundle,{filename:'v58c-parent-summary-presentation-bundle.js'});
 
 assert(source.includes('V5.8C — Parent-Friendly Student Report'),'missing V5.8C identity');
 assert(source.includes("const TRIGGER_ID='v58c-open-parent-summary'"),'missing parent summary trigger');
@@ -68,11 +71,29 @@ assert(shortcut.includes('analytics-students-body'),'workspace shortcut must gui
 assert(!shortcut.includes('cloud.rpc(') && !shortcut.includes('cloud.from(') && !shortcut.includes('fetch('),'workspace shortcut must remain navigation-only');
 assert(workspace.includes("title:'Reports & Support'"),'accepted V5.8B Reports & Support group missing');
 
-const mainLoader="'./v58c-parent-friendly-student-report.js'";
-const shortcutLoader="'./v58c-parent-summary-workspace-shortcut.js'";
-assert(config.includes(mainLoader),'config.js must load V5.8C parent report');
-assert(config.includes(shortcutLoader),'config.js must load V5.8C workspace shortcut');
-assert(config.indexOf(mainLoader)>config.indexOf("'./v58b-teacher-workspace-consolidation.js'"),'V5.8C must load after accepted V5.8B');
-assert(config.indexOf(shortcutLoader)>config.indexOf(mainLoader),'workspace shortcut must load after V5.8C report owner');
+const bundleLoader="'./v58c-parent-summary-presentation-bundle.js'";
+assert(config.includes(bundleLoader),'config.js must load the generated V5.8C production bundle');
+assert(!config.includes("'./v58c-parent-friendly-student-report.js'"),'canonical V5.8C report source must not load directly after bundle promotion');
+assert(!config.includes("'./v58c-parent-summary-workspace-shortcut.js'"),'canonical V5.8C shortcut source must not load directly after bundle promotion');
+assert(config.indexOf(bundleLoader)>config.indexOf("'./v58b-teacher-workspace-consolidation.js'"),'V5.8C bundle must load after accepted V5.8B');
+assert(config.indexOf("'./v58d-content-workflow-consolidation.js'")>config.indexOf(bundleLoader),'V5.8D must load after the V5.8C production bundle');
+
+const contract=phase7bManifest.generatedBundles.find(entry=>entry.path==='site/v58c-parent-summary-presentation-bundle.js');
+assert(contract,'missing V5.8C generated bundle contract');
+assert(JSON.stringify(contract.inputs)===JSON.stringify([
+  'site/v58c-parent-friendly-student-report.js',
+  'site/v58c-parent-summary-workspace-shortcut.js'
+]),'V5.8C generated bundle input order changed');
+for(const sourceOnly of contract.inputs){
+  const entry=phase7bManifest.sourceOnly.find(item=>item.path===sourceOnly);
+  assert(entry && entry.reason.includes('v58c-parent-summary-presentation-bundle.js'),'V5.8C canonical input must remain reviewed source-only');
+}
+for(const forbidden of [
+  /cloud\.rpc\(/i,/cloud\.from\(/i,/fetch\(/i,/localStorage/i,/sessionStorage/i,
+  /grade_practice_response/i,/request_practice_hint/i,/submit_practice_session/i,/finalize_exam_attempt/i,
+  /create_teacher_past_paper_assignments/i
+]){
+  assert(!forbidden.test(productionBundle),`V5.8C production bundle introduced forbidden authority: ${forbidden}`);
+}
 
 console.log('V5.8C Parent-Friendly Student Report regression: PASS');
