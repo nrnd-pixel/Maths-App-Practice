@@ -5,8 +5,13 @@
   "description": "Non-production loader verification and per-source shadow analysis",
   "scripts": {
     "verify": "node verify-loader-manifest.cjs",
-    "analyze": "node analyze-shadow-sources.cjs"
+    "analyze": "node analyze-shadow-sources.cjs",
+    "build:v576-shadow": "node build-v576-shadow-iife.cjs",
+    "test:v576-shadow": "node verify-v576-shadow-compatibility.cjs"
   },
   "engines": { "node": ">=20" },
-  "devDependencies": { "esbuild": "0.28.2" }
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "esbuild": "0.28.2"
+  }
 }
