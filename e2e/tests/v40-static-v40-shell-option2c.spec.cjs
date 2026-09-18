@@ -29,7 +29,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.8d-content-workflow-consolidation.cjs': 'ead9443286d1cb476b98c7746fb48008a446f2f5',
   'site/tests/verify-v5.8-stable-release-checkpoint.cjs': '1ae1f6dedb7740578696cdd285a25c05e09f06dc',
   'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '10a72e71103ec68500f40bb8e7969d16f14c5cf6',
-  'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': 'ff883537f921bb09c931adfbd52a6468d02bdebd',
+  'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': '8e367bc9c56e7dc45af6405cbda3aa5438608e44',
   'site/tests/verify-v5.8a-student-first-use-experience.cjs': '5eb9f4a13a00946daa16f4863dafb6f510893185',
   'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'a2605605589f80db1d9f65410c98675470c109bc',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '229ac351a469e2474f2c12a993893b8b3244e812',
