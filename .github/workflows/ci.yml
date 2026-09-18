@@ -218,6 +218,11 @@ jobs:
           npm run test:v58ab-equivalence
           npm run test:v58c-equivalence
 
+      - name: Run Phase 7B-I V58AB production smoke
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npx playwright test tests/phase7bi-v58ab-production-successor.spec.cjs --reporter=line
+
       - name: Run Phase 7B-F V58C production smoke
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
