@@ -8,10 +8,10 @@ const esbuild = require('esbuild');
 const ROOT = path.resolve(__dirname, '../..');
 const MANIFEST_PATH = path.join(__dirname, 'loader-manifest.json');
 const EXPECTED_INPUTS = Object.freeze([
-  'site/v5761-feedback-trigger-position.js',
-  'site/v5763-teacher-feedback-header-icon.js',
+  'site/v58c-parent-friendly-student-report.js',
+  'site/v58c-parent-summary-workspace-shortcut.js',
 ]);
-const EXPECTED_OUTPUT = 'site/v576-feedback-presentation-bundle.js';
+const EXPECTED_OUTPUT = 'site/v58c-parent-summary-presentation-bundle.js';
 const EXPECTED_OPTIONS = Object.freeze({
   bundle: true,
   format: 'iife',
@@ -31,33 +31,32 @@ function verifyProductionContract() {
   const manifest = readManifest();
   assert.equal(manifest.generatedBundles.length, 2, 'Expected exactly two reviewed production bundles');
   const contract = manifest.generatedBundles.find(entry => entry.path === EXPECTED_OUTPUT);
-  assert(contract, 'Missing reviewed V576 production bundle contract');
-  assert.equal(contract.path, EXPECTED_OUTPUT, 'Unexpected V576 production bundle path');
-  assert.deepEqual(contract.inputs, EXPECTED_INPUTS, 'Production input order drift');
+  assert(contract, 'Missing reviewed V58C production bundle contract');
+  assert.deepEqual(contract.inputs, EXPECTED_INPUTS, 'V58C production input order drift');
   assert.equal(contract.tool, 'esbuild');
   assert.equal(contract.toolVersion, esbuild.version, 'Pinned esbuild version drift');
-  assert.equal(contract.entrySourcefile, 'v576-production-entry.js');
+  assert.equal(contract.entrySourcefile, 'v58c-production-entry.js');
   assert.deepEqual(contract.options, EXPECTED_OPTIONS, 'Reviewed esbuild output options drift');
-  assert.match(contract.sha256, /^[a-f0-9]{64}$/, 'Invalid committed production bundle SHA-256');
+  assert.match(contract.sha256, /^[a-f0-9]{64}$/, 'Invalid committed V58C production bundle SHA-256');
   assert.deepEqual(
     manifest.sourceOnly.filter(entry => contract.inputs.includes(entry.path)).map(entry => entry.path),
     contract.inputs,
-    'V576 sourceOnly order must preserve the exact production build input order',
+    'V58C sourceOnly order must preserve the exact production build input order',
   );
 
   const loaded = manifest.tiers.flatMap(tier => tier.entries)
     .map(entry => entry.src.replace(/^\.\//, '').split('?')[0]);
   assert.equal(loaded.filter(target => target === path.basename(contract.path)).length, 1,
-    'Loaded manifest must contain exactly one V576 production bundle');
+    'Loaded manifest must contain exactly one V58C production bundle');
   for (const input of contract.inputs) {
     assert(!loaded.includes(path.basename(input)), `${input} must be source-only, not production-loaded`);
   }
   const bundleIndex = loaded.indexOf(path.basename(contract.path));
   assert.deepEqual(loaded.slice(bundleIndex - 1, bundleIndex + 2), [
-    'v576-classroom-feedback-support.js',
-    'v576-feedback-presentation-bundle.js',
-    'v58a-student-first-use-experience.js',
-  ], 'V576 workflow owner -> production bundle -> V58A loader order drift');
+    'v58b-teacher-workspace-consolidation.js',
+    'v58c-parent-summary-presentation-bundle.js',
+    'v58d-content-workflow-consolidation.js',
+  ], 'V58B -> V58C production bundle -> V58D loader order drift');
   return contract;
 }
 
@@ -75,7 +74,7 @@ async function buildProductionIife() {
     write: false,
     logLevel: 'silent',
   });
-  assert.equal(result.outputFiles.length, 1, 'Expected one generated production IIFE');
+  assert.equal(result.outputFiles.length, 1, 'Expected one generated V58C production IIFE');
   return result.outputFiles[0].text;
 }
 
@@ -84,7 +83,7 @@ async function main() {
   const code = await buildProductionIife();
   const outputPath = path.join(ROOT, contract.path);
   fs.writeFileSync(outputPath, code);
-  console.log(`Generated production IIFE: ${contract.path} (${Buffer.byteLength(code)} bytes)`);
+  console.log(`Generated V58C production IIFE: ${contract.path} (${Buffer.byteLength(code)} bytes)`);
 }
 
 if (require.main === module) {
