@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 1,
+  "baseline": "a079e646d9aa98eaa5650535c04d0f4ce41e002f",
+  "description": "Loader ownership tiers in source order, preserving URLs and data keys; not a browser execution trace. Source SHA-256 normalizes CRLF to LF only.",
+  "tiers": [
+    {
+      "source": "site/config.js",
+      "sourceSha256": "167836732d223ed1b7a60f00146972498939bb3a0a35f69c3f141431067dd14c",
+      "entries": [
+        {
+          "src": "./version.js"
+        },
+        {
+          "src": "./v38-ai-help.js"
+        },
+        {
+          "src": "./v38-ai-admin.js"
+        },
+        {
+          "src": "./v38-ai-polish.js"
+        },
+        {
+          "src": "./v39-student-polish.js"
+        },
+        {
+          "src": "./v39-practice-polish.js"
+        },
+        {
+          "src": "./v39-dashboard-polish.js"
+        },
+        {
+          "src": "./v39-state-polish.js"
+        },
+        {
+          "src": "./v40-student-platform.js"
+        },
+        {
+          "src": "./v40-student-nav.js"
+        },
+        {
+          "src": "./v40-student-session.js"
+        },
+        {
+          "src": "./v40-learn-setup.js"
+        },
+        {
+          "src": "./v40-learning-priorities.js"
+        },
+        {
+          "src": "./v40-platform-polish.js"
+        },
+        {
+          "src": "./v40-release.js"
+        },
+        {
+          "src": "./v40-start-shell.js"
+        },
+        {
+          "src": "./v54-stable-release-checkpoint.js"
+        },
+        {
+          "src": "./past-paper-core.js"
+        },
+        {
+          "src": "./past-paper-resume.js"
+        },
+        {
+          "src": "./past-paper-results.js"
+        },
+        {
+          "src": "./v55-stable-release-checkpoint.js"
+        },
+        {
+          "src": "./v56a-question-bank-response-filter.js"
+        },
+        {
+          "src": "./v56a1-bulk-practice-confirmation-bridge.js"
+        },
+        {
+          "src": "./past-paper-assignments.js"
+        },
+        {
+          "src": "./past-paper-progress.js"
+        },
+        {
+          "src": "./past-paper-analytics.js"
+        },
+        {
+          "src": "./v56-stable-release-checkpoint.js"
+        },
+        {
+          "src": "./v561-practice-first-student-experience.js"
+        },
+        {
+          "src": "./past-paper-cross-device.js"
+        },
+        {
+          "src": "./v57b-teacher-assignment-management.js"
+        },
+        {
+          "src": "./v57c-student-continue-learning-home.js"
+        },
+        {
+          "src": "./past-paper-analytics-actions.js"
+        },
+        {
+          "src": "./v57-stable-release-checkpoint.js"
+        },
+        {
+          "src": "./gamification-core.js"
+        },
+        {
+          "src": "./gamification-student.js"
+        },
+        {
+          "src": "./gamification-teacher.js"
+        },
+        {
+          "src": "./v575-gamification-stable-checkpoint.js"
+        },
+        {
+          "src": "./v576-classroom-feedback-support.js"
+        },
+        {
+          "src": "./v5761-feedback-trigger-position.js"
+        },
+        {
+          "src": "./v5763-teacher-feedback-header-icon.js"
+        },
+        {
+          "src": "./v58a-student-first-use-experience.js"
+        },
+        {
+          "src": "./v58b-teacher-workspace-consolidation.js"
+        },
+        {
+          "src": "./v58c-parent-friendly-student-report.js"
+        },
+        {
+          "src": "./v58c-parent-summary-workspace-shortcut.js"
+        },
+        {
+          "src": "./v58d-content-workflow-consolidation.js"
+        },
+        {
+          "src": "./v581a-practice-cloud-result-reconciliation.js"
+        },
+        {
+          "src": "./v58-stable-release-checkpoint.js"
+        },
+        {
+          "src": "./v59a-student-home-refresh.js"
+        },
+        {
+          "src": "./v59b-adaptive-diagnostic-pilot-v2.js"
+        }
+      ]
+    },
+    {
+      "source": "site/v40-release.js",
+      "sourceSha256": "edc91f65cd63edf44381b8f95a4c9ed59a561477e1e691f86fc0ce431a135641",
+      "entries": [
+        {
+          "src": "v41-signin-guard.js",
+          "dataKey": "data-v41-signin-guard"
+        },
+        {
+          "src": "v41-mastery-progress.js",
+          "dataKey": "data-v41c-mastery-progress"
+        },
+        {
+          "src": "v42-teacher-action-center.js",
+          "dataKey": "data-v42a-teacher-action-center"
+        },
+        {
+          "src": "assignments-core.js",
+          "dataKey": "data-assignments-core"
+        },
+        {
+          "src": "assignments-student.js",
+          "dataKey": "data-assignments-student"
+        },
+        {
+          "src": "assignments-teacher.js",
+          "dataKey": "data-assignments-teacher"
+        },
+        {
+          "src": "v42-roster-cleanup.js",
+          "dataKey": "data-v42c-roster-cleanup"
+        },
+        {
+          "src": "v42-quick-add-student.js",
+          "dataKey": "data-v42d-quick-add-student"
+        },
+        {
+          "src": "v43-teacher-dashboard-polish.js",
+          "dataKey": "data-v43c-teacher-dashboard-polish"
+        },
+        {
+          "src": "v43-combined-teacher-improvements.js?v=43d-1",
+          "dataKey": "data-v43d-combined-teacher-improvements"
+        },
+        {
+          "src": "assignment-interventions.js",
+          "dataKey": "data-assignment-interventions"
+        },
+        {
+          "src": "v45-intervention-queue.js?v=45a-1",
+          "dataKey": "data-v45a-intervention-queue"
+        },
+        {
+          "src": "assignment-intervention-queue-support.js",
+          "dataKey": "data-assignment-intervention-queue-support"
+        },
+        {
+          "src": "assignment-intervention-history.js",
+          "dataKey": "data-assignment-intervention-history"
+        },
+        {
+          "src": "assignment-deadlines.js",
+          "dataKey": "data-assignment-deadlines"
+        },
+        {
+          "src": "v49-student-topic-progress.js?v=49b-2",
+          "dataKey": "data-v49b-student-topic-progress"
+        },
+        {
+          "src": "v50-student-progress-overview.js?v=50b3-1",
+          "dataKey": "data-v50-student-progress-overview"
+        },
+        {
+          "src": "v50-accessibility-polish.js?v=50b4a-1",
+          "dataKey": "data-v50-accessibility-polish"
+        },
+        {
+          "src": "teacher-reporting.js",
+          "dataKey": "data-teacher-reporting"
+        },
+        {
+          "src": "teacher-launch-operations.js",
+          "dataKey": "data-teacher-launch-operations"
+        },
+        {
+          "src": "paper-import-management.js",
+          "dataKey": "data-paper-import-management"
+        },
+        {
+          "src": "v52-topical-exercise-foundation.js?v=52a-1",
+          "dataKey": "data-v52a-topical-exercise-foundation"
+        },
+        {
+          "src": "v52b1-question-bank-observer-gate.js?v=52b1-2",
+          "dataKey": "data-v52b1-question-bank-observer-gate"
+        },
+        {
+          "src": "question-bank-selection-qa.js",
+          "dataKey": "data-question-bank-selection-qa"
+        },
+        {
+          "src": "v52-topical-activation-guard.js?v=52a-1",
+          "dataKey": "data-v52a-topical-activation-guard"
+        },
+        {
+          "src": "question-bank-metadata-review.js",
+          "dataKey": "data-question-bank-metadata-review"
+        },
+        {
+          "src": "v52-teacher-topical-library.js?v=52b-1",
+          "dataKey": "data-v52b-teacher-topical-library"
+        },
+        {
+          "src": "question-bank-audit-multipart.js",
+          "dataKey": "data-question-bank-audit-multipart"
+        },
+        {
+          "src": "v51-exam-publication-safety.js?v=51b3-1",
+          "dataKey": "data-v51-exam-publication-safety"
+        },
+        {
+          "src": "v51-exam-publication-ui-polish.js?v=51b3-ui-3",
+          "dataKey": "data-v51-exam-publication-ui-polish"
+        },
+        {
+          "src": "student-exam-ui.js",
+          "dataKey": "data-student-exam-ui"
+        },
+        {
+          "src": "v50-security-hardening.js?v=50rc2-1",
+          "dataKey": "data-v50-security-hardening"
+        },
+        {
+          "src": "release-audit-ui.js",
+          "dataKey": "data-release-audit-ui"
+        },
+        {
+          "src": "v52b1-question-bank-performance.js?v=52b1-3",
+          "dataKey": "data-v52b1-question-bank-performance"
+        },
+        {
+          "src": "v52b1-large-import-timeout-recovery.js?v=52b1-1",
+          "dataKey": "data-v52b1-large-import-timeout-recovery"
+        },
+        {
+          "src": "topical-legacy-student-route.js",
+          "dataKey": "data-topical-legacy-student-route"
+        },
+        {
+          "src": "practice-eligibility-ui.js",
+          "dataKey": "data-practice-eligibility-ui"
+        },
+        {
+          "src": "practice-selection-engine.js",
+          "dataKey": "data-practice-selection-engine"
+        },
+        {
+          "src": "practice-ui-resource-clarity.js",
+          "dataKey": "data-practice-ui-resource-clarity"
+        },
+        {
+          "src": "resource-bank-ui.js",
+          "dataKey": "data-resource-bank-ui"
+        },
+        {
+          "src": "resource-bank-bulk.js",
+          "dataKey": "data-resource-bank-bulk"
+        }
+      ]
+    }
+  ]
+}
