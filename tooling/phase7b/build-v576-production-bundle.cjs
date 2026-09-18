@@ -29,8 +29,9 @@ function readManifest() {
 
 function verifyProductionContract() {
   const manifest = readManifest();
-  assert.equal(manifest.generatedBundles.length, 1, 'Expected exactly one reviewed production bundle');
-  const contract = manifest.generatedBundles[0];
+  assert.equal(manifest.generatedBundles.length, 2, 'Expected exactly two reviewed production bundles');
+  const contract = manifest.generatedBundles.find(entry => entry.path === EXPECTED_OUTPUT);
+  assert(contract, 'Missing reviewed V576 production bundle contract');
   assert.equal(contract.path, EXPECTED_OUTPUT, 'Unexpected V576 production bundle path');
   assert.deepEqual(contract.inputs, EXPECTED_INPUTS, 'Production input order drift');
   assert.equal(contract.tool, 'esbuild');
@@ -38,8 +39,11 @@ function verifyProductionContract() {
   assert.equal(contract.entrySourcefile, 'v576-production-entry.js');
   assert.deepEqual(contract.options, EXPECTED_OPTIONS, 'Reviewed esbuild output options drift');
   assert.match(contract.sha256, /^[a-f0-9]{64}$/, 'Invalid committed production bundle SHA-256');
-  assert.deepEqual(manifest.sourceOnly.map(entry => entry.path), contract.inputs,
-    'sourceOnly order must be the exact production build input order');
+  assert.deepEqual(
+    manifest.sourceOnly.filter(entry => contract.inputs.includes(entry.path)).map(entry => entry.path),
+    contract.inputs,
+    'V576 sourceOnly order must preserve the exact production build input order',
+  );
 
   const loaded = manifest.tiers.flatMap(tier => tier.entries)
     .map(entry => entry.src.replace(/^\.\//, '').split('?')[0]);
