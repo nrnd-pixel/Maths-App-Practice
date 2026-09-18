@@ -5,6 +5,8 @@ const vm=require('vm');
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'v58a-student-first-use-experience.js'),'utf8');
 const config=fs.readFileSync(path.join(root,'config.js'),'utf8');
+const productionBundle=fs.readFileSync(path.join(root,'v58ab-first-use-workspace-bundle.js'),'utf8');
+const phase7bManifest=JSON.parse(fs.readFileSync(path.resolve(root,'..','tooling','phase7b','loader-manifest.json'),'utf8'));
 const achievementSql=fs.readFileSync(path.resolve(root,'..','supabase','v571b_student_streaks_achievements.sql'),'utf8');
 
 function assert(condition,message){
@@ -12,6 +14,7 @@ function assert(condition,message){
 }
 
 new vm.Script(source,{filename:'v58a-student-first-use-experience.js'});
+new vm.Script(productionBundle,{filename:'v58ab-first-use-workspace-bundle.js'});
 
 assert(source.includes('V5.8A — Student First-Use Experience'),'missing V5.8A identity');
 assert(source.includes('v58a-first-use-card'),'missing first-use card');
@@ -48,9 +51,21 @@ for(const token of forbidden){
   assert(!source.includes(token),`V5.8A must not introduce direct data/network/learning authority: ${token}`);
 }
 
-const loaderToken="'./v58a-student-first-use-experience.js'";
-assert(config.includes(loaderToken),'config.js must load V5.8A');
-assert(config.indexOf(loaderToken)>config.indexOf("'./v576-feedback-presentation-bundle.js'"),'V5.8A must load after the accepted V5.7.6 presentation bundle');
+const bundleLoader="'./v58ab-first-use-workspace-bundle.js'";
+assert(config.includes(bundleLoader),'config.js must load the generated V5.8A/V5.8B production bundle');
+assert(!config.includes("'./v58a-student-first-use-experience.js'"),'canonical V5.8A source must not load directly after bundle promotion');
+assert(config.indexOf(bundleLoader)>config.indexOf("'./v576-feedback-presentation-bundle.js'"),'V5.8A/V5.8B bundle must load after the accepted V5.7.6 presentation bundle');
+const contract=phase7bManifest.generatedBundles.find(entry=>entry.path==='site/v58ab-first-use-workspace-bundle.js');
+assert(contract,'missing V5.8A/V5.8B generated bundle contract');
+assert(JSON.stringify(contract.inputs)===JSON.stringify([
+  'site/v58a-student-first-use-experience.js',
+  'site/v58b-teacher-workspace-consolidation.js'
+]),'V5.8A/V5.8B generated bundle input order changed');
+const sourceOnly=phase7bManifest.sourceOnly.find(entry=>entry.path==='site/v58a-student-first-use-experience.js');
+assert(sourceOnly && sourceOnly.reason.includes('v58ab-first-use-workspace-bundle.js'),'V5.8A canonical source must remain reviewed source-only');
+for(const token of forbidden){
+  assert(!productionBundle.includes(token),`V5.8A/V5.8B production bundle introduced forbidden authority: ${token}`);
+}
 
 assert(achievementSql.includes("select 'first_practice'::text as id"),'achievement SQL must retain First Practice badge');
 assert(achievementSql.includes('(select min(completed_at) from completed_sessions) as first_practice_at'),'First Practice must remain tied to the first completed Practice session');
