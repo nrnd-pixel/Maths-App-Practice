@@ -374,11 +374,6 @@
     document.getElementById('v51b1-qa-filter')?.addEventListener('change',render);
     document.getElementById('v51b1-source-filter')?.addEventListener('change',render);
     document.getElementById('v51b1-refresh-qa')?.addEventListener('click',render);
-    const cards = document.getElementById('questions-cards');
-    if (cards && typeof MutationObserver !== 'undefined'){
-      const observer = new MutationObserver(()=>window.requestAnimationFrame(render));
-      observer.observe(cards,{childList:true});
-    }
     render();
   }
 
@@ -715,11 +710,6 @@
       };
     }
 
-    const cards = document.getElementById('questions-cards');
-    if (cards && typeof MutationObserver !== 'undefined'){
-      const observer = new MutationObserver(()=>window.requestAnimationFrame(renderSummary));
-      observer.observe(cards,{childList:true});
-    }
     renderSummary();
   }
 
