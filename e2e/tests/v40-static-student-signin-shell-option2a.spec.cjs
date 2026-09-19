@@ -28,6 +28,8 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/config.js',
   'site/question-bank-audit-multipart.js',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs',
+  'site/v52b1-question-bank-performance.js',
+  'site/tests/verify-v5.2b1-question-bank-performance.cjs',
   'site/v39cd-dashboard-state-bundle.js',
   'site/v576-feedback-presentation-bundle.js',
   'site/v58ab-first-use-workspace-bundle.js',
@@ -97,6 +99,8 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
 // their pre-successor blobs in the historical remainder calculation so the
 // established frozen hash continues to prove every other site byte unchanged.
 const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/v52b1-question-bank-performance.js': '87124f4bc252289203409fc0abe614748ed1dd86',
+  'site/tests/verify-v5.2b1-question-bank-performance.cjs': '160679754284a8158aaf6bf025a9530183eb9fbf',
   'site/question-bank-audit-multipart.js': '6738e89a7a4a98693b7303a05714c7419d562407',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs': '016562130bb8a7f601301f8d37819a060f0c06a6',
   'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '8033886865b0621313fbb8a0f9d6af38e53d499b',
