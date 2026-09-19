@@ -294,7 +294,7 @@ async function runScenario(browser, mode, scenario, bundle) {
 }
 
 async function main() {
-  assert.equal(verifyLoaderManifest().length, 87, 'Phase 7B production loader verification must stay green');
+  assert.equal(verifyLoaderManifest().length, 86, 'Phase 7B production loader verification must stay green');
   for (const source of classicSources) {
     assert.doesNotMatch(source, forbiddenAuthority, 'Candidate source contains forbidden runtime authority');
   }

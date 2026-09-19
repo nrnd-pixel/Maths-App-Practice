@@ -22,7 +22,8 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': '822b1d3e3de519dd249ee0a5bf595a16c0fa075d',
+  'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
+  'site/v39cd-dashboard-state-bundle.js': 'f68bdd4b407913fc9ca546a995b57f212a7a8d69',
   'site/v576-feedback-presentation-bundle.js': 'dfa88c4e560eee8d5f58ed2d3ccee62b7a6942f0',
   'site/v58ab-first-use-workspace-bundle.js': '09250fe29a6fd0d01150dc243a4a9a8706800bbe',
   'site/v58c-parent-summary-presentation-bundle.js': '74dd51284bbc626a1f8789ba1312f039675a23c3',
@@ -132,7 +133,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '822b1d3e3de519dd249ee0a5bf595a16c0fa075d',
+  'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',

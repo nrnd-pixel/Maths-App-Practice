@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "baseline": "d03d06e3643c18dfe985ae636e9cab5120c17d76",
+  "baseline": "da33b9b02885ea4f2c29e086f245ec8b0990daba",
   "description": "Production loader tiers plus reviewed source-only JavaScript inputs. Loader SHA-256 normalizes CRLF to LF; source-only SHA-256 covers exact file bytes.",
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "dd5a0329632dda39dc2a20db3fcacb26e068198310588b48275e18c3942caf71",
+      "sourceSha256": "5152bef45b1cb799d74cd28dff6f71ef0c9c58be3f8022c9f5dec691a18d43aa",
       "entries": [
         {
           "src": "./version.js"
@@ -26,10 +26,7 @@
           "src": "./v39-practice-polish.js"
         },
         {
-          "src": "./v39-dashboard-polish.js"
-        },
-        {
-          "src": "./v39-state-polish.js"
+          "src": "./v39cd-dashboard-state-bundle.js"
         },
         {
           "src": "./v40-student-platform.js"
@@ -348,6 +345,16 @@
       "path": "site/v58c-parent-summary-workspace-shortcut.js",
       "sha256": "975d0f1a0979f5ec26e6eccc201ef3aabac24e6d341fdec2d82ab541392d2c88",
       "reason": "Canonical ordered source input 2 of 2 for site/v58c-parent-summary-presentation-bundle.js; not loaded directly."
+    },
+    {
+      "path": "site/v39-dashboard-polish.js",
+      "sha256": "ab05169cdaa1b8bc3e76f04ff0138637ce4c5cc4bd64d820cf2e851f55adee22",
+      "reason": "Canonical ordered source input 1 of 2 for site/v39cd-dashboard-state-bundle.js; not loaded directly."
+    },
+    {
+      "path": "site/v39-state-polish.js",
+      "sha256": "c04a8474124d7a27a1a3b5a2f46283f6c137081d11848363edf06e0c425ed824",
+      "reason": "Canonical ordered source input 2 of 2 for site/v39cd-dashboard-state-bundle.js; not loaded directly."
     }
   ],
   "generatedBundles": [
@@ -413,6 +420,27 @@
         "charset": "utf8"
       },
       "sha256": "f08a0831bdf9b3ba0c467dfc37221caae760e515139f0dd4db54e48722c331a7"
+    },
+    {
+      "path": "site/v39cd-dashboard-state-bundle.js",
+      "inputs": [
+        "site/v39-dashboard-polish.js",
+        "site/v39-state-polish.js"
+      ],
+      "tool": "esbuild",
+      "toolVersion": "0.28.2",
+      "entrySourcefile": "v39cd-production-entry.js",
+      "options": {
+        "bundle": true,
+        "format": "iife",
+        "platform": "browser",
+        "target": "es2020",
+        "sourcemap": false,
+        "legalComments": "none",
+        "minify": false,
+        "charset": "utf8"
+      },
+      "sha256": "5ee0e12776e540e3c6fc8a55a2ce7097cf5e3565499ccfca3ed99a43d7131f25"
     }
   ]
 }

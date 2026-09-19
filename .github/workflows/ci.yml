@@ -206,6 +206,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: tooling/phase7b
         run: |
+          npm run verify:v39cd-production
           npm run verify:v576-production
           npm run verify:v58ab-production
           npm run verify:v58c-production
@@ -214,14 +215,15 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: tooling/phase7b
         run: |
+          npm run test:v39cd-equivalence
           npm run test:v576-equivalence
           npm run test:v58ab-equivalence
           npm run test:v58c-equivalence
 
-      - name: Run Phase 7B-K V39C/V39D shadow compatibility checkpoint
+      - name: Run Phase 7B-L V39CD production smoke
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
-        working-directory: tooling/phase7b
-        run: npm run test:v39cd-shadow
+        working-directory: e2e
+        run: npx playwright test tests/phase7bl-v39cd-production-successor.spec.cjs --reporter=line
 
       - name: Run Phase 7B-I V58AB production smoke
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
