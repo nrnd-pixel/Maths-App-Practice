@@ -64,8 +64,8 @@
       return;
     }
     try {
-      const value = callback();
-      results.push(Object.freeze({kind,status:'called',value}));
+      callback();
+      results.push(Object.freeze({kind,status:'called'}));
     } catch (error){
       results.push(Object.freeze({kind,status:'error',error:String(error?.message || error)}));
     }
