@@ -25,6 +25,8 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
   'site/question-bank-audit-multipart.js': 'c32a5a3435e9acef8f240fcba50fd8b60605d6dc',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs': 'fa9c7bff475d1e3f3d7512c6b5165d8a47ecbe57',
+  'site/v52b1-question-bank-performance.js': '5a2e180ca5e7c6579f6504be072a2cf90bf8e1d6',
+  'site/tests/verify-v5.2b1-question-bank-performance.cjs': '1e238a44c1bd7cc09c1c9ab046d8098a2223a633',
   'site/v39cd-dashboard-state-bundle.js': 'f68bdd4b407913fc9ca546a995b57f212a7a8d69',
   'site/v576-feedback-presentation-bundle.js': 'dfa88c4e560eee8d5f58ed2d3ccee62b7a6942f0',
   'site/v58ab-first-use-workspace-bundle.js': '09250fe29a6fd0d01150dc243a4a9a8706800bbe',
@@ -40,7 +42,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59a-student-home-refresh.js': 'b4e2f290061f061c22d00fc23e87d9adecf7cde9',
   'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'd85d55d045847255714607ced0cb441af94d2bd0',
   'site/v59b-adaptive-diagnostic-pilot-v2.js': '42fc17368432f3558f6bf7caa66749e8ae02805b',
-  'site/tests/v51-phase4-protected-shas.json': '2742c6d060a1a631774524710680e9287f32aea3',
+  'site/tests/v51-phase4-protected-shas.json': 'd52bd28ff4f222ce4a2bfd74126184c263bd8376',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
   'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '4804b1ca8631291ca70e61c6a3091aea979eb4dd',
@@ -56,7 +58,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': 'a33ea86c659bc638cc3ac23a1b11e98c60233c14',
   'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs': 'fd7b49e31fa174e3c225ffa814968847416f237e',
   'site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs': '72328a455af6073e633a347db5bb482c29569c41',
-  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': '319f268ba7cec24c0e6fce29c785b1a84686a4ea',
+  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'f5dd24f6f8fa75b66f81d850ac08538a07da00d8',
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs': 'f19d8cd7b1b72a2851b5a0d534b26b103cc08331',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs': 'a15550958a3179a86610c19af6cad591768ec708',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '260282a41270cc128b77cc9601bdb93c64b2b5c6',
@@ -155,6 +157,8 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
 // their pre-successor blobs in the historical remainder calculation so the
 // established frozen hash continues to prove every other site byte unchanged.
 const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/v52b1-question-bank-performance.js': '87124f4bc252289203409fc0abe614748ed1dd86',
+  'site/tests/verify-v5.2b1-question-bank-performance.cjs': '160679754284a8158aaf6bf025a9530183eb9fbf',
   'site/question-bank-audit-multipart.js': '6738e89a7a4a98693b7303a05714c7419d562407',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs': '016562130bb8a7f601301f8d37819a060f0c06a6',
   'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '8033886865b0621313fbb8a0f9d6af38e53d499b',
