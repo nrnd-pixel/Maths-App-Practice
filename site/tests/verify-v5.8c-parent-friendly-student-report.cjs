@@ -75,7 +75,7 @@ const bundleLoader="'./v58c-parent-summary-presentation-bundle.js'";
 assert(config.includes(bundleLoader),'config.js must load the generated V5.8C production bundle');
 assert(!config.includes("'./v58c-parent-friendly-student-report.js'"),'canonical V5.8C report source must not load directly after bundle promotion');
 assert(!config.includes("'./v58c-parent-summary-workspace-shortcut.js'"),'canonical V5.8C shortcut source must not load directly after bundle promotion');
-assert(config.indexOf(bundleLoader)>config.indexOf("'./v58b-teacher-workspace-consolidation.js'"),'V5.8C bundle must load after accepted V5.8B');
+assert(config.indexOf(bundleLoader)>config.indexOf("'./v58ab-first-use-workspace-bundle.js'"),'V5.8C bundle must load after accepted V5.8A/V5.8B production bundle');
 assert(config.indexOf("'./v58d-content-workflow-consolidation.js'")>config.indexOf(bundleLoader),'V5.8D must load after the V5.8C production bundle');
 
 const contract=phase7bManifest.generatedBundles.find(entry=>entry.path==='site/v58c-parent-summary-presentation-bundle.js');

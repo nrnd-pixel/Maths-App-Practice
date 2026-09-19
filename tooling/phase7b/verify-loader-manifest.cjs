@@ -11,6 +11,8 @@ const normalize = source => source.replace(/\r\n/g, '\n');
 const EXPECTED_SOURCE_ONLY = Object.freeze([
   'site/v5761-feedback-trigger-position.js',
   'site/v5763-teacher-feedback-header-icon.js',
+  'site/v58a-student-first-use-experience.js',
+  'site/v58b-teacher-workspace-consolidation.js',
   'site/v58c-parent-friendly-student-report.js',
   'site/v58c-parent-summary-workspace-shortcut.js',
 ]);
@@ -21,6 +23,13 @@ const EXPECTED_BUNDLES = Object.freeze([
     inputs: [
       'site/v5761-feedback-trigger-position.js',
       'site/v5763-teacher-feedback-header-icon.js',
+    ],
+  },
+  {
+    path: 'site/v58ab-first-use-workspace-bundle.js',
+    inputs: [
+      'site/v58a-student-first-use-experience.js',
+      'site/v58b-teacher-workspace-consolidation.js',
     ],
   },
   {
@@ -37,7 +46,7 @@ function verify(root = ROOT) {
   assert.equal(manifest.schemaVersion, 2, 'Unsupported manifest schema');
   assert.equal(manifest.tiers.length, 2, 'Expected exactly two loader tiers');
   const owners = ['site/config.js', 'site/v40-release.js'];
-  const counts = [47, 41];
+  const counts = [46, 41];
   const targets = new Set();
   const dataKeys = new Set();
   const entries = [];
@@ -76,7 +85,7 @@ function verify(root = ROOT) {
 
   assert(Array.isArray(manifest.sourceOnly), 'Expected a sourceOnly manifest array');
   assert.deepEqual(manifest.sourceOnly.map(entry => entry.path), EXPECTED_SOURCE_ONLY,
-    'sourceOnly must contain exactly the four reviewed canonical inputs in build order');
+    'sourceOnly must contain exactly the six reviewed canonical inputs in build order');
   const sourceOnlyTargets = new Set();
   for (const entry of manifest.sourceOnly) {
     assert.match(entry.path, /^site\/[A-Za-z0-9_-]+\.js$/, 'Expected a root-level site source-only path');
@@ -92,7 +101,7 @@ function verify(root = ROOT) {
 
   assert(Array.isArray(manifest.generatedBundles), 'Expected generatedBundles manifest array');
   assert.equal(manifest.generatedBundles.length, EXPECTED_BUNDLES.length,
-    'Expected exactly two reviewed production bundles');
+    'Expected exactly three reviewed production bundles');
   for (let index = 0; index < EXPECTED_BUNDLES.length; index += 1) {
     const expected = EXPECTED_BUNDLES[index];
     const contract = manifest.generatedBundles[index];
@@ -122,7 +131,7 @@ function verify(root = ROOT) {
 
 if (require.main === module) {
   try {
-    console.log(`PASS: loader manifest matches 47 + 41 loaded entries (${verify().length} total), 4 source-only inputs, 2 generated bundles and site inventory`);
+    console.log(`PASS: loader manifest matches 46 + 41 loaded entries (${verify().length} total), 6 source-only inputs, 3 generated bundles and site inventory`);
   } catch (error) {
     console.error(`FAIL: ${error.message}`);
     process.exitCode = 1;

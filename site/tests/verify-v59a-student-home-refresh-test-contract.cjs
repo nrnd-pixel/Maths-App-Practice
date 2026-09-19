@@ -36,7 +36,7 @@ for (const loader of [
   "'./gamification-student.js'",
   "'./gamification-teacher.js'",
   "'./v57c-student-continue-learning-home.js'",
-  "'./v58a-student-first-use-experience.js'",
+  "'./v58ab-first-use-workspace-bundle.js'",
   "'./v576-classroom-feedback-support.js'",
 ]) assert(config.includes(loader), `current consolidated loader missing: ${loader}`);
 

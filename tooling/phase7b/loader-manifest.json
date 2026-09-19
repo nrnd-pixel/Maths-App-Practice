@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "baseline": "359c96f96075dead696f88fa5aece504bc938d68",
+  "baseline": "d03d06e3643c18dfe985ae636e9cab5120c17d76",
   "description": "Production loader tiers plus reviewed source-only JavaScript inputs. Loader SHA-256 normalizes CRLF to LF; source-only SHA-256 covers exact file bytes.",
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "e8e5f2646a97073745162a90e1995c29b76f5640ef0ce19a3b8c622d116bc0b6",
+      "sourceSha256": "dd5a0329632dda39dc2a20db3fcacb26e068198310588b48275e18c3942caf71",
       "entries": [
         {
           "src": "./version.js"
@@ -125,10 +125,7 @@
           "src": "./v576-feedback-presentation-bundle.js"
         },
         {
-          "src": "./v58a-student-first-use-experience.js"
-        },
-        {
-          "src": "./v58b-teacher-workspace-consolidation.js"
+          "src": "./v58ab-first-use-workspace-bundle.js"
         },
         {
           "src": "./v58c-parent-summary-presentation-bundle.js"
@@ -333,6 +330,16 @@
       "reason": "Canonical ordered source input 2 of 2 for site/v576-feedback-presentation-bundle.js; not loaded directly."
     },
     {
+      "path": "site/v58a-student-first-use-experience.js",
+      "sha256": "01980fbf0f1a835a0aba2d245fa3a70e5adc30cf4a3894e58d1a2940d519777e",
+      "reason": "Canonical ordered source input 1 of 2 for site/v58ab-first-use-workspace-bundle.js; not loaded directly."
+    },
+    {
+      "path": "site/v58b-teacher-workspace-consolidation.js",
+      "sha256": "40a312141668a5bdaadca443669d08113665c0f93d45928a11a67e0abad21f84",
+      "reason": "Canonical ordered source input 2 of 2 for site/v58ab-first-use-workspace-bundle.js; not loaded directly."
+    },
+    {
       "path": "site/v58c-parent-friendly-student-report.js",
       "sha256": "93da60000b31529bc9c29024f4d858dd729dd98471df37a382c85a08a07b10ef",
       "reason": "Canonical ordered source input 1 of 2 for site/v58c-parent-summary-presentation-bundle.js; not loaded directly."
@@ -364,6 +371,27 @@
         "charset": "utf8"
       },
       "sha256": "a0bcbe034f7ddf805f288a97876c9ca31999c69de60d893b4b6d237411d56083"
+    },
+    {
+      "path": "site/v58ab-first-use-workspace-bundle.js",
+      "inputs": [
+        "site/v58a-student-first-use-experience.js",
+        "site/v58b-teacher-workspace-consolidation.js"
+      ],
+      "tool": "esbuild",
+      "toolVersion": "0.28.2",
+      "entrySourcefile": "v58ab-production-entry.js",
+      "options": {
+        "bundle": true,
+        "format": "iife",
+        "platform": "browser",
+        "target": "es2020",
+        "sourcemap": false,
+        "legalComments": "none",
+        "minify": false,
+        "charset": "utf8"
+      },
+      "sha256": "5794abf9a461822584b3dfe7ee76d2e212aa0e3a576dd7e111f353088452c1d7"
     },
     {
       "path": "site/v58c-parent-summary-presentation-bundle.js",

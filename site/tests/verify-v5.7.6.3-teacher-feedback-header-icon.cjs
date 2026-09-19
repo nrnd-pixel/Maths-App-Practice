@@ -15,7 +15,7 @@ const phase7bManifest=JSON.parse(fs.readFileSync(path.resolve(site,'..','tooling
 new vm.Script(teacherIconSource,{filename:'v5763-teacher-feedback-header-icon.js'});
 
 // V5.7.6.3 remains a presentation-only layer after the accepted feedback workflow.
-assert.match(config,/\.\/v576-classroom-feedback-support\.js',\s*'\.\/v576-feedback-presentation-bundle\.js',\s*'\.\/v58a-student-first-use-experience\.js'/);
+assert.match(config,/\.\/v576-classroom-feedback-support\.js',\s*'\.\/v576-feedback-presentation-bundle\.js',\s*'\.\/v58ab-first-use-workspace-bundle\.js'/);
 assert.doesNotMatch(config,/\.\/v5761-feedback-trigger-position\.js'|\.\/v5763-teacher-feedback-header-icon\.js'/,
   'Canonical V5761/V5763 sources must be source-only after bundle promotion.');
 const v576Inputs=[
