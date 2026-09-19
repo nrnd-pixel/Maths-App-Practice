@@ -103,26 +103,6 @@ async function installStack(page){
   await add(page,'performance');
 }
 
-function futureHistoryAdapterSource(){
-  return `() => {
-    const api=window.V51QuestionChangeHistory;
-    const panel=document.getElementById('v51b2d-question-history');
-    const info=document.getElementById('v51b2d-selection');
-    const btn=document.getElementById('v51b2d-load');
-    if(!api || !panel || !info || !btn) throw new Error('history-panel-or-api-missing');
-    const rows=api.selectedRows();
-    btn.disabled=rows.length!==1 || !window.cloudReady || !window.teacherUser || !window.cloud;
-    if(!rows.length) info.textContent='Select one question to view its history.';
-    else if(rows.length>1) info.textContent=String(rows.length)+' selected · choose exactly one question for audit history.';
-    else info.textContent='Selected: '+api.questionLabel(rows[0]);
-    if(!btn.dataset.bound){
-      btn.dataset.bound='1';
-      btn.addEventListener('click',api.loadSelectedHistory);
-    }
-    return rows.length;
-  }`;
-}
-
 test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
   test('prototype is tooling-only, inert on install and does not take global observer or render ownership',async({page})=>{
     expect(PROTOTYPE).not.toContain('MutationObserver');
@@ -161,7 +141,7 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     });
   });
 
-  test('current production contracts fail closed only on missing Correction History refreshLifecycle()',async({page})=>{
+  test('current production contracts include the owner-native Correction History refreshLifecycle()',async({page})=>{
     await page.setContent(shell());
     await installGlobals(page,6,{topical:true});
     await installStack(page);
@@ -176,10 +156,10 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
       topicalLibrary:true,
       topicalActivation:true,
       multipart:true,
-      correctionHistory:false
+      correctionHistory:true
     });
-    expect(inspection.readyForGateRetirement).toBe(false);
-    expect(inspection.blocker).toBe('missing-explicit-correction-history-refreshLifecycle');
+    expect(inspection.readyForGateRetirement).toBe(true);
+    expect(inspection.blocker).toBe('');
 
     const orders=await page.evaluate(()=>({
       cards:[...window.Phase7CQuestionBankRefreshCoordinatorPrototype.CARD_REFRESH_ORDER],
@@ -193,7 +173,7 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     ]);
   });
 
-  test('card refresh uses explicit public contracts in deterministic order and becomes ready only with a successful history lifecycle',async({page})=>{
+  test('card refresh uses all seven explicit public contracts in deterministic order',async({page})=>{
     await page.setContent(shell());
     await installGlobals(page,6,{topical:true});
     await installStack(page);
@@ -202,27 +182,13 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     await page.evaluate(()=>window.renderQuestions());
     await page.waitForTimeout(180);
 
-    const blocked=await page.evaluate(()=>window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterCards());
-    expect(blocked.order).toEqual([
+    const result=await page.evaluate(()=>window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterCards());
+    expect(result.order).toEqual([
       'bulk-status','qa','review','topical-library','topical-activation','multipart','correction-history'
     ]);
-    expect(blocked.results.slice(0,6).every(item=>item.status==='called')).toBe(true);
-    expect(blocked.results[6]).toMatchObject({
-      kind:'correction-history',
-      status:'blocked',
-      reason:'missing-explicit-correction-history-refreshLifecycle'
-    });
-    expect(blocked.readyForGateRetirement).toBe(false);
-
-    const successful=await page.evaluate(adapterSource=>{
-      const historyLifecycle=(0,eval)(adapterSource);
-      return window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterCards({historyLifecycle});
-    },futureHistoryAdapterSource());
-
-    expect(successful.order).toEqual(blocked.order);
-    expect(successful.results.every(item=>item.status==='called')).toBe(true);
-    expect(successful.readyForGateRetirement).toBe(true);
-    expect(successful.blocker).toBe('');
+    expect(result.results.every(item=>item.status==='called')).toBe(true);
+    expect(result.readyForGateRetirement).toBe(true);
+    expect(result.blocker).toBe('');
   });
 
   test('narrow explicit selection refresh fixes the pinned Select all/Clear history state gap without broad DOM observation',async({page})=>{
@@ -244,10 +210,9 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     await page.waitForTimeout(100);
     await expect(page.locator('#v51b2d-selection')).toContainText('Selected:');
 
-    const afterClear=await page.evaluate(adapterSource=>{
-      const historyLifecycle=(0,eval)(adapterSource);
-      return window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterSelection({historyLifecycle});
-    },futureHistoryAdapterSource());
+    const afterClear=await page.evaluate(()=>
+      window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterSelection()
+    );
 
     expect(afterClear.readyForGateRetirement).toBe(true);
     await expect(page.locator('#v51b2d-selection')).toHaveText('Select one question to view its history.');
@@ -259,16 +224,15 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     await page.waitForTimeout(100);
     await expect(page.locator('#v51b2d-selection')).toHaveText('Select one question to view its history.');
 
-    const afterSelectAll=await page.evaluate(adapterSource=>{
-      const historyLifecycle=(0,eval)(adapterSource);
-      return window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterSelection({historyLifecycle});
-    },futureHistoryAdapterSource());
+    const afterSelectAll=await page.evaluate(()=>
+      window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterSelection()
+    );
 
     expect(afterSelectAll.readyForGateRetirement).toBe(true);
     await expect(page.locator('#v51b2d-selection')).toHaveText('4 selected · choose exactly one question for audit history.');
   });
 
-  test('late Correction History panel loss still blocks retirement; prototype does not recreate private module UI',async({page})=>{
+  test('late Correction History panel loss is recovered by the owner-native lifecycle contract',async({page})=>{
     await page.setContent(shell());
     await installGlobals(page,4,{topical:false});
     await installStack(page);
@@ -280,17 +244,16 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
 
     await page.locator('#v51b2d-question-history').evaluate(node=>node.remove());
 
-    const result=await page.evaluate(adapterSource=>{
-      const historyLifecycle=(0,eval)(adapterSource);
-      return window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterCards({historyLifecycle});
-    },futureHistoryAdapterSource());
+    const result=await page.evaluate(()=>
+      window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterCards()
+    );
 
     const history=result.results.find(item=>item.kind==='correction-history');
-    expect(history.status).toBe('error');
-    expect(history.error).toContain('history-panel-or-api-missing');
-    expect(result.readyForGateRetirement).toBe(false);
-    expect(result.blocker).toBe('correction-history:error');
-    await expect(page.locator('#v51b2d-question-history')).toHaveCount(0);
+    expect(history.status).toBe('called');
+    expect(result.readyForGateRetirement).toBe(true);
+    expect(result.blocker).toBe('');
+    await expect(page.locator('#v51b2d-question-history')).toHaveCount(1);
+    await expect(page.locator('#v51b2d-load')).toHaveAttribute('data-bound','1');
   });
 
   test('native negative-control observers remain live while the dormant prototype is present',async({page})=>{

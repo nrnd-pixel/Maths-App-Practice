@@ -188,6 +188,12 @@
     }
   }
 
+  function refreshLifecycle(){
+    if (typeof document === 'undefined') return [];
+    bind();
+    return renderSelectionState();
+  }
+
   function installObserver(){
     if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
     if (document.documentElement.dataset.v51b2dObserver) return;
@@ -208,7 +214,7 @@
 
   if (typeof window !== 'undefined'){
     window.V51QuestionChangeHistory = Object.freeze({
-      fieldLabel, formatValue, selectedIdsFromUi, selectedRows, questionLabel, loadSelectedHistory, renderHistory
+      fieldLabel, formatValue, selectedIdsFromUi, selectedRows, questionLabel, loadSelectedHistory, renderHistory, refreshLifecycle
     });
   }
 

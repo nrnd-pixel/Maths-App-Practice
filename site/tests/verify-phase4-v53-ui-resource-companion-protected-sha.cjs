@@ -30,7 +30,8 @@ const protectedFiles=Object.freeze({
   'site/paper-import-management.js':'49afc983bdb5c08a2a6a45ad6281a236d793c3de',
   'site/question-bank-selection-qa.js':'65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf',
   'site/question-bank-metadata-review.js':'5571f6ea2ee33479f5dd0ad75a418249c10ba664',
-  'site/question-bank-audit-multipart.js':'6738e89a7a4a98693b7303a05714c7419d562407',
+  // Phase 7C-D exact owner-native refreshLifecycle successor; prior approved blob: 6738e89a7a4a98693b7303a05714c7419d562407.
+  'site/question-bank-audit-multipart.js':'c32a5a3435e9acef8f240fcba50fd8b60605d6dc',
   'site/v51-exam-publication-safety.js':'183f313e630d7dd989355107192a35d6af8814c9',
   'site/v51-exam-publication-ui-polish.js':'c55497e54679dd17a9f020ca7a7898cd4d30a510',
   'site/student-exam-ui.js':'b4c2e1f4c096790ce820205e34180040131985a4',
