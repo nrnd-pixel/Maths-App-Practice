@@ -29,7 +29,7 @@ function readManifest() {
 
 function verifyProductionContract() {
   const manifest = readManifest();
-  assert.equal(manifest.generatedBundles.length, 3, 'Expected exactly three reviewed production bundles');
+  assert.equal(manifest.generatedBundles.length, 4, 'Expected exactly four reviewed production bundles');
   const contract = manifest.generatedBundles.find(entry => entry.path === EXPECTED_OUTPUT);
   assert(contract, 'Missing reviewed V58C production bundle contract');
   assert.deepEqual(contract.inputs, EXPECTED_INPUTS, 'V58C production input order drift');
