@@ -23,6 +23,8 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
+  'site/question-bank-audit-multipart.js': 'c32a5a3435e9acef8f240fcba50fd8b60605d6dc',
+  'site/tests/verify-v5.1b2d-correction-audit-history.cjs': 'fa9c7bff475d1e3f3d7512c6b5165d8a47ecbe57',
   'site/v39cd-dashboard-state-bundle.js': 'f68bdd4b407913fc9ca546a995b57f212a7a8d69',
   'site/v576-feedback-presentation-bundle.js': 'dfa88c4e560eee8d5f58ed2d3ccee62b7a6942f0',
   'site/v58ab-first-use-workspace-bundle.js': '09250fe29a6fd0d01150dc243a4a9a8706800bbe',
@@ -153,6 +155,8 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
 // their pre-successor blobs in the historical remainder calculation so the
 // established frozen hash continues to prove every other site byte unchanged.
 const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/question-bank-audit-multipart.js': '6738e89a7a4a98693b7303a05714c7419d562407',
+  'site/tests/verify-v5.1b2d-correction-audit-history.cjs': '016562130bb8a7f601301f8d37819a060f0c06a6',
   'site/tests/verify-v5.7.6-classroom-feedback-support.cjs': '8033886865b0621313fbb8a0f9d6af38e53d499b',
   'site/tests/verify-v5.7.6.3-teacher-feedback-header-icon.cjs': '844feccd2cee26352f3c0d38219f03ee9e246e48',
   'site/tests/verify-v5.8a-student-first-use-experience.cjs': '0b65819da2d6285841e719c43d2606b2b2d15b69',
