@@ -275,6 +275,11 @@ jobs:
         working-directory: e2e
         run: npx playwright test tests/v52b1-observer-gate-phase4-adversarial.spec.cjs --reporter=line
 
+      - name: Run Phase 7C-A V52B1 observer inventory hard gate
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npx playwright test tests/phase7ca-v52b1-observer-inventory.spec.cjs --reporter=line
+
       - name: Run Phase 5C frozen-file wrapper-chain hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
