@@ -81,12 +81,13 @@
 
   function result(phase, results, options){
     const inspection = inspectContracts(options);
+    const failed = results.find(item=>item.status !== 'called') || null;
     return Object.freeze({
       phase,
       order:Object.freeze(results.map(item=>item.kind)),
       results:Object.freeze(results.slice()),
-      readyForGateRetirement:inspection.readyForGateRetirement,
-      blocker:inspection.blocker
+      readyForGateRetirement:inspection.readyForGateRetirement && !failed,
+      blocker:inspection.blocker || (failed ? `${failed.kind}:${failed.status}` : '')
     });
   }
 
