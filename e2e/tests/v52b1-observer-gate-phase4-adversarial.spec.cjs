@@ -197,7 +197,7 @@ test('C - suppression negatives stay narrow: unrelated, partial body patterns, V
   expect(result.markers).toEqual({body:'',topicalCards:'',importStatus:''});
 });
 
-test('D - real consolidated V51 owners register the same observer targets and callback sources the V52B1 gate expects',async({page})=>{
+test('D - retired Selection/QA registers no observer while remaining V51 owners still match the V52B1 suppression boundary',async({page})=>{
   await page.setContent(questionBankShell());
   await installQuestionBankGlobals(page,4,{topical:true});
   await add(page,'gate');
@@ -233,11 +233,10 @@ test('D - real consolidated V51 owners register the same observer targets and ca
   const selection=logs.filter(item=>item.phase==='selection');
   const metadata=logs.filter(item=>item.phase==='metadataReview');
   const audit=logs.filter(item=>item.phase==='auditMultipart');
-  expect(selection.filter(item=>item.target==='questions-cards'&&item.reason==='question-card-observer').length).toBeGreaterThanOrEqual(2);
+  expect(selection).toHaveLength(0);
   expect(metadata.some(item=>item.target==='questions-cards'&&item.reason==='question-card-observer'&&item.callbackSource.includes('renderAll'))).toBe(true);
   expect(audit.some(item=>item.target==='body'&&item.reason==='question-history-body-observer'&&item.callbackSource.includes('renderSelectionState')&&item.callbackSource.includes('bind'))).toBe(true);
   expect(audit.some(item=>item.target==='questions-cards'&&item.reason==='question-card-observer'&&item.callbackSource.includes('renderGroup'))).toBe(true);
-  expect(logs.some(item=>item.phase==='selection'&&item.callbackSource.includes('requestAnimationFrame(render)'))).toBe(true);
 });
 
 test('G - actual RAF callback shapes are pinned, including the currently unrecognized anonymous QA callback',async({page})=>{
