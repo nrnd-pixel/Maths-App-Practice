@@ -136,35 +136,29 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     await installGlobals(page,4,{topical:true});
     await installStack(page);
 
-    const before=await page.evaluate(()=>({
-      constructor:window.MutationObserver,
-      renderCount:window.__baseRenderCount,
-      gateInstalled:!!window.__v52b1QuestionBankObserverGateInstalled,
-      gateApi:window.V52B1QuestionBankObserverGate
-    }));
+    await page.evaluate(()=>{
+      window.__phase7ccBeforeConstructor=window.MutationObserver;
+      window.__phase7ccBeforeGate=window.V52B1QuestionBankObserverGate;
+      window.__phase7ccBeforeRenderCount=window.__baseRenderCount;
+    });
 
     await addPrototype(page);
 
     const after=await page.evaluate(()=>({
       sameConstructor:window.MutationObserver===window.__phase7ccBeforeConstructor,
-      renderCount:window.__baseRenderCount,
+      sameGateApi:window.V52B1QuestionBankObserverGate===window.__phase7ccBeforeGate,
+      renderCountUnchanged:window.__baseRenderCount===window.__phase7ccBeforeRenderCount,
       gateInstalled:!!window.__v52b1QuestionBankObserverGateInstalled,
-      gateApi:window.V52B1QuestionBankObserverGate,
       prototypeFrozen:Object.isFrozen(window.Phase7CQuestionBankRefreshCoordinatorPrototype)
-    }).catch(()=>null));
-
-    // Preserve object identity through explicit globals because JS handles cannot be serialized across evaluate calls.
-    await page.evaluate(()=>{ window.__phase7ccBeforeConstructor=window.MutationObserver; });
-    const identity=await page.evaluate(()=>({
-      constructor:window.MutationObserver,
-      gate:window.V52B1QuestionBankObserverGate
     }));
-    expect(before.gateInstalled).toBe(true);
-    expect(after.renderCount).toBe(before.renderCount);
-    expect(after.gateInstalled).toBe(true);
-    expect(after.prototypeFrozen).toBe(true);
-    expect(identity.constructor).toBeTruthy();
-    expect(identity.gate).toBeTruthy();
+
+    expect(after).toEqual({
+      sameConstructor:true,
+      sameGateApi:true,
+      renderCountUnchanged:true,
+      gateInstalled:true,
+      prototypeFrozen:true
+    });
   });
 
   test('current production contracts fail closed only on missing Correction History refreshLifecycle()',async({page})=>{
