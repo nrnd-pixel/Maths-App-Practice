@@ -17,7 +17,9 @@
     "test:v58ab-equivalence": "node verify-v58ab-shadow-compatibility.cjs",
     "build:v39cd-production": "node build-v39cd-production-bundle.cjs",
     "verify:v39cd-production": "node verify-v39cd-production-bundle.cjs",
-    "test:v39cd-equivalence": "node verify-v39cd-shadow-compatibility.cjs"
+    "test:v39cd-equivalence": "node verify-v39cd-shadow-compatibility.cjs",
+    "build:v49v50-shadow": "node build-v49v50-progress-shadow-iife.cjs",
+    "test:v49v50-shadow": "node verify-v49v50-progress-shadow-compatibility.cjs"
   },
   "engines": {
     "node": ">=20"
