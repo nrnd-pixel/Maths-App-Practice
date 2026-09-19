@@ -220,6 +220,11 @@ jobs:
           npm run test:v58ab-equivalence
           npm run test:v58c-equivalence
 
+      - name: Run Phase 7B-N V49/V50 progress shadow compatibility checkpoint
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: tooling/phase7b
+        run: npm run test:v49v50-shadow
+
       - name: Run Phase 7B-L V39CD production smoke
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
