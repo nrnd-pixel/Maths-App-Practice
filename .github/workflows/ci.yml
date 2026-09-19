@@ -202,6 +202,11 @@ jobs:
         working-directory: tooling/phase7b
         run: npm ci --no-audit --no-fund
 
+      - name: Phase 7B-L temporary V39CD production diagnostic
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: tooling/phase7b
+        run: npm run diagnose:v39cd-production
+
       - name: Verify deterministic Phase 7B production bundles
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: tooling/phase7b
