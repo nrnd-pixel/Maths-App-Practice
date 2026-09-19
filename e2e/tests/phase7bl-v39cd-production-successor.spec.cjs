@@ -44,8 +44,12 @@ test.describe('Phase 7B-L V39CD production successor', () => {
         .find(node => /recommended practice/i.test(node.textContent || ''))
         ?.closest('.analytics-section') || null;
       return {
-        dashboardIntroAfterHeader:
-          dashboard?.querySelector(':scope > .header')?.nextElementSibling?.classList.contains('v39-dashboard-intro') || false,
+        acceptedOverviewAfterHeader:
+          dashboard?.querySelector(':scope > .header')?.nextElementSibling?.id === 'v50-student-progress-overview',
+        dashboardIntroAfterAcceptedOverview:
+          document.getElementById('v50-student-progress-overview')?.nextElementSibling?.classList.contains('v39-dashboard-intro') || false,
+        dashboardIntroRetiredByAcceptedOwner:
+          dashboard?.querySelector('.v39-dashboard-intro')?.classList.contains('v50-retired-progress-source') || false,
         assignmentsIntroAfterHeader:
           assignments?.querySelector(':scope > .header')?.nextElementSibling?.classList.contains('v39-assignments-intro') || false,
         dashboardLabelBeforeSummary:
@@ -61,7 +65,9 @@ test.describe('Phase 7B-L V39CD production successor', () => {
     });
 
     expect(structure).toEqual({
-      dashboardIntroAfterHeader: true,
+      acceptedOverviewAfterHeader: true,
+      dashboardIntroAfterAcceptedOverview: true,
+      dashboardIntroRetiredByAcceptedOwner: true,
       assignmentsIntroAfterHeader: true,
       dashboardLabelBeforeSummary: true,
       assignmentLabelBeforeList: true,
