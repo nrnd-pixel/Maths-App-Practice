@@ -272,10 +272,11 @@
       }
     });
 
-    // These two modules previously depended on broad/card MutationObservers. The observer
+    // These modules previously depended on broad/card MutationObservers. The observer
     // gate suppresses those cascades, so refresh them exactly once after the page cards exist.
     runWhenIdle(()=>safeRun(()=>ROOT.V52TopicalActivationGuard?.decorate?.()),70);
     runWhenIdle(()=>safeRun(()=>ROOT.V51MultipartQuestionManagement?.renderGroup?.()),95);
+    runWhenIdle(()=>safeRun(()=>ROOT.V51QuestionChangeHistory?.refreshLifecycle?.()),120);
   }
 
   function updateCount(page,totalRows){
