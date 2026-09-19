@@ -31,6 +31,8 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/assignments-student.js',
   'site/past-paper-assignments.js',
   'site/config.js',
+  'site/question-bank-audit-multipart.js',
+  'site/tests/verify-v5.1b2d-correction-audit-history.cjs',
   'site/v39cd-dashboard-state-bundle.js',
   'site/v576-feedback-presentation-bundle.js',
   'site/v58ab-first-use-workspace-bundle.js',
