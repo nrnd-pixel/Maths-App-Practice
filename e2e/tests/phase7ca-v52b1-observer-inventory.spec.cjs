@@ -43,18 +43,6 @@ const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
     targets: ['document.body', 'questions-cards'],
     responsibilities: ['correction-history-bind-selection-state', 'multipart-render-group'],
   },
-  {
-    file: 'topical-legacy-student-route.js',
-    phase: 'after-performance',
-    targets: ['questions-cards'],
-    responsibilities: ['topical-route-decorate-and-load'],
-  },
-  {
-    file: 'practice-eligibility-ui.js',
-    phase: 'after-performance',
-    targets: ['questions-cards'],
-    responsibilities: ['practice-eligibility-decorate-and-load'],
-  },
 ]);
 
 function indexOfLoader(name) {
@@ -76,12 +64,8 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
 
     for (const owner of EXPECTED_SUPPRESSED_OWNERS) {
       const ownerIndex = indexOfLoader(owner.file);
-      if (owner.phase === 'before-performance') {
-        expect(ownerIndex, `${owner.file} must load after the gate`).toBeGreaterThan(gateIndex);
-        expect(ownerIndex, `${owner.file} must load before the performance coordinator`).toBeLessThan(performanceIndex);
-      } else {
-        expect(ownerIndex, `${owner.file} must remain a late owner after the performance coordinator`).toBeGreaterThan(performanceIndex);
-      }
+      expect(ownerIndex, `${owner.file} must load after the gate`).toBeGreaterThan(gateIndex);
+      expect(ownerIndex, `${owner.file} must load before the performance coordinator`).toBeLessThan(performanceIndex);
     }
 
     const selection = read('question-bank-selection-qa.js');
@@ -116,11 +100,13 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     expect(multipart).toContain('new MutationObserver(()=>window.requestAnimationFrame(renderGroup)).observe(cards,{childList:true,subtree:true})');
 
     const topicalRoute = read('topical-legacy-student-route.js');
-    expect(topicalRoute).toContain("const cards=document.getElementById('questions-cards')");
+    expect(indexOfLoader('topical-legacy-student-route.js')).toBeGreaterThan(performanceIndex);
+    expect(topicalRoute).toContain("const cards=document.getElementById('v52b-cards')");
     expect(topicalRoute).toContain('new MutationObserver(()=>{ decorate(); if (!state.byKey.size) scheduleLoad(false); }).observe(cards,{childList:true})');
 
     const eligibility = read('practice-eligibility-ui.js');
-    expect(eligibility).toContain("const cards=document.getElementById('questions-cards')");
+    expect(indexOfLoader('practice-eligibility-ui.js')).toBeGreaterThan(performanceIndex);
+    expect(eligibility).toContain("const cards=document.getElementById('v52b-cards')");
     expect(eligibility).toContain('new MutationObserver(()=>{decorate();if(!state.byKey.size)scheduleLoad(false);}).observe(cards,{childList:true})');
 
     expect(gateSource).toContain("id === 'questions-cards'");
@@ -142,6 +128,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
   test('exact positive suppressions and negative native boundary remain observable', async ({ page }) => {
     await page.setContent(`<!doctype html><html><body>
       <section id="questions-panel"><div id="questions-cards"></div></section>
+      <section id="v52b-cards"></section>
       <section id="unrelated-root"></section>
     </body></html>`);
 
@@ -154,6 +141,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
           gatedPanel: 0,
           gatedHistoryBody: 0,
           nativeBody: 0,
+          nativeV52bCards: 0,
           nativeUnrelated: 0,
         },
       };
@@ -190,6 +178,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       const counts = window.__phase7ca.counts;
       const cards = document.getElementById('questions-cards');
       const panel = document.getElementById('questions-panel');
+      const v52bCards = document.getElementById('v52b-cards');
       const unrelated = document.getElementById('unrelated-root');
 
       const bind = () => {};
@@ -215,11 +204,16 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       }).observe(document.body, { attributes: true, attributeFilter: ['data-phase7ca-native'] });
 
       new MutationObserver(() => {
+        counts.nativeV52bCards += 1;
+      }).observe(v52bCards, { childList: true });
+
+      new MutationObserver(() => {
         counts.nativeUnrelated += 1;
       }).observe(unrelated, { childList: true });
 
       cards.appendChild(document.createElement('span'));
       panel.appendChild(document.createElement('aside'));
+      v52bCards.appendChild(document.createElement('i'));
       unrelated.appendChild(document.createElement('em'));
       document.body.dataset.phase7caNative = '1';
     });
@@ -230,6 +224,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       const api = window.V52B1QuestionBankObserverGate;
       const cards = document.getElementById('questions-cards');
       const panel = document.getElementById('questions-panel');
+      const v52bCards = document.getElementById('v52b-cards');
       const bind = () => {};
       const renderSelectionState = () => {};
       function historyCallback() { bind(); renderSelectionState(); }
@@ -242,12 +237,14 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
           cards: cards.dataset.v52b1ObserverGated || '',
           panel: panel.dataset.v52b1ObserverGated || '',
           body: document.body.dataset.v52b1ObserverGated || '',
+          v52bCards: v52bCards.dataset.v52b1ObserverGated || '',
         },
         reasons: {
           cards: api.suppressionReason(cards, () => {}),
           panel: api.suppressionReason(panel, () => {}),
           historyBody: api.suppressionReason(document.body, historyCallback),
           unrelatedBody: api.suppressionReason(document.body, unrelatedBodyCallback),
+          v52bCards: api.suppressionReason(v52bCards, () => {}),
           unrelatedRoot: api.suppressionReason(document.getElementById('unrelated-root'), () => {}),
         },
       };
@@ -258,14 +255,16 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     expect(result.counts.gatedPanel).toBe(0);
     expect(result.counts.gatedHistoryBody).toBe(0);
     expect(result.counts.nativeBody).toBeGreaterThan(0);
+    expect(result.counts.nativeV52bCards).toBeGreaterThan(0);
     expect(result.counts.nativeUnrelated).toBeGreaterThan(0);
 
-    expect(result.markers).toEqual({ cards: '1', panel: '1', body: '1' });
+    expect(result.markers).toEqual({ cards: '1', panel: '1', body: '1', v52bCards: '' });
     expect(result.reasons).toEqual({
       cards: 'question-card-observer',
       panel: 'question-panel-observer',
       historyBody: 'question-history-body-observer',
       unrelatedBody: '',
+      v52bCards: '',
       unrelatedRoot: '',
     });
 
@@ -290,6 +289,8 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       'student-exam-ui.js',
       'release-audit-ui.js',
       'v52b1-large-import-timeout-recovery.js',
+      'topical-legacy-student-route.js',
+      'practice-eligibility-ui.js',
     ];
 
     for (const file of unaffected) {
@@ -303,8 +304,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       'question-bank-metadata-review.js',
       'v52-teacher-topical-library.js',
       'question-bank-audit-multipart.js',
-      'topical-legacy-student-route.js',
-      'practice-eligibility-ui.js',
     ]);
   });
 });
