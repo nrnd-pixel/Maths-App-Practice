@@ -100,7 +100,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     expect(metadataReview).toContain('__v51QuestionReviewRenderWrapped');
     expect(metadataReview).toContain('const cards = document.getElementById(\'questions-cards\')');
     expect(metadataReview).toContain('const observer = new MutationObserver(()=>window.requestAnimationFrame(renderAll))');
-    expect(metadataReview).toContain('observer.observe(cards,{childList:true,subtree:true})');
+    expect(metadataReview).toContain('observer.observe(cards,{childList:true})');
     expect(metadataReview).toContain('if (b2aSummary && typeof MutationObserver !== \'undefined\')');
 
     const topicalLibrary = read('v52-teacher-topical-library.js');
