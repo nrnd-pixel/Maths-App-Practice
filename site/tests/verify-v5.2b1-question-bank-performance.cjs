@@ -52,8 +52,10 @@ assert.strictEqual(api.normalizeReviewStatus(''),'none');
 
 function renderSummary(){}
 function renderAll(){}
+function refreshLifecycle(){}
 assert.strictEqual(api.refreshCallbackKind(renderSummary),'bulk-status','B2A summary refresh must be recognized for coordination');
 assert.strictEqual(api.refreshCallbackKind(renderAll),'review','Review refresh must be recognized for coordination');
+assert.strictEqual(api.refreshCallbackKind(refreshLifecycle),'','Correction History must remain an explicit post-render owner call, not a legacy captured callback');
 const deduped = api.dedupeRefreshes([
   {kind:'qa',callback:()=>1},{kind:'qa',callback:()=>2},{kind:'review',callback:()=>3}
 ]);
