@@ -219,7 +219,7 @@ test.describe('Phase 7C-D — Correction History owner lifecycle contract',()=>{
     ));
     expect(group.normalizationNeeded).toBe(true);
     expect(group.safeNormalize).toBe(true);
-    expect(typeof window).not.toBe('undefined');
+    expect(await page.evaluate(()=>typeof window.V51MultipartQuestionManagement.renderGroup)).toBe('function');
   });
 
   test('V52B1 gate remains byte-identical and native negative-control observers remain live',async({page})=>{
