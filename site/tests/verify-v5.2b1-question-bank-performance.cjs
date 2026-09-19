@@ -52,8 +52,10 @@ assert.strictEqual(api.normalizeReviewStatus(''),'none');
 
 function renderSummary(){}
 function renderAll(){}
+function refreshLifecycle(){}
 assert.strictEqual(api.refreshCallbackKind(renderSummary),'bulk-status','B2A summary refresh must be recognized for coordination');
 assert.strictEqual(api.refreshCallbackKind(renderAll),'review','Review refresh must be recognized for coordination');
+assert.strictEqual(api.refreshCallbackKind(refreshLifecycle),'','Correction History must remain an explicit post-render owner call, not a legacy captured callback');
 const deduped = api.dedupeRefreshes([
   {kind:'qa',callback:()=>1},{kind:'qa',callback:()=>2},{kind:'review',callback:()=>3}
 ]);
@@ -71,6 +73,7 @@ assert(source.includes('dedupeRefreshes'),'Captured wrapper refreshes must be de
 assert(source.includes('requestIdleCallback'),'Non-essential QA/review/library work must be deferred until the card page can paint');
 assert(source.includes('V52TopicalActivationGuard?.decorate?.()'),'Topical activation safety decoration must be explicitly restored after observer suppression');
 assert(source.includes('V51MultipartQuestionManagement?.renderGroup?.()'),'Multipart indicators must be explicitly restored after observer suppression');
+assert(source.includes('V51QuestionChangeHistory?.refreshLifecycle?.()'),'Correction History lifecycle must be explicitly refreshed after observer suppression');
 assert(source.includes('Only this page is built in the browser'),'Paging UI must explain the browser-performance behavior');
 
 assert(!source.includes("cloud.from('questions')"),'Performance hotfix must not write question data');

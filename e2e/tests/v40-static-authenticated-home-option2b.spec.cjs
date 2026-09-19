@@ -33,6 +33,8 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/config.js',
   'site/question-bank-audit-multipart.js',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs',
+  'site/v52b1-question-bank-performance.js',
+  'site/tests/verify-v5.2b1-question-bank-performance.cjs',
   'site/v39cd-dashboard-state-bundle.js',
   'site/v576-feedback-presentation-bundle.js',
   'site/v58ab-first-use-workspace-bundle.js',

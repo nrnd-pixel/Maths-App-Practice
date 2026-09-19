@@ -278,13 +278,13 @@ test.describe('Phase 7C-B — explicit refresh and lifecycle contracts', () => {
     await expect(page.locator('#questions-cards .v51b2e-multipart-badge')).toHaveCount(2);
   });
 
-  test('Correction History pins the current explicit-lifecycle gap for manual selection, live Select all/Clear controls and late panel recreation', async ({ page }) => {
+  test('Correction History keeps the historical fallback gap but the performance scheduler now repairs live Select all/Clear and late panel lifecycle', async ({ page }) => {
     await page.setContent(questionBankShell());
     await installGlobals(page, 4, { topical: false });
     await installFullStack(page, { performance: true });
 
     await page.evaluate(() => window.renderQuestions());
-    await page.waitForTimeout(220);
+    await page.waitForTimeout(260);
 
     await expect(page.locator('#v51b2d-question-history')).toHaveCount(1);
     await expect(page.locator('#v51b2d-selection')).toHaveText('Select one question to view its history.');
@@ -294,6 +294,7 @@ test.describe('Phase 7C-B — explicit refresh and lifecycle contracts', () => {
       window.V51QuestionBankBulkStatus.buildPlan(window.teacherQuestions, undefined, false).selected.length
     )).toBe(1);
     await expect.poll(() => page.locator('#v51b2d-selection').textContent()).toContain('Selected:');
+    await page.waitForTimeout(220);
 
     const manualText = await page.locator('#v51b2d-selection').textContent();
     expect(manualText).toBeTruthy();
@@ -302,19 +303,19 @@ test.describe('Phase 7C-B — explicit refresh and lifecycle contracts', () => {
     await expect.poll(() => page.evaluate(() =>
       window.V51QuestionBankBulkStatus.buildPlan(window.teacherQuestions, undefined, false).selected.length
     )).toBe(0);
-    await page.waitForTimeout(180);
-
-    const afterClear = await page.locator('#v51b2d-selection').textContent();
-    expect(afterClear).toBe(manualText);
+    await page.waitForTimeout(25);
+    expect(await page.locator('#v51b2d-selection').textContent()).toBe(manualText);
+    await expect.poll(() => page.locator('#v51b2d-selection').textContent(), { timeout: 1500 })
+      .toBe('Select one question to view its history.');
 
     await page.locator('#v51b2a-select-visible').click();
     await expect.poll(() => page.evaluate(() =>
       window.V51QuestionBankBulkStatus.buildPlan(window.teacherQuestions, undefined, false).selected.length
     )).toBe(4);
-    await page.waitForTimeout(180);
-
-    const afterSelectAll = await page.locator('#v51b2d-selection').textContent();
-    expect(afterSelectAll).toBe(manualText);
+    await page.waitForTimeout(25);
+    await expect(page.locator('#v51b2d-selection')).toHaveText('Select one question to view its history.');
+    await expect.poll(() => page.locator('#v51b2d-selection').textContent(), { timeout: 1500 })
+      .toBe('4 selected · choose exactly one question for audit history.');
 
     const sourceContract = await page.evaluate(() => ({
       historyApiKeys: Object.keys(window.V51QuestionChangeHistory || {}).sort(),
@@ -328,16 +329,18 @@ test.describe('Phase 7C-B — explicit refresh and lifecycle contracts', () => {
     expect(sourceContract.liveClearSelection).toBe(true);
     expect(sourceContract.staleSelectAll).toBe(false);
     expect(sourceContract.staleClear).toBe(false);
+    expect(sourceContract.historyApiKeys).toContain('refreshLifecycle');
     expect(sourceContract.historyApiKeys).not.toContain('bind');
     expect(sourceContract.historyApiKeys).not.toContain('renderSelectionState');
 
     await page.locator('#v51b2d-question-history').evaluate(node => node.remove());
     await page.evaluate(() => window.renderQuestions());
-    await page.waitForTimeout(220);
-    await expect(page.locator('#v51b2d-question-history')).toHaveCount(0);
+    await expect.poll(() => page.locator('#v51b2d-question-history').count(), { timeout: 1500 }).toBe(1);
+    await expect(page.locator('#v51b2d-load')).toHaveAttribute('data-bound','1');
 
     expect(sources.auditMultipart).toContain("#v51b2a-select-all,#v51b2a-clear");
     expect(sources.auditMultipart).not.toContain("#v51b2a-select-visible,#v51b2a-clear-selection");
+    expect(sources.performance).toContain('V51QuestionChangeHistory?.refreshLifecycle?.()');
   });
 
   test('native negative controls stay outside the future coordinator boundary', async ({ page }) => {
