@@ -250,7 +250,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
           unrelatedBody: api.suppressionReason(document.body, unrelatedBodyCallback),
           unrelatedRoot: api.suppressionReason(document.getElementById('unrelated-root'), () => {}),
         },
-        beforeSecondInstall,
       };
     });
 
@@ -270,22 +269,15 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       unrelatedRoot: '',
     });
 
+    await page.evaluate(() => {
+      window.__phase7ca.constructorAfterFirstInstall = window.MutationObserver;
+    });
     await page.addScriptTag({ content: gateSource });
     const secondInstall = await page.evaluate(() => ({
-      sameConstructor: window.MutationObserver === window.__phase7ca.beforeSecondInstall,
+      sameConstructor: window.MutationObserver === window.__phase7ca.constructorAfterFirstInstall,
       installed: window.__v52b1QuestionBankObserverGateInstalled === true,
-    }).catch(() => null));
-
-    // Store/compare explicitly because page.evaluate serializes constructors poorly.
-    const idempotent = await page.evaluate(() => {
-      if (!window.__phase7ca.secondBaseline) {
-        window.__phase7ca.secondBaseline = window.MutationObserver;
-        return true;
-      }
-      return window.MutationObserver === window.__phase7ca.secondBaseline;
-    });
-    expect(idempotent).toBe(true);
-    expect(secondInstall?.installed).toBe(true);
+    }));
+    expect(secondInstall).toEqual({ sameConstructor: true, installed: true });
   });
 
   test('gate remains authority-free and the inventory excludes unrelated observers', async () => {
