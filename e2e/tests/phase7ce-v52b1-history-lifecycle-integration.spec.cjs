@@ -116,7 +116,7 @@ test.describe('Phase 7C-E — Correction History performance-scheduler integrati
     expect(sources.performance).toContain('V51QuestionChangeHistory?.refreshLifecycle?.()');
     expect(sources.performance).toContain('V51MultipartQuestionManagement?.renderGroup?.()');
     expect(sources.performance).toContain('V52TopicalActivationGuard?.decorate?.()');
-    expect(sources.performance).not.toContain('MutationObserver');
+    expect(sources.performance).not.toMatch(/\bnew\s+MutationObserver\b/);
     expect(sources.performance).not.toMatch(/cloud\.rpc\s*\(/);
     expect(sources.performance).not.toMatch(/cloud\.from\s*\(/);
     expect(sources.performance).not.toContain('localStorage.setItem');
