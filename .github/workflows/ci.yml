@@ -36,6 +36,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Phase 7B-L temporary config SHA diagnostic
+        run: node tooling/phase7b/diagnose-v39cd-config-hash.cjs
+
       - name: Verify Phase 7B loader manifest
         run: node tooling/phase7b/verify-loader-manifest.cjs
 
