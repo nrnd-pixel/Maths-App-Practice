@@ -113,8 +113,8 @@ function futureHistoryAdapterSource(){
     const rows=api.selectedRows();
     btn.disabled=rows.length!==1 || !window.cloudReady || !window.teacherUser || !window.cloud;
     if(!rows.length) info.textContent='Select one question to view its history.';
-    else if(rows.length>1) info.textContent=`${rows.length} selected · choose exactly one question for audit history.`;
-    else info.textContent=`Selected: ${api.questionLabel(rows[0])}`;
+    else if(rows.length>1) info.textContent=String(rows.length)+' selected · choose exactly one question for audit history.';
+    else info.textContent='Selected: '+api.questionLabel(rows[0]);
     if(!btn.dataset.bound){
       btn.dataset.bound='1';
       btn.addEventListener('click',api.loadSelectedHistory);
