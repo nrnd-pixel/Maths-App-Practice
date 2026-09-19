@@ -34,6 +34,10 @@ has(js,'Select exactly one question','viewer must require one selected question'
 has(js,'old', 'viewer must render old values');
 has(js,'new', 'viewer must render new values');
 has(js,'Authenticated teacher','viewer should label authenticated actor without exposing UUID in primary UI');
+has(js,'function refreshLifecycle()','viewer must expose an owner-native lifecycle refresh');
+has(js,"if (typeof document === 'undefined') return [];","lifecycle refresh must fail safely without a DOM");
+has(js,'bind();\n    return renderSelectionState();','lifecycle refresh must compose existing bind + selection-state ownership');
+has(js,'renderHistory, refreshLifecycle','public API must export the lifecycle refresh');
 assert(!js.includes(".from('question_change_history')"),'viewer must not bypass the teacher RPC');
 assert(!/\.insert\s*\(/.test(js),'viewer must not write audit rows');
 assert(!/\.update\s*\(/.test(js),'viewer must be read-only');
