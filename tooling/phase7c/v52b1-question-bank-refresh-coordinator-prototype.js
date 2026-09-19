@@ -28,6 +28,11 @@
     return typeof value === 'function';
   }
 
+  function bound(object,key){
+    const fn = object?.[key];
+    return callable(fn) ? fn.bind(object) : null;
+  }
+
   function explicitHistoryLifecycle(options){
     if (callable(options?.historyLifecycle)) return options.historyLifecycle;
     const history = ROOT.V51QuestionChangeHistory;
@@ -88,12 +93,12 @@
   function refreshAfterCards(options = {}){
     const results = [];
 
-    record(results,'bulk-status',()=>ROOT.V51QuestionBankBulkStatus?.renderSummary?.());
-    record(results,'qa',()=>ROOT.V51QuestionBankQA?.render?.());
-    record(results,'review',()=>ROOT.V51QuestionReviewWorkflow?.renderAll?.());
-    record(results,'topical-library',()=>ROOT.V52TeacherTopicalLibrary?.render?.());
-    record(results,'topical-activation',()=>ROOT.V52TopicalActivationGuard?.decorate?.());
-    record(results,'multipart',()=>ROOT.V51MultipartQuestionManagement?.renderGroup?.());
+    record(results,'bulk-status',bound(ROOT.V51QuestionBankBulkStatus,'renderSummary'));
+    record(results,'qa',bound(ROOT.V51QuestionBankQA,'render'));
+    record(results,'review',bound(ROOT.V51QuestionReviewWorkflow,'renderAll'));
+    record(results,'topical-library',bound(ROOT.V52TeacherTopicalLibrary,'render'));
+    record(results,'topical-activation',bound(ROOT.V52TopicalActivationGuard,'decorate'));
+    record(results,'multipart',bound(ROOT.V51MultipartQuestionManagement,'renderGroup'));
 
     const historyLifecycle = explicitHistoryLifecycle(options);
     if (historyLifecycle) record(results,'correction-history',historyLifecycle);
@@ -105,10 +110,10 @@
   function refreshAfterSelection(options = {}){
     const results = [];
 
-    record(results,'bulk-status',()=>ROOT.V51QuestionBankBulkStatus?.renderSummary?.());
-    record(results,'topical-activation',()=>ROOT.V52TopicalActivationGuard?.decorate?.());
-    record(results,'review',()=>ROOT.V51QuestionReviewWorkflow?.renderAll?.());
-    record(results,'multipart',()=>ROOT.V51MultipartQuestionManagement?.renderGroup?.());
+    record(results,'bulk-status',bound(ROOT.V51QuestionBankBulkStatus,'renderSummary'));
+    record(results,'topical-activation',bound(ROOT.V52TopicalActivationGuard,'decorate'));
+    record(results,'review',bound(ROOT.V51QuestionReviewWorkflow,'renderAll'));
+    record(results,'multipart',bound(ROOT.V51MultipartQuestionManagement,'renderGroup'));
 
     const historyLifecycle = explicitHistoryLifecycle(options);
     if (historyLifecycle) record(results,'correction-history',historyLifecycle);
