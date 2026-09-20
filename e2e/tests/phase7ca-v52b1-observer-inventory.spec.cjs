@@ -93,7 +93,12 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     expect(gateSource).toContain('target === document.body');
     expect(gateSource).toContain("source.includes('renderSelectionState')");
     expect(gateSource).toContain("source.includes('bind')");
-    expect(gateSource).toContain('return nativeObserve(target,options)');
+    expect(gateSource).toContain('__v52b1QuestionBankObserverGateRetired = true');
+    expect(gateSource).toContain('suppressionActive:false');
+    expect(gateSource).not.toContain('WrappedMutationObserver');
+    expect(gateSource).not.toContain('ROOT.MutationObserver =');
+    expect(gateSource).not.toContain('nativeObserve');
+    expect(gateSource).not.toContain('data-v52b1-observer-gated');
 
     expect(performanceSource).toContain('captureLegacyRefreshes');
     expect(performanceSource).toContain("name === 'renderSummary'");
@@ -104,7 +109,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     expect(performanceSource).toContain('V51MultipartQuestionManagement?.renderGroup?.()');
   });
 
-  test('exact positive suppressions and negative native boundary remain observable', async ({ page }) => {
+  test('historical classifications remain observable while every MutationObserver stays native', async ({ page }) => {
     await page.setContent(`<!doctype html><html><body>
       <section id="questions-panel"><div id="questions-cards"></div></section>
       <section id="v52b-cards"></section>
@@ -134,23 +139,28 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
 
     const install = await page.evaluate(() => {
       const state = window.__phase7ca;
-      const Wrapped = window.MutationObserver;
+      const Current = window.MutationObserver;
       const Native = state.NativeMutationObserver;
+      const api = window.V52B1QuestionBankObserverGate;
       return {
-        replaced: Wrapped !== Native,
-        constructorPrototype: Object.getPrototypeOf(Wrapped) === Native,
-        instancePrototype: Wrapped.prototype === Native.prototype,
+        nativeIdentity: Current === Native,
+        instancePrototype: Current.prototype === Native.prototype,
         installed: window.__v52b1QuestionBankObserverGateInstalled === true,
-        apiFrozen: Object.isFrozen(window.V52B1QuestionBankObserverGate),
+        retired: window.__v52b1QuestionBankObserverGateRetired === true,
+        apiFrozen: Object.isFrozen(api),
+        apiRetired: api?.retired === true,
+        suppressionActive: api?.suppressionActive === false,
       };
     });
 
     expect(install).toEqual({
-      replaced: true,
-      constructorPrototype: true,
+      nativeIdentity: true,
       instancePrototype: true,
       installed: true,
+      retired: true,
       apiFrozen: true,
+      apiRetired: true,
+      suppressionActive: true,
     });
 
     await page.evaluate(() => {
@@ -230,14 +240,14 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     });
 
     expect(result.counts.earlyCards).toBeGreaterThan(0);
-    expect(result.counts.gatedCards).toBe(0);
-    expect(result.counts.gatedPanel).toBe(0);
-    expect(result.counts.gatedHistoryBody).toBe(0);
+    expect(result.counts.gatedCards).toBeGreaterThan(0);
+    expect(result.counts.gatedPanel).toBeGreaterThan(0);
+    expect(result.counts.gatedHistoryBody).toBeGreaterThan(0);
     expect(result.counts.nativeBody).toBeGreaterThan(0);
     expect(result.counts.nativeV52bCards).toBeGreaterThan(0);
     expect(result.counts.nativeUnrelated).toBeGreaterThan(0);
 
-    expect(result.markers).toEqual({ cards: '1', panel: '1', body: '1', v52bCards: '' });
+    expect(result.markers).toEqual({ cards: '', panel: '', body: '', v52bCards: '' });
     expect(result.reasons).toEqual({
       cards: 'question-card-observer',
       panel: 'question-panel-observer',
@@ -254,8 +264,9 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     const secondInstall = await page.evaluate(() => ({
       sameConstructor: window.MutationObserver === window.__phase7ca.constructorAfterFirstInstall,
       installed: window.__v52b1QuestionBankObserverGateInstalled === true,
+      retired: window.__v52b1QuestionBankObserverGateRetired === true,
     }));
-    expect(secondInstall).toEqual({ sameConstructor: true, installed: true });
+    expect(secondInstall).toEqual({ sameConstructor: true, installed: true, retired: true });
   });
 
   test('gate remains authority-free and the inventory excludes unrelated observers', async () => {
