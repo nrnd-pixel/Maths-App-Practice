@@ -240,7 +240,7 @@
       } else {
         const correct = Array.isArray(config.correct)
           ? config.correct.map(trim).filter(Boolean)
-          : trim(row?.answer).split(',').map(trim).filter(Boolean);
+          : trim(config.correct ?? row?.answer).split(',').map(trim).filter(Boolean);
         if (!correct.length || correct.some(value => !normalizedValues.includes(norm(value)))){
           issues.push('correct options');
         }
