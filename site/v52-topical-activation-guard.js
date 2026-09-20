@@ -103,10 +103,6 @@
     document.addEventListener('change',event => {
       if (event.target?.matches?.('.v51b2a-select')) scheduleDecorate();
     });
-    const panel = document.getElementById('questions-panel');
-    if (panel && typeof MutationObserver !== 'undefined'){
-      new MutationObserver(scheduleDecorate).observe(panel,{childList:true,subtree:true});
-    }
     decorate();
   }
 
