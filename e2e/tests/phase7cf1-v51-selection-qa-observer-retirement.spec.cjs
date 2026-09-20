@@ -109,7 +109,7 @@ test.describe('Phase 7C-F1 — retire Selection/QA suppressed observers',()=>{
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{
       cwd:ROOT,encoding:'utf8'
     }).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
   });
 
   test('QA and Bulk Status still refresh through their existing wrapper/event paths with no owner observer attempt',async({page})=>{
@@ -146,7 +146,7 @@ test.describe('Phase 7C-F1 — retire Selection/QA suppressed observers',()=>{
     )).toBe(1);
   });
 
-  test('V52B1 card suppression remains available for remaining owners and unrelated observers remain native',async({page})=>{
+  test('retired shim keeps historical card classification while synthetic observers stay native',async({page})=>{
     await page.setContent(shell()+'<div id="unrelated"></div>');
     await page.addScriptTag({content:sources.gate});
 
@@ -172,9 +172,9 @@ test.describe('Phase 7C-F1 — retire Selection/QA suppressed observers',()=>{
       };
     });
 
-    expect(result.counts.cards).toBe(0);
+    expect(result.counts.cards).toBeGreaterThan(0);
     expect(result.counts.unrelated).toBeGreaterThan(0);
-    expect(result.marker).toBe('1');
+    expect(result.marker).toBe('');
     expect(result.reasons).toEqual({cards:'question-card-observer',unrelated:''});
   });
 });
