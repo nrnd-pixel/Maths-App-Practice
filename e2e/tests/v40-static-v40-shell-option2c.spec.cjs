@@ -24,6 +24,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
   'site/question-bank-audit-multipart.js': 'c32a5a3435e9acef8f240fcba50fd8b60605d6dc',
+  'site/question-bank-metadata-review.js': '23e2650cf0ace6c33740ad63f35d821e213834a9',
   'site/question-bank-selection-qa.js': '61c6ca27e9877f6bb31ee3b31173a88e4fdf319b',
   'site/v52-topical-activation-guard.js': '2df46ed74e364e06efbc462284fd398cfcd6c5f4',
   'site/v52-teacher-topical-library.js': '92df3624a7b48ed88a64eb5de985cd232c63b215',
@@ -61,7 +62,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': 'a33ea86c659bc638cc3ac23a1b11e98c60233c14',
   'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs': 'fd7b49e31fa174e3c225ffa814968847416f237e',
   'site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs': '72328a455af6073e633a347db5bb482c29569c41',
-  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'b840885f4e510afa32ee112ee49c51b3b312e9e8',
+  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': '459c89785b3cba0c42249a211c11c1b3dee408b1',
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs': 'f19d8cd7b1b72a2851b5a0d534b26b103cc08331',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs': 'a15550958a3179a86610c19af6cad591768ec708',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': 'c9df6dde91e85c5c9d6a6e524b7c457bc1f68256',
@@ -160,6 +161,7 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
 // their pre-successor blobs in the historical remainder calculation so the
 // established frozen hash continues to prove every other site byte unchanged.
 const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/question-bank-metadata-review.js': '5571f6ea2ee33479f5dd0ad75a418249c10ba664',
   'site/question-bank-selection-qa.js': '65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf',
   'site/v52-topical-activation-guard.js': '7ece6302bc0faf9066db9e1b615810ad63c5f0fa',
   'site/v52-teacher-topical-library.js': '25a2e7eb176eb100ab852fc664379e5716feb6de',
