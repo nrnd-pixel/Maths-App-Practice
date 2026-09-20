@@ -191,7 +191,7 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     expect(result.blocker).toBe('');
   });
 
-  test('narrow explicit selection refresh fixes the pinned Select all/Clear history state gap without broad DOM observation',async({page})=>{
+  test('narrow explicit selection refresh stays correct after production Clear/Select all repair and remains idempotent without broad DOM observation',async({page})=>{
     await page.setContent(shell());
     await installGlobals(page,4,{topical:false});
     await installStack(page);
@@ -207,8 +207,8 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     await expect.poll(()=>page.evaluate(()=>
       window.V51QuestionBankBulkStatus.buildPlan(window.teacherQuestions,undefined,false).selected.length
     )).toBe(0);
-    await page.waitForTimeout(100);
-    await expect(page.locator('#v51b2d-selection')).toContainText('Selected:');
+    await expect.poll(()=>page.locator('#v51b2d-selection').textContent(),{timeout:1500})
+      .toBe('Select one question to view its history.');
 
     const afterClear=await page.evaluate(()=>
       window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterSelection()
@@ -221,8 +221,8 @@ test.describe('Phase 7C-C — dormant local refresh coordinator prototype',()=>{
     await expect.poll(()=>page.evaluate(()=>
       window.V51QuestionBankBulkStatus.buildPlan(window.teacherQuestions,undefined,false).selected.length
     )).toBe(4);
-    await page.waitForTimeout(100);
-    await expect(page.locator('#v51b2d-selection')).toHaveText('Select one question to view its history.');
+    await expect.poll(()=>page.locator('#v51b2d-selection').textContent(),{timeout:1500})
+      .toBe('4 selected · choose exactly one question for audit history.');
 
     const afterSelectAll=await page.evaluate(()=>
       window.Phase7CQuestionBankRefreshCoordinatorPrototype.refreshAfterSelection()
