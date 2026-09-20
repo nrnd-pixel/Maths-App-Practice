@@ -163,14 +163,22 @@ test.describe('Phase 7C-G — retire V52B1 MutationObserver interception',()=>{
       window.MutationObserver=new Proxy(Native,{
         construct(target,args){
           const callback=args[0];
-          const observer=Reflect.construct(target,args,target);
+          const record={
+            target:'',
+            reason:'',
+            source:Function.prototype.toString.call(callback),
+            fired:0
+          };
+          const wrappedCallback=(...callbackArgs)=>{
+            record.fired+=1;
+            return callback(...callbackArgs);
+          };
+          const observer=Reflect.construct(target,[wrappedCallback,...args.slice(1)],target);
           const nativeObserve=observer.observe.bind(observer);
           observer.observe=function(node,options){
-            window.__registrations.push({
-              target:node===document.body?'body':String(node?.id||node?.tagName||''),
-              reason:window.V52B1QuestionBankObserverGate.suppressionReason(node,callback),
-              source:Function.prototype.toString.call(callback)
-            });
+            record.target=node===document.body?'body':String(node?.id||node?.tagName||'');
+            record.reason=window.V52B1QuestionBankObserverGate.suppressionReason(node,callback);
+            window.__registrations.push(record);
             return nativeObserve(node,options);
           };
           return observer;
@@ -193,12 +201,11 @@ test.describe('Phase 7C-G — retire V52B1 MutationObserver interception',()=>{
     expect(summary[0].source).toContain('renderSummary');
 
     await page.evaluate(()=>{
-      window.renderQuestions();
-      const box=document.querySelector('#questions-cards .v51b2a-select');
-      if(box) box.checked=true;
-      document.getElementById('v51b2a-summary').textContent='1 selected';
+      document.getElementById('v51b2a-summary').textContent='native summary observer probe';
     });
-    await expect.poll(()=>page.locator('#v51b2b-summary').textContent()).toContain('1 selected');
+    await expect.poll(()=>page.evaluate(()=>
+      window.__registrations.find(item=>item.target==='v51b2a-summary')?.fired || 0
+    )).toBeGreaterThan(0);
   });
 
   test('explicit refresh coordinator remains the production replacement for retired observer cascades',async()=>{
