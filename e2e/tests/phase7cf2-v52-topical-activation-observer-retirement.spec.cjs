@@ -86,7 +86,7 @@ test.describe('Phase 7C-F2 — retire Topical Activation suppressed observer',()
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{
       cwd:ROOT,encoding:'utf8'
     }).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
   });
 
   test('normal Question Bank render reaches staged topical decoration through the production scheduler with no owner observer attempt',async({page})=>{
@@ -133,7 +133,7 @@ test.describe('Phase 7C-F2 — retire Topical Activation suppressed observer',()
     )).toBe('');
   });
 
-  test('unchanged V52B1 panel suppression remains available as a synthetic positive control while unrelated observers stay native',async({page})=>{
+  test('retired shim keeps historical panel classification while synthetic observers stay native',async({page})=>{
     await page.setContent(shell()+'<div id="unrelated"></div>');
     await page.addScriptTag({content:sources.gate});
 
@@ -159,9 +159,9 @@ test.describe('Phase 7C-F2 — retire Topical Activation suppressed observer',()
       };
     });
 
-    expect(result.counts.panel).toBe(0);
+    expect(result.counts.panel).toBeGreaterThan(0);
     expect(result.counts.unrelated).toBeGreaterThan(0);
-    expect(result.marker).toBe('1');
+    expect(result.marker).toBe('');
     expect(result.reasons).toEqual({panel:'question-panel-observer',unrelated:''});
   });
 });
