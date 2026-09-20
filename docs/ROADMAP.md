@@ -1,6 +1,6 @@
 # Maths Practice App — Roadmap
 
-Last updated: 2026-09-16
+Last updated: 2026-09-20
 
 This roadmap prioritises the live Maths experience because students are actively using the app for practice. It deliberately deprioritises breadth, including Science expansion, until the Maths practice system is more reliable, diagnostically useful and maintainable.
 
@@ -171,38 +171,46 @@ Candidate signals:
 
 Keep privacy and data minimisation in scope from the start.
 
-### P2.3 Phase 7B — module bundling
+### P2.3 Phase 7B — module bundling / explicit build-system mapping
 
-Outcome: replace fragile script-loading complexity with an explicit build/dependency system while preserving behaviour.
+Status: **completed at the accepted safe boundary**; Issue #291 is closed.
 
-Constraints:
-- vanilla JS remains acceptable;
-- Supabase remains;
-- Netlify remains;
-- no framework migration required;
-- first milestone is behaviour-neutral equivalence, not feature redesign;
-- use full static + Playwright equivalence coverage before promotion.
+Outcome achieved:
+- current two-tier loader/dependency ownership is machine-mapped;
+- shadow/generated bundle compatibility and determinism can be tested without forcing production promotion;
+- low-risk candidates were evaluated under behavioural-equivalence gates;
+- no framework migration was required;
+- no production loader rewrite was justified merely to reduce script count.
 
-Vite or esbuild may be evaluated, but tool choice comes after mapping current loader/dependency ownership.
+Vanilla JS, Supabase and Netlify remain the production stack. Reopen bundling only for a concrete maintenance/performance objective with preserved static + Playwright equivalence.
 
 ## P3 — high-risk architecture replacement
 
-### P3.1 Phase 7C — V52B1 replacement
+### P3.1 Phase 7C — V52B1 observer-gate replacement
 
-Outcome: eventually replace the current V52B1 observer/gate ownership with a clearer explicit contract.
+Status: **completed**; Issue #302 is closed.
 
-First deliverable is mapping only; no runtime change.
+Outcome achieved:
+- the exact suppressed-observer inventory and explicit lifecycle dependencies were mapped and hard-gated;
+- Question Bank refresh/correction-history lifecycle ownership was made explicit;
+- active global MutationObserver interception was retired while unrelated/native observers remained native;
+- the maintained Question Bank, Option 2A/2B/2C and broader regression gates were preserved rather than weakened.
 
-Map:
-- observed DOM/events;
-- globals and functions touched;
-- downstream dependants;
-- install/ownership markers;
-- existing hard-gate guarantees;
-- exact replacement contract;
-- rollback path.
+The compatibility-positioned V52B1 file remains part of the frozen loader manifest until a separately accepted loader successor exists.
 
-Implementation begins only after the map and equivalence plan are accepted.
+### P3.2 Phase 7D — frozen nested loader successor decision
+
+Status: **completed**; Issue #315 is closed and PR #319 is merged.
+
+Decision: retain the current frozen nested loader.
+
+Evidence established:
+- exact browser chronology for the 45 tier-1 + 41 tier-2 runtime scripts is deterministic and hard-gated;
+- tier-2 authority/dependency boundaries are mapped;
+- a dormant flat-loader prototype proves technical feasibility outside production;
+- a production successor would save zero runtime requests in the straightforward variants, while the most aggressive config-inline variant saves only one request and crosses major frozen/seal boundaries.
+
+Therefore no production loader change is authorised. Keep the flat-loader prototype as dormant tooling/evidence only. Reopen only for a reproducible loader defect or a broader change with material payoff.
 
 ## Parked for now
 
@@ -215,13 +223,12 @@ These are not rejected; they are simply low priority while students are using Ma
 ## Current order of execution
 
 1. maintain V5.9 production stability and trustworthy CI;
-2. continue Question Bank Integrity work;
+2. continue Question Bank Integrity work from authoritative source evidence;
 3. maintain/extend Metadata V2 only from verified evidence;
 4. collect V5.9B controlled pilot evidence;
-5. decide whether the evidence supports another adaptive refinement or whether to proceed to Paper 2 Blueprint Practice;
+5. decide whether that evidence supports another adaptive refinement or Paper 2 Blueprint Practice;
 6. richer student/teacher learning insights;
-7. authentic response coverage and observability;
-8. Phase 7B module bundling;
-9. Phase 7C mapping and eventual replacement.
+7. authentic response coverage and privacy-conscious observability;
+8. keep the completed Phase 7B/7C/7D architecture boundaries stable unless a concrete defect or material benefit justifies reopening them.
 
-Stage 4 demand-aware Mixed Practice is not an automatic next step; it requires a separate evidence-backed proposal and explicit acceptance.
+Stage 4 demand-aware Mixed Practice is not an automatic next step; it requires a separate evidence-backed proposal and explicit acceptance. There is currently no approved Phase 7E runtime programme.
