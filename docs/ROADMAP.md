@@ -43,7 +43,20 @@ Continue to treat new timing failures as defects to diagnose rather than reasons
 
 ### P0.3 Question Bank Integrity checkpoint
 
+Status: **accepted preventive QA checkpoint completed** via PR #323 / Issue #322 on verified main `66fe4d7ba039ed26da20f39b111183e14503a156`.
+
 Outcome: automate content QA before richer adaptive logic depends on the question bank.
+
+Accepted checkpoint now includes:
+- existing inactive/exposure, duplicate identifier, multipart and metadata QA;
+- response-contract QA for supported response families;
+- malformed unit / multi-blank / choice-option configuration checks;
+- impossible >3-mark physical Paper 1/2 row checks;
+- explicit past-paper source/year/paper contradiction checks;
+- activation blockers for semantic response/source QA failures;
+- exact-head CI coverage through the dedicated P0.3 verifier, maintained static suite, V51 hard gates and full core browser suite.
+
+This checkpoint is preventive, not a claim that every source-content ambiguity is resolved. Continue source-specific audits only from authoritative evidence.
 
 Target checks include:
 - missing/empty accepted answers;
