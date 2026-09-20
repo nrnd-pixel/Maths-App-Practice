@@ -14,12 +14,6 @@ const performanceSource = read('v52b1-question-bank-performance.js');
 
 const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
   {
-    file: 'v52-topical-activation-guard.js',
-    phase: 'before-performance',
-    targets: ['questions-panel'],
-    responsibilities: ['topical-activation-decorate'],
-  },
-  {
     file: 'question-bank-metadata-review.js',
     phase: 'before-performance',
     targets: ['questions-cards'],
@@ -69,9 +63,11 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     expect(selection).not.toContain('observer.observe(cards,{childList:true})');
 
     const topicalGuard = read('v52-topical-activation-guard.js');
-    expect(topicalGuard).toContain("const panel = document.getElementById('questions-panel')");
-    expect(topicalGuard).toContain('new MutationObserver(scheduleDecorate).observe(panel,{childList:true,subtree:true})');
+    expect(occurrences(topicalGuard, /MutationObserver/g)).toBe(0);
+    expect(topicalGuard).toContain('function scheduleDecorate()');
     expect(topicalGuard).toContain('window.requestAnimationFrame(decorate)');
+    expect(topicalGuard).toContain("event.target?.matches?.('.v51b2a-select')");
+    expect(topicalGuard).toContain('V52TopicalActivationGuard');
 
     const metadataReview = read('question-bank-metadata-review.js');
     expect(metadataReview).toContain('__v51QuestionReviewRenderWrapped');
@@ -292,7 +288,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     }
 
     expect(EXPECTED_SUPPRESSED_OWNERS.map(row => row.file)).toEqual([
-      'v52-topical-activation-guard.js',
       'question-bank-metadata-review.js',
       'v52-teacher-topical-library.js',
       'question-bank-audit-multipart.js',

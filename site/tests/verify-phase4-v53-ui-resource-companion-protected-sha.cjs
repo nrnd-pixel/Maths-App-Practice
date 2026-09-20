@@ -39,7 +39,7 @@ const protectedFiles=Object.freeze({
 
   // V52 runtime freeze, including the legacy topical rollback path C intercepts.
   'site/v52-teacher-topical-library.js':'25a2e7eb176eb100ab852fc664379e5716feb6de',
-  'site/v52-topical-activation-guard.js':'7ece6302bc0faf9066db9e1b615810ad63c5f0fa',
+  'site/v52-topical-activation-guard.js':'2df46ed74e364e06efbc462284fd398cfcd6c5f4',
   'site/v52-topical-exercise-foundation.js':'6283c212c788b8ceba417569b0522ee957fd6cbb',
   'site/v52b1-large-import-timeout-recovery.js':'b3c902b7c0d5fca9a1ad1063dbbbf2c981d468ab',
   'site/v52b1-question-bank-observer-gate.js':'82a87ffed9091b76c9008a3949c3bd432c2d06ce',
