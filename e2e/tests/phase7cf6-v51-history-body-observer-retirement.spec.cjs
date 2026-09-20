@@ -27,6 +27,7 @@ function shell(){
         <input id="question-exam-year"><input id="question-paper">
         <select id="question-status"><option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
         <div id="question-bank-count"></div>
+        <section id="v51b2a-bulk-status" class="info"></section>
         <div id="questions-cards"></div>
       </section>
     </section>
