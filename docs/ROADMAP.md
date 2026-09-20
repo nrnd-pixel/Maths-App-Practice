@@ -86,17 +86,19 @@ Implementation checkpoint:
 - Stage 1 fail-closed readiness RPC — PR #268 merged and deployed;
 - Stage 2 verified tiny eligibility subset — Q9(b) + Q4 eligible; Q30 remains ineligible;
 - server authority hardening — PR #272 merged and deployed;
-- Stage 3 browser pilot V2 — PR #271 merged after exact-head CI and manual smoke testing.
+- Stage 3 browser pilot V2 — PR #271 merged after exact-head CI and manual smoke testing;
+- Stage 3E lifecycle telemetry — deployed and production-smoke validated for Q4 and Q9(b);
+- Stage 3F-A operator/Demo validation — completed, then production access was returned to Demo-only.
 
 Current pilot boundary:
 - browser flow dormant unless `?adaptivePilot=2` is present;
 - server pilot remains `allow_all_students=false`;
 - exactly one allowed student;
-- three allow-listed target IDs, but only Q9(b) and Q4 pass Metadata V2 readiness;
-- Q30 must fail closed;
+- two allow-listed target IDs: Q9(b) and Q4;
+- Q30 is outside the current pilot target allow-list and must remain fail-closed if queried;
 - ordinary Practice grading, score, XP, mastery and answer history remain authoritative.
 
-Next step: collect controlled pilot evidence. Measure trigger behaviour, diagnostic completion, target-retry outcome and usability. A successful technical smoke test is not evidence of learning effectiveness.
+Next step: resume Stage 3F-B controlled real-student usability evidence collection when suitable students are available. Measure trigger behaviour, diagnostic completion, target-retry outcome and usability. Demo/operator runs remain engineering evidence, not learning-effectiveness evidence.
 
 Do not broaden student access, add targets, or generalise adaptive sequencing until the evidence justifies a specific next hypothesis.
 
