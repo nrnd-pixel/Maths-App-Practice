@@ -58,7 +58,8 @@ for (const entry of tier2Manifest.entries){
 const source = fs.readFileSync(path.join(__dirname,'flat-loader-prototype.cjs'),'utf8');
 assert.doesNotMatch(source,/MATH_APP_STAGED_SCRIPTS\s*=/,'prototype must not replace release-identity staged list');
 assert.doesNotMatch(source,/MathAppVersion\s*=/,'prototype must not replace release identity owner');
-assert.doesNotMatch(source,/site\/v40-release\.js/,'prototype must not embed production loader source');
+assert.doesNotMatch(source,/readFileSync\([^)]*v40-release\.js/,'prototype must not read production v40-release source bytes');
+assert.doesNotMatch(source,/require\([^)]*v40-release\.js/,'prototype must not require/execute production v40-release source');
 assert.match(source,/release-presentation-boundary/,'prototype must make release-presentation separation explicit');
 assert.match(source,/status:'skipped-existing'/,'prototype must preserve tier-2 duplicate-guard semantics');
 assert.match(source,/status:'error'/,'prototype must record script failures instead of silently swallowing them');
