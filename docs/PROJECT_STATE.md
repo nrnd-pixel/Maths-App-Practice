@@ -29,7 +29,7 @@ The accepted V5.9 Student Home remains the production UX baseline. Avoid cosmeti
 
 ## Adaptive / Metadata V2 checkpoint
 
-Issue #266 Stages 0–3 have now been completed through separate guarded checkpoints.
+Issue #266 Stages 0–3 plus the Stage 3E telemetry and Stage 3F-A operator-validation checkpoints have now been completed through separate guarded steps. Stage 3F-B real-student usability validation remains deferred pending student availability.
 
 Repository / server work:
 - PR #267 — reconciled the three already-deployed adaptive SQL migrations into repository source — merged.
@@ -37,15 +37,15 @@ Repository / server work:
 - PR #272 — hardened `student_adaptive_diagnostic_plan_v1` and `student_adaptive_diagnostic_grade_v1` so both independently enforce readiness V2 — merged; reviewed migration was subsequently applied to production.
 - PR #271 — rebuilt the browser adaptive pilot from current main, including real multipart Q9(b) handling — merged.
 
-Production state verified read-only on 2026-09-16:
+Production resting state re-verified read-only on 2026-09-20:
 - Metadata V2 profiles: 41;
 - `adaptive_use_status='eligible'`: 2;
 - eligible targets: 2025 P1 Q9(b) and 2025 P2 Q4;
-- 2025 P2 Q30 remains unprofiled/ineligible and must fail closed;
+- 2025 P2 Q30 remains unprofiled/ineligible, is outside the current pilot target allow-list, and must fail closed;
 - adaptive pilot enabled = true;
 - `allow_all_students=false`;
 - allowed students = 1;
-- allowed targets = 3.
+- allowed targets = 2: 2025 P1 Q9(b) and 2025 P2 Q4.
 
 Manual deploy-preview smoke testing before PR #271 merge confirmed:
 - Q9(b): adaptive offer after authoritative multipart grading; 3-step diagnostic + unscored retry; original Practice result unchanged;
