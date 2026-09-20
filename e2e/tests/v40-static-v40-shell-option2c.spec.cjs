@@ -25,7 +25,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
   'site/question-bank-audit-multipart.js': 'b4c4609ddb90a9d8705e02aeb99cb653ded7277e',
   'site/question-bank-metadata-review.js': '23e2650cf0ace6c33740ad63f35d821e213834a9',
-  'site/question-bank-selection-qa.js': 'a01887be548a2f82fb053734588c2198077bd3a5',
+  'site/question-bank-selection-qa.js': '19ec913297f53c9cba7b6f40db36932146003c75',
   'site/v52-topical-activation-guard.js': '2df46ed74e364e06efbc462284fd398cfcd6c5f4',
   'site/v52-teacher-topical-library.js': '92df3624a7b48ed88a64eb5de985cd232c63b215',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs': 'fa9c7bff475d1e3f3d7512c6b5165d8a47ecbe57',
