@@ -87,7 +87,7 @@ test.describe('Phase 7C-F6 — retire final Correction History body observer',()
     expect(sources.performance).toContain('V51QuestionChangeHistory?.refreshLifecycle?.()');
 
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{cwd:ROOT,encoding:'utf8'}).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
   });
 
   test('normal scheduler recreates a removed history panel and rebinds Load history exactly once with no owner body marker',async({page})=>{
@@ -139,7 +139,7 @@ test.describe('Phase 7C-F6 — retire final Correction History body observer',()
     await expect(page.locator('#v51b2d-selection')).toHaveText('Select one question to view its history.');
   });
 
-  test('real owner registers no observer while synthetic B2D-shaped body suppression remains active and unrelated body observers remain native',async({page})=>{
+  test('real owner registers no observer while synthetic B2D-shaped body observers stay native with historical classification',async({page})=>{
     await page.setContent(shell());
     await installGlobals(page);
     await page.addScriptTag({content:sources.gate});
@@ -171,9 +171,9 @@ test.describe('Phase 7C-F6 — retire final Correction History body observer',()
       };
     });
 
-    expect(result.counts.history).toBe(0);
+    expect(result.counts.history).toBeGreaterThan(0);
     expect(result.counts.unrelated).toBeGreaterThan(0);
-    expect(result.marker).toBe('1');
+    expect(result.marker).toBe('');
     expect(result.reasons).toEqual({history:'question-history-body-observer',unrelated:''});
   });
 });
