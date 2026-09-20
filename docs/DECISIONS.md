@@ -90,7 +90,7 @@ Reason:
 They supersede the older V5.8.1 demo drafts and were reviewed with isolation verifiers and exact-head CI.
 
 Implication:
-PR #204 and PR #205 must not be merged; close them as superseded when housekeeping is performed.
+PR #204 and PR #205 are closed as superseded. Do not revive them as maintained demo baselines.
 
 ## 2026-09-13 — Question metadata will be enriched before adaptive expansion
 
