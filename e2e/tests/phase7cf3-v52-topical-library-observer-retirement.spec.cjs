@@ -78,7 +78,7 @@ test.describe('Phase 7C-F3 — retire Topical Library suppressed observer',()=>{
     expect(sources.performance).toContain("return 'topical-library'");
 
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{cwd:ROOT,encoding:'utf8'}).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
   });
 
   test('normal Question Bank render refreshes Topical Library through the production scheduler with no owner observer attempt',async({page})=>{
@@ -138,7 +138,7 @@ test.describe('Phase 7C-F3 — retire Topical Library suppressed observer',()=>{
     expect(after).toEqual(before);
   });
 
-  test('unchanged V52B1 card suppression remains available synthetically while v52b-cards stays native',async({page})=>{
+  test('retired shim keeps historical card classification while all synthetic card observers stay native',async({page})=>{
     await page.setContent(shell()+'<div id="v52b-cards"></div><div id="unrelated"></div>');
     await page.addScriptTag({content:sources.gate});
     const result=await page.evaluate(async()=>{
@@ -163,10 +163,10 @@ test.describe('Phase 7C-F3 — retire Topical Library suppressed observer',()=>{
         }
       };
     });
-    expect(result.counts.cards).toBe(0);
+    expect(result.counts.cards).toBeGreaterThan(0);
     expect(result.counts.topicalCards).toBeGreaterThan(0);
     expect(result.counts.unrelated).toBeGreaterThan(0);
-    expect(result.marker).toBe('1');
+    expect(result.marker).toBe('');
     expect(result.reasons).toEqual({cards:'question-card-observer',topicalCards:'',unrelated:''});
   });
 });
