@@ -64,6 +64,15 @@ assert.deepEqual(Array.from(qa.sourceAttributionIssues(clean)), []);
 assert.ok(!keys(clean).includes('response'), 'clean row must not have a response-contract flag');
 assert.ok(!keys(clean).includes('source'), 'clean row must not have a source-attribution flag');
 
+assert.deepEqual(
+  Array.from(qa.responseContractIssues({
+    response_type: 'text',
+    answer: '1',
+  })),
+  [],
+  'partial rows must not be blocked merely because non-required response fields were not projected'
+);
+
 assert.ok(
   qa.responseContractIssues(row({ accepted_answers: {} })).includes('accepted answers'),
   'accepted_answers must remain an array'
@@ -190,13 +199,19 @@ assert.deepEqual(
   'comma-separated multi_select.correct must match the server grading fallback'
 );
 
+assert.deepEqual(
+  Array.from(qa.sourceAttributionIssues(row({ source: 'PSR' }))),
+  [],
+  'generic legacy source labels are not contradictions when they contain no explicit year or paper claim'
+);
+
 assert.ok(
   qa.sourceAttributionIssues(row({ source: '2024 Paper 2' })).includes('source year'),
-  'past-paper source must contain the exam year'
+  'past-paper source must not contradict the exam year when an explicit year is present'
 );
 assert.ok(
   qa.sourceAttributionIssues(row({ source: '2025 Paper 1' })).includes('source paper'),
-  'past-paper source must agree with paper number'
+  'past-paper source must not contradict the paper number when an explicit paper is present'
 );
 assert.deepEqual(
   Array.from(qa.sourceAttributionIssues(row({ source_type: 'teacher', source: 'Teacher set' }))),
