@@ -11,7 +11,7 @@ This file is the short operational checkpoint for humans and AI assistants. Read
 - Stack: vanilla JavaScript, Supabase/PostgreSQL, Netlify static hosting
 - Production baseline: V5.9 Student Home / Practice
 - Controlled adaptive layer: V5.9B pilot code is now on `main`, but remains dormant without `?adaptivePilot=2` and the server-side pilot allow-list
-- Verified `main`: `668f97d0ae36624b877a80f5091af31a821b1f83`
+- Verified `main`: `66fe4d7ba039ed26da20f39b111183e14503a156`
 - Verified Supabase tree SHA: `dffaaa1d6991d54e25ab26d6267739f4525327bf`
 - Historical seal BASE_SHA: `653aec5e06e1bf1669b4c9c0cd3e91069715de45`
 
@@ -53,6 +53,22 @@ Manual deploy-preview smoke testing before PR #271 merge confirmed:
 - Q30: ordinary Practice completes with no adaptive offer.
 
 Final exact-head PR #271 checks were green on head `b24c39d6097ed573b28466ba8095c76169d95407`, including Adaptive Browser Pilot V2 Integrity, production-source reconciliation, Consolidated CI #320, all named hard gates and the full core browser suite.
+
+## Question Bank Integrity checkpoint
+
+PR #323 / Issue #322 completed the accepted P0.3 preventive semantic-QA boundary.
+
+Current protection now includes:
+- read-only teacher QA for response-contract consistency;
+- past-paper source/year/paper contradiction checks;
+- impossible >3-mark physical Paper 1/2 row checks;
+- semantic response/source flags as activation blockers;
+- compatibility with partial projected rows and legacy generic source labels;
+- dedicated P0.3 CI verification plus the existing V51/Option 2/Phase 7D protection chain.
+
+Fresh production read-only auditing before implementation found no active semantic response/source violations. No Supabase DDL/DML or grading RPC changes were required.
+
+Known source-specific uncertainties remain separate content-evidence problems: 2022 Q30, 2023 Q30 source correction audit, and 2025 P2 Q30 source-blocked Metadata V2 calibration must continue to follow the existing fail-closed handling.
 
 ## Architecture checkpoint — Phases 7B–7D
 
