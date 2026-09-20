@@ -49,7 +49,7 @@ async function installGlobals(page){
     ];
     window.renderQuestions=function(){
       const root=document.getElementById('questions-cards');
-      root.innerHTML='<article class="qcard"><div class="qcard-head"></div><div class="qcard-main"><div class="qcard-meta"></div><div class="qcard-detail"></div><div class="qcard-actions"><button class="edit-q" data-id="q1">Edit</button><button class="toggle-q" data-id="q1" data-active="true">Toggle</button></div></div></article>';
+      root.innerHTML='<article class="qcard" data-v51b2a-id="q1"><div class="qcard-head"></div><label class="v51b2a-select-wrap"><input class="v51b2a-select" type="checkbox" data-id="q1"></label><div class="qcard-main"><div class="qcard-meta"></div><div class="qcard-detail"></div><div class="qcard-actions"><button class="edit-q" data-id="q1">Edit</button><button class="toggle-q" data-id="q1" data-active="true">Toggle</button></div></div></article>';
       return {count:1};
     };
     window.loadTeacher=async()=>true;
