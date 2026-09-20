@@ -103,6 +103,16 @@ Use secondary/embedded skill and prerequisite evidence before richer automatic r
 
 ## Resolved checkpoints worth remembering
 
+### P0.3 Question Bank semantic-integrity checkpoint
+
+Resolved by PR #323 / Issue #322 on main `66fe4d7ba039ed26da20f39b111183e14503a156`.
+
+Decision:
+Malformed response contracts, impossible Paper 1/2 row marks, and explicit past-paper source/year/paper contradictions are now surfaced by teacher QA and block activation.
+
+Lesson:
+Keep preventive structural QA separate from source-content judgement. The checkpoint does not resolve authoritative-source uncertainties such as 2022 Q30, the 2023 Q30 source-unit correction audit, or 2025 P2 Q30 Metadata V2 calibration.
+
 ### Phase 7D frozen-loader decision
 
 Resolved by PR #319 / Issue #315 on main `668f97d0ae36624b877a80f5091af31a821b1f83`.

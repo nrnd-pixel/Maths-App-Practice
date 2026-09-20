@@ -4,6 +4,17 @@ Last updated: 2026-09-20
 
 This file records important project decisions and the reason behind them. It is intentionally concise: record durable decisions, not every debugging step.
 
+## 2026-09-20 — Question Bank activation fails closed on semantic QA
+
+Decision:
+Treat malformed response contracts and explicit past-paper source attribution contradictions as activation blockers in the existing teacher Question Bank QA flow.
+
+Reason:
+Question-bank content is production data. A structurally malformed answer contract, unit configuration, choice configuration, or explicit year/paper mismatch can produce incorrect grading or expose unsuitable content even when the row is otherwise active.
+
+Implication:
+PR #323 / Issue #322 define the accepted P0.3 preventive boundary. Future content imports and edits should fail closed at teacher activation when these semantic checks fail. Generic legacy source labels are not treated as contradictions unless they explicitly claim a mismatched year or paper, and optional fields omitted from partial projections must not create false blockers.
+
 ## 2026-09-20 — Retain the frozen nested production loader
 
 Decision:
