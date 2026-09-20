@@ -16,8 +16,8 @@ const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
   {
     file: 'question-bank-audit-multipart.js',
     phase: 'before-performance',
-    targets: ['document.body', 'questions-cards'],
-    responsibilities: ['correction-history-bind-selection-state', 'multipart-render-group'],
+    targets: ['document.body'],
+    responsibilities: ['correction-history-bind-selection-state'],
   },
 ]);
 
@@ -75,9 +75,12 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     const multipart = read('question-bank-audit-multipart.js');
     expect(multipart).toContain('function renderSelectionState()');
     expect(multipart).toContain('function bind()');
+    expect(occurrences(multipart, /new MutationObserver/g)).toBe(1);
     expect(multipart).toContain('observer.observe(document.body,{childList:true,subtree:true})');
-    expect(multipart).toContain("const cards=document.getElementById('questions-cards')");
-    expect(multipart).toContain('new MutationObserver(()=>window.requestAnimationFrame(renderGroup)).observe(cards,{childList:true,subtree:true})');
+    expect(multipart).not.toContain("const cards=document.getElementById('questions-cards')");
+    expect(multipart).not.toContain('new MutationObserver(()=>window.requestAnimationFrame(renderGroup))');
+    expect(multipart).toContain("if (event.target?.classList?.contains('v51b2a-select')) { promptDirty=false; clearFeedback(); window.requestAnimationFrame(renderGroup); }");
+    expect(multipart).toContain('V51MultipartQuestionManagement');
 
     const topicalRoute = read('topical-legacy-student-route.js');
     expect(indexOfLoader('topical-legacy-student-route.js')).toBeGreaterThan(performanceIndex);
