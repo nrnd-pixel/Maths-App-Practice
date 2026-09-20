@@ -85,7 +85,7 @@ test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
     expect(sources.performance).toContain('V51MultipartQuestionManagement?.renderGroup?.()');
 
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{cwd:ROOT,encoding:'utf8'}).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
   });
 
   test('normal Question Bank render restores multipart badges through the production scheduler with no cards observer attempt',async({page})=>{
@@ -134,7 +134,7 @@ test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
     await expect(page.locator('#questions-cards .v51b2e-multipart-badge')).toHaveCount(2);
   });
 
-  test('real owner leaves cards and body ungated while synthetic cards suppression is still available',async({page})=>{
+  test('real owner stays ungated and retired shim leaves synthetic cards native with historical classification',async({page})=>{
     await page.setContent(shell()+'<div id="v52b-cards"></div><div id="ordinary"></div>');
     await installGlobals(page);
     await page.addScriptTag({content:sources.gate});
@@ -167,7 +167,7 @@ test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
         }
       };
     });
-    expect(result.counts.cards).toBe(0);
+    expect(result.counts.cards).toBeGreaterThan(0);
     expect(result.counts.topical).toBeGreaterThan(0);
     expect(result.counts.ordinary).toBeGreaterThan(0);
     expect(result.reasons).toEqual({cards:'question-card-observer',topical:'',ordinary:''});

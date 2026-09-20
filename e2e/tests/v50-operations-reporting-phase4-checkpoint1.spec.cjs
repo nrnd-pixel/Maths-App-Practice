@@ -80,7 +80,7 @@ async function installAnalyticsGlobals(page){
   });
 }
 
-test('V50 hard gate 1: early owners construct native observers before V52B1 and late audit UI constructs through the wrapped observer boundary',async({page})=>{
+test('V50 hard gate 1: early and late owners construct native observers across the retired V52B1 shim boundary',async({page})=>{
   await page.setContent(teacherShell('<div id="v50-release-audit-root"></div>'));
   await page.evaluate(()=>{
     const RealMutationObserver=window.MutationObserver;
@@ -115,15 +115,20 @@ test('V50 hard gate 1: early owners construct native observers before V52B1 and 
 
   await page.evaluate(()=>{ window.__v50ObserverPhase='gate'; });
   await add(page,'observerGate');
-  const gate=await page.evaluate(()=>({installed:window.__v52b1QuestionBankObserverGateInstalled===true,assignments:window.__v50ObserverAssignments.slice()}));
-  expect(gate.installed).toBe(true);
-  expect(gate.assignments).toContain('WrappedMutationObserver');
+  const gate=await page.evaluate(()=>({
+    installed:window.__v52b1QuestionBankObserverGateInstalled===true,
+    retired:window.__v52b1QuestionBankObserverGateRetired===true,
+    suppressionActive:window.V52B1QuestionBankObserverGate?.suppressionActive===false,
+    assignments:window.__v50ObserverAssignments.slice()
+  }));
+  expect(gate).toEqual({installed:true,retired:true,suppressionActive:true,assignments:[]});
 
   await page.evaluate(()=>{ window.__v50ObserverPhase='late'; });
   await add(page,'audit');
   const after=await page.evaluate(()=>window.__v50ObserverLog.slice());
   const late=after.filter(row=>row.phase==='late');
-  expect(late.some(row=>row.kind==='wrapped')).toBe(true);
+  expect(late.length).toBeGreaterThan(0);
+  expect(late.every(row=>row.kind==='native')).toBe(true);
   expect(after.filter(row=>row.phase==='early').every(row=>row.kind==='native')).toBe(true);
 });
 
