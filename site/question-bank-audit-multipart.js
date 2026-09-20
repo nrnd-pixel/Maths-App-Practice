@@ -598,8 +598,6 @@
     document.addEventListener('change',event=>{
       if (event.target?.classList?.contains('v51b2a-select')) { promptDirty=false; clearFeedback(); window.requestAnimationFrame(renderGroup); }
     });
-    const cards=document.getElementById('questions-cards');
-    if (cards && typeof MutationObserver!=='undefined') new MutationObserver(()=>window.requestAnimationFrame(renderGroup)).observe(cards,{childList:true,subtree:true});
     renderGroup();
   }
 

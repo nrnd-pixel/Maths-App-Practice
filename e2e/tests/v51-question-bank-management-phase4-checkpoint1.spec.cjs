@@ -147,11 +147,13 @@ test('V51 hard gate 3: V52B1 observer boundary and renderer-wrapper composition 
   const boundary=await page.evaluate(()=>({
     assignments:window.__observerAssignments,
     cardsGated:document.getElementById('questions-cards')?.dataset?.v52b1ObserverGated||'',
+    bodyGated:document.body?.dataset?.v52b1ObserverGated||'',
     flags:{qa:!!window.__v51QuestionBankQaRenderWrapped,bulk:!!window.__v51QuestionBankBulkStatusRenderWrapped,review:!!window.__v51QuestionReviewRenderWrapped,topical:!!window.__v52bTopicalLibraryRenderWrapped},
     late:window.__observerLog.filter(x=>x.phase==='late').length
   }));
   expect(boundary.assignments).toContain('WrappedMutationObserver');
-  expect(boundary.cardsGated).toBe('1');
+  expect(boundary.cardsGated).toBe('');
+  expect(boundary.bodyGated).toBe('1');
   expect(boundary.flags).toEqual({qa:true,bulk:true,review:true,topical:true});
   expect(boundary.late).toBeGreaterThan(0);
 
