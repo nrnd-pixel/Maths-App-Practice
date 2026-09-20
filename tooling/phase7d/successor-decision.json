@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "baseline": "9aa9f15b0f0c232a1d0355ccc6e88f0959408ed5",
+  "issue": 315,
+  "phase": "7D-D",
+  "decision": "retain_current_frozen_nested_loader",
+  "productionChangeAuthorized": false,
+  "currentContract": {
+    "configPath": "site/config.js",
+    "configBlob": "508341fa4d359135646d615ed9751e709fa6315d",
+    "releasePath": "site/v40-release.js",
+    "releaseBlob": "a308df11b601bf563b56d555e9f434652e524d77",
+    "tier1Scripts": 45,
+    "tier2Scripts": 41,
+    "productionRuntimeScripts": 86,
+    "chronology": "45 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
+    "releaseIdentity": "derived by site/version.js from window.MATH_APP_STAGED_SCRIPTS",
+    "releasePresentationOwner": "site/v40-release.js",
+    "tier2TransportOwner": "site/v40-release.js"
+  },
+  "evidence": {
+    "phase7dA": "actual current loaders are browser-hard-gated for exact insertion/execution/load chronology, parent placement, async=false and tier-2 duplicate guards",
+    "phase7dB": "all 41 tier-2 entries are exact-byte mapped by authority class and predecessor constraints, including V581A cross-tier predecessors",
+    "phase7dC": "a dormant flat-loader prototype reproduces the accepted symbolic 45 -> 41 order without reading, requiring or executing production v40-release.js"
+  },
+  "alternatives": [
+    {
+      "id": "retain-current",
+      "description": "Keep config.js and v40-release.js byte-identical and retain the current nested loader.",
+      "productionRuntimeScripts": 86,
+      "directRequestReduction": 0,
+      "productionSiteChanges": 0,
+      "protectedBoundaryChanges": 0,
+      "disposition": "selected"
+    },
+    {
+      "id": "modify-v40-release-as-flat-coordinator",
+      "description": "Change the frozen v40-release.js so it coordinates tier-2 loading only after the remaining tier-1 chain completes.",
+      "productionRuntimeScripts": 86,
+      "directRequestReduction": 0,
+      "productionSiteChanges": "at least site/v40-release.js",
+      "protectedBoundaryChanges": "v40-release exact frozen blob plus loader/seal/chronology checkpoints",
+      "disposition": "rejected"
+    },
+    {
+      "id": "replace-release-entry-with-successor",
+      "description": "Replace the staged v40-release.js entry with a new production successor that owns release presentation plus deferred tier-2 transport.",
+      "productionRuntimeScripts": 86,
+      "directRequestReduction": 0,
+      "productionSiteChanges": "site/config.js plus a new site successor file",
+      "protectedBoundaryChanges": "Option 2A/2B/2C successor authorization, Option 2C config exact successor, loader manifest and chronology checkpoints",
+      "disposition": "rejected"
+    },
+    {
+      "id": "inline-flat-transport-in-config",
+      "description": "Remove v40-release.js from the staged runtime and move both its release-presentation boundary and flat tier-2 transport into config.js.",
+      "productionRuntimeScripts": 85,
+      "directRequestReduction": 1,
+      "productionSiteChanges": "site/config.js plus retirement semantics for site/v40-release.js",
+      "protectedBoundaryChanges": "Option 2C config exact successor, loader manifest, release-presentation ownership, chronology/seal checkpoints",
+      "disposition": "rejected"
+    }
+  ],
+  "reasons": [
+    "The current nested chronology is deterministic and machine-enforced; no active loader correctness defect remains.",
+    "The dormant flat prototype proves feasibility but does not reveal a functional behavior improvement over the current production contract.",
+    "A production successor file saves zero runtime script requests; the most aggressive config-inline variant saves only one of 86 runtime script requests.",
+    "Changing v40-release.js crosses exact frozen-blob boundaries, while adding/replacing a production successor crosses the maintained site-successor and loader-manifest contracts.",
+    "Release identity already derives from the staged list and is not dependent on v40-release.js being the highest-version owner, so there is no release-identity defect to fix.",
+    "Phase 7D explicitly requires stopping before runtime work when the expected benefit is only a trivial request-count reduction without broader proven payoff."
+  ],
+  "dormantFallback": {
+    "path": "tooling/phase7d/flat-loader-prototype.cjs",
+    "status": "retain as non-production evidence",
+    "purpose": "reusable successor proof if a future architectural need justifies reopening the protected loader boundary"
+  },
+  "reopenOnlyIf": [
+    "a reproducible production defect is attributable to the nested loader itself",
+    "a future multi-module bundling plan is blocked solely by the nested loader and offers material request/latency reduction beyond the current one-request ceiling",
+    "a browser/platform change invalidates the hard-gated current chronology",
+    "a broader release architecture change already requires coordinated config/v40-release and seal successor work"
+  ],
+  "rollback": "No runtime rollback is needed because Phase 7D-D authorizes no production change. If reopened later, the current exact config.js/v40-release.js blobs remain the rollback reference."
+}
