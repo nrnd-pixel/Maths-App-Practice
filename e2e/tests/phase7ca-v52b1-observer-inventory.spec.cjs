@@ -59,7 +59,7 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
 
     const metadataReview = read('question-bank-metadata-review.js');
     expect(metadataReview).toContain('__v51QuestionReviewRenderWrapped');
-    expect(occurrences(metadataReview, /MutationObserver/g)).toBe(1);
+    expect(occurrences(metadataReview, /new MutationObserver/g)).toBe(1);
     expect(metadataReview).not.toContain("const cards = document.getElementById('questions-cards')");
     expect(metadataReview).not.toContain('observer.observe(cards,{childList:true})');
     expect(metadataReview).toContain("if (b2aSummary && typeof MutationObserver !== 'undefined')");
