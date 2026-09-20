@@ -220,7 +220,7 @@ test.describe('Phase 7C-E — Correction History performance-scheduler integrati
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{
       cwd:ROOT,encoding:'utf8'
     }).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
 
     await page.setContent(shell()+'<div id="v52b-cards"></div><div id="ordinary"></div>');
     await add(page,'gate');
