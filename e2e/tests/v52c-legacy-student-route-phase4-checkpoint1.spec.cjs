@@ -68,20 +68,22 @@ async function installStagedGlobals(page){
 }
 
 test.describe('Phase 4 V52C legacy Topical Practice consolidation',()=>{
-  test('A - active V52B1 observer gate drives C1 deferred mount, then topical session starts and completes through dedicated RPCs',async({page})=>{
+  test('A - retired V52B1 shim leaves C1 deferred mount native, then topical session starts and completes through dedicated RPCs',async({page})=>{
     await page.setContent(stagedHtml());
     await installStagedGlobals(page);
 
     await page.addScriptTag({content:OBSERVER_GATE});
     const gate=await page.evaluate(()=>({
       flag:window.__v52b1QuestionBankObserverGateInstalled,
+      retired:window.__v52b1QuestionBankObserverGateRetired===true,
       wrapped:window.MutationObserver!==window.__nativeMutationObserver,
+      suppressionActive:window.V52B1QuestionBankObserverGate?.suppressionActive===false,
       startSuppressed:window.V52B1QuestionBankObserverGate.suppressionReason(document.getElementById('start'),()=>{})
     }));
-    expect(gate).toEqual({flag:true,wrapped:true,startSuppressed:''});
+    expect(gate).toEqual({flag:true,retired:true,wrapped:false,suppressionActive:true,startSuppressed:''});
 
     // Load V52C while the current Learn-shell anchor is intentionally absent. C1 must
-    // create a MutationObserver using the already-wrapped global constructor.
+    // create its deferred-mount MutationObserver using the unchanged native constructor.
     await page.addScriptTag({content:TOPICAL_ROUTE});
     await expect(page.locator('#v52c-student-topical-library')).toHaveCount(0);
 
@@ -98,11 +100,12 @@ test.describe('Phase 4 V52C legacy Topical Practice consolidation',()=>{
         next:root?.nextElementSibling?.id||'',
         parentClass:root?.parentElement?.className||'',
         gateFlag:window.__v52b1QuestionBankObserverGateInstalled,
-        constructorStillWrapped:window.MutationObserver!==window.__nativeMutationObserver,
+        gateRetired:window.__v52b1QuestionBankObserverGateRetired===true,
+        constructorStillNative:window.MutationObserver===window.__nativeMutationObserver,
         startWasNotSuppressed:!document.getElementById('start').hasAttribute('data-v52b1-observer-gated')
       };
     });
-    expect(mountProof).toEqual({next:'current-practice-anchor',parentClass:'v40c-learn-setup',gateFlag:true,constructorStillWrapped:true,startWasNotSuppressed:true});
+    expect(mountProof).toEqual({next:'current-practice-anchor',parentClass:'v40c-learn-setup',gateFlag:true,gateRetired:true,constructorStillNative:true,startWasNotSuppressed:true});
 
     await page.locator('#v52c-topical-mode-btn').click();
     await expect(page.locator('#v52c-student-topical-library .v52c-set-card')).toHaveCount(1);
