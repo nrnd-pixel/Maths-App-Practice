@@ -20,12 +20,6 @@ const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
     responsibilities: ['review-render-all'],
   },
   {
-    file: 'v52-teacher-topical-library.js',
-    phase: 'before-performance',
-    targets: ['questions-cards'],
-    responsibilities: ['topical-library-render-and-focus'],
-  },
-  {
     file: 'question-bank-audit-multipart.js',
     phase: 'before-performance',
     targets: ['document.body', 'questions-cards'],
@@ -78,8 +72,9 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
 
     const topicalLibrary = read('v52-teacher-topical-library.js');
     expect(topicalLibrary).toContain('__v52bTopicalLibraryRenderWrapped');
-    expect(topicalLibrary).toContain("const cards=document.getElementById('questions-cards')");
-    expect(topicalLibrary).toContain('new MutationObserver(()=>ROOT.requestAnimationFrame?.(()=>{render();applyFocusedCards();})).observe(cards,{childList:true})');
+    expect(occurrences(topicalLibrary, /MutationObserver/g)).toBe(0);
+    expect(topicalLibrary).toContain('ROOT.requestAnimationFrame?.(()=>{render();applyFocusedCards();})');
+    expect(topicalLibrary).toContain('V52TeacherTopicalLibrary');
 
     const multipart = read('question-bank-audit-multipart.js');
     expect(multipart).toContain('function renderSelectionState()');
@@ -289,7 +284,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
 
     expect(EXPECTED_SUPPRESSED_OWNERS.map(row => row.file)).toEqual([
       'question-bank-metadata-review.js',
-      'v52-teacher-topical-library.js',
       'question-bank-audit-multipart.js',
     ]);
   });
