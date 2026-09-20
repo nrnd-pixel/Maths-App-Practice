@@ -9,6 +9,7 @@
 
   const norm = value => String(value ?? '').trim().toLowerCase().replace(/\s+/g,' ');
   const trim = value => String(value ?? '').trim();
+  const RESPONSE_TYPES = new Set(['text','number','number_unit','fraction','multi_blank','multiple_choice','multi_select','drawing','manual']);
   const PAPER_PROFILES = Object.freeze({
     paper1:Object.freeze({key:'paper1',label:'Paper 1',expectedLogicalQuestions:40,expectedMarks:90}),
     paper2:Object.freeze({key:'paper2',label:'Paper 2',expectedLogicalQuestions:30,expectedMarks:90})
@@ -166,12 +167,104 @@
     if (!trim(row?.question_text)) issues.push('question text');
     const marks = Number(row?.marks);
     if (!Number.isFinite(marks) || marks<=0) issues.push('marks');
+    if (norm(row?.source_type) === 'past_paper' && paperProfile(row?.paper) && marks>3) issues.push('marks');
     const responseType = norm(row?.response_type || 'text');
     if (!['drawing','manual'].includes(responseType) && !trim(row?.answer)) issues.push('answer');
     if (norm(row?.source_type) === 'past_paper'){
       if (!Number.isFinite(Number(row?.exam_year))) issues.push('exam year');
       if (!trim(row?.paper)) issues.push('paper');
       if (!trim(row?.question_number)) issues.push('question number');
+    }
+    return issues;
+  }
+
+  function responseContractIssues(row){
+    const issues = [];
+    const responseType = norm(row?.response_type || 'text');
+    const acceptedAnswers = row?.accepted_answers;
+    if (!Array.isArray(acceptedAnswers)) issues.push('accepted answers');
+
+    if (!RESPONSE_TYPES.has(responseType)){
+      issues.push('response type');
+      return issues;
+    }
+
+    const rawConfig = row?.response_config;
+    const configOkay = !!rawConfig && typeof rawConfig === 'object' && !Array.isArray(rawConfig);
+    const config = configOkay ? rawConfig : {};
+    if (!configOkay) issues.push('response config');
+
+    if (responseType === 'number_unit'){
+      const hasAcceptedUnits = Object.prototype.hasOwnProperty.call(config,'accepted_units');
+      if (hasAcceptedUnits && !Array.isArray(config.accepted_units)){
+        issues.push('accepted units');
+      }
+      const acceptedUnits = Array.isArray(config.accepted_units)
+        ? config.accepted_units.map(trim).filter(Boolean)
+        : [];
+      if (!trim(config.unit) && acceptedUnits.length === 0) issues.push('unit');
+    }
+
+    if (responseType === 'fraction'
+      && Object.prototype.hasOwnProperty.call(config,'simplest_form')
+      && typeof config.simplest_form !== 'boolean'){
+      issues.push('simplest form');
+    }
+
+    if (responseType === 'multi_blank'){
+      if (!Array.isArray(config.blanks) || config.blanks.length === 0){
+        issues.push('blanks');
+      } else {
+        const invalid = config.blanks.some(blank => {
+          if (!blank || typeof blank !== 'object' || Array.isArray(blank)) return true;
+          if (Object.prototype.hasOwnProperty.call(blank,'accepted') && !Array.isArray(blank.accepted)) return true;
+          const accepted = Array.isArray(blank.accepted) ? blank.accepted.map(trim).filter(Boolean) : [];
+          return !trim(blank.answer) && accepted.length === 0;
+        });
+        if (invalid) issues.push('blank answers');
+      }
+    }
+
+    if (responseType === 'multiple_choice' || responseType === 'multi_select'){
+      const options = Array.isArray(config.options) ? config.options : [];
+      const values = options.map(option => trim(option?.value));
+      const normalizedValues = values.map(norm);
+      const validOptions = options.length >= 2
+        && values.every(Boolean)
+        && new Set(normalizedValues).size === values.length;
+      if (!validOptions){
+        issues.push('options');
+      } else if (responseType === 'multiple_choice'){
+        const correct = trim(config.correct ?? row?.answer);
+        if (!correct || !normalizedValues.includes(norm(correct))) issues.push('correct option');
+      } else {
+        const correct = Array.isArray(config.correct)
+          ? config.correct.map(trim).filter(Boolean)
+          : trim(row?.answer).split(',').map(trim).filter(Boolean);
+        if (!correct.length || correct.some(value => !normalizedValues.includes(norm(value)))){
+          issues.push('correct options');
+        }
+      }
+    }
+
+    return [...new Set(issues)];
+  }
+
+  function sourceAttributionIssues(row){
+    if (norm(row?.source_type) !== 'past_paper') return [];
+    const issues = [];
+    const source = norm(row?.source).replace(/[._-]+/g,' ');
+    if (!source){
+      issues.push('source');
+      return issues;
+    }
+    const year = Number(row?.exam_year);
+    if (Number.isFinite(year) && !source.includes(String(year))) issues.push('source year');
+    const profile = paperProfile(row?.paper);
+    if (profile){
+      const paperNumber = profile.key === 'paper1' ? '1' : '2';
+      const paperPattern = new RegExp(`(?:paper\\s*${paperNumber}\\b|p\\s*${paperNumber}\\b)`);
+      if (!paperPattern.test(source)) issues.push('source paper');
     }
     return issues;
   }
@@ -210,6 +303,10 @@
     if (row?.active === false) flags.push({key:'inactive',label:'Inactive'});
     const metadata = metadataIssues(row);
     if (metadata.length) flags.push({key:'metadata',label:`Metadata: ${metadata.join(', ')}`});
+    const response = responseContractIssues(row);
+    if (response.length) flags.push({key:'response',label:`Response: ${response.join(', ')}`});
+    const source = sourceAttributionIssues(row);
+    if (source.length) flags.push({key:'source',label:`Source: ${source.join(', ')}`});
     const imageIssue = imageReferenceIssue(row?.image_url);
     if (imageIssue) flags.push({key:'image',label:imageIssue});
     if (context.duplicateIds?.has(id)) flags.push({key:'duplicate',label:'Duplicate exam identifier'});
@@ -275,7 +372,7 @@
         const qa = document.createElement('select');
         qa.id = 'v51b1-qa-filter';
         qa.setAttribute('aria-label','Question QA filter');
-        qa.innerHTML = '<option value="all">All QA states</option><option value="flagged">Needs QA</option><option value="clean">No QA flags</option><option value="inactive">Inactive</option><option value="paper_issue">Paper profile issue</option><option value="metadata">Metadata issue</option><option value="image">Image path issue</option><option value="duplicate">Duplicate identifier</option><option value="multipart">Multipart issue</option>';
+        qa.innerHTML = '<option value="all">All QA states</option><option value="flagged">Needs QA</option><option value="clean">No QA flags</option><option value="inactive">Inactive</option><option value="paper_issue">Paper profile issue</option><option value="metadata">Metadata issue</option><option value="response">Response contract</option><option value="source">Source attribution</option><option value="image">Image path issue</option><option value="duplicate">Duplicate identifier</option><option value="multipart">Multipart issue</option>';
         filterGrid.appendChild(qa);
         const source = document.createElement('select');
         source.id = 'v51b1-source-filter';
@@ -288,18 +385,20 @@
   }
 
   function summaryStats(rows,context){
-    let flagged=0,inactive=0,metadata=0,image=0,duplicate=0,multipart=0;
+    let flagged=0,inactive=0,metadata=0,response=0,source=0,image=0,duplicate=0,multipart=0;
     for (const row of rows){
       const keys = new Set(qaFlags(row,context).map(flag=>flag.key));
       if (keys.size) flagged++;
       if (keys.has('inactive')) inactive++;
       if (keys.has('metadata')) metadata++;
+      if (keys.has('response')) response++;
+      if (keys.has('source')) source++;
       if (keys.has('image')) image++;
       if (keys.has('duplicate')) duplicate++;
       if (keys.has('multipart')) multipart++;
     }
     const pass=context.profiles.filter(p=>p.status==='pass').length, issues=context.profiles.length-pass;
-    return {total:rows.length,flagged,inactive,metadata,image,duplicate,multipart,paperPass:pass,paperIssues:issues};
+    return {total:rows.length,flagged,inactive,metadata,response,source,image,duplicate,multipart,paperPass:pass,paperIssues:issues};
   }
 
   function renderSummary(rows,context){
@@ -307,7 +406,7 @@
     const root = document.getElementById('v51b1-qa-summary');
     if (root) root.innerHTML = [
       `${stats.total} questions`,`${stats.flagged} flagged`,`${stats.inactive} inactive`,`${stats.metadata} metadata`,
-      `${stats.image} image path`,`${stats.duplicate} duplicate ID`,`${stats.multipart} multipart`,
+      `${stats.response} response`,`${stats.source} source`,`${stats.image} image path`,`${stats.duplicate} duplicate ID`,`${stats.multipart} multipart`,
       `${stats.paperPass} paper PASS`,`${stats.paperIssues} paper issues`
     ].map(text=>`<span class="tag">${esc(text)}</span>`).join('');
     const profiles = document.getElementById('v51b1-paper-profiles');
@@ -379,7 +478,7 @@
 
   const api = Object.freeze({
     paperProfile,logicalQuestionNumber,paperKey,examIdentity,auditPaperProfiles,duplicateIdentityIds,
-    multipartIssueIds,metadataIssues,imageReferenceKind,imageReferenceIssue,buildQaContext,qaFlags,
+    multipartIssueIds,metadataIssues,responseContractIssues,sourceAttributionIssues,imageReferenceKind,imageReferenceIssue,buildQaContext,qaFlags,
     sourceCategory,matchesQaFilter,summaryStats,render
   });
 
@@ -425,7 +524,7 @@
   function directActivationBlockers(row,context){
     const qa = qaApi();
     if (!qa?.qaFlags) return [];
-    const blockedKeys = new Set(['metadata','image','duplicate','multipart']);
+    const blockedKeys = new Set(['metadata','response','source','image','duplicate','multipart']);
     return qa.qaFlags(row,context).filter(flag => blockedKeys.has(flag.key));
   }
 
