@@ -426,8 +426,6 @@
       ROOT.__v52bTopicalLibraryRenderWrapped=true;
       renderQuestions=function(){ const result=previousRender.apply(this,arguments); ROOT.requestAnimationFrame?.(()=>{render();applyFocusedCards();}); return result; };
     }
-    const cards=document.getElementById('questions-cards');
-    if (cards && typeof MutationObserver!=='undefined') new MutationObserver(()=>ROOT.requestAnimationFrame?.(()=>{render();applyFocusedCards();})).observe(cards,{childList:true});
     render();
   }
 

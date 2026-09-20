@@ -52,7 +52,7 @@ const protectedFiles=Object.freeze({
   'site/student-exam-ui.js':'f02e05bb987e1c0d1bad66098609239635fbb636',
 
   // V52 complete runtime boundary, including the exact global MutationObserver owner.
-  'site/v52-teacher-topical-library.js':'25a2e7eb176eb100ab852fc664379e5716feb6de',
+  'site/v52-teacher-topical-library.js':'92df3624a7b48ed88a64eb5de985cd232c63b215',
   'site/v52-topical-activation-guard.js':'2df46ed74e364e06efbc462284fd398cfcd6c5f4',
   'site/v52-topical-exercise-foundation.js':'6283c212c788b8ceba417569b0522ee957fd6cbb',
   'site/v52b1-large-import-timeout-recovery.js':'b3c902b7c0d5fca9a1ad1063dbbbf2c981d468ab',
