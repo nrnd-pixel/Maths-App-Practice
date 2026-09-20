@@ -37,6 +37,8 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/v52-topical-activation-guard.js',
   'site/v52-teacher-topical-library.js',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs',
+  'site/v52b1-question-bank-observer-gate.js',
+  'site/tests/verify-v5.2b1-question-bank-observer-gate.cjs',
   'site/v52b1-question-bank-performance.js',
   'site/tests/verify-v5.2b1-question-bank-performance.cjs',
   'site/v39cd-dashboard-state-bundle.js',
@@ -197,7 +199,6 @@ const FROZEN_BLOBS = Object.freeze({
   'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
   'site/gamification-core.js': '87d6175270284e4b40c3a1fbcd196622179d0402',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
-  'site/v52b1-question-bank-observer-gate.js': '82a87ffed9091b76c9008a3949c3bd432c2d06ce',
 });
 
 const STATIC_SELECTORS = Object.freeze({
