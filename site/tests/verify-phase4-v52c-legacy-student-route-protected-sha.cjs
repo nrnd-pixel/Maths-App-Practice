@@ -43,12 +43,12 @@ const protectedFiles=Object.freeze({
   'site/student-exam-ui.js':'f02e05bb987e1c0d1bad66098609239635fbb636',
 
   // V52 frozen runtime + dormant V52C reference sources. The observer gate is
-  // intentionally explicit because it owns the global MutationObserver constructor.
+  // intentionally explicit because the retired compatibility shim remains in the established loader chain.
   'site/v52-teacher-topical-library.js':'92df3624a7b48ed88a64eb5de985cd232c63b215',
   'site/v52-topical-activation-guard.js':'2df46ed74e364e06efbc462284fd398cfcd6c5f4',
   'site/v52-topical-exercise-foundation.js':'6283c212c788b8ceba417569b0522ee957fd6cbb',
   'site/v52b1-large-import-timeout-recovery.js':'b3c902b7c0d5fca9a1ad1063dbbbf2c981d468ab',
-  'site/v52b1-question-bank-observer-gate.js':'82a87ffed9091b76c9008a3949c3bd432c2d06ce',
+  'site/v52b1-question-bank-observer-gate.js':'d0c4745afdd78fc326b39748eca559e9d530503a',
   // Phase 7C-E exact history-scheduler successor; prior approved blob: 87124f4bc252289203409fc0abe614748ed1dd86.
   'site/v52b1-question-bank-performance.js':'5a2e180ca5e7c6579f6504be072a2cf90bf8e1d6',
   'site/v52c-student-topical-library.js':'9c926222506e78f885c456816d732abf55727aa1',
