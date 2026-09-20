@@ -197,7 +197,7 @@ test('C - suppression negatives stay narrow: unrelated, partial body patterns, V
   expect(result.markers).toEqual({body:'',topicalCards:'',importStatus:''});
 });
 
-test('D - retired Selection/QA, Topical Activation and Topical Library register no observer while remaining V51 owners still match the V52B1 suppression boundary',async({page})=>{
+test('D - retired Selection/QA, Topical Activation, Topical Library and Review cards paths no longer hit the gate while native Review summary + Audit owners keep exact boundaries',async({page})=>{
   await page.setContent(questionBankShell());
   await installQuestionBankGlobals(page,4,{topical:true});
   await add(page,'gate');
@@ -238,7 +238,10 @@ test('D - retired Selection/QA, Topical Activation and Topical Library register 
   expect(selection).toHaveLength(0);
   expect(topicalGuard).toHaveLength(0);
   expect(topicalLibrary).toHaveLength(0);
-  expect(metadata.some(item=>item.target==='questions-cards'&&item.reason==='question-card-observer'&&item.callbackSource.includes('renderAll'))).toBe(true);
+  expect(metadata).toHaveLength(1);
+  expect(metadata[0].target).toBe('v51b2a-summary');
+  expect(metadata[0].reason).toBe('');
+  expect(metadata[0].callbackSource).toContain('renderSummary');
   expect(audit.some(item=>item.target==='body'&&item.reason==='question-history-body-observer'&&item.callbackSource.includes('renderSelectionState')&&item.callbackSource.includes('bind'))).toBe(true);
   expect(audit.some(item=>item.target==='questions-cards'&&item.reason==='question-card-observer'&&item.callbackSource.includes('renderGroup'))).toBe(true);
 });
