@@ -39,6 +39,9 @@ jobs:
       - name: Verify Phase 7B loader manifest
         run: node tooling/phase7b/verify-loader-manifest.cjs
 
+      - name: Verify Phase 7D-B tier-2 authority map
+        run: node tooling/phase7d/verify-tier2-authority-map.cjs
+
       - name: Run maintained verifier suite
         id: verifiers
         continue-on-error: true
@@ -339,6 +342,11 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
         run: npx playwright test tests/phase7da-v40-release-loader-chronology.spec.cjs --reporter=line
+
+      - name: Run Phase 7D-B tier-2 authority/dependency hard gate
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npx playwright test tests/phase7db-v40-release-tier2-authority-map.spec.cjs --reporter=line
 
       - name: Run Phase 5C frozen-file wrapper-chain hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
