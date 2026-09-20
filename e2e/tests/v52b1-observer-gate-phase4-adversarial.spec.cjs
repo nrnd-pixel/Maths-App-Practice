@@ -119,7 +119,7 @@ async function installQuestionBankStack(page,{performance=true}={}){
   if(performance) await add(page,'performance');
 }
 
-test('B - suppression positives stay exact for Question Bank cards, panel and the real B2D-style body callback',async({page})=>{
+test('B - historical positive classifications remain exact while former suppression targets stay native',async({page})=>{
   await page.setContent(questionBankShell());
   await add(page,'gate');
   const result=await page.evaluate(async()=>{
@@ -146,8 +146,10 @@ test('B - suppression positives stay exact for Question Bank cards, panel and th
       }
     };
   });
-  expect(result.counts).toEqual({cards:0,panel:0,body:0});
-  expect(result.markers).toEqual({cards:'1',panel:'1',body:'1'});
+  expect(result.counts.cards).toBeGreaterThan(0);
+  expect(result.counts.panel).toBeGreaterThan(0);
+  expect(result.counts.body).toBeGreaterThan(0);
+  expect(result.markers).toEqual({cards:'',panel:'',body:''});
   expect(result.reasons).toEqual({cards:'question-card-observer',panel:'question-panel-observer',body:'question-history-body-observer'});
 });
 
@@ -273,14 +275,14 @@ test('G - actual RAF callback shapes are pinned, including the currently unrecog
   console.log(`[V52B1 G] current real QA RAF classifier contract: ${qa.source} => ${qa.kind||'UNRECOGNIZED'} (historical behavior intentionally pinned; this PR does not fix it)`);
 });
 
-test('A - global replacement is one-time, prototype-compatible and still delegates unrelated observers to native behavior',async({page})=>{
+test('A - retirement shim is one-time, API-compatible and preserves the native MutationObserver constructor',async({page})=>{
   await page.setContent('<!doctype html><html><body><div id="target"></div></body></html>');
   await page.evaluate(()=>{window.__nativeMutationObserver=window.MutationObserver;});
   await add(page,'gate');
   const first=await page.evaluate(()=>window.MutationObserver);
   const proof=await page.evaluate(async()=>{
     const Native=window.__nativeMutationObserver;
-    const Wrapped=window.MutationObserver;
+    const Current=window.MutationObserver;
     let fired=0;
     const target=document.getElementById('target');
     new MutationObserver(()=>{fired+=1;}).observe(target,{childList:true});
@@ -288,20 +290,22 @@ test('A - global replacement is one-time, prototype-compatible and still delegat
     await new Promise(resolve=>setTimeout(resolve,50));
     return {
       installed:window.__v52b1QuestionBankObserverGateInstalled===true,
-      replaced:Wrapped!==Native,
-      prototypeCompatible:Wrapped.prototype===Native.prototype,
-      constructorPrototype:Object.getPrototypeOf(Wrapped)===Native,
+      retired:window.__v52b1QuestionBankObserverGateRetired===true,
+      nativeIdentity:Current===Native,
+      prototypeCompatible:Current.prototype===Native.prototype,
       apiFrozen:Object.isFrozen(window.V52B1QuestionBankObserverGate),
+      apiRetired:window.V52B1QuestionBankObserverGate?.retired===true,
+      suppressionActive:window.V52B1QuestionBankObserverGate?.suppressionActive===false,
       fired
     };
   });
   await add(page,'gate');
   const second=await page.evaluate(()=>window.MutationObserver);
-  expect(proof).toEqual({installed:true,replaced:true,prototypeCompatible:true,constructorPrototype:true,apiFrozen:true,fired:1});
+  expect(proof).toEqual({installed:true,retired:true,nativeIdentity:true,prototypeCompatible:true,apiFrozen:true,apiRetired:true,suppressionActive:true,fired:1});
   expect(second).toBe(first);
 });
 
-test('E - observers created before the global replacement remain live while equivalent post-gate Question Bank observers are suppressed',async({page})=>{
+test('E - equivalent Question Bank observers stay native both before and after the retired shim loads',async({page})=>{
   await page.setContent('<!doctype html><html><body><div id="questions-cards"></div></body></html>');
   await page.evaluate(()=>{
     window.__preGateCount=0;
@@ -317,10 +321,10 @@ test('E - observers created before the global replacement remain live while equi
     await new Promise(resolve=>setTimeout(resolve,60));
     return {pre:window.__preGateCount,post:window.__postGateCount,marker:cards.dataset.v52b1ObserverGated||''};
   });
-  expect(result).toEqual({pre:1,post:0,marker:'1'});
+  expect(result).toEqual({pre:1,post:1,marker:''});
 });
 
-test('F - full V51/V52 wrapper composition preserves 50-card paging, full-scope selection and safety decorations after suppression',async({page})=>{
+test('F - full V51/V52 wrapper composition preserves 50-card paging, full-scope selection and safety decorations after gate retirement',async({page})=>{
   await page.setContent(questionBankShell());
   await installQuestionBankGlobals(page,60,{topical:true});
   await installQuestionBankStack(page,{performance:true});
@@ -441,6 +445,11 @@ test('I - downstream V52C and V58D observers remain allowed: publication redecor
   await page.waitForTimeout(120);
   await expect(page.locator('#v52b-topical-library')).toHaveClass(/v58d-highlight/);
   await expect(page.locator('#v58d-content-workflow-questions .v58d-content-workflow-status')).toContainText('Opened Step 5: Publish topical set.');
-  const final=await page.evaluate(()=>({gate:window.__v52b1QuestionBankObserverGateInstalled===true,teacherObserverGated:document.getElementById('teacher')?.dataset.v52b1ObserverGated||''}));
-  expect(final).toEqual({gate:true,teacherObserverGated:''});
+  const final=await page.evaluate(()=>({
+    gate:window.__v52b1QuestionBankObserverGateInstalled===true,
+    retired:window.__v52b1QuestionBankObserverGateRetired===true,
+    suppressionActive:window.V52B1QuestionBankObserverGate?.suppressionActive===false,
+    teacherObserverGated:document.getElementById('teacher')?.dataset.v52b1ObserverGated||''
+  }));
+  expect(final).toEqual({gate:true,retired:true,suppressionActive:true,teacherObserverGated:''});
 });
