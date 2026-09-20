@@ -1,6 +1,6 @@
 # Maths Practice App — Project State
 
-Last updated: 2026-09-16 (Brunei, UTC+08:00)
+Last updated: 2026-09-20 (Brunei, UTC+08:00)
 
 This file is the short operational checkpoint for humans and AI assistants. Read it together with current GitHub state. If this file and GitHub disagree, current repository/PR/CI state is authoritative.
 
@@ -11,7 +11,7 @@ This file is the short operational checkpoint for humans and AI assistants. Read
 - Stack: vanilla JavaScript, Supabase/PostgreSQL, Netlify static hosting
 - Production baseline: V5.9 Student Home / Practice
 - Controlled adaptive layer: V5.9B pilot code is now on `main`, but remains dormant without `?adaptivePilot=2` and the server-side pilot allow-list
-- Verified `main`: `4e533d96b95ad44386ff132bee16001b1eb54785`
+- Verified `main`: `668f97d0ae36624b877a80f5091af31a821b1f83`
 - Verified Supabase tree SHA: `dffaaa1d6991d54e25ab26d6267739f4525327bf`
 - Historical seal BASE_SHA: `653aec5e06e1bf1669b4c9c0cd3e91069715de45`
 
@@ -54,28 +54,34 @@ Manual deploy-preview smoke testing before PR #271 merge confirmed:
 
 Final exact-head PR #271 checks were green on head `b24c39d6097ed573b28466ba8095c76169d95407`, including Adaptive Browser Pilot V2 Integrity, production-source reconciliation, Consolidated CI #320, all named hard gates and the full core browser suite.
 
+## Architecture checkpoint — Phases 7B–7D
+
+The architecture-modernisation sequence has reached an accepted safe stopping boundary.
+
+- **Phase 7B — module bundling / build-system mapping:** Issue #291 is closed as completed. Shadow/generated tooling and equivalence work established safe compatibility boundaries without forcing a production framework or loader rewrite.
+- **Phase 7C — V52B1 observer-gate replacement:** Issue #302 is closed as completed. The active global MutationObserver interception was replaced by explicit Question Bank lifecycle/refresh ownership while preserving native unrelated observers and the maintained hard gates.
+- **Phase 7D — frozen nested loader decision:** Issue #315 is closed as completed. PR #319 merged the decision checkpoint: retain the current exact `config.js` → `v40-release.js` nested loader. The Phase 7D-C flat-loader prototype remains dormant tooling/evidence only; no production loader successor is authorised.
+
+Reopen the frozen loader boundary only for a reproducible loader defect or a future architecture change with material payoff beyond the demonstrated one-request ceiling.
+
 ## Open / parked work
 
-- Issue #266 — remains open for controlled pilot evidence and any later design decision. Do not jump directly to Stage 4 demand-aware Mixed Practice.
-- PR #237 and PR #209 — stale adaptive pilot drafts superseded by merged PR #271; do not merge. Close as superseded during housekeeping.
-- PR #204 and PR #205 — old V5.8.1 demo drafts superseded by merged PR #242; do not merge.
-- PR #180 — Science V0.2 standalone pilot — PARKED. Do not resume while the current Maths-first scope is active.
+- Issue #266 — the only remaining open Maths issue. It remains intentionally open for controlled pilot evidence and any later evidence-backed adaptive design decision. Do not jump directly to Stage 4 demand-aware Mixed Practice.
+- PR #180 — Science V0.2 standalone pilot — the only remaining open PR and PARKED. Do not resume while the current Maths-first scope is active.
+- Superseded adaptive/demo drafts #237, #204 and #205 are closed and must not be revived as implementation baselines.
 
 ## Immediate next engineering action
 
-Collect controlled V5.9B pilot evidence before broadening access or adding new adaptive selection logic.
+There is no justified architecture implementation immediately after Phase 7D. The next Maths-first work is evidence/content driven:
 
-Minimum evidence to capture for the existing pilot student and the two eligible targets:
-- whether the adaptive offer triggers at the intended point;
-- diagnostic step completion/correctness;
-- target retry correctness;
-- confirmation that ordinary Practice score, XP, mastery and answer history remain unchanged;
-- any usability friction or confusing wording;
-- network/error recovery if encountered.
+1. collect controlled V5.9B pilot evidence before broadening access or adding adaptive selection logic;
+2. continue Question Bank Integrity / Metadata V2 work only from verified source evidence;
+3. keep 2025 P2 Q30 unprofiled/ineligible until the authoritative original source page/Table 2 is directly verified;
+4. prefer small maintenance fixes tied to demonstrated student/teacher friction over speculative architecture churn.
 
-Do not infer learning effectiveness from a successful smoke test alone. Stage 4 demand-aware Mixed Practice remains deferred until there is enough pilot evidence and an explicit learning objective/coverage threshold.
+Minimum pilot evidence remains: trigger timing, diagnostic completion/correctness, target retry result, confirmation that ordinary Practice score/XP/mastery/history are unchanged, usability friction, and network/error recovery if encountered.
 
-In parallel, continue Question Bank Integrity work from `ROADMAP.md`; Q30 remains source-blocked until an authoritative original source page/Table 2 is directly verified.
+Stage 4 demand-aware Mixed Practice remains deferred until there is enough evidence plus an explicit learning objective and coverage threshold.
 
 ## Frozen / high-risk files
 

@@ -1,8 +1,19 @@
 # Maths Practice App — Decisions
 
-Last updated: 2026-09-16
+Last updated: 2026-09-20
 
 This file records important project decisions and the reason behind them. It is intentionally concise: record durable decisions, not every debugging step.
+
+## 2026-09-20 — Retain the frozen nested production loader
+
+Decision:
+Keep the exact current `config.js` → `v40-release.js` nested loader in production. The Phase 7D-C flat-loader implementation remains dormant tooling/evidence only; it is not an authorised production successor.
+
+Reason:
+Phase 7D proved the current 45 + 41 script chronology is deterministic and hard-gated. A straightforward flat successor saves no runtime script requests, while the most aggressive config-inline variant saves only one request and would cross frozen `v40-release.js`, loader-manifest and Option 2A/2B/2C seal boundaries.
+
+Implication:
+PR #319 / Issue #315 define the accepted stopping point. Reopen this boundary only for a reproducible loader defect, a browser/platform incompatibility, or a broader architecture change with material benefit beyond the demonstrated one-request ceiling.
 
 ## 2026-09-16 — V5.9B is accepted only as a tightly controlled pilot
 
@@ -79,7 +90,7 @@ Reason:
 They supersede the older V5.8.1 demo drafts and were reviewed with isolation verifiers and exact-head CI.
 
 Implication:
-PR #204 and PR #205 must not be merged; close them as superseded when housekeeping is performed.
+PR #204 and PR #205 are closed as superseded. Do not revive them as maintained demo baselines.
 
 ## 2026-09-13 — Question metadata will be enriched before adaptive expansion
 
