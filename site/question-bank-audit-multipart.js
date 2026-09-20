@@ -194,22 +194,10 @@
     return renderSelectionState();
   }
 
-  function installObserver(){
-    if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
-    if (document.documentElement.dataset.v51b2dObserver) return;
-    document.documentElement.dataset.v51b2dObserver = '1';
-    const observer = new MutationObserver(()=>window.requestAnimationFrame(()=>{
-      bind();
-      renderSelectionState();
-    }));
-    observer.observe(document.body,{childList:true,subtree:true});
-  }
-
   function install(){
     if (typeof document === 'undefined') return;
     bind();
     renderSelectionState();
-    installObserver();
   }
 
   if (typeof window !== 'undefined'){

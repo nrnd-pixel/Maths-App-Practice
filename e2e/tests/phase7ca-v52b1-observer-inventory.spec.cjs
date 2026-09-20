@@ -12,14 +12,7 @@ const gateSource = read('v52b1-question-bank-observer-gate.js');
 const loaderSource = read('v40-release.js');
 const performanceSource = read('v52b1-question-bank-performance.js');
 
-const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
-  {
-    file: 'question-bank-audit-multipart.js',
-    phase: 'before-performance',
-    targets: ['document.body'],
-    responsibilities: ['correction-history-bind-selection-state'],
-  },
-]);
+const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([]);
 
 function indexOfLoader(name) {
   const index = loaderSource.indexOf(name);
@@ -75,12 +68,15 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     const multipart = read('question-bank-audit-multipart.js');
     expect(multipart).toContain('function renderSelectionState()');
     expect(multipart).toContain('function bind()');
-    expect(occurrences(multipart, /new MutationObserver/g)).toBe(1);
-    expect(multipart).toContain('observer.observe(document.body,{childList:true,subtree:true})');
+    expect(multipart).toContain('function refreshLifecycle()');
+    expect(occurrences(multipart, /new MutationObserver/g)).toBe(0);
+    expect(multipart).not.toContain('function installObserver()');
+    expect(multipart).not.toContain('observer.observe(document.body');
     expect(multipart).not.toContain("const cards=document.getElementById('questions-cards')");
     expect(multipart).not.toContain('new MutationObserver(()=>window.requestAnimationFrame(renderGroup))');
     expect(multipart).toContain("if (event.target?.classList?.contains('v51b2a-select')) { promptDirty=false; clearFeedback(); window.requestAnimationFrame(renderGroup); }");
     expect(multipart).toContain('V51MultipartQuestionManagement');
+    expect(multipart).toContain('V51QuestionChangeHistory');
 
     const topicalRoute = read('topical-legacy-student-route.js');
     expect(indexOfLoader('topical-legacy-student-route.js')).toBeGreaterThan(performanceIndex);
@@ -281,8 +277,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
       expect(source, `${file} should still own unrelated native observer paths`).toContain('MutationObserver');
     }
 
-    expect(EXPECTED_SUPPRESSED_OWNERS.map(row => row.file)).toEqual([
-      'question-bank-audit-multipart.js',
-    ]);
+    expect(EXPECTED_SUPPRESSED_OWNERS.map(row => row.file)).toEqual([]);
   });
 });

@@ -34,7 +34,8 @@ const protectedFiles=Object.freeze({
   'site/question-bank-metadata-review.js':'23e2650cf0ace6c33740ad63f35d821e213834a9',
   // Phase 7C-D exact owner-native refreshLifecycle successor; prior approved blob: 6738e89a7a4a98693b7303a05714c7419d562407.
   // Phase 7C-F5 exact Multipart observer-retirement successor; prior approved blob: c32a5a3435e9acef8f240fcba50fd8b60605d6dc.
-  'site/question-bank-audit-multipart.js':'40bb3631420efd00d27900fc9f08ef076e9769dc',
+  // Phase 7C-F6 exact Correction History observer-retirement successor; prior approved blob: 40bb3631420efd00d27900fc9f08ef076e9769dc.
+  'site/question-bank-audit-multipart.js':'b4c4609ddb90a9d8705e02aeb99cb653ded7277e',
   'site/v51-exam-publication-safety.js':'183f313e630d7dd989355107192a35d6af8814c9',
   'site/v51-exam-publication-ui-polish.js':'c55497e54679dd17a9f020ca7a7898cd4d30a510',
   'site/student-exam-ui.js':'b4c2e1f4c096790ce820205e34180040131985a4',

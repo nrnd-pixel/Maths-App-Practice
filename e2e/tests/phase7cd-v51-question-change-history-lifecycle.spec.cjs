@@ -139,7 +139,7 @@ test.describe('Phase 7C-D — Correction History owner lifecycle contract',()=>{
       buttons:1,
       bound:'1',
       rpcCalls:0,
-      bodySuppressed:'1'
+      bodySuppressed:''
     });
   });
 
