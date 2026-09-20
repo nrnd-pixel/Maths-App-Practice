@@ -261,12 +261,12 @@
       return issues;
     }
     const year = Number(row?.exam_year);
-    const sourceYears = [...source.matchAll(/\\b(20\\d{2})\\b/g)].map(match => Number(match[1]));
+    const sourceYears = [...source.matchAll(/\b(20\d{2})\b/g)].map(match => Number(match[1]));
     if (Number.isFinite(year) && sourceYears.length && !sourceYears.includes(year)) issues.push('source year');
     const profile = paperProfile(row?.paper);
     if (profile){
       const expectedPaper = profile.key === 'paper1' ? '1' : '2';
-      const explicitPapers = [...source.matchAll(/\\b(?:paper|p)\\s*([12])\\b/g)].map(match => match[1]);
+      const explicitPapers = [...source.matchAll(/\b(?:paper|p)\s*([12])\b/g)].map(match => match[1]);
       if (explicitPapers.length && !explicitPapers.includes(expectedPaper)) issues.push('source paper');
     }
     return issues;
