@@ -125,7 +125,8 @@ test.describe('Phase 4 V52C legacy Topical Practice consolidation',()=>{
       names:window.__rpcCalls.map(call=>call.name),
       baseFinishCalls:window.__baseFinishCalls,
       observerFlag:window.__v52b1QuestionBankObserverGateInstalled,
-      constructorStillWrapped:window.MutationObserver!==window.__nativeMutationObserver
+      observerRetired:window.__v52b1QuestionBankObserverGateRetired===true,
+      constructorStillNative:window.MutationObserver===window.__nativeMutationObserver
     }));
     expect(proof.names).toContain('get_available_topical_exercise_sets_v52c');
     expect(proof.names).toContain('bind_student_topical_access_v52c');
@@ -136,7 +137,8 @@ test.describe('Phase 4 V52C legacy Topical Practice consolidation',()=>{
     expect(proof.names).not.toContain('submit_practice_session_v3');
     expect(proof.baseFinishCalls).toBe(0);
     expect(proof.observerFlag).toBe(true);
-    expect(proof.constructorStillWrapped).toBe(true);
+    expect(proof.observerRetired).toBe(true);
+    expect(proof.constructorStillNative).toBe(true);
   });
 
   test('B - full current runtime keeps consolidated V52C as hidden rollback infrastructure and V53C owns the student entry boundary',async({page})=>{
