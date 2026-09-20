@@ -48,6 +48,9 @@ jobs:
       - name: Verify Phase 7D-D loader successor decision
         run: node tooling/phase7d/verify-successor-decision.cjs
 
+      - name: Verify P0.3 Question Bank semantic integrity
+        run: node tooling/p03/verify-question-bank-semantic-integrity.cjs
+
       - name: Run maintained verifier suite
         id: verifiers
         continue-on-error: true
