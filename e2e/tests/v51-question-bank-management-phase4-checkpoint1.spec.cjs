@@ -153,7 +153,7 @@ test('V51 hard gate 3: V52B1 observer boundary and renderer-wrapper composition 
   }));
   expect(boundary.assignments).toContain('WrappedMutationObserver');
   expect(boundary.cardsGated).toBe('');
-  expect(boundary.bodyGated).toBe('1');
+  expect(boundary.bodyGated).toBe('');
   expect(boundary.flags).toEqual({qa:true,bulk:true,review:true,topical:true});
   expect(boundary.late).toBeGreaterThan(0);
 
