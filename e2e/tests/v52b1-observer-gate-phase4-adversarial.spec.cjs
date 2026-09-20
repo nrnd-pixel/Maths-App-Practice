@@ -197,7 +197,7 @@ test('C - suppression negatives stay narrow: unrelated, partial body patterns, V
   expect(result.markers).toEqual({body:'',topicalCards:'',importStatus:''});
 });
 
-test('D - retired card observers no longer hit the gate while native Review summary + Correction History body keep exact boundaries',async({page})=>{
+test('D - all retired Question Bank owner observers stay out of the gate while native Review summary remains exact',async({page})=>{
   await page.setContent(questionBankShell());
   await installQuestionBankGlobals(page,4,{topical:true});
   await add(page,'gate');
@@ -242,11 +242,7 @@ test('D - retired card observers no longer hit the gate while native Review summ
   expect(metadata[0].target).toBe('v51b2a-summary');
   expect(metadata[0].reason).toBe('');
   expect(metadata[0].callbackSource).toContain('renderSummary');
-  expect(audit).toHaveLength(1);
-  expect(audit[0].target).toBe('body');
-  expect(audit[0].reason).toBe('question-history-body-observer');
-  expect(audit[0].callbackSource).toContain('renderSelectionState');
-  expect(audit[0].callbackSource).toContain('bind');
+  expect(audit).toHaveLength(0);
 });
 
 test('G - actual RAF callback shapes are pinned, including the currently unrecognized anonymous QA callback',async({page})=>{
@@ -404,7 +400,7 @@ test('H - large-bank mutation and filter storms stay bounded with no card-mutati
   expect(afterMutations.renders).toBe(renderBeforeMutations);
   expect(afterMutations.raf-before.raf).toBeLessThan(400);
   expect(afterMutations.cardsMarker).toBe('');
-  expect(afterMutations.bodyMarker).toBe('1');
+  expect(afterMutations.bodyMarker).toBe('');
 });
 
 test('I - downstream V52C and V58D observers remain allowed: publication redecorates after library rerender and Step 5 still targets it',async({page})=>{
