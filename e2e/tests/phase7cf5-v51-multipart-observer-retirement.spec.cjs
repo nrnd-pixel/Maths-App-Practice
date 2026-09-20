@@ -73,10 +73,10 @@ async function installGlobals(page){
 }
 
 test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
-  test('owner removes only the Multipart cards observer and preserves Correction History body observer',async()=>{
+  test('owner keeps Multipart cards observer retired after final Correction History observer retirement',async()=>{
     const registrations=(sources.owner.match(/new MutationObserver/g)||[]).length;
-    expect(registrations).toBe(1);
-    expect(sources.owner).toContain('observer.observe(document.body,{childList:true,subtree:true})');
+    expect(registrations).toBe(0);
+    expect(sources.owner).not.toContain('observer.observe(document.body');
     expect(sources.owner).toContain('function refreshLifecycle()');
     expect(sources.owner).not.toContain("const cards=document.getElementById('questions-cards')");
     expect(sources.owner).not.toContain('new MutationObserver(()=>window.requestAnimationFrame(renderGroup))');
@@ -104,7 +104,7 @@ test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
       bodyMarker:document.body?.dataset?.v52b1ObserverGated || '',
       groups:window.V51MultipartQuestionManagement.buildMultipartGroups(window.teacherQuestions).length
     }));
-    expect(state).toEqual({performance:true,cardsMarker:'',bodyMarker:'1',groups:1});
+    expect(state).toEqual({performance:true,cardsMarker:'',bodyMarker:'',groups:1});
 
     await page.evaluate(()=>{
       document.querySelectorAll('#questions-cards .v51b2e-multipart-badge').forEach(node=>node.remove());
@@ -134,7 +134,7 @@ test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
     await expect(page.locator('#questions-cards .v51b2e-multipart-badge')).toHaveCount(2);
   });
 
-  test('real owner leaves cards ungated while body suppression remains and synthetic cards suppression is still available',async({page})=>{
+  test('real owner leaves cards and body ungated while synthetic cards suppression is still available',async({page})=>{
     await page.setContent(shell()+'<div id="v52b-cards"></div><div id="ordinary"></div>');
     await installGlobals(page);
     await page.addScriptTag({content:sources.gate});
@@ -144,7 +144,7 @@ test.describe('Phase 7C-F5 — retire Multipart suppressed cards observer',()=>{
       cards:document.getElementById('questions-cards')?.dataset?.v52b1ObserverGated || '',
       body:document.body?.dataset?.v52b1ObserverGated || ''
     }));
-    expect(ownerState).toEqual({cards:'',body:'1'});
+    expect(ownerState).toEqual({cards:'',body:''});
 
     const result=await page.evaluate(async()=>{
       const counts={cards:0,topical:0,ordinary:0};
