@@ -181,18 +181,20 @@
   function responseContractIssues(row){
     const issues = [];
     const responseType = norm(row?.response_type || 'text');
+    const hasAcceptedAnswers = Object.prototype.hasOwnProperty.call(row || {},'accepted_answers');
     const acceptedAnswers = row?.accepted_answers;
-    if (!Array.isArray(acceptedAnswers)) issues.push('accepted answers');
+    if (hasAcceptedAnswers && !Array.isArray(acceptedAnswers)) issues.push('accepted answers');
 
     if (!RESPONSE_TYPES.has(responseType)){
       issues.push('response type');
       return issues;
     }
 
+    const hasResponseConfig = Object.prototype.hasOwnProperty.call(row || {},'response_config');
     const rawConfig = row?.response_config;
     const configOkay = !!rawConfig && typeof rawConfig === 'object' && !Array.isArray(rawConfig);
     const config = configOkay ? rawConfig : {};
-    if (!configOkay) issues.push('response config');
+    if (hasResponseConfig && !configOkay) issues.push('response config');
 
     if (responseType === 'number_unit'){
       const hasAcceptedUnits = Object.prototype.hasOwnProperty.call(config,'accepted_units');
@@ -259,12 +261,13 @@
       return issues;
     }
     const year = Number(row?.exam_year);
-    if (Number.isFinite(year) && !source.includes(String(year))) issues.push('source year');
+    const sourceYears = [...source.matchAll(/\\b(20\\d{2})\\b/g)].map(match => Number(match[1]));
+    if (Number.isFinite(year) && sourceYears.length && !sourceYears.includes(year)) issues.push('source year');
     const profile = paperProfile(row?.paper);
     if (profile){
-      const paperNumber = profile.key === 'paper1' ? '1' : '2';
-      const paperPattern = new RegExp(`(?:paper\\s*${paperNumber}\\b|p\\s*${paperNumber}\\b)`);
-      if (!paperPattern.test(source)) issues.push('source paper');
+      const expectedPaper = profile.key === 'paper1' ? '1' : '2';
+      const explicitPapers = [...source.matchAll(/\\b(?:paper|p)\\s*([12])\\b/g)].map(match => match[1]);
+      if (explicitPapers.length && !explicitPapers.includes(expectedPaper)) issues.push('source paper');
     }
     return issues;
   }
