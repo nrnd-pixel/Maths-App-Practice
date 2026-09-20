@@ -11,9 +11,9 @@ Status: implementation accepted; learning-effectiveness evidence still pending.
 Verified technical state:
 - merged browser pilot: PR #271;
 - server readiness hardening: PR #272;
-- pilot remains `allow_all_students=false` with exactly one allowed student and three allow-listed target IDs;
+- pilot remains `allow_all_students=false` with exactly one allowed student and two allow-listed target IDs: 2025 P1 Q9(b) and 2025 P2 Q4;
 - only 2025 P1 Q9(b) and 2025 P2 Q4 are Metadata V2 adaptive-eligible;
-- 2025 P2 Q30 remains unprofiled/ineligible and must fail closed.
+- 2025 P2 Q30 remains unprofiled/ineligible, is outside the current pilot target allow-list, and must fail closed.
 
 Risk:
 A green smoke test proves the flow works technically, not that the diagnostic sequence improves learning or is well understood by students.
@@ -25,10 +25,10 @@ Collect controlled evidence before expanding students, targets or adaptive selec
 
 Status: unprofiled / ineligible.
 
-The pilot allow-list still contains Q30, but an authoritative original 2025 Paper 2 Q30 source page/Table 2 has not yet been directly verified for Metadata V2 calibration.
+Q30 is no longer in the pilot target allow-list, and an authoritative original 2025 Paper 2 Q30 source page/Table 2 has still not been directly verified for Metadata V2 calibration.
 
 Handling:
-Keep Q30 unprofiled/ineligible. The browser and server readiness contracts must continue to fail closed for this target. Do not calibrate from transformed/question-bank wording alone.
+Keep Q30 unprofiled/ineligible and outside the pilot target allow-list. The browser and server readiness contracts must continue to fail closed if this target is queried. Do not calibrate from transformed/question-bank wording alone.
 
 ## 3. `/demo-student/` hint counter can double-count
 
