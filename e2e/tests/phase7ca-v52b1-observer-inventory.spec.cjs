@@ -14,12 +14,6 @@ const performanceSource = read('v52b1-question-bank-performance.js');
 
 const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
   {
-    file: 'question-bank-metadata-review.js',
-    phase: 'before-performance',
-    targets: ['questions-cards'],
-    responsibilities: ['review-render-all'],
-  },
-  {
     file: 'question-bank-audit-multipart.js',
     phase: 'before-performance',
     targets: ['document.body', 'questions-cards'],
@@ -65,10 +59,12 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
 
     const metadataReview = read('question-bank-metadata-review.js');
     expect(metadataReview).toContain('__v51QuestionReviewRenderWrapped');
-    expect(metadataReview).toContain('const cards = document.getElementById(\'questions-cards\')');
-    expect(metadataReview).toContain('const observer = new MutationObserver(()=>window.requestAnimationFrame(renderAll))');
-    expect(metadataReview).toContain('observer.observe(cards,{childList:true})');
-    expect(metadataReview).toContain('if (b2aSummary && typeof MutationObserver !== \'undefined\')');
+    expect(occurrences(metadataReview, /new MutationObserver/g)).toBe(1);
+    expect(metadataReview).not.toContain("const cards = document.getElementById('questions-cards')");
+    expect(metadataReview).not.toContain('observer.observe(cards,{childList:true})');
+    expect(metadataReview).toContain("if (b2aSummary && typeof MutationObserver !== 'undefined')");
+    expect(metadataReview).toContain('observe(b2aSummary,{childList:true,characterData:true,subtree:true})');
+    expect(metadataReview).toContain('V51QuestionReviewWorkflow');
 
     const topicalLibrary = read('v52-teacher-topical-library.js');
     expect(topicalLibrary).toContain('__v52bTopicalLibraryRenderWrapped');
@@ -283,7 +279,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     }
 
     expect(EXPECTED_SUPPRESSED_OWNERS.map(row => row.file)).toEqual([
-      'question-bank-metadata-review.js',
       'question-bank-audit-multipart.js',
     ]);
   });

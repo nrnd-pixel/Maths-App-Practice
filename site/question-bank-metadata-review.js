@@ -793,11 +793,6 @@
       };
     }
 
-    const cards = document.getElementById('questions-cards');
-    if (cards && typeof MutationObserver !== 'undefined'){
-      const observer = new MutationObserver(()=>window.requestAnimationFrame(renderAll));
-      observer.observe(cards,{childList:true});
-    }
     renderAll();
   }
 
