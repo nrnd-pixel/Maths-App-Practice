@@ -150,9 +150,13 @@ test.describe('Phase 7C-F4 — retire Review suppressed cards observer',()=>{
     await page.addScriptTag({content:sources.gate});
     await page.addScriptTag({content:sources.metadataReview});
 
-    const before=await page.evaluate(()=>document.getElementById('v51b2b-summary')?.textContent || '');
-    await page.evaluate(()=>{document.getElementById('v51b2a-summary').textContent='2 selected';});
-    await expect.poll(()=>page.locator('#v51b2b-summary').textContent()).not.toBe(before);
+    await page.evaluate(()=>{
+      window.renderQuestions();
+      const box=document.querySelector('#questions-cards .v51b2a-select');
+      if(box) box.checked=true;
+      document.getElementById('v51b2a-summary').textContent='1 selected';
+    });
+    await expect.poll(()=>page.locator('#v51b2b-summary').textContent()).toContain('1 selected');
 
     const result=await page.evaluate(async()=>{
       const counts={cards:0,summary:0,unrelated:0};
