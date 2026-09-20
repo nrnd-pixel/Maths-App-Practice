@@ -1,0 +1,756 @@
+{
+  "schemaVersion": 1,
+  "baseline": "19e00f90b281c06daa78f9f014fa018aa4d7dd81",
+  "loaderOwner": "site/v40-release.js",
+  "loaderBlob": "a308df11b601bf563b56d555e9f434652e524d77",
+  "description": "Phase 7D-B read-only authority/dependency map for the exact 41 tier-2 production loader entries. gitBlob pins repository bytes; requiresEarlier records only explicit/accepted tier-2 predecessor constraints, not every DOM assumption.",
+  "primaryClasses": [
+    "frozen_or_wrapper_authority",
+    "network_data_authority",
+    "storage_session_authority",
+    "presentation_event_owner",
+    "read_only_low_risk_leaf",
+    "compatibility_checkpoint"
+  ],
+  "entries": [
+    {
+      "index": 1,
+      "file": "v41-signin-guard.js",
+      "gitBlob": "5794576f4c41e32ae8bb081e380ff892ef5f4a6c",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "frozen",
+        "auth-interaction-guard",
+        "event-owner"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [
+        "tier1:v40-student-session.js"
+      ],
+      "reason": "Frozen Enter-key sign-in regression guard; event ordering is security/session sensitive."
+    },
+    {
+      "index": 2,
+      "file": "v41-mastery-progress.js",
+      "gitBlob": "49b8705335510cbc5df029f20b9a335e9c944e64",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "observer"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Presentation-only mastery decoration over already-rendered progress evidence."
+    },
+    {
+      "index": 3,
+      "file": "v42-teacher-action-center.js",
+      "gitBlob": "f478bc09faff893a9fc8d5b10d3fac9062c1a4cf",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "observer",
+        "teacher-analytics"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Presentation-only action center over teacher analytics already in memory."
+    },
+    {
+      "index": 4,
+      "file": "assignments-core.js",
+      "gitBlob": "39e47ff10dd1efdc704a572aea4376e313a9b727",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "wrapper",
+        "cloud-rpc",
+        "assignment",
+        "public-api"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [
+        "tier1:v581a-practice-cloud-result-reconciliation.js"
+      ],
+      "reason": "Owns the V53D1 assignment RPC bridge and shared assignment compatibility API."
+    },
+    {
+      "index": 5,
+      "file": "assignments-student.js",
+      "gitBlob": "1004dba36c2d0bfe737b1e4c590360142001d419",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "assignment",
+        "practice-launch",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "assignments-core.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Student assignment retrieval, launch and completion RPC owner; requires AssignmentsCore."
+    },
+    {
+      "index": 6,
+      "file": "assignments-teacher.js",
+      "gitBlob": "872b3d4f149a96b896bbdf586cabc46ee2765afe",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "assignment",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "assignments-core.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Teacher assignment creation/management and assignment-table reads; requires AssignmentsCore."
+    },
+    {
+      "index": 7,
+      "file": "v42-roster-cleanup.js",
+      "gitBlob": "9715524191b3843dba9f8a2bab3ff846a30855db",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "roster",
+        "observer"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Teacher roster deletion RPC surface."
+    },
+    {
+      "index": 8,
+      "file": "v42-quick-add-student.js",
+      "gitBlob": "ff4065d7dfa2da2e43cfc27ecb853c6e88237981",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "roster"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Single-student roster insert plus PIN RPC."
+    },
+    {
+      "index": 9,
+      "file": "v43-teacher-dashboard-polish.js",
+      "gitBlob": "6574c98a6f162c25cac4f851b1ec76a16895de14",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "wrapper",
+        "presentation",
+        "exam-editor"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [
+        "inline:loadExamSettingsEditor"
+      ],
+      "reason": "Presentation layer that wraps the established Exam Settings loader."
+    },
+    {
+      "index": 10,
+      "file": "v43-combined-teacher-improvements.js",
+      "gitBlob": "a68998b1d039ba4a2506f1d2ee37a854c011ac8c",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "exam-settings",
+        "observer",
+        "wrapper"
+      ],
+      "requiresEarlier": [
+        "v43-teacher-dashboard-polish.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Bulk Exam Settings workflow with direct settings upsert and established editor composition."
+    },
+    {
+      "index": 11,
+      "file": "assignment-interventions.js",
+      "gitBlob": "55ed7959677a348907b2857bb2f2ad4d1320273b",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "assignment",
+        "teacher-analytics",
+        "observer",
+        "wrapper"
+      ],
+      "requiresEarlier": [
+        "v42-teacher-action-center.js",
+        "assignments-teacher.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Intervention workflow reads assignment evidence and composes Action Center plus assignment builder."
+    },
+    {
+      "index": 12,
+      "file": "v45-intervention-queue.js",
+      "gitBlob": "8600da5af28f77bd6f1d7bea72ba6fb7be4bef7a",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "observer",
+        "intervention"
+      ],
+      "requiresEarlier": [
+        "v42-teacher-action-center.js",
+        "assignment-interventions.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Read-only queue filtering over already-rendered intervention rows."
+    },
+    {
+      "index": 13,
+      "file": "assignment-intervention-queue-support.js",
+      "gitBlob": "532285487c1510623ba487e5d49647ffc7e96399",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "assignment",
+        "intervention",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "assignment-interventions.js",
+        "v45-intervention-queue.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Reads assignment/attempt evidence to decorate intervention outcomes."
+    },
+    {
+      "index": 14,
+      "file": "assignment-intervention-history.js",
+      "gitBlob": "e85d5a986637524ec91e4d2497be51f8b5f851a5",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "assignment",
+        "intervention",
+        "observer",
+        "wrapper"
+      ],
+      "requiresEarlier": [
+        "assignments-teacher.js",
+        "assignment-interventions.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Longitudinal intervention history over assignment/attempt data and established analytics UI."
+    },
+    {
+      "index": 15,
+      "file": "assignment-deadlines.js",
+      "gitBlob": "7d8a4b44f0eb0f8feb009e239de37fa342458d6c",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "assignment",
+        "deadline",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "assignments-student.js",
+        "assignments-teacher.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Teacher deadline monitoring plus target-date editing and assignment-change events."
+    },
+    {
+      "index": 16,
+      "file": "v49-student-topic-progress.js",
+      "gitBlob": "a795250522f972e9abcb3444328ef3d2a99a7b4a",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "student-progress",
+        "observer"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Read-only topic drill-down over existing rendered progress."
+    },
+    {
+      "index": 17,
+      "file": "v50-student-progress-overview.js",
+      "gitBlob": "2300ee96a28bf40c61b18f3344c1d6da6e55a0c8",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "student-progress",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "assignment-deadlines.js",
+        "v49-student-topic-progress.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Read-only overview consuming V49 topic actions and already-loaded deadline evidence."
+    },
+    {
+      "index": 18,
+      "file": "v50-accessibility-polish.js",
+      "gitBlob": "bdcee55fd5ce30fb675b614942761381eb08bb2d",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "accessibility",
+        "observer"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Keyboard/focus polish around the existing question preview modal."
+    },
+    {
+      "index": 19,
+      "file": "teacher-reporting.js",
+      "gitBlob": "d5b0155322527b74933cecef69a0d40808878730",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "reporting",
+        "public-api",
+        "observer"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Teacher reporting plus persisted report archive reads/writes; exposes V50ReportingExport."
+    },
+    {
+      "index": 20,
+      "file": "teacher-launch-operations.js",
+      "gitBlob": "af0f06c6d3f8f25d8438ee1032ebaa73d390816b",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "operations",
+        "roster",
+        "assignment",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "teacher-reporting.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "High-authority teacher launch/reset/roster/assignment RPC operations; consumes reporting export API."
+    },
+    {
+      "index": 21,
+      "file": "paper-import-management.js",
+      "gitBlob": "49afc983bdb5c08a2a6a45ad6281a236d793c3de",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "question-import",
+        "storage-adjacent",
+        "observer",
+        "public-api"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Large consolidated Question Bank import/image/package management owner with data authority."
+    },
+    {
+      "index": 22,
+      "file": "v52-topical-exercise-foundation.js",
+      "gitBlob": "6283c212c788b8ceba417569b0522ee957fd6cbb",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "wrapper",
+        "question-validation",
+        "topical",
+        "public-api",
+        "observer"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [
+        "inline:questionValidationErrors",
+        "inline:questionFingerprint",
+        "inline:multipartImportErrors"
+      ],
+      "reason": "Captures/replaces established validation/fingerprint globals for topical questions."
+    },
+    {
+      "index": 23,
+      "file": "v52b1-question-bank-observer-gate.js",
+      "gitBlob": "d0c4745afdd78fc326b39748eca559e9d530503a",
+      "primaryClass": "compatibility_checkpoint",
+      "traits": [
+        "compatibility",
+        "diagnostic",
+        "retired-interception",
+        "public-api"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [],
+      "reason": "Phase 7C retired shim; diagnostic API only, with no active MutationObserver interception."
+    },
+    {
+      "index": 24,
+      "file": "question-bank-selection-qa.js",
+      "gitBlob": "61c6ca27e9877f6bb31ee3b31173a88e4fdf319b",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "question-bank",
+        "wrapper",
+        "selection",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "paper-import-management.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "QA/Bulk Status owner; consumes V51 paper-profile API, writes active status, wraps renderQuestions."
+    },
+    {
+      "index": 25,
+      "file": "v52-topical-activation-guard.js",
+      "gitBlob": "2df46ed74e364e06efbc462284fd398cfcd6c5f4",
+      "primaryClass": "presentation_event_owner",
+      "traits": [
+        "presentation",
+        "safety-guard",
+        "topical",
+        "event-owner",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "question-bank-selection-qa.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Client-side safety interception/decorations for topical activation; no direct database call."
+    },
+    {
+      "index": 26,
+      "file": "question-bank-metadata-review.js",
+      "gitBlob": "23e2650cf0ace6c33740ad63f35d821e213834a9",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "question-bank",
+        "wrapper",
+        "review",
+        "observer",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "question-bank-selection-qa.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Bulk metadata/review writer composed with B2A selection and renderQuestions."
+    },
+    {
+      "index": 27,
+      "file": "v52-teacher-topical-library.js",
+      "gitBlob": "92df3624a7b48ed88a64eb5de985cd232c63b215",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "question-bank",
+        "topical",
+        "wrapper",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "question-bank-selection-qa.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Teacher topical-set management, rename write, B2A selection integration and renderQuestions wrapper."
+    },
+    {
+      "index": 28,
+      "file": "question-bank-audit-multipart.js",
+      "gitBlob": "b4c4609ddb90a9d8705e02aeb99cb653ded7277e",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "question-bank",
+        "audit",
+        "multipart",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "question-bank-selection-qa.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Correction-history read RPC plus guarded multipart-management RPC."
+    },
+    {
+      "index": 29,
+      "file": "v51-exam-publication-safety.js",
+      "gitBlob": "183f313e630d7dd989355107192a35d6af8814c9",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "frozen",
+        "network-read",
+        "network-write",
+        "exam-publication",
+        "wrapper",
+        "security"
+      ],
+      "requiresEarlier": [
+        "v43-combined-teacher-improvements.js"
+      ],
+      "externalPredecessors": [
+        "inline:loadExamSettingsEditor",
+        "inline:saveExamSetting"
+      ],
+      "reason": "Frozen Exam publication authority; replaces legacy editor/save globals with guarded server-authoritative paths."
+    },
+    {
+      "index": 30,
+      "file": "v51-exam-publication-ui-polish.js",
+      "gitBlob": "c55497e54679dd17a9f020ca7a7898cd4d30a510",
+      "primaryClass": "presentation_event_owner",
+      "traits": [
+        "presentation",
+        "exam-publication",
+        "observer",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "v51-exam-publication-safety.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Presentation/entry-point layer that explicitly requires the hardened Exam publication owner."
+    },
+    {
+      "index": 31,
+      "file": "student-exam-ui.js",
+      "gitBlob": "b4c2e1f4c096790ce820205e34180040131985a4",
+      "primaryClass": "storage_session_authority",
+      "traits": [
+        "storage-read",
+        "student-exam",
+        "presentation",
+        "observer",
+        "wrapper"
+      ],
+      "requiresEarlier": [],
+      "externalPredecessors": [
+        "inline:exam-mode-selectors"
+      ],
+      "reason": "Student Exam presentation/resume owner that reads established localStorage attempt state and wraps UI entry points."
+    },
+    {
+      "index": 32,
+      "file": "v50-security-hardening.js",
+      "gitBlob": "775185976309cd11eb30b0e4bc8ab03f35c0de6f",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "frozen",
+        "security",
+        "wrapper",
+        "exam-access"
+      ],
+      "requiresEarlier": [
+        "student-exam-ui.js"
+      ],
+      "externalPredecessors": [
+        "inline:refreshStudentAssignmentAccess"
+      ],
+      "reason": "Frozen security override removing legacy pre-auth Exam assignment lookup."
+    },
+    {
+      "index": 33,
+      "file": "release-audit-ui.js",
+      "gitBlob": "cb44df5058c9d76fbc153a8dff6923caca783666",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "release-audit",
+        "presentation",
+        "observer",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "teacher-launch-operations.js",
+        "v51-exam-publication-safety.js",
+        "v50-security-hardening.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Teacher release audit reads server readiness and composes already-installed operations/security/publication surfaces."
+    },
+    {
+      "index": 34,
+      "file": "v52b1-question-bank-performance.js",
+      "gitBlob": "5a2e180ca5e7c6579f6504be072a2cf90bf8e1d6",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "wrapper",
+        "question-bank",
+        "performance",
+        "render-coordinator",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "question-bank-selection-qa.js",
+        "v52-topical-activation-guard.js",
+        "question-bank-metadata-review.js",
+        "v52-teacher-topical-library.js",
+        "question-bank-audit-multipart.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Final Question Bank renderQuestions/performance coordinator; captures/replays established owner refresh contracts."
+    },
+    {
+      "index": 35,
+      "file": "v52b1-large-import-timeout-recovery.js",
+      "gitBlob": "b3c902b7c0d5fca9a1ad1063dbbbf2c981d468ab",
+      "primaryClass": "read_only_low_risk_leaf",
+      "traits": [
+        "read-only",
+        "presentation",
+        "import-recovery",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "paper-import-management.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Presentation-only timeout/recovery clarity over established import progress."
+    },
+    {
+      "index": 36,
+      "file": "topical-legacy-student-route.js",
+      "gitBlob": "aa1c324014cade50a7f41d10d21b03181e06cdc2",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "storage-session",
+        "wrapper",
+        "topical",
+        "student-practice",
+        "observer"
+      ],
+      "requiresEarlier": [
+        "v52-teacher-topical-library.js",
+        "v52b1-question-bank-performance.js"
+      ],
+      "externalPredecessors": [
+        "tier1:v581a-practice-cloud-result-reconciliation.js",
+        "inline:gradeAnswer",
+        "inline:finishPractice"
+      ],
+      "reason": "Consolidated topical publication/student route with RPC authority, session state and grade/finish wrapper hooks."
+    },
+    {
+      "index": 37,
+      "file": "practice-eligibility-ui.js",
+      "gitBlob": "3d12cb7090289b50b0e809b9f86b4edd6156d849",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-read",
+        "network-write",
+        "practice-eligibility",
+        "topical",
+        "observer",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "topical-legacy-student-route.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Teacher Practice-eligibility publication controls through guarded RPCs."
+    },
+    {
+      "index": 38,
+      "file": "practice-selection-engine.js",
+      "gitBlob": "46db6d9b8ad4f011100ff36f81e13cf286b4c8a1",
+      "primaryClass": "frozen_or_wrapper_authority",
+      "traits": [
+        "wrapper",
+        "cloud-rpc",
+        "practice-selection",
+        "recommendation",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "assignments-core.js"
+      ],
+      "externalPredecessors": [
+        "tier1:v581a-practice-cloud-result-reconciliation.js"
+      ],
+      "reason": "Deterministic V53 B→D3→D4→D5 cloud.rpc chain and final shuffle authority."
+    },
+    {
+      "index": 39,
+      "file": "practice-ui-resource-clarity.js",
+      "gitBlob": "1e458670d8020f6cc5c627ffa6176137365b3533",
+      "primaryClass": "presentation_event_owner",
+      "traits": [
+        "presentation",
+        "practice-ui",
+        "resource-clarity",
+        "event-owner",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "topical-legacy-student-route.js",
+        "practice-eligibility-ui.js",
+        "practice-selection-engine.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Two-mode Practice/Exam UI and Resource Bank status clarity over established owners."
+    },
+    {
+      "index": 40,
+      "file": "resource-bank-ui.js",
+      "gitBlob": "07a3c75122207d44297dde4d1e8820ceb8b83724",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "resource-bank",
+        "wrapper",
+        "question-bank",
+        "practice-eligibility",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "question-bank-selection-qa.js",
+        "v52b1-question-bank-performance.js",
+        "practice-ui-resource-clarity.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Resource Bank UI, per-question eligibility RPC and renderQuestions composition."
+    },
+    {
+      "index": 41,
+      "file": "resource-bank-bulk.js",
+      "gitBlob": "4a25893e6ba43c4b106b2e0dff00e9f9a5e29738",
+      "primaryClass": "network_data_authority",
+      "traits": [
+        "network-write",
+        "resource-bank",
+        "bulk-selection",
+        "question-bank",
+        "wrapper",
+        "public-api"
+      ],
+      "requiresEarlier": [
+        "assignments-core.js",
+        "question-bank-selection-qa.js",
+        "resource-bank-ui.js"
+      ],
+      "externalPredecessors": [],
+      "reason": "Bulk Practice-eligibility RPC owner consuming V53D1 logical identity and B2A selection."
+    }
+  ]
+}
