@@ -24,7 +24,7 @@ Reason:
 PR #271 proved the browser flow can preserve ordinary Practice authority and fail closed correctly, but a successful technical smoke test does not establish learning effectiveness.
 
 Implication:
-The next adaptive step is controlled evidence collection, not broader rollout. Current production scope remains one allowed student and three allow-listed target IDs, of which only Q9(b) and Q4 pass Metadata V2 readiness; Q30 remains ineligible.
+The next adaptive step is controlled evidence collection, not broader rollout. Current production scope remains one allowed student and two allow-listed target IDs: Q9(b) and Q4. Q30 has been removed from the pilot target allow-list and remains unprofiled/ineligible.
 
 ## 2026-09-16 — Adaptive readiness must be enforced at the server authority boundary
 
@@ -32,7 +32,7 @@ Decision:
 Diagnostic plan delivery and diagnostic grading must independently enforce `student_adaptive_question_readiness_v2`, not rely only on the browser having called readiness first.
 
 Reason:
-Review of the initial Stage 3 candidate found that a modified client could otherwise bypass the browser readiness check and directly call the plan/grader RPCs for an old allow-listed but Metadata-ineligible target such as Q30.
+Review of the initial Stage 3 candidate found that a modified client could otherwise bypass the browser readiness check and directly call the plan/grader RPCs for a then-allow-listed but Metadata-ineligible target such as Q30.
 
 Implication:
 PR #272 is part of the accepted adaptive architecture. Future adaptive endpoints that deliver protected diagnostic content or write adaptive evidence must fail closed independently at the server boundary.
