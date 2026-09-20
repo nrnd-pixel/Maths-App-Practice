@@ -45,6 +45,9 @@ jobs:
       - name: Verify Phase 7D-C dormant flat-loader prototype
         run: node tooling/phase7d/verify-flat-loader-prototype.cjs
 
+      - name: Verify Phase 7D-D loader successor decision
+        run: node tooling/phase7d/verify-successor-decision.cjs
+
       - name: Run maintained verifier suite
         id: verifiers
         continue-on-error: true
