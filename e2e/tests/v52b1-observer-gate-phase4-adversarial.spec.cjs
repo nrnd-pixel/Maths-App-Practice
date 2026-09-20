@@ -395,10 +395,16 @@ test('H - large-bank mutation and filter storms stay bounded with no card-mutati
   });
   const renderBeforeMutations=await page.evaluate(()=>window.__baseRenderCount);
   await page.waitForTimeout(180);
-  const afterMutations=await page.evaluate(()=>({renders:window.__baseRenderCount,raf:window.__rafCount,marker:document.getElementById('questions-cards')?.dataset.v52b1ObserverGated||''}));
+  const afterMutations=await page.evaluate(()=>({
+    renders:window.__baseRenderCount,
+    raf:window.__rafCount,
+    cardsMarker:document.getElementById('questions-cards')?.dataset.v52b1ObserverGated||'',
+    bodyMarker:document.body?.dataset?.v52b1ObserverGated||''
+  }));
   expect(afterMutations.renders).toBe(renderBeforeMutations);
   expect(afterMutations.raf-before.raf).toBeLessThan(400);
-  expect(afterMutations.marker).toBe('1');
+  expect(afterMutations.cardsMarker).toBe('');
+  expect(afterMutations.bodyMarker).toBe('1');
 });
 
 test('I - downstream V52C and V58D observers remain allowed: publication redecorates after library rerender and Step 5 still targets it',async({page})=>{
