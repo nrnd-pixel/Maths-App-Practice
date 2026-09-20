@@ -87,7 +87,7 @@ test.describe('Phase 7C-F4 — retire Review suppressed cards observer',()=>{
     expect(sources.performance).toContain("if (name === 'renderAll') return 'review'");
 
     const gateBlob=execFileSync('git',['hash-object','site/v52b1-question-bank-observer-gate.js'],{cwd:ROOT,encoding:'utf8'}).trim();
-    expect(gateBlob).toBe('82a87ffed9091b76c9008a3949c3bd432c2d06ce');
+    expect(gateBlob).toBe('d0c4745afdd78fc326b39748eca559e9d530503a');
   });
 
   test('normal Question Bank render restores review badges through the production scheduler with no cards observer attempt',async({page})=>{
@@ -144,7 +144,7 @@ test.describe('Phase 7C-F4 — retire Review suppressed cards observer',()=>{
     await expect(page.locator('#v51b2c-summary')).toContainText('1 selected');
   });
 
-  test('native B2A-summary observer remains live while synthetic questions-cards suppression stays active',async({page})=>{
+  test('native B2A-summary observer stays live and synthetic questions-cards observers are native after retirement',async({page})=>{
     await page.setContent(shell()+'<div id="unrelated"></div>');
     await installGlobals(page);
     await page.addScriptTag({content:sources.gate});
@@ -184,10 +184,10 @@ test.describe('Phase 7C-F4 — retire Review suppressed cards observer',()=>{
         }
       };
     });
-    expect(result.counts.cards).toBe(0);
+    expect(result.counts.cards).toBeGreaterThan(0);
     expect(result.counts.summary).toBeGreaterThan(0);
     expect(result.counts.unrelated).toBeGreaterThan(0);
-    expect(result.markers).toEqual({cards:'1',summary:'',unrelated:''});
+    expect(result.markers).toEqual({cards:'',summary:'',unrelated:''});
     expect(result.reasons).toEqual({cards:'question-card-observer',summary:'',unrelated:''});
   });
 });
