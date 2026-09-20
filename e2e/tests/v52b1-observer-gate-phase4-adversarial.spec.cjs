@@ -197,7 +197,7 @@ test('C - suppression negatives stay narrow: unrelated, partial body patterns, V
   expect(result.markers).toEqual({body:'',topicalCards:'',importStatus:''});
 });
 
-test('D - retired Selection/QA and Topical Activation register no observer while remaining V51 owners still match the V52B1 suppression boundary',async({page})=>{
+test('D - retired Selection/QA, Topical Activation and Topical Library register no observer while remaining V51 owners still match the V52B1 suppression boundary',async({page})=>{
   await page.setContent(questionBankShell());
   await installQuestionBankGlobals(page,4,{topical:true});
   await add(page,'gate');
@@ -225,17 +225,19 @@ test('D - retired Selection/QA and Topical Activation register no observer while
       }
     });
   });
-  for(const key of ['selection','topicalGuard','metadataReview','auditMultipart']){
+  for(const key of ['selection','topicalGuard','topicalLibrary','metadataReview','auditMultipart']){
     await page.evaluate(key=>{window.__observerRegistrationPhase=key;},key);
     await add(page,key);
   }
   const logs=await page.evaluate(()=>window.__observerRegistrations);
   const selection=logs.filter(item=>item.phase==='selection');
   const topicalGuard=logs.filter(item=>item.phase==='topicalGuard');
+  const topicalLibrary=logs.filter(item=>item.phase==='topicalLibrary');
   const metadata=logs.filter(item=>item.phase==='metadataReview');
   const audit=logs.filter(item=>item.phase==='auditMultipart');
   expect(selection).toHaveLength(0);
   expect(topicalGuard).toHaveLength(0);
+  expect(topicalLibrary).toHaveLength(0);
   expect(metadata.some(item=>item.target==='questions-cards'&&item.reason==='question-card-observer'&&item.callbackSource.includes('renderAll'))).toBe(true);
   expect(audit.some(item=>item.target==='body'&&item.reason==='question-history-body-observer'&&item.callbackSource.includes('renderSelectionState')&&item.callbackSource.includes('bind'))).toBe(true);
   expect(audit.some(item=>item.target==='questions-cards'&&item.reason==='question-card-observer'&&item.callbackSource.includes('renderGroup'))).toBe(true);
