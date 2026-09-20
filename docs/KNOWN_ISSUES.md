@@ -1,6 +1,6 @@
 # Maths Practice App — Known Issues and Watchlist
 
-Last updated: 2026-09-16
+Last updated: 2026-09-20
 
 This file records unresolved defects, stale branches and data-quality risks that may affect future work. Resolved timing/test issues are kept only where the lesson remains operationally useful.
 
@@ -43,24 +43,18 @@ Only the static demo completion statistic. No Supabase, real student record, sco
 Priority:
 Low. Fix opportunistically if it stays isolated and does not create unnecessary seal/CI churn.
 
-## 4. Superseded adaptive PRs #209 and #237 remain open
+## 4. Superseded adaptive drafts #209 / #237 are closed
 
-Status: stale / superseded by merged PR #271.
-
-Risk:
-Both branches predate the accepted Stage 3 architecture and can create confusion because their browser contracts are no longer authoritative.
+Status: resolved housekeeping; superseded by merged PR #271.
 
 Rule:
-Do not merge or revive them. Close them as superseded during housekeeping, linking PR #271.
+Do not revive these older contracts as implementation baselines. PR #271 and the current server readiness contracts remain authoritative for the controlled adaptive pilot.
 
-## 5. Old demo PRs #204 and #205 remain open
+## 5. Old demo PRs #204 and #205 are closed
 
-Status: superseded.
+Status: resolved housekeeping; superseded by PR #242.
 
-PR #242 consolidated the maintained V5.9 demo routes. PRs #204 and #205 are based on an older V5.8.1 baseline and should not be merged.
-
-Preferred action:
-Close them as superseded during housekeeping.
+The maintained V5.9 demo routes are the PR #242 implementation. Do not revive the older V5.8.1 demo branches as current baselines.
 
 ## 6. PR #180 Science V0.2 is parked on an old baseline
 
@@ -108,6 +102,17 @@ Preferred direction:
 Use secondary/embedded skill and prerequisite evidence before richer automatic recommendations.
 
 ## Resolved checkpoints worth remembering
+
+### Phase 7D frozen-loader decision
+
+Resolved by PR #319 / Issue #315 on main `668f97d0ae36624b877a80f5091af31a821b1f83`.
+
+Decision:
+Retain the current frozen nested loader. The dormant flat-loader prototype is evidence/tooling only; no production successor is authorised.
+
+Lesson:
+Do not cross frozen loader/seal boundaries for a trivial request-count reduction. Require a concrete defect or material architectural payoff before reopening them.
+
 
 ### V56/V57 Student Home readiness Playwright races
 
