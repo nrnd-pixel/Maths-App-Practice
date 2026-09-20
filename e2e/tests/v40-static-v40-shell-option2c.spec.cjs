@@ -24,6 +24,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
   'site/question-bank-audit-multipart.js': 'c32a5a3435e9acef8f240fcba50fd8b60605d6dc',
+  'site/question-bank-selection-qa.js': '61c6ca27e9877f6bb31ee3b31173a88e4fdf319b',
   'site/tests/verify-v5.1b2d-correction-audit-history.cjs': 'fa9c7bff475d1e3f3d7512c6b5165d8a47ecbe57',
   'site/v52b1-question-bank-performance.js': '5a2e180ca5e7c6579f6504be072a2cf90bf8e1d6',
   'site/tests/verify-v5.2b1-question-bank-performance.cjs': '1e238a44c1bd7cc09c1c9ab046d8098a2223a633',
@@ -58,7 +59,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': 'a33ea86c659bc638cc3ac23a1b11e98c60233c14',
   'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs': 'fd7b49e31fa174e3c225ffa814968847416f237e',
   'site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs': '72328a455af6073e633a347db5bb482c29569c41',
-  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'f5dd24f6f8fa75b66f81d850ac08538a07da00d8',
+  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': '6436fdec570641282450c278bff683c054bd7382',
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs': 'f19d8cd7b1b72a2851b5a0d534b26b103cc08331',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs': 'a15550958a3179a86610c19af6cad591768ec708',
   'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '6362a68f84e85cd4ac191da16c994dea3ad12a3e',
@@ -157,6 +158,7 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
 // their pre-successor blobs in the historical remainder calculation so the
 // established frozen hash continues to prove every other site byte unchanged.
 const PHASE7BD_REPLACED_SITE_BASELINE_BLOBS = Object.freeze({
+  'site/question-bank-selection-qa.js': '65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf',
   'site/v52b1-question-bank-performance.js': '87124f4bc252289203409fc0abe614748ed1dd86',
   'site/tests/verify-v5.2b1-question-bank-performance.cjs': '160679754284a8158aaf6bf025a9530183eb9fbf',
   'site/question-bank-audit-multipart.js': '6738e89a7a4a98693b7303a05714c7419d562407',

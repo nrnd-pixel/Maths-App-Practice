@@ -14,12 +14,6 @@ const performanceSource = read('v52b1-question-bank-performance.js');
 
 const EXPECTED_SUPPRESSED_OWNERS = Object.freeze([
   {
-    file: 'question-bank-selection-qa.js',
-    phase: 'before-performance',
-    targets: ['questions-cards', 'questions-cards'],
-    responsibilities: ['qa-render', 'bulk-status-summary'],
-  },
-  {
     file: 'v52-topical-activation-guard.js',
     phase: 'before-performance',
     targets: ['questions-panel'],
@@ -71,9 +65,8 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     const selection = read('question-bank-selection-qa.js');
     expect(selection).toContain('__v51QuestionBankQaRenderWrapped');
     expect(selection).toContain('__v51QuestionBankBulkStatusRenderWrapped');
-    expect(occurrences(selection, /observer\.observe\(cards,\{childList:true\}\)/g)).toBe(2);
-    expect(selection).toContain('new MutationObserver(()=>window.requestAnimationFrame(render))');
-    expect(selection).toContain('new MutationObserver(()=>window.requestAnimationFrame(renderSummary))');
+    expect(occurrences(selection, /MutationObserver/g)).toBe(0);
+    expect(selection).not.toContain('observer.observe(cards,{childList:true})');
 
     const topicalGuard = read('v52-topical-activation-guard.js');
     expect(topicalGuard).toContain("const panel = document.getElementById('questions-panel')");
@@ -299,7 +292,6 @@ test.describe('Phase 7C-A — frozen V52B1 suppressed-observer inventory', () =>
     }
 
     expect(EXPECTED_SUPPRESSED_OWNERS.map(row => row.file)).toEqual([
-      'question-bank-selection-qa.js',
       'v52-topical-activation-guard.js',
       'question-bank-metadata-review.js',
       'v52-teacher-topical-library.js',

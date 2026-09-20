@@ -28,7 +28,8 @@ const protectedFiles=Object.freeze({
   // V51 runtime freeze. Phase 4 V51 intentionally consolidated these active owners;
   // historical V51 source files remain separately SHA-protected by the V51 guard.
   'site/paper-import-management.js':'49afc983bdb5c08a2a6a45ad6281a236d793c3de',
-  'site/question-bank-selection-qa.js':'65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf',
+  // Phase 7C-F1 exact observer-retirement successor; prior approved blob: 65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf.
+  'site/question-bank-selection-qa.js':'61c6ca27e9877f6bb31ee3b31173a88e4fdf319b',
   'site/question-bank-metadata-review.js':'5571f6ea2ee33479f5dd0ad75a418249c10ba664',
   // Phase 7C-D exact owner-native refreshLifecycle successor; prior approved blob: 6738e89a7a4a98693b7303a05714c7419d562407.
   'site/question-bank-audit-multipart.js':'c32a5a3435e9acef8f240fcba50fd8b60605d6dc',

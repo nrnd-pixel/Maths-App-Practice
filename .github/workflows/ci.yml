@@ -300,6 +300,11 @@ jobs:
         working-directory: e2e
         run: npx playwright test tests/phase7ce-v52b1-history-lifecycle-integration.spec.cjs --reporter=line
 
+      - name: Run Phase 7C-F1 Selection QA observer-retirement hard gate
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+        working-directory: e2e
+        run: npx playwright test tests/phase7cf1-v51-selection-qa-observer-retirement.spec.cjs --reporter=line
+
       - name: Run Phase 5C frozen-file wrapper-chain hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
