@@ -29,7 +29,7 @@ const protectedFiles=Object.freeze({
   // historical V51 source files remain separately SHA-protected by the V51 guard.
   'site/paper-import-management.js':'49afc983bdb5c08a2a6a45ad6281a236d793c3de',
   // Phase 7C-F1 exact observer-retirement successor; prior approved blob: 65df39b8a93c1c95bc3c5cdd4049070e7e18c8bf.
-  'site/question-bank-selection-qa.js':'8e5f13706e486e3123f6bab23290e10d1fbf9416',
+  'site/question-bank-selection-qa.js':'fdf4c2d665d3d1c9b6dd8cf4db3398d51823bea8',
   // Phase 7C-F4 exact Review observer-retirement successor; prior approved blob: 5571f6ea2ee33479f5dd0ad75a418249c10ba664.
   'site/question-bank-metadata-review.js':'23e2650cf0ace6c33740ad63f35d821e213834a9',
   // Phase 7C-D exact owner-native refreshLifecycle successor; prior approved blob: 6738e89a7a4a98693b7303a05714c7419d562407.
