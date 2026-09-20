@@ -176,6 +176,20 @@ const validMultiSelect = row({
 });
 assert.deepEqual(Array.from(qa.responseContractIssues(validMultiSelect)), []);
 
+const validMultiSelectString = row({
+  response_type: 'multi_select',
+  answer: 'legacy fallback',
+  response_config: {
+    correct: 'A,B',
+    options: [{ label: 'A', value: 'A' }, { label: 'B', value: 'B' }],
+  },
+});
+assert.deepEqual(
+  Array.from(qa.responseContractIssues(validMultiSelectString)),
+  [],
+  'comma-separated multi_select.correct must match the server grading fallback'
+);
+
 assert.ok(
   qa.sourceAttributionIssues(row({ source: '2024 Paper 2' })).includes('source year'),
   'past-paper source must contain the exam year'
