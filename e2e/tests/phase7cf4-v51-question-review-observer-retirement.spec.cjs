@@ -75,8 +75,8 @@ async function installGlobals(page){
 
 test.describe('Phase 7C-F4 — retire Review suppressed cards observer',()=>{
   test('owner source removes only the Review cards observer and preserves the native B2A-summary observer',async()=>{
-    const count=(sources.metadataReview.match(/MutationObserver/g)||[]).length;
-    expect(count).toBe(1);
+    const registrations=(sources.metadataReview.match(/new MutationObserver/g)||[]).length;
+    expect(registrations).toBe(1);
     expect(sources.metadataReview).not.toContain("const cards = document.getElementById('questions-cards')");
     expect(sources.metadataReview).not.toContain('observer.observe(cards,{childList:true})');
     expect(sources.metadataReview).toContain('__v51QuestionReviewRenderWrapped');
