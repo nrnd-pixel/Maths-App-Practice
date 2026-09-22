@@ -25,6 +25,10 @@ const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
 const ALLOWED_SITE_CHANGES = new Set([
   'site/assignments-student.js',
   'site/index.html',
+  'site/manifest.json',
+  'site/sw.js',
+  'site/icon-192.png',
+  'site/icon-512.png',
   'site/config.js',
   'site/question-bank-audit-multipart.js',
   'site/question-bank-metadata-review.js',

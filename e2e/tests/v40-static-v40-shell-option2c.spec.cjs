@@ -17,9 +17,13 @@ const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9ede
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': '94b7b0f22cd4c25f41ef1b17fdf693dcba85fe72',
+  'site/index.html': 'a96fd101754b4f05639b53e55775cf6e6d4054fc',
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
+  'site/manifest.json': 'b4f8c3d47280af02b3856ba6c0955e0a1590c217',
+  'site/sw.js': '4008f721bba583ece9b0894d6a815dd0d8811b5a',
+  'site/icon-192.png': 'e96ed1d50849d9ae37596cb03a0185a6c11ab6a4',
+  'site/icon-512.png': '83e249396cb37a1418b12c4bb6bcd6b2fad1d68f',
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
   'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',

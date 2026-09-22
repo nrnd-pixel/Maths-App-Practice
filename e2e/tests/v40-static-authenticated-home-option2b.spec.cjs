@@ -28,6 +28,10 @@ const AUTHORIZED_RUNTIME_CHANGES = new Set([
 ]);
 
 const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
+  'site/manifest.json',
+  'site/sw.js',
+  'site/icon-192.png',
+  'site/icon-512.png',
   'site/assignments-student.js',
   'site/past-paper-assignments.js',
   'site/config.js',
