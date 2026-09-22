@@ -968,7 +968,7 @@ input[type="file"]::file-selector-button:hover{
 <span class="badge local">
     Version 5.9 • Full Student Learning Platform 
 </span>
-  </div></div><span id="cloud-status" class="badge local">● Local Demo</span></div>
+  </div></div><span id="cloud-status" class="badge">● Connecting…</span></div>
   <section class="v40c-session-panel" aria-label="Student session">
     <div class="v40c-session-head">
       <div>
@@ -979,7 +979,7 @@ input[type="file"]::file-selector-button:hover{
     <div class="v40c-login-fields">
       <label>Student ID<input id="student-id" placeholder="e.g. 6A-012" maxlength="40" autocomplete="username"><span id="student-id-help" class="help">Optional school identifier.</span></label>
       <label id="student-pin-wrap" class="hidden">Student PIN<input id="student-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="current-password" placeholder="4–8 digits"><span class="help">Your teacher provides or resets this PIN.</span></label>
-      <div id="student-access-note" class="info wide">Loading student access settings…</div>
+      <div id="student-access-note" class="info wide hidden"></div>
     </div>
     <div class="v40c-login-actions">
       <button type="button" class="primary" id="v40c-student-signin">Sign in to Learning Hub</button>
@@ -1864,7 +1864,7 @@ function recoveryMarker(url=location.href){try{const u=new URL(url);const h=new 
 const INITIAL_RECOVERY_MARKER=recoveryMarker(INITIAL_RECOVERY_URL);
 function bindAuthListener(){if(!cloud||authListenerBound)return;authListenerBound=true;cloud.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){localStorage.setItem(RECOVERY_PENDING_KEY,'1');setTimeout(()=>openPasswordUpdate(session?.user||null),0)}})}
 async function checkRecoverySession(){if(!cloud)return;const pending=INITIAL_RECOVERY_MARKER||recoveryMarker()||localStorage.getItem(RECOVERY_PENDING_KEY)==='1';if(!pending)return;const {data}=await cloud.auth.getSession();if(data?.session?.user){localStorage.setItem(RECOVERY_PENDING_KEY,'1');await openPasswordUpdate(data.session.user)}}
-async function initCloud(){const c=getCfg();if(!validCfg(c)||!window.supabase){cloudReady=false;$('cloud-status').className='badge local';$('cloud-status').textContent='● Local Demo';return false}try{authListenerBound=false;cloud=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});bindAuthListener();const {data:accessData,error}=await cloud.rpc('get_student_access_policy');if(error)throw error;studentAccessPolicy=accessData||{access_mode:'open'};studentAccessPolicyReady=true;cloudReady=true;$('cloud-status').className='badge cloud';$('cloud-status').textContent='● Cloud Connected';await checkRecoverySession();return true}catch(e){console.warn(e);cloudReady=false;$('cloud-status').className='badge warn';$('cloud-status').textContent='● Cloud unavailable';return false}}
+async function initCloud(){const c=getCfg();if(!validCfg(c)||!window.supabase){cloudReady=false;$('cloud-status').className='badge local';$('cloud-status').textContent='● Local Demo';return false}try{authListenerBound=false;$('cloud-status').className='badge';$('cloud-status').textContent='● Connecting…';cloud=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});bindAuthListener();const {data:accessData,error}=await cloud.rpc('get_student_access_policy');if(error)throw error;studentAccessPolicy=accessData||{access_mode:'open'};studentAccessPolicyReady=true;cloudReady=true;$('cloud-status').className='badge cloud';$('cloud-status').textContent='● Cloud Connected';await checkRecoverySession();return true}catch(e){console.warn(e);cloudReady=false;$('cloud-status').className='badge warn';$('cloud-status').textContent='● Cloud unavailable';return false}}
 function localQuestions(){let extra=[];try{extra=JSON.parse(localStorage.getItem('mathV31Questions')||'[]')}catch{}return [...LOCAL_BANK,...extra]}
 function localResults(){try{return JSON.parse(localStorage.getItem('mathV31Results')||'[]')}catch{return[]}}
 function saveLocalResult(r){const a=localResults();a.unshift(r);localStorage.setItem('mathV31Results',JSON.stringify(a.slice(0,500)))}
