@@ -25,10 +25,6 @@ const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
 const ALLOWED_SITE_CHANGES = new Set([
   'site/assignments-student.js',
   'site/index.html',
-  'site/manifest.json',
-  'site/sw.js',
-  'site/icon-192.png',
-  'site/icon-512.png',
   'site/config.js',
   'site/question-bank-audit-multipart.js',
   'site/question-bank-metadata-review.js',
@@ -92,7 +88,11 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-v5.9-current-live-demo.cjs',
   'site/tests/verify-v5.9-demo-viewer-access.cjs',
   'site/tests/verify-v5.9-demo-student-questions.cjs',
-]);
+
+  'site/icon-192.png',
+  'site/icon-512.png',
+  'site/sw.js',
+  'site/manifest.json',]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/v40-platform-polish.js': '5ebdcb4c8d6a8a4c5fad19fa14dfaea2561d102b',
