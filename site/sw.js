@@ -1,3 +1,4 @@
+// v1
 const CACHE_NAME = 'math-practice-pwa-v1';
 const PRECACHE_URLS = new Set([
   '/manifest.json',
