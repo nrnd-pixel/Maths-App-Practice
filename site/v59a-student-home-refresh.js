@@ -68,7 +68,7 @@
 
   function mountainSvg(){
     return `<svg viewBox="0 0 280 150" aria-hidden="true" focusable="false">
-      <defs><linearGradient id="v59a-mountain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#60a5fa"/><stop offset="1" stop-color="#4338ca"/></linearGradient></defs>
+      <defs><linearGradient id="v59a-mountain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#34d399"/><stop offset="1" stop-color="#059669"/></linearGradient></defs>
       <path d="M28 146 112 51l39 44 42-55 75 106z" fill="url(#v59a-mountain)" opacity=".96"/>
       <path d="m95 70 17-19 13 15-13-6zM176 61l17-21 18 23-18-13z" fill="#f8fafc" opacity=".9"/>
       <path d="M193 41V17" stroke="#7c2d12" stroke-width="2"/><path d="m194 18 29 8-29 10z" fill="#f59e0b"/>
@@ -97,28 +97,28 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      body.v59a-student-active{--v59a-ink:#10205a;--v59a-muted:#526a9a;--v59a-purple:#6434e6;--v59a-blue:#1476ea;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:0}
+      body.v59a-student-active{--v59a-ink:#052e16;--v59a-muted:#166534;--v59a-purple:#059669;--v59a-blue:#0891b2;--v59a-shadow:0 10px 28px rgba(36,76,132,.09);padding-bottom:0}
       #start.v40-shell-authenticated[data-v40-start-view="home"]>.header{display:none!important}
       #start.v40-shell-authenticated[data-v40-start-view="home"] .v39-teacher-zone,
       #start.v40-shell-authenticated[data-v40-start-view="home"]> .info{display:none!important}
 
-      #start .v40-learning-hub-hero.v59a-hero-refresh{position:relative;overflow:hidden;min-height:184px;padding:0;border:1px solid rgba(59,130,246,.14);border-radius:27px;background:linear-gradient(145deg,#dff5ff,#eef4ff 56%,#f8f7ff);box-shadow:0 16px 38px rgba(30,64,175,.11)}
+      #start .v40-learning-hub-hero.v59a-hero-refresh{position:relative;overflow:hidden;min-height:184px;padding:0;border:1px solid rgba(5,150,105,.18);border-radius:27px;background:linear-gradient(145deg,#d1fae5,#ecfdf5 56%,#f0fdfa);box-shadow:0 16px 38px rgba(5,150,105,.11)}
       #start .v59a-hero-refresh>.v40-learning-cycle,#start .v59a-hero-refresh>.v59a-original-hero-copy{display:none!important}
       #start #${PROFILE_ID}{position:relative;z-index:2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;min-height:184px;padding:18px 20px 54px}
-      #start #${PROFILE_ID} .v59a-avatar{width:78px;height:78px;border-radius:50%;overflow:hidden;background:#fff;border:5px solid rgba(255,255,255,.9);box-shadow:0 10px 24px rgba(37,99,235,.17)}
+      #start #${PROFILE_ID} .v59a-avatar{width:78px;height:78px;border-radius:50%;overflow:hidden;background:#fff;border:5px solid rgba(255,255,255,.9);box-shadow:0 10px 24px rgba(5,150,105,.2)}
       #start #${PROFILE_ID} .v59a-avatar svg{width:100%;height:100%;display:block}
       #start #${PROFILE_ID} .v59a-profile-main{min-width:0;display:grid;gap:7px;max-width:630px}
       #start #${PROFILE_ID} .v59a-greeting{font-size:clamp(26px,4vw,34px);font-weight:950;line-height:1.04;letter-spacing:-.025em;color:var(--v59a-ink)}
       #start #${PROFILE_ID} .v59a-year{font-size:11px;font-weight:850;color:var(--v59a-muted)}
       #start #${PROFILE_ID} .v59a-level-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-      #start #${PROFILE_ID} [data-v59a-level]{display:inline-flex;align-items:center;min-height:29px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.76);border:1px solid rgba(59,130,246,.13);font-size:11px;font-weight:900;color:#1e3a8a}
+      #start #${PROFILE_ID} [data-v59a-level]{display:inline-flex;align-items:center;min-height:29px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.76);border:1px solid rgba(5,150,105,.2);font-size:11px;font-weight:900;color:#052e16}
       #start #${PROFILE_ID} .v59a-xp-wrap{display:flex;align-items:center;gap:7px;min-width:min(320px,100%);flex:1}
       #start #${PROFILE_ID} [data-v59a-xp-progress]{height:11px;min-width:100px;flex:1;border-radius:999px;overflow:hidden;background:rgba(148,163,184,.26)}
-      #start #${PROFILE_ID} [data-v59a-xp-progress]>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#14b8a6,#22c55e)}
+      #start #${PROFILE_ID} [data-v59a-xp-progress]>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#059669,#34d399)}
       #start #${PROFILE_ID} [data-v59a-xp]{font-size:11px;font-weight:900;color:#172554;white-space:nowrap}
       #start #${PROFILE_ID} [data-v59a-streak]{font-size:10px;font-weight:850;color:#475569}
       #start #${PROFILE_ID} .v59a-profile-actions{display:flex;gap:8px;align-self:start;position:relative;z-index:4}
-      #start #${PROFILE_ID} .v59a-profile-action{width:42px;height:42px;padding:0;border:0;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.76);color:#1e3a8a;font-size:18px;box-shadow:0 6px 18px rgba(30,64,175,.08)}
+      #start #${PROFILE_ID} .v59a-profile-action{width:42px;height:42px;padding:0;border:0;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.76);color:#1e3a8a;font-size:18px;box-shadow:0 6px 18px rgba(5,150,105,.1)}
       #start #${PROFILE_ID} .v59a-mountains{position:absolute;right:-18px;bottom:-5px;width:250px;height:132px;pointer-events:none;z-index:-1}
       #start #${PROFILE_ID} .v59a-mountains svg{width:100%;height:100%}
       #start #${PROFILE_ID} .v59a-motto{position:absolute;right:20px;bottom:20px;width:108px;color:#fff;font-size:14px;font-weight:950;line-height:1.05;transform:rotate(-4deg);text-shadow:0 2px 7px rgba(30,64,175,.32)}
@@ -134,26 +134,30 @@
       #start .v59a-home-refresh .v57c-mini-card{min-height:150px;border-radius:20px;padding:15px;border-color:rgba(109,142,190,.16);box-shadow:var(--v59a-shadow)}
       #start .v59a-home-refresh .v57c-mini-kicker{font-size:14px;letter-spacing:-.01em;text-transform:none;color:var(--v59a-ink)}
 
-      #start .v59a-home-refresh .v57c-continue-card{position:relative;overflow:hidden;min-height:202px;padding:22px 23px;border:0;border-radius:26px;background:linear-gradient(135deg,#542cd7,#6f36e7 58%,#7140ef);color:#fff;box-shadow:0 18px 40px rgba(91,47,211,.25);grid-template-columns:minmax(0,1fr) auto;isolation:isolate}
+      #start .v59a-home-refresh .v57c-continue-card{position:relative;overflow:hidden;min-height:202px;padding:22px 23px;border:0;border-radius:26px;background:linear-gradient(135deg,#065f46,#059669 58%,#0891b2);color:#fff;box-shadow:0 18px 40px rgba(5,150,105,.22);grid-template-columns:minmax(0,1fr) auto;isolation:isolate}
       #start .v59a-home-refresh .v57c-continue-card>div:first-child{position:relative;z-index:3;max-width:70%}
       #start .v59a-home-refresh .v57c-continue-card h2{color:#fff;font-size:clamp(25px,3.4vw,31px);line-height:1.08}
       #start .v59a-home-refresh .v57c-continue-card p{color:rgba(255,255,255,.9);font-size:13px;line-height:1.42}
       #start .v59a-home-refresh .v57c-kicker{color:#ddd6fe}
       #start .v59a-home-refresh .v57c-meta span{color:#fff;background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.18)}
-      #start .v59a-home-refresh .v57c-primary{position:relative;z-index:4;min-width:220px;min-height:54px;border-radius:999px;background:#fff;color:#4338ca;box-shadow:0 9px 20px rgba(40,20,96,.2)}
+      #start .v59a-home-refresh .v57c-primary{position:relative;z-index:4;min-width:220px;min-height:54px;border-radius:999px;background:#fff;color:#065f46;box-shadow:0 9px 20px rgba(40,20,96,.2)}
       #start .v59a-continue-art{position:absolute;right:0;inset-block:0;width:43%;z-index:1;pointer-events:none}
       #start .v59a-continue-art svg{width:100%;height:100%}
       #start .v59a-continue-slogan{position:absolute;right:17px;top:16px;width:110px;text-align:center;color:#fff;font-size:14px;font-weight:950;line-height:1.05;transform:rotate(-5deg);text-shadow:0 2px 6px rgba(30,27,75,.35)}
 
       #start #${SHORTCUTS_ID}{display:grid;gap:10px;padding:10px 0 4px}
+      #start #${SHORTCUTS_ID} .v59a-quick5-btn{width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:none;border-radius:18px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:8px;text-align:left}
+      #start #${SHORTCUTS_ID} .v59a-quick5-btn span:first-child{font-size:22px;flex-shrink:0}
+      #start #${SHORTCUTS_ID} .v59a-quick5-label{flex:1;font-size:13px;font-weight:900}
+      #start #${SHORTCUTS_ID} .v59a-quick5-sub{font-size:10px;color:rgba(255,255,255,.8);white-space:nowrap}
       #start #${SHORTCUTS_ID} .v59a-shortcut-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
       #start #${SHORTCUTS_ID} .v59a-shortcut-head strong{font-size:23px;color:var(--v59a-ink);letter-spacing:-.02em}
       #start #${SHORTCUTS_ID} .v59a-shortcut-head span{font-size:11px;color:var(--v59a-blue);font-weight:850}
       #start #${SHORTCUTS_ID} .v59a-shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
       #start #${SHORTCUTS_ID} .v59a-practice-tile{position:relative;min-height:145px;padding:15px 9px;border:0;border-radius:21px;display:grid;justify-items:center;align-content:center;gap:8px;text-align:center;color:#10204e;box-shadow:0 9px 23px rgba(36,76,132,.09)}
-      #start #${SHORTCUTS_ID} .v59a-practice-tile[data-v59a-practice-type="mixed"]{background:linear-gradient(145deg,#a9f2d2,#e5fcf2)}
-      #start #${SHORTCUTS_ID} .v59a-practice-tile[data-v59a-practice-type="topic"]{background:linear-gradient(145deg,#a9dffc,#e7f5ff)}
-      #start #${SHORTCUTS_ID} .v59a-practice-tile[data-v59a-practice-type="past_paper"]{background:linear-gradient(145deg,#ffd579,#fff1c5)}
+      #start #${SHORTCUTS_ID} .v59a-practice-tile[data-v59a-practice-type="mixed"]{background:linear-gradient(145deg,#6ee7b7,#d1fae5)}
+      #start #${SHORTCUTS_ID} .v59a-practice-tile[data-v59a-practice-type="topic"]{background:linear-gradient(145deg,#a7f3d0,#ecfdf5)}
+      #start #${SHORTCUTS_ID} .v59a-practice-tile[data-v59a-practice-type="past_paper"]{background:linear-gradient(145deg,#fcd34d,#fef3c7)}
       #start #${SHORTCUTS_ID} .v59a-tile-icon{width:57px;height:57px;filter:drop-shadow(0 7px 8px rgba(25,60,110,.18))}
       #start #${SHORTCUTS_ID} .v59a-tile-icon svg{width:100%;height:100%}
       #start #${SHORTCUTS_ID} .v59a-practice-tile strong{font-size:14px;line-height:1.1}
@@ -182,9 +186,9 @@
       #${MORE_SHEET_ID} .v59a-more-close{width:40px;height:40px;min-height:40px;padding:0;border-radius:50%;font-size:22px;background:var(--soft)}
       #${MORE_SHEET_ID} .v59a-more-action{width:100%;text-align:left;background:var(--soft);color:var(--text);min-height:48px}
 
-      html[data-theme="dark"] #start .v40-learning-hub-hero.v59a-hero-refresh{background:linear-gradient(145deg,#dff5ff,#eef4ff 56%,#f8f7ff)}
-      html[data-theme="dark"] #start #${PROFILE_ID} .v59a-greeting,html[data-theme="dark"] #start #${PROFILE_ID} [data-v59a-xp]{color:#10205a}
-      html[data-theme="dark"] #start #${PROFILE_ID} .v59a-year,html[data-theme="dark"] #start #${PROFILE_ID} [data-v59a-streak]{color:#526a9a}
+      html[data-theme="dark"] #start .v40-learning-hub-hero.v59a-hero-refresh{background:linear-gradient(145deg,#d1fae5,#ecfdf5 56%,#f0fdfa)}
+      html[data-theme="dark"] #start #${PROFILE_ID} .v59a-greeting,html[data-theme="dark"] #start #${PROFILE_ID} [data-v59a-xp]{color:#052e16}
+      html[data-theme="dark"] #start #${PROFILE_ID} .v59a-year,html[data-theme="dark"] #start #${PROFILE_ID} [data-v59a-streak]{color:#166534}
 
       @media(max-width:760px){
         body.v59a-student-active{padding-bottom:84px}
@@ -319,13 +323,13 @@
       section.id = SHORTCUTS_ID;
       section.dataset.v59aSurface = 'practice';
       section.setAttribute('aria-label',"Today's Practice");
-      section.innerHTML = `<div class="v59a-shortcut-head"><strong>Today’s Practice</strong><span>Choose your route</span></div><div class="v59a-shortcut-grid">
+      section.innerHTML = `<div class="v59a-shortcut-head"><strong>Today’s Practice</strong><span>Choose your route</span></div><button type="button" class="v59a-quick5-btn" data-v59a-quick5="true"><span>⚡</span><span class="v59a-quick5-label">Quick 5 — just 5 questions</span><span class="v59a-quick5-sub">~3 minutes</span></button><div class="v59a-shortcut-grid">
         <button type="button" class="v59a-practice-tile" data-v59a-practice-type="mixed"><span class="v59a-tile-icon">${iconSvg('mixed')}</span><strong>Start Mixed Practice</strong><small>A balanced Maths mix.</small></button>
         <button type="button" class="v59a-practice-tile" data-v59a-practice-type="topic"><span class="v59a-tile-icon">${iconSvg('topic')}</span><strong>Topic Practice</strong><small>Focus on one topic.</small></button>
         <button type="button" class="v59a-practice-tile" data-v59a-practice-type="past_paper"><span class="v59a-tile-icon">${iconSvg('paper')}</span><strong>Past Papers</strong><small>Practise paper questions.</small></button>
       </div>`;
       section.addEventListener('click',event => {
-        const tile = event.target?.closest?.('[data-v59a-practice-type]');
+        const tile = event.target?.closest?.('[data-v59a-practice-type],[data-v59a-quick5]');
         if (!tile) return;
         event.preventDefault();
         openPracticeShortcut(tile.dataset.v59aPracticeType || 'mixed');

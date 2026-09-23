@@ -45,7 +45,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.8a-student-first-use-experience.cjs': '869ed2b70d2d81aad3969de348411fe5cf3fcac5',
   'site/tests/verify-v5.8b-teacher-workspace-consolidation.cjs': 'f783125ce8898b3018c6957629bd8d931ea4ba0e',
   'site/tests/verify-v59a-student-home-refresh-test-contract.cjs': '522599fc59cae3e5d75b29723679c67f4ee5240d',
-  'site/v59a-student-home-refresh.js': 'b4e2f290061f061c22d00fc23e87d9adecf7cde9',
+  'site/v59a-student-home-refresh.js': 'f2790ef6b6074ba7f94b9f7f9190a94e104c86d0',
   'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'd85d55d045847255714607ced0cb441af94d2bd0',
   'site/v59b-adaptive-diagnostic-pilot-v2.js': '42fc17368432f3558f6bf7caa66749e8ae02805b',
   'site/tests/v51-phase4-protected-shas.json': 'e1e5ec69b8de44aaa9b13354323afa8ce1f0e45b',
