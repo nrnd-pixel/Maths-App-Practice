@@ -17,7 +17,7 @@ const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9ede
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': 'de5eb082152cfd6c4391b2ebdd7e0e4f67086fc0',
+  'site/index.html': '15b4f5c531b34db61981a9a93719a3aa01f0c8b7',
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
@@ -82,7 +82,11 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.9-current-live-demo.cjs': '23ec8bbc994fe7d37af3c8fa7f55e7e11e03157b',
   'site/tests/verify-v5.9-demo-viewer-access.cjs': 'db303e51de65f4cb61485d0fba00393498348511',
   'site/tests/verify-v5.9-demo-student-questions.cjs': 'e94f0096fa18394b5c4c95d66ab2160bf1bac86b',
-});
+
+  'site/icon-192.png': 'e96ed1d50849d9ae37596cb03a0185a6c11ab6a4',
+  'site/icon-512.png': '83e249396cb37a1418b12c4bb6bcd6b2fad1d68f',
+  'site/manifest.json': 'b4f8c3d47280af02b3856ba6c0955e0a1590c217',
+  'site/sw.js': 'b4b44bb96691d1f6f3e39c0eda73508f67852160',});
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
 // AUTHORIZED_SITE_SUCCESSORS, so the blob-check loop skips them correctly.
