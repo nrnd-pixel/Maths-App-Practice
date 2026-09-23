@@ -323,13 +323,13 @@
       section.id = SHORTCUTS_ID;
       section.dataset.v59aSurface = 'practice';
       section.setAttribute('aria-label',"Today's Practice");
-      section.innerHTML = `<div class="v59a-shortcut-head"><strong>Today’s Practice</strong><span>Choose your route</span></div><button type="button" class="v59a-quick5-btn" data-v59a-practice-type="mixed" data-v59a-quick5="true"><span>⚡</span><span class="v59a-quick5-label">Quick 5 — just 5 questions</span><span class="v59a-quick5-sub">~3 minutes</span></button><div class="v59a-shortcut-grid">
+      section.innerHTML = `<div class="v59a-shortcut-head"><strong>Today’s Practice</strong><span>Choose your route</span></div><button type="button" class="v59a-quick5-btn" data-v59a-quick5="true"><span>⚡</span><span class="v59a-quick5-label">Quick 5 — just 5 questions</span><span class="v59a-quick5-sub">~3 minutes</span></button><div class="v59a-shortcut-grid">
         <button type="button" class="v59a-practice-tile" data-v59a-practice-type="mixed"><span class="v59a-tile-icon">${iconSvg('mixed')}</span><strong>Start Mixed Practice</strong><small>A balanced Maths mix.</small></button>
         <button type="button" class="v59a-practice-tile" data-v59a-practice-type="topic"><span class="v59a-tile-icon">${iconSvg('topic')}</span><strong>Topic Practice</strong><small>Focus on one topic.</small></button>
         <button type="button" class="v59a-practice-tile" data-v59a-practice-type="past_paper"><span class="v59a-tile-icon">${iconSvg('paper')}</span><strong>Past Papers</strong><small>Practise paper questions.</small></button>
       </div>`;
       section.addEventListener('click',event => {
-        const tile = event.target?.closest?.('[data-v59a-practice-type]');
+        const tile = event.target?.closest?.('[data-v59a-practice-type],[data-v59a-quick5]');
         if (!tile) return;
         event.preventDefault();
         openPracticeShortcut(tile.dataset.v59aPracticeType || 'mixed');
