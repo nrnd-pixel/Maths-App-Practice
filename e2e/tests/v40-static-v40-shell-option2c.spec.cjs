@@ -86,7 +86,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/icon-192.png': 'e96ed1d50849d9ae37596cb03a0185a6c11ab6a4',
   'site/icon-512.png': '83e249396cb37a1418b12c4bb6bcd6b2fad1d68f',
   'site/manifest.json': 'b4f8c3d47280af02b3856ba6c0955e0a1590c217',
-  'site/sw.js': '4008f721bba583ece9b0894d6a815dd0d8811b5a',});
+  'site/sw.js': 'b4b44bb96691d1f6f3e39c0eda73508f67852160',});
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
 // AUTHORIZED_SITE_SUCCESSORS, so the blob-check loop skips them correctly.
