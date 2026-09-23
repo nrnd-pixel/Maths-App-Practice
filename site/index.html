@@ -1004,6 +1004,10 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
   #start.v40-shell-authenticated .v40c-session-identity{flex-direction:column;align-items:stretch}
   #start.v40-shell-authenticated .v40c-session-identity button{width:100%}
 }
+
+/* Hide open-access fields until shell state is known */
+#start>.grid{display:none}
+#start.v40-shell-logged-out>.grid{display:grid}
 </style>
 </head>
 <body>
