@@ -17,7 +17,7 @@ const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9ede
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': 'a96fd101754b4f05639b53e55775cf6e6d4054fc',
+  'site/index.html': '15b4f5c531b34db61981a9a93719a3aa01f0c8b7',
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/manifest.json': 'b4f8c3d47280af02b3856ba6c0955e0a1590c217',
