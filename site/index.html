@@ -1005,9 +1005,6 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
   #start.v40-shell-authenticated .v40c-session-identity button{width:100%}
 }
 
-/* Hide open-access fields until shell state is known */
-#start>.grid{display:none}
-#start.v40-shell-logged-out>.grid{display:grid}
 </style>
 </head>
 <body>
@@ -1100,7 +1097,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
       <button id="start-btn" class="primary">Start Practice</button>
     </div>
   </section>
-  <div class="grid" style="margin-top:26px">
+  <div class="grid" id="v40-open-fields" style="margin-top:26px;display:none">
     <label>Student name<input id="student-name" placeholder="e.g. Aiman" maxlength="40"><span id="student-name-help" class="help">Required when access is open.</span></label>
     <label>Year level<select id="year-level"><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option><option value="4">Year 4</option><option value="5">Year 5</option><option value="6" selected>Year 6</option></select></label>
     <label>Class<select id="class-group"><option>A</option><option>B</option><option>C</option><option>Other</option></select></label>
@@ -2538,7 +2535,7 @@ async function saveExamSetting(card){
 let studentAccessPolicy={access_mode:'open',student_id_required:false,pin_required:false},studentAccessPolicyReady=false,activeStudentAccess=null;
 const ACCESS_MODE_LABELS={open:'Open to everyone',student_id:'Registered Student ID required',student_pin:'Student ID + PIN required'};
 function renderStudentAccessPolicy(){
-  const mode=studentAccessPolicy.access_mode||'open',restricted=mode!=='open',pin=mode==='student_pin',note=$('student-access-note');$('student-pin-wrap')?.classList.toggle('hidden',!pin);if($('student-id'))$('student-id').required=restricted;if($('student-pin'))$('student-pin').required=pin;if($('student-id-help'))$('student-id-help').textContent=restricted?'Required. The ID must belong to an active roster student.':'Optional. Recognised roster IDs are linked to class participation.';if($('student-name-help'))$('student-name-help').textContent=restricted?'Official name, class and year will be taken from the roster.':'Required when access is open.';if(note){note.className='info wide';note.innerHTML=mode==='open'?'<strong>Open access:</strong> anyone can start. Registered IDs are still linked to class participation.':mode==='student_id'?'<strong>Registered access:</strong> an active roster Student ID is required for both Practice and Exam Mode.':'<strong>Protected access:</strong> an active roster Student ID and 4–8 digit PIN are required for both Practice and Exam Mode.'}
+  const mode=studentAccessPolicy.access_mode||'open',restricted=mode!=='open',pin=mode==='student_pin',note=$('student-access-note');$('student-pin-wrap')?.classList.toggle('hidden',!pin);if($('student-id'))$('student-id').required=restricted;if($('student-pin'))$('student-pin').required=pin;if($('student-id-help'))$('student-id-help').textContent=restricted?'Required. The ID must belong to an active roster student.':'Optional. Recognised roster IDs are linked to class participation.';if($('student-name-help'))$('student-name-help').textContent=restricted?'Official name, class and year will be taken from the roster.':'Required when access is open.';if(note){note.className='info wide';note.innerHTML=mode==='open'?'<strong>Open access:</strong> anyone can start. Registered IDs are still linked to class participation.':mode==='student_id'?'<strong>Registered access:</strong> an active roster Student ID is required for both Practice and Exam Mode.':'<strong>Protected access:</strong> an active roster Student ID and 4–8 digit PIN are required for both Practice and Exam Mode.'}const openFields=document.getElementById('v40-open-fields');if(openFields)openFields.style.display=restricted?'none':''
 }
 async function loadStudentAccessPolicy(){
   if(studentAccessPolicyReady){renderStudentAccessPolicy();return studentAccessPolicy}
