@@ -1,0 +1,29 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    # Run daily at 23:00 UTC (07:00 Brunei time, before school starts)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Supabase to prevent cold start
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up Supabase
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            "https://lmveznstltjxzpalcmid.supabase.co/rest/v1/rpc/get_student_access_policy" \
+            -H "apikey: sb_publishable_0ArG2t1Zgln135ctDR6pQw_QY_z3yf8" \
+            -H "Authorization: Bearer sb_publishable_0ArG2t1Zgln135ctDR6pQw_QY_z3yf8" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          echo "Supabase response: $STATUS"
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "401" ] || [ "$STATUS" = "403" ]; then
+            echo "Supabase is awake (HTTP $STATUS)"
+          else
+            echo "Unexpected status: $STATUS"
+            exit 1
+          fi
