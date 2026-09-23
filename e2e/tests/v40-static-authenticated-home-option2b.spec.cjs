@@ -186,7 +186,11 @@ const ALLOWED_SITE_CHANGES = new Set([
   ...AUTHORIZED_RUNTIME_CHANGES,
   ...AUTHORIZED_SUCCESSOR_SEAL_CHANGES,
   ...OPTION2C_SUCCESSOR_RUNTIME,
-]);
+
+  'site/icon-192.png',
+  'site/icon-512.png',
+  'site/manifest.json',
+  'site/sw.js',]);
 
 const FROZEN_BLOBS = Object.freeze({
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
