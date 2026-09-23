@@ -8,6 +8,12 @@ const { createHash } = require('node:crypto');
 const ROOT = path.resolve(__dirname, '../..');
 const normalize = source => source.replace(/\r\n/g, '\n');
 
+const EXPECTED_STANDALONE = Object.freeze([
+  // Registered directly by index.html; intentionally outside MATH_APP_STAGED_SCRIPTS
+  // and the nested v40-release loader chain.
+  'site/sw.js',
+]);
+
 const EXPECTED_SOURCE_ONLY = Object.freeze([
   'site/v5761-feedback-trigger-position.js',
   'site/v5763-teacher-feedback-header-icon.js',
@@ -132,19 +138,30 @@ function verify(root = ROOT) {
     }
   }
 
+  const standaloneTargets = new Set();
+  for (const pathname of EXPECTED_STANDALONE) {
+    assert.match(pathname, /^site\/[A-Za-z0-9_-]+\.js$/, 'Expected a root-level standalone site script path');
+    const target = path.basename(pathname);
+    assert(!targets.has(target), `${pathname}: standalone script must not appear in the staged loader chain`);
+    assert(!sourceOnlyTargets.has(target), `${pathname}: standalone script must not be a bundle source-only input`);
+    assert(!standaloneTargets.has(target), `Duplicate standalone target: ${target}`);
+    standaloneTargets.add(target);
+    assert(fs.statSync(path.join(root, pathname)).isFile(), `Missing standalone target: ${target}`);
+  }
+
   const inventory = fs.readdirSync(path.join(root, 'site')).filter(name => name.endsWith('.js')).sort();
-  assert.deepEqual(inventory, ['config.js', ...targets, ...sourceOnlyTargets].sort(),
-    'Unexpected or missing root-level site JavaScript outside loaded + sourceOnly ownership');
+  assert.deepEqual(inventory, ['config.js', ...targets, ...sourceOnlyTargets, ...standaloneTargets].sort(),
+    'Unexpected or missing root-level site JavaScript outside loaded + sourceOnly + standalone ownership');
   return entries;
 }
 
 if (require.main === module) {
   try {
-    console.log(`PASS: loader manifest matches 45 + 41 loaded entries (${verify().length} total), 8 source-only inputs, 4 generated bundles and site inventory`);
+    console.log(`PASS: loader manifest matches 45 + 41 loaded entries (${verify().length} total), 8 source-only inputs, 1 standalone script, 4 generated bundles and site inventory`);
   } catch (error) {
     console.error(`FAIL: ${error.message}`);
     process.exitCode = 1;
   }
 }
 
-module.exports = { EXPECTED_BUNDLES, EXPECTED_SOURCE_ONLY, verify };
+module.exports = { EXPECTED_BUNDLES, EXPECTED_SOURCE_ONLY, EXPECTED_STANDALONE, verify };
