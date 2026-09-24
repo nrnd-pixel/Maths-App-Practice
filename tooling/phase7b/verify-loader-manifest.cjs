@@ -61,7 +61,7 @@ function verify(root = ROOT) {
   assert.equal(manifest.schemaVersion, 2, 'Unsupported manifest schema');
   assert.equal(manifest.tiers.length, 2, 'Expected exactly two loader tiers');
   const owners = ['site/config.js', 'site/v40-release.js'];
-  const counts = [45, 41];
+  const counts = [47, 41];
   const targets = new Set();
   const dataKeys = new Set();
   const entries = [];
