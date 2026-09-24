@@ -264,7 +264,7 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     expect(panelEnd).toBeGreaterThan(panelStart);
 
     const panelHtml = html.slice(panelStart, panelEnd + '</section>'.length);
-    expect(panelHtml).toContain('<h3>Student sign in</h3>');
+    expect(panelHtml).toContain('<h3>Start practising</h3>');
     expect(panelHtml).toContain('id="student-id"');
     expect(panelHtml).toContain('id="student-pin"');
     expect(panelHtml).toContain('id="student-access-note"');
