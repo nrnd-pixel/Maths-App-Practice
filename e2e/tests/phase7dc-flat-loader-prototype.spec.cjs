@@ -96,18 +96,18 @@ async function execute(page,customPlan=plan){
 
 test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
   test('prototype plan preserves 88 symbolic positions while replacing only v40-release transport with a presentation boundary', async () => {
-    expect(plan).toHaveLength(90);
-    expect(plan.filter(step => step.tier === 1)).toHaveLength(49);
+    expect(plan).toHaveLength(94);
+    expect(plan.filter(step => step.tier === 1)).toHaveLength(53);
     expect(plan.filter(step => step.tier === 2)).toHaveLength(41);
-    expect(plan.filter(step => step.kind === 'script')).toHaveLength(89);
+    expect(plan.filter(step => step.kind === 'script')).toHaveLength(93);
     expect(plan.filter(step => step.kind === 'release-presentation-boundary')).toHaveLength(1);
 
     const boundary = plan.find(step => step.kind === 'release-presentation-boundary');
     expect(boundary.file).toBe('v40-release.js');
     expect(boundary.position).toBe(14);
 
-    expect(plan.slice(0,49).every(step => step.tier === 1)).toBe(true);
-    expect(plan.slice(49).every(step => step.tier === 2)).toBe(true);
+    expect(plan.slice(0,53).every(step => step.tier === 1)).toBe(true);
+    expect(plan.slice(53).every(step => step.tier === 2)).toBe(true);
 
     const symbolic = plan.map(step => step.file);
     expect(symbolic).toEqual([
@@ -122,8 +122,8 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
 
     const trace = await execute(page);
 
-    expect(trace).toHaveLength(90);
-    expect(trace.filter(row => row.status === 'loaded')).toHaveLength(89);
+    expect(trace).toHaveLength(94);
+    expect(trace.filter(row => row.status === 'loaded')).toHaveLength(93);
     expect(trace.filter(row => row.status === 'boundary')).toHaveLength(1);
     expect(trace.some(row => row.status === 'error')).toBe(false);
 
@@ -157,9 +157,9 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
 
     expect(result.timeline).toEqual(expectedTimeline);
     expect(result.executions).not.toContain('v40-release.js');
-    expect(result.executions).toHaveLength(89);
+    expect(result.executions).toHaveLength(93);
 
-    expect(result.bodyScripts).toHaveLength(48);
+    expect(result.bodyScripts).toHaveLength(52);
     expect(result.headScripts).toHaveLength(41);
     expect(result.bodyScripts.every(row => row.async === false)).toBe(true);
     expect(result.headScripts.every(row => row.async === false)).toBe(true);

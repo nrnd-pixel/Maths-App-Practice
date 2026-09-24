@@ -22,7 +22,7 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': 'd8fe9bb121f3c6526c7ec86ca0206b37a9432b72',
+  'site/config.js': 'cc21493af2d53b30b3d25e7bb53d98a24f6e669b',
   'site/question-bank-audit-multipart.js': 'b4c4609ddb90a9d8705e02aeb99cb653ded7277e',
   'site/question-bank-metadata-review.js': '23e2650cf0ace6c33740ad63f35d821e213834a9',
   'site/question-bank-selection-qa.js': 'fdf4c2d665d3d1c9b6dd8cf4db3398d51823bea8',
@@ -90,7 +90,11 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59c-result-celebration.js': '5be21dfeece4e5c6c4681096d2bcd3846e0bbe14',
   'site/v59d-streak-urgency.js': '67611f64092636d80b82156c53a42fa36550c069',
   'site/v59e-result-next-step.js': '73ae0c1ecb003b664768e15bb3e2772f6e94b4b1',
-  'site/v59f-achievements-progress.js': '16a0403e108108803fc9d25d9f23766b845f8549'});
+  'site/v59f-achievements-progress.js': '16a0403e108108803fc9d25d9f23766b845f8549',
+  'site/v59g-emoji-reaction.js': '7df4585b3d5b6346493256f191ab64b4bcefebd6',
+  'site/v59h-mission-preview.js': 'c5d18a752bda7098a2129cfd495b6e17364c197a',
+  'site/v59i-personal-best.js': '7bd6dd7f54b63ec7d6f7af4a42bb49628d334bff',
+  'site/v59j-challenge-share.js': '8f8bf884712cee78ee44f335ae92f4163a09ba06'});
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
 // AUTHORIZED_SITE_SUCCESSORS, so the blob-check loop skips them correctly.
@@ -151,7 +155,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': 'd8fe9bb121f3c6526c7ec86ca0206b37a9432b72',
+  'site/config.js': 'cc21493af2d53b30b3d25e7bb53d98a24f6e669b',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
