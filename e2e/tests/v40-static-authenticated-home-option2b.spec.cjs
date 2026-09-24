@@ -192,7 +192,9 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/manifest.json',
   'site/sw.js',
   'site/v59c-result-celebration.js',
-  'site/v59d-streak-urgency.js',]);
+  'site/v59d-streak-urgency.js',
+  'site/v59e-result-next-step.js',
+  'site/v59f-achievements-progress.js',]);
 
 const FROZEN_BLOBS = Object.freeze({
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',

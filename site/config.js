@@ -155,7 +155,9 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v59a-student-home-refresh.js',
   './v59b-adaptive-diagnostic-pilot-v2.js',
   './v59c-result-celebration.js',
-  './v59d-streak-urgency.js'
+  './v59d-streak-urgency.js',
+  './v59e-result-next-step.js',
+  './v59f-achievements-progress.js'
 ]);
 
 Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{
