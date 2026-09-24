@@ -13,7 +13,7 @@
     "tier1Scripts": 47,
     "tier2Scripts": 41,
     "productionRuntimeScripts": 88,
-    "chronology": "45 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
+    "chronology": "47 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
     "releaseIdentity": "derived by site/version.js from window.MATH_APP_STAGED_SCRIPTS",
     "releasePresentationOwner": "site/v40-release.js",
     "tier2TransportOwner": "site/v40-release.js"
