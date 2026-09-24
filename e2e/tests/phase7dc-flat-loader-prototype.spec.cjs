@@ -157,9 +157,9 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
 
     expect(result.timeline).toEqual(expectedTimeline);
     expect(result.executions).not.toContain('v40-release.js');
-    expect(result.executions).toHaveLength(85);
+    expect(result.executions).toHaveLength(87);
 
-    expect(result.bodyScripts).toHaveLength(44);
+    expect(result.bodyScripts).toHaveLength(46);
     expect(result.headScripts).toHaveLength(41);
     expect(result.bodyScripts.every(row => row.async === false)).toBe(true);
     expect(result.headScripts.every(row => row.async === false)).toBe(true);
