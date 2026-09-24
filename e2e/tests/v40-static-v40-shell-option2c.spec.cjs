@@ -149,7 +149,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '508341fa4d359135646d615ed9751e709fa6315d',
+  'site/config.js': '7307eae1b864bf05778f6daacc7a099b7b563e90',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
