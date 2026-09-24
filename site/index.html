@@ -1026,14 +1026,14 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
 <section id="start" class="card screen active v40-shell-logged-out">
   <div class="header"><div class="brand"><div class="logo">➗</div><div><h1>Math Practice</h1><p class="muted">Brunei Primary Mathematics Practice</p>
 <span class="badge local">
-    Version 5.9 • Full Student Learning Platform 
+    Maths Practice 
 </span>
   </div></div><span id="cloud-status" class="badge">● Connecting…</span></div>
   <section class="v40c-session-panel" aria-label="Student session">
     <div class="v40c-session-head">
       <div>
-        <h3>Student sign in</h3>
-        <p>Sign in once, then move between your learning sections without entering your PIN again.</p>
+        <h3>Start practising</h3>
+        <p>Enter your ID and PIN to get started.</p>
       </div>
     </div>
     <div class="v40c-login-fields">
@@ -1042,8 +1042,8 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
       <div id="student-access-note" class="info wide hidden"></div>
     </div>
     <div class="v40c-login-actions">
-      <button type="button" class="primary" id="v40c-student-signin">Sign in to Learning Hub</button>
-      <span class="v40c-session-status" id="v40c-session-status">Your PIN is checked securely and is not saved.</span>
+      <button type="button" class="primary" id="v40c-student-signin">Start Learning</button>
+      <span class="v40c-session-status" id="v40c-session-status"></span>
     </div>
     <div class="v40c-session-identity">
       <div class="v40c-session-identity-text"></div>
@@ -1069,20 +1069,20 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
       <button id="practice-mode-btn" class="mode-btn active" type="button"><strong>📘 Practice Mode</strong><span>Hints, second attempts and instant feedback.</span></button>
       <button id="exam-mode-btn" class="mode-btn" type="button"><strong>📝 Exam Mode</strong><span>Complete a full past paper with no hints or feedback until submission.</span></button>
     </div>
-    <div id="mode-note" class="compact-note">Practice Mode is selected.</div>
+    <div id="mode-note" class="compact-note">You'll get hints and a second chance to answer.</div>
     <section class="v40c-practice-summary">
       <div class="v40c-summary-head">
-        <div><h3>Practice setup</h3><p>Start quickly with these settings, or change them if you want a specific focus.</p></div>
+        <div><h3>Practice setup</h3><p>These settings are ready to go — or change them to focus on something specific.</p></div>
         <button type="button" class="outline v40c-change-settings" aria-expanded="false">Change settings</button>
       </div>
       <div class="v40c-practice-pills" aria-label="Current practice settings">
         <span data-v40-summary="strand"></span><span data-v40-summary="topic"></span><span data-v40-summary="count"></span><span data-v40-summary="difficulty"></span>
       </div>
       <div class="v40c-practice-settings"><div class="v40c-settings-grid">
-        <label id="practice-strand-wrap">Strand<select id="strand-filter"></select></label>
+        <label id="practice-strand-wrap">Topic area<select id="strand-filter"></select></label>
         <label id="practice-topic-wrap">Topic<select id="topic-filter"></select></label>
         <label id="practice-count-wrap">Number of questions<select id="question-count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></label>
-        <label id="practice-difficulty-wrap">Difficulty<select id="difficulty-filter"><option value="all">Any difficulty</option><option value="foundation">Foundation</option><option value="standard">Standard</option><option value="challenge">Challenge</option></select></label>
+        <label id="practice-difficulty-wrap">Difficulty<select id="difficulty-filter"><option value="all">Any difficulty</option><option value="foundation">Easy</option><option value="standard">Medium</option><option value="challenge">Hard</option></select></label>
       </div></div>
     </section>
     <section class="v40c-exam-panel hidden">
@@ -1253,11 +1253,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     </details>
   </section>
 </div>
-<div class="info">
-  <strong>V5.9:</strong>
-  Sign in once, then use Home, Learn, Assignments, Progress and Reviewed Work from one student platform.
-  Exam Mode and Exam Assignments remain AI-free.
-</div>
+
   
 </section>
 
@@ -1275,7 +1271,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     <button type="button" data-v40-nav="progress" class="hidden" disabled title="End Practice before switching sections."><span aria-hidden="true">📊</span><span>Progress</span></button>
     <button type="button" data-v40-nav="reviewed" disabled title="End Practice before switching sections."><span aria-hidden="true">✅</span><span>Reviewed</span></button>
   </nav>
-  <p class="v40-student-nav-note">Finish or end this Practice session before switching to another learning section.</p>
+  <p class="v40-student-nav-note">Finish this practice before switching sections.</p>
   <div class="quizbar"><div class="pills"><span id="student-pill" class="pill"></span><span id="class-pill" class="pill"></span><span id="path-pill" class="pill"></span></div><div class="scoremini"><strong id="first-score">First try: 0</strong><br><span id="mastery-score" class="muted">Mastered: 0</span></div></div>
   <div class="progress"><div id="progress-bar"></div></div><p id="progress-text" class="muted"></p>
   <div class="question-meta"><span id="q-number" class="qnum"></span><span id="q-meta" class="source"></span></div><h2 id="q-text"></h2><img id="q-image" class="qimage hidden" alt="Question diagram">
@@ -1319,7 +1315,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
   <div id="exam-score-hero" class="exam-score-hero pending"><div id="exam-result-score" class="big"></div><p id="exam-result-label" class="muted">Marks awarded so far</p></div><div id="exam-result-message" class="exam-result-notice pending"></div>
   <div class="exam-score-breakdown"><div class="stat"><strong id="exam-res-auto">0/0</strong><small>Auto-marked</small></div><div class="stat"><strong id="exam-res-teacher">Pending</strong><small>Teacher-marked</small></div><div class="stat"><strong id="exam-res-final-status">Pending</strong><small>Final-score status</small></div></div>
   <div class="exam-result-grid"><div class="stat"><strong id="exam-res-answered">0/0</strong><small>Questions answered</small></div><div class="stat"><strong id="exam-res-pending">0</strong><small>Responses awaiting review</small></div><div class="stat"><strong id="exam-res-time">00:00</strong><small>Time taken</small></div><div class="stat"><strong id="exam-res-sync">Local</strong><small>Storage</small></div></div>
-  <div id="exam-result-code-box" class="result-code-box hidden"><div><div class="muted">Private result code</div><strong id="exam-result-code" class="result-code"></strong><div class="help">Keep this code to check reviewed marks and teacher feedback later.</div></div><button id="copy-exam-result-code" class="outline" type="button">Copy Code</button></div>
+  <div id="exam-result-code-box" class="result-code-box hidden"><div><div class="muted">Your practice code</div><strong id="exam-result-code" class="result-code"></strong><div class="help">Keep this code to check reviewed marks and teacher feedback later.</div></div><button id="copy-exam-result-code" class="outline" type="button">Copy Code</button></div>
   <details style="text-align:left"><summary style="cursor:pointer;font-weight:800">Review submitted answers</summary><div id="exam-result-list" class="exam-result-list"></div></details>
   <div class="buttons"><button id="exam-check-reviewed" class="secondary hidden" type="button">Check Reviewed Work</button><button class="primary back-home" type="button">Home</button></div>
 </section>
@@ -1332,9 +1328,9 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     <button type="button" data-v40-nav="progress" class="hidden"><span aria-hidden="true">📊</span><span>Progress</span></button>
     <button type="button" data-v40-nav="reviewed"><span aria-hidden="true">✅</span><span>Reviewed</span></button>
   </nav>
-  <div style="font-size:60px">🏆</div><h1>Practice Complete</h1><p id="result-name"></p><div id="result-score" class="big"></div><p class="muted">First-try score</p><p id="result-message"></p>
-  <div class="stats"><div class="stat"><strong id="res-mastery">0/0</strong><small>Mastered</small></div><div class="stat"><strong id="res-hints">0</strong><small>Hints</small></div><div class="stat"><strong id="res-second">0</strong><small>2nd-try success</small></div><div class="stat"><strong id="res-sync">Local</strong><small>Storage</small></div></div>
-  <div id="result-code-box" class="result-code-box hidden"><div><div class="muted">Private result code</div><strong id="result-code" class="result-code"></strong><div class="help">Keep this code to check teacher feedback later. Anyone with the code can view this practice result.</div></div><button id="copy-result-code" class="outline" type="button">Copy Code</button></div>
+  <div style="font-size:60px">🏆</div><h1>Practice Complete</h1><p id="result-name"></p><div id="result-score" class="big"></div><p class="muted">Your score</p><p id="result-message"></p>
+  <div class="stats"><div class="stat"><strong id="res-mastery">0/0</strong><small>Mastered</small></div><div class="stat"><strong id="res-hints">0</strong><small>Hints</small></div><div class="stat"><strong id="res-second">0</strong><small>2nd-try success</small></div><div class="stat" style="display:none"><strong id="res-sync">Local</strong><small>Storage</small></div></div>
+  <div id="result-code-box" class="result-code-box hidden"><div><div class="muted">Your practice code</div><strong id="result-code" class="result-code"></strong><div class="help">Share this code with your teacher to get feedback on your work.</div></div><button id="copy-result-code" class="outline" type="button">Copy Code</button></div>
   <div id="review" class="review"></div><div class="buttons"><button id="check-this-result" class="secondary hidden">Check Reviewed Work</button><button id="again-btn" class="primary">Practise Again</button><button class="secondary back-home">Home</button></div>
 </section>
 
@@ -1368,7 +1364,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     <div>
       <h1>📚 My Assignments</h1>
       <p id="student-assignments-meta" class="muted">
-        Your assigned mathematics work.
+        Work set by your teacher.
       </p>
     </div>
 
@@ -1404,7 +1400,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     <div>
       <h1>📊 My Progress</h1>
       <p id="student-dashboard-meta" class="muted">
-        Your mathematics learning progress.
+        Here's how you're doing.
       </p>
     </div>
     <button class="secondary back-home">Home</button>
@@ -1436,7 +1432,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     <div>
       <h3>🎯 Recommended Practice</h3>
       <p class="muted">
-        A short practice set chosen from your current learning progress.
+        Questions picked just for you based on what you've been working on.
       </p>
     </div>
   </div>
@@ -1451,7 +1447,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
     <div>
       <h3>🌱 My Learning Journey</h3>
       <p class="muted">
-        Build a regular learning habit and celebrate your progress.
+        Keep practising and watch your streak grow!
       </p>
     </div>
   </div>
@@ -1463,7 +1459,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
         <div class="student-motivation-label">Learning streak</div>
         <strong id="student-motivation-streak">—</strong>
         <div id="student-motivation-streak-note" class="help">
-          Complete meaningful Maths work to build your streak.
+          Complete a practice session each day to build your streak.
         </div>
       </div>
     </article>
@@ -1477,7 +1473,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
           <span id="student-motivation-weekly-bar"></span>
         </div>
         <div id="student-motivation-weekly-note" class="help">
-          Learn on 3 meaningful days this week.
+          Practise on 3 days this week to hit your goal.
         </div>
       </div>
     </article>
@@ -1534,7 +1530,7 @@ html[data-theme="dark"] #start .v40c-session-panel{background:color-mix(in srgb,
       <span class="student-achievement-icon">🏅</span>
       <div>
         <strong>First Practice</strong>
-        <div class="help">Complete your first meaningful Practice session.</div>
+        <div class="help">Complete your first Practice session to earn this badge.</div>
       </div>
     </article>
   </div>
@@ -1960,7 +1956,7 @@ function finishQuestion(q,v,ok,first){state.done=true;state.answers.push({questi
 function nextQuestion(){if(!state.done)return;if(state.index<state.questions.length-1){state.index++;renderQuestion()}else finishPractice(false)}
 function endPractice(){if(!confirm('End practice now? Completed questions will be saved.'))return;if(!state.answers.length){show('start');return}finishPractice(true)}
 function resultRecord(early){const total=state.answers.length,fp=Math.round(state.first/total*100),mp=Math.round(state.mastered/total*100),done=new Date().toISOString();return{client_session_key:crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`,student_name:state.student,student_id:state.studentId,year_level:state.year,class_group:state.classGroup,practice_mode:state.strand==='all'?'mixed':'strand_topic',strand:state.strand==='all'?'mixed':state.strand,topic:state.topic==='all'?'Mixed Practice':state.topic,first_try_score:state.first,mastery_score:state.mastered,total,first_try_percent:fp,mastery_percent:mp,hints_used:state.hints,second_try_successes:state.second,ended_early:early,started_at:state.startedAt,completed_at:done,details:state.answers}}
-async function finishPractice(early){const r=resultRecord(early);saveLocalResult(r);let sync='Local';if(cloudReady){try{const payload={...r};delete payload.details;const {data,error}=await cloud.from('practice_sessions').insert(payload).select('id').single();if(error)throw error;const rows=r.details.map(a=>({session_id:data.id,question_id:String(a.questionId).startsWith('l')?null:a.questionId,question_snapshot:a.question,strand:a.strand,topic:a.topic,subtopic:a.subtopic,skill:a.skill,final_answer:a.finalAnswer,correct_answer_snapshot:a.correctAnswer,correct:a.correct,first_try:a.firstTry,attempts:a.attempts,hint_used:a.hintUsed,explanation_snapshot:a.explanation}));if(rows.length){const {error:e2}=await cloud.from('session_answers').insert(rows);if(e2)throw e2}sync='Cloud ✓'}catch(e){console.warn(e);sync='Local backup'}}$('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=`${r.first_try_score}/${r.total} (${r.first_try_percent}%)`;$('res-mastery').textContent=`${r.mastery_score}/${r.total}`;$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.first_try_percent>=90?'Excellent first-try accuracy.':r.mastery_percent>=80?'Good learning from feedback. Practise again for stronger first-try accuracy.':'Review the hints and explanations, then practise this skill again.';$('review').innerHTML=r.details.map((a,i)=>`<div class="reviewitem"><strong>${a.firstTry?'✅':a.correct?'🟡':'❌'} Q${i+1}: ${esc(a.question)}</strong><div>Your answer: ${esc(a.finalAnswer)}</div>${a.correct?'':`<div>Correct answer: ${esc(a.correctAnswer)}</div>`}<div class="muted" style="margin-top:6px">${esc(a.explanation)}</div><div class="pills" style="margin-top:7px"><span class="tag">${esc(STRANDS[a.strand]||a.strand)}</span><span class="tag">${esc(a.topic)}</span><span class="tag">${esc(RESPONSE_TYPES[a.responseType]||'Text')}</span>${a.skill?`<span class="tag">${esc(a.skill)}</span>`:''}</div></div>`).join('');show('result')}
+async function finishPractice(early){const r=resultRecord(early);saveLocalResult(r);let sync='Local';if(cloudReady){try{const payload={...r};delete payload.details;const {data,error}=await cloud.from('practice_sessions').insert(payload).select('id').single();if(error)throw error;const rows=r.details.map(a=>({session_id:data.id,question_id:String(a.questionId).startsWith('l')?null:a.questionId,question_snapshot:a.question,strand:a.strand,topic:a.topic,subtopic:a.subtopic,skill:a.skill,final_answer:a.finalAnswer,correct_answer_snapshot:a.correctAnswer,correct:a.correct,first_try:a.firstTry,attempts:a.attempts,hint_used:a.hintUsed,explanation_snapshot:a.explanation}));if(rows.length){const {error:e2}=await cloud.from('session_answers').insert(rows);if(e2)throw e2}sync='Cloud ✓'}catch(e){console.warn(e);sync='Local backup'}}$('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=`${r.first_try_score}/${r.total} (${r.first_try_percent}%)`;$('res-mastery').textContent=`${r.mastery_score}/${r.total}`;$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.first_try_percent>=90?'Amazing! You got most right first try! 🌟':r.mastery_percent>=80?'Great work — you got there in the end. Practise again to get even faster! 💪':'Keep going! Review the hints and try again to improve your score. 🎯';$('review').innerHTML=r.details.map((a,i)=>`<div class="reviewitem"><strong>${a.firstTry?'✅':a.correct?'🟡':'❌'} Q${i+1}: ${esc(a.question)}</strong><div>Your answer: ${esc(a.finalAnswer)}</div>${a.correct?'':`<div>Correct answer: ${esc(a.correctAnswer)}</div>`}<div class="muted" style="margin-top:6px">${esc(a.explanation)}</div><div class="pills" style="margin-top:7px"><span class="tag">${esc(STRANDS[a.strand]||a.strand)}</span><span class="tag">${esc(a.topic)}</span><span class="tag">${esc(RESPONSE_TYPES[a.responseType]||'Text')}</span>${a.skill?`<span class="tag">${esc(a.skill)}</span>`:''}</div></div>`).join('');show('result')}
 async function openTeacher(){if(!cloudReady){teacherUser=null;$('teacher-mode').className='badge local';$('teacher-mode').textContent='Local Demo';$('signout-btn').classList.add('hidden');await loadTeacher();show('teacher');return}const {data}=await cloud.auth.getUser();if(data?.user&&await isTeacher(data.user)){teacherUser=data.user;await enterTeacher();return}show('login')}
 async function isTeacher(u){const {data,error}=await cloud.from('teacher_profiles').select('user_id').eq('user_id',u.id).maybeSingle();return !error&&!!data}
 async function login(){if(!cloudReady){$('login-feedback').className='feedback incorrect';$('login-feedback').textContent='Cloud is not connected yet.';return}const {data,error}=await cloud.auth.signInWithPassword({email:$('teacher-email').value.trim(),password:$('teacher-password').value});if(error){$('login-feedback').className='feedback incorrect';$('login-feedback').textContent=error.message;return}if(!await isTeacher(data.user)){await cloud.auth.signOut();$('login-feedback').className='feedback incorrect';$('login-feedback').textContent='Account is not listed as a teacher.';return}teacherUser=data.user;await enterTeacher()}
@@ -2229,7 +2225,7 @@ function resultRecord(early){
 async function finishPractice(early){
   const r=resultRecord(early);saveLocalResult(r);let sync='Local';
   if(cloudReady){try{const payload={...r};delete payload.details;const {data,error}=await cloud.from('practice_sessions').insert(payload).select('id').single();if(error)throw error;const rows=r.details.map(a=>({session_id:data.id,question_id:String(a.questionId).startsWith('l')?null:a.questionId,question_snapshot:a.question,strand:a.strand,topic:a.topic,subtopic:a.subtopic,skill:a.skill,final_answer:a.finalAnswer,correct_answer_snapshot:a.correctAnswer||'Manual review',correct:!!a.correct,first_try:!!a.firstTry,attempts:Math.max(1,a.attempts||1),hint_used:!!a.hintUsed,explanation_snapshot:a.explanation||'',response_type:a.responseType||'text',response_payload:a.responsePayload||{},review_status:a.manualReview?'pending':'auto',marks_possible:Number(a.marksPossible||1),marks_awarded:a.manualReview?null:(a.correct?Number(a.marksPossible||1):0)}));if(rows.length){const {error:e2}=await cloud.from('session_answers').insert(rows);if(e2)throw e2}sync='Cloud ✓'}catch(e){console.warn(e);sync='Local backup'}}
-  $('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Excellent first-try accuracy.':r.mastery_percent>=80?'Good learning from feedback. Practise again for stronger first-try accuracy.':'Review the hints and explanations, then practise this skill again.');
+  $('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Amazing! You got most right first try! 🌟':r.mastery_percent>=80?'Great work — you got there in the end. Practise again to get even faster! 💪':'Keep going! Review the hints and try again to improve your score. 🎯');
   $('review').innerHTML=r.details.map((a,i)=>`<div class="reviewitem"><strong>${a.manualReview?'📨':a.firstTry?'✅':a.correct?'🟡':'❌'} Q${i+1}: ${esc(a.question)}</strong><div>Your answer: ${esc(a.finalAnswer)}</div>${a.manualReview?'<div class="muted">Waiting for teacher review.</div>':a.correct?'':`<div>Correct answer: ${esc(a.correctAnswer)}</div>`}<div class="muted" style="margin-top:6px">${esc(a.explanation)}</div><div class="pills" style="margin-top:7px"><span class="tag">${esc(STRANDS[a.strand]||a.strand)}</span><span class="tag">${esc(a.topic)}</span><span class="tag">${esc(RESPONSE_TYPES[a.responseType]||'Text')}</span>${a.skill?`<span class="tag">${esc(a.skill)}</span>`:''}</div></div>`).join('');show('result')
 }
 
@@ -2408,7 +2404,7 @@ async function copyCurrentResultCode(){const code=$('result-code')?.textContent|
 async function finishPractice(early){
   const r=resultRecord(early);saveLocalResult(r);let sync='Local',resultCode='';
   if(cloudReady){try{const payload={...r};delete payload.details;const {data,error}=await cloud.from('practice_sessions').insert(payload).select('id,result_code').single();if(error)throw error;resultCode=normalizeResultCode(data.result_code||'');const rows=r.details.map(a=>({session_id:data.id,question_id:String(a.questionId).startsWith('l')?null:a.questionId,question_snapshot:a.question,strand:a.strand,topic:a.topic,subtopic:a.subtopic,skill:a.skill,final_answer:a.finalAnswer,correct_answer_snapshot:a.correctAnswer||'Manual review',correct:!!a.correct,first_try:!!a.firstTry,attempts:Math.max(1,a.attempts||1),hint_used:!!a.hintUsed,explanation_snapshot:a.explanation||'',response_type:a.responseType||'text',response_payload:a.responsePayload||{},review_status:a.manualReview?'pending':'auto',marks_possible:Number(a.marksPossible||1),marks_awarded:a.manualReview?null:(a.correct?Number(a.marksPossible||1):0)}));if(rows.length){const {error:e2}=await cloud.from('session_answers').insert(rows);if(e2)throw e2}sync='Cloud ✓';if(resultCode)rememberResultCode(resultCode,{student:r.student_name,completed_at:r.completed_at})}catch(e){console.warn(e);sync='Local backup'}}
-  $('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Excellent first-try accuracy.':r.mastery_percent>=80?'Good learning from feedback. Practise again for stronger first-try accuracy.':'Review the hints and explanations, then practise this skill again.');
+  $('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Amazing! You got most right first try! 🌟':r.mastery_percent>=80?'Great work — you got there in the end. Practise again to get even faster! 💪':'Keep going! Review the hints and try again to improve your score. 🎯');
   const box=$('result-code-box'),check=$('check-this-result');if(resultCode){$('result-code').textContent=resultCode;box.classList.remove('hidden');check.classList.remove('hidden');check.dataset.code=resultCode}else{box.classList.add('hidden');check.classList.add('hidden');check.dataset.code=''}
   $('review').innerHTML=r.details.map((a,i)=>`<div class="reviewitem"><strong>${a.manualReview?'📨':a.firstTry?'✅':a.correct?'🟡':'❌'} Q${i+1}: ${esc(a.question)}</strong><div>Your answer: ${esc(a.finalAnswer)}</div>${a.manualReview?'<div class="muted">Waiting for teacher review.</div>':a.correct?'':`<div>Correct answer: ${esc(a.correctAnswer)}</div>`}<div class="muted" style="margin-top:6px">${esc(a.explanation)}</div><div class="pills" style="margin-top:7px"><span class="tag">${esc(STRANDS[a.strand]||a.strand)}</span><span class="tag">${esc(a.topic)}</span><span class="tag">${esc(RESPONSE_TYPES[a.responseType]||'Text')}</span>${a.skill?`<span class="tag">${esc(a.skill)}</span>`:''}</div></div>`).join('');show('result')
 }
@@ -2577,7 +2573,7 @@ async function prepareExamAttempt(meta){
 async function finishPractice(early){
   const r=resultRecord(early);saveLocalResult(r);let sync='Local',resultCode='';
   if(cloudReady){try{const payload={...r};delete payload.details;const rows=r.details.map(a=>({question_id:String(a.questionId).startsWith('l')?'':String(a.questionId),question_snapshot:a.question,strand:a.strand,topic:a.topic,subtopic:a.subtopic,skill:a.skill,final_answer:a.finalAnswer,correct_answer_snapshot:a.correctAnswer||'Manual review',correct:!!a.correct,first_try:!!a.firstTry,attempts:Math.max(1,a.attempts||1),hint_used:!!a.hintUsed,explanation_snapshot:a.explanation||'',response_type:a.responseType||'text',response_payload:a.responsePayload||{},review_status:a.manualReview?'pending':'auto',marks_possible:Number(a.marksPossible||1),marks_awarded:a.manualReview?null:(a.correct?Number(a.marksPossible||1):0)})),{data,error}=await cloud.rpc('submit_practice_session_v3',{p_access_token:state.accessToken||activeStudentAccess?.access_token||'',p_session:payload,p_answers:rows});if(error)throw error;resultCode=normalizeResultCode(data?.result_code||'');sync='Cloud ✓';if(resultCode)rememberResultCode(resultCode,{student:r.student_name,completed_at:r.completed_at})}catch(e){console.warn(e);sync='Local backup'}}
-  $('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Excellent first-try accuracy.':r.mastery_percent>=80?'Good learning from feedback. Practise again for stronger first-try accuracy.':'Review the hints and explanations, then practise this skill again.');
+  $('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Amazing! You got most right first try! 🌟':r.mastery_percent>=80?'Great work — you got there in the end. Practise again to get even faster! 💪':'Keep going! Review the hints and try again to improve your score. 🎯');
   const box=$('result-code-box'),check=$('check-this-result');if(resultCode){$('result-code').textContent=resultCode;box.classList.remove('hidden');check.classList.remove('hidden');check.dataset.code=resultCode}else{box.classList.add('hidden');check.classList.add('hidden');check.dataset.code=''}
   $('review').innerHTML=r.details.map((a,i)=>`<div class="reviewitem"><strong>${a.manualReview?'📨':a.firstTry?'✅':a.correct?'🟡':'❌'} Q${i+1}: ${esc(a.question)}</strong><div>Your answer: ${esc(a.finalAnswer)}</div>${a.manualReview?'<div class="muted">Waiting for teacher review.</div>':a.correct?'':`<div>Correct answer: ${esc(a.correctAnswer)}</div>`}<div class="muted" style="margin-top:6px">${esc(a.explanation)}</div><div class="pills" style="margin-top:7px"><span class="tag">${esc(STRANDS[a.strand]||a.strand)}</span><span class="tag">${esc(a.topic)}</span><span class="tag">${esc(RESPONSE_TYPES[a.responseType]||'Text')}</span>${a.skill?`<span class="tag">${esc(a.skill)}</span>`:''}</div></div>`).join('');activeStudentAccess=null;show('result')
 }
@@ -2720,7 +2716,7 @@ async function finishPracticeV32G2(early){
     const {data,error}=await cloud.rpc('submit_practice_session_v3',{p_access_token:state.accessToken||activeStudentAccess?.access_token||'',p_session:payload,p_answers:rows});if(error)throw error;
     Object.assign(r,data?.summary||{});resultCode=normalizeResultCode(data?.result_code||'');sync='Cloud ✓';if(resultCode)rememberResultCode(resultCode,{student:r.student_name,completed_at:r.completed_at});
   }catch(e){console.warn(e)}
-  saveLocalResult(r);$('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Excellent first-try accuracy.':r.mastery_percent>=80?'Good learning from feedback. Practise again for stronger first-try accuracy.':'Review the hints and explanations, then practise this skill again.');
+  saveLocalResult(r);$('progress-bar').style.width='100%';$('result-name').textContent=`${r.student_name} • Year ${r.year_level}${r.class_group==='Other'?'':r.class_group}`;$('result-score').textContent=r.auto_total?`${r.first_try_score}/${r.auto_total} (${r.first_try_percent}%)`:'Pending';$('res-mastery').textContent=r.auto_total?`${r.mastery_score}/${r.auto_total}`:'—';$('res-hints').textContent=r.hints_used;$('res-second').textContent=r.second_try_successes;$('res-sync').textContent=sync;$('result-message').textContent=r.pending_review_count?`${r.pending_review_count} response${r.pending_review_count===1?' is':'s are'} waiting for teacher review. Auto-marked score is shown separately.`:(r.first_try_percent>=90?'Amazing! You got most right first try! 🌟':r.mastery_percent>=80?'Great work — you got there in the end. Practise again to get even faster! 💪':'Keep going! Review the hints and try again to improve your score. 🎯');
   const box=$('result-code-box'),check=$('check-this-result');if(resultCode){$('result-code').textContent=resultCode;box.classList.remove('hidden');check.classList.remove('hidden');check.dataset.code=resultCode}else{box.classList.add('hidden');check.classList.add('hidden');check.dataset.code=''}
   $('review').innerHTML=r.details.map((a,i)=>`<div class="reviewitem"><strong>${a.manualReview?'📨':a.firstTry?'✅':a.correct?'🟡':'❌'} Q${i+1}: ${esc(a.question)}</strong><div>Your answer: ${esc(a.finalAnswer)}</div>${a.manualReview?'<div class="muted">Waiting for teacher review.</div>':a.correct?'':`<div>Correct answer: ${esc(a.correctAnswer||'—')}</div>`}<div class="muted" style="margin-top:6px">${esc(a.explanation||'')}</div><div class="pills" style="margin-top:7px"><span class="tag">${esc(STRANDS[a.strand]||a.strand)}</span><span class="tag">${esc(a.topic)}</span><span class="tag">${esc(RESPONSE_TYPES[a.responseType]||'Text')}</span>${a.skill?`<span class="tag">${esc(a.skill)}</span>`:''}</div></div>`).join('');activeStudentAccess=null;show('result')
 }
