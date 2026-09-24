@@ -268,7 +268,7 @@ test.describe('Option 2A static V40 student sign-in shell hard gates', () => {
     expect(panelHtml).toContain('id="student-id"');
     expect(panelHtml).toContain('id="student-pin"');
     expect(panelHtml).toContain('id="student-access-note"');
-    expect(panelHtml).toContain('Sign in to Learning Hub');
+    expect(panelHtml).toContain('Start Learning');
     expect(panelStart).toBeLessThan(html.indexOf('<div class="mode-switch"'));
   });
 
