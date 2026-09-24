@@ -79,7 +79,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/demo/index.html': '631153822067f4efc48794be719e8d6bbb4e96df',
   'site/viewer-demo/index.html': '9f1338facc7ddefde9640959a6fbfce7d1aac517',
   'site/demo-student/index.html': '72df4461ed816b40133b4a34e1434ef4f994c144',
-  'site/tests/verify-v5.9-current-live-demo.cjs': '23ec8bbc994fe7d37af3c8fa7f55e7e11e03157b',
+  'site/tests/verify-v5.9-current-live-demo.cjs': '05831146a658f9ab1a915a421dc78a68946d1f12',
   'site/tests/verify-v5.9-demo-viewer-access.cjs': 'db303e51de65f4cb61485d0fba00393498348511',
   'site/tests/verify-v5.9-demo-student-questions.cjs': 'e94f0096fa18394b5c4c95d66ab2160bf1bac86b',
 
