@@ -92,7 +92,9 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/icon-192.png',
   'site/icon-512.png',
   'site/sw.js',
-  'site/manifest.json',]);
+  'site/manifest.json',
+  'site/v59c-result-celebration.js',
+  'site/v59d-streak-urgency.js',]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/v40-platform-polish.js': '5ebdcb4c8d6a8a4c5fad19fa14dfaea2561d102b',
