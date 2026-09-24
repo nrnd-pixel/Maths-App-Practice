@@ -31,24 +31,24 @@ assert.equal(gitBlob('site/v40-release.js'),decision.currentContract.releaseBlob
 const tier1 = manifest.tiers.find(row => row.source === 'site/config.js');
 const tier2 = manifest.tiers.find(row => row.source === 'site/v40-release.js');
 assert.ok(tier1 && tier2,'accepted two-tier loader manifest must remain present');
-assert.equal(tier1.entries.length,53);
+assert.equal(tier1.entries.length,55);
 assert.equal(tier2.entries.length,41);
-assert.equal(decision.currentContract.tier1Scripts,53);
+assert.equal(decision.currentContract.tier1Scripts,55);
 assert.equal(decision.currentContract.tier2Scripts,41);
-assert.equal(decision.currentContract.productionRuntimeScripts,94);
-assert.equal(tier1.entries.length + tier2.entries.length,94);
+assert.equal(decision.currentContract.productionRuntimeScripts,96);
+assert.equal(tier1.entries.length + tier2.entries.length,96);
 
 assert.equal(authorityMap.entries.length,41,'7D-B authority map must still cover all tier-2 owners');
 
 const flatPlan = prototype.buildFlatPlan(manifest,authorityMap);
-assert.equal(flatPlan.length,94,'7D-C dormant prototype must preserve 88 symbolic positions');
-assert.equal(flatPlan.filter(step => step.kind === 'script').length,93,'7D-C dormant prototype must retain its one boundary-hook model');
+assert.equal(flatPlan.length,96,'7D-C dormant prototype must preserve 88 symbolic positions');
+assert.equal(flatPlan.filter(step => step.kind === 'script').length,95,'7D-C dormant prototype must retain its one boundary-hook model');
 assert.equal(flatPlan.filter(step => step.kind === 'release-presentation-boundary').length,1);
 
 const selected = decision.alternatives.filter(row => row.disposition === 'selected');
 assert.equal(selected.length,1,'exactly one 7D-D alternative must be selected');
 assert.equal(selected[0].id,'retain-current');
-assert.equal(selected[0].productionRuntimeScripts,94);
+assert.equal(selected[0].productionRuntimeScripts,96);
 assert.equal(selected[0].directRequestReduction,0);
 assert.equal(selected[0].productionSiteChanges,0);
 assert.equal(selected[0].protectedBoundaryChanges,0);
@@ -61,9 +61,9 @@ assert.ok(rejected.every(row => Number(row.directRequestReduction) <= 1),
 const modifyRelease = rejected.find(row => row.id === 'modify-v40-release-as-flat-coordinator');
 const replaceRelease = rejected.find(row => row.id === 'replace-release-entry-with-successor');
 const inlineConfig = rejected.find(row => row.id === 'inline-flat-transport-in-config');
-assert.equal(modifyRelease.productionRuntimeScripts,94);
-assert.equal(replaceRelease.productionRuntimeScripts,94);
-assert.equal(inlineConfig.productionRuntimeScripts,93);
+assert.equal(modifyRelease.productionRuntimeScripts,96);
+assert.equal(replaceRelease.productionRuntimeScripts,96);
+assert.equal(inlineConfig.productionRuntimeScripts,95);
 assert.equal(inlineConfig.directRequestReduction,1);
 
 const config = read('site/config.js');
@@ -87,7 +87,7 @@ for (const [name,source] of [['Option 2A',option2a],['Option 2B',option2b],['Opt
   assert.match(source,/'site\/v40-release\.js': 'a308df11b601bf563b56d555e9f434652e524d77'/,
     `${name}: v40-release exact frozen blob must remain pinned`);
 }
-assert.match(option2c,/'site\/config\.js': 'cc21493af2d53b30b3d25e7bb53d98a24f6e669b'/,
+assert.match(option2c,/'site\/config\.js': '180237efcaa1fa7d38999add6e9ed802a6adb00b'/,
   'Option 2C: config exact successor must remain pinned');
 
 assert.equal(decision.dormantFallback.path,'tooling/phase7d/flat-loader-prototype.cjs');
