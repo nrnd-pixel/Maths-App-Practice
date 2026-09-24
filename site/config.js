@@ -157,7 +157,11 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v59c-result-celebration.js',
   './v59d-streak-urgency.js',
   './v59e-result-next-step.js',
-  './v59f-achievements-progress.js'
+  './v59f-achievements-progress.js',
+  './v59g-emoji-reaction.js',
+  './v59h-mission-preview.js',
+  './v59i-personal-best.js',
+  './v59j-challenge-share.js'
 ]);
 
 Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{

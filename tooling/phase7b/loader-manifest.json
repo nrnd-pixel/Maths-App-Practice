@@ -5,7 +5,7 @@
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "c0b2ad3f73d22e0547de4068f20e0971a45b4b34da5fd9bb92e265a315c310bd",
+      "sourceSha256": "6b08927604d739979bf50ed213bcd4d5a11dce090140131307088cfdc76bdc40",
       "entries": [
         {
           "src": "./version.js"
@@ -153,6 +153,18 @@
         },
         {
           "src": "./v59f-achievements-progress.js"
+        },
+        {
+          "src": "./v59g-emoji-reaction.js"
+        },
+        {
+          "src": "./v59h-mission-preview.js"
+        },
+        {
+          "src": "./v59i-personal-best.js"
+        },
+        {
+          "src": "./v59j-challenge-share.js"
         }
       ]
     },

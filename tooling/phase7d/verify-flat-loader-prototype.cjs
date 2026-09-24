@@ -12,28 +12,28 @@ const authorityMap = JSON.parse(fs.readFileSync(path.join(__dirname,'tier2-autho
 
 const hashObject = pathname => execFileSync('git',['hash-object',pathname],{cwd:ROOT,encoding:'utf8'}).trim();
 
-assert.equal(hashObject('site/config.js'),'d8fe9bb121f3c6526c7ec86ca0206b37a9432b72','config.js must remain byte-identical');
+assert.equal(hashObject('site/config.js'),'cc21493af2d53b30b3d25e7bb53d98a24f6e669b','config.js must remain byte-identical');
 assert.equal(hashObject('site/v40-release.js'),'a308df11b601bf563b56d555e9f434652e524d77','v40-release.js must remain byte-identical');
 
 const plan = prototype.buildFlatPlan(loaderManifest,authorityMap);
 assert.equal(prototype.validateFlatPlan(plan,loaderManifest,authorityMap),true);
-assert.equal(plan.length,90,'prototype must preserve 90 symbolic positions');
+assert.equal(plan.length,94,'prototype must preserve 94 symbolic positions');
 
 const scripts = plan.filter(step => step.kind === 'script');
 const boundaries = plan.filter(step => step.kind === 'release-presentation-boundary');
-assert.equal(scripts.length,89,'prototype must load 89 scripts because v40-release transport is replaced by one boundary hook');
+assert.equal(scripts.length,93,'prototype must load 93 scripts because v40-release transport is replaced by one boundary hook');
 assert.equal(boundaries.length,1,'exactly one release-presentation boundary is required');
 
 const boundary = boundaries[0];
 assert.equal(boundary.file,'v40-release.js');
 assert.equal(boundary.position,14,'release-presentation boundary must remain at the current tier-1 symbolic slot');
 
-assert.equal(plan.filter(step => step.tier === 1).length,49);
+assert.equal(plan.filter(step => step.tier === 1).length,53);
 assert.equal(plan.filter(step => step.tier === 2).length,41);
-assert.ok(plan.slice(0,49).every(step => step.tier === 1));
-assert.ok(plan.slice(49).every(step => step.tier === 2));
+assert.ok(plan.slice(0,53).every(step => step.tier === 1));
+assert.ok(plan.slice(53).every(step => step.tier === 2));
 
-const firstTier2 = plan[49];
+const firstTier2 = plan[53];
 assert.equal(firstTier2.file,'v41-signin-guard.js');
 
 const position = file => plan.find(step => step.file === file)?.position || 0;
@@ -64,4 +64,4 @@ assert.match(source,/release-presentation-boundary/,'prototype must make release
 assert.match(source,/status:'skipped-existing'/,'prototype must preserve tier-2 duplicate-guard semantics');
 assert.match(source,/status:'error'/,'prototype must record script failures instead of silently swallowing them');
 
-console.log('PASS: Phase 7D-C dormant flat-loader prototype preserves the 49 -> 41 symbolic order, authority predecessors, tier-2 duplicate guards and release-identity boundary without changing production bytes.');
+console.log('PASS: Phase 7D-C dormant flat-loader prototype preserves the 53 -> 41 symbolic order, authority predecessors, tier-2 duplicate guards and release-identity boundary without changing production bytes.');
