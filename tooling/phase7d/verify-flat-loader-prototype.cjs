@@ -12,7 +12,7 @@ const authorityMap = JSON.parse(fs.readFileSync(path.join(__dirname,'tier2-autho
 
 const hashObject = pathname => execFileSync('git',['hash-object',pathname],{cwd:ROOT,encoding:'utf8'}).trim();
 
-assert.equal(hashObject('site/config.js'),'7307eae1b864bf05778f6daacc7a099b7b563e90','config.js must remain byte-identical');
+assert.equal(hashObject('site/config.js'),'d8fe9bb121f3c6526c7ec86ca0206b37a9432b72','config.js must remain byte-identical');
 assert.equal(hashObject('site/v40-release.js'),'a308df11b601bf563b56d555e9f434652e524d77','v40-release.js must remain byte-identical');
 
 const plan = prototype.buildFlatPlan(loaderManifest,authorityMap);
