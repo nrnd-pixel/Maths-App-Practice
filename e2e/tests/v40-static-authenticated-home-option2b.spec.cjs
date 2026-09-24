@@ -190,7 +190,9 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/icon-192.png',
   'site/icon-512.png',
   'site/manifest.json',
-  'site/sw.js',]);
+  'site/sw.js',
+  'site/v59c-result-celebration.js',
+  'site/v59d-streak-urgency.js',]);
 
 const FROZEN_BLOBS = Object.freeze({
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
