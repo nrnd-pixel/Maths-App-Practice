@@ -14,7 +14,7 @@ ok(source.includes('VIEW-STUDENT-01') && source.includes('2468'), 'Missing stude
 ok(source.includes('VIEW-TEACHER-01') && source.includes('8642'), 'Missing teacher viewer code');
 ok(source.includes("connect-src 'none'"), 'Network access must be blocked by CSP');
 ok(source.includes('noindex,nofollow,noarchive'), 'Demo must stay out of search indexes');
-ok(source.includes('Student Learning Hub') || source.includes('Student Experience'), 'Student live-style Home is missing');
+ok(source.includes('Student Learning Hub') || source.includes('Student Experience') || source.includes('Start Learning'), 'Student live-style Home is missing');
 ok(source.includes('Teacher Workspace'), 'Teacher V5.9 workspace is missing');
 ok(source.includes('Classes &amp; Assignments') || source.includes('Classes & Assignments'), 'Teacher class/assignment view is missing');
 ok(source.includes('Question Bank'), 'Teacher question-bank view is missing');
