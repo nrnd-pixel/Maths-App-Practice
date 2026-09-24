@@ -2755,7 +2755,14 @@ function wireV32DExtras(){
   $('student-id').addEventListener('change',()=>{if(startMode==='exam')refreshStudentAssignmentAccess()});
   $('practice-mode-btn').onclick=()=>setStartMode('practice');$('exam-mode-btn').onclick=()=>setStartMode('exam');$('start-btn').onclick=()=>startMode==='exam'?startExam():startPractice();$('year-level').addEventListener('change',()=>{if(startMode==='exam')loadExamOptions()});$('exam-year').onchange=()=>fillExamPapers();$('exam-paper').onchange=updateExamPaperNote;$('exam-prev-btn').onclick=()=>goExamQuestion(examSession.index-1);$('exam-next-btn').onclick=()=>{if(examSession.index<examSession.questions.length-1)goExamQuestion(examSession.index+1);else{saveExamCurrentResponse();renderExamNavigator();const m=countExamUnanswered();alert(m.parts?`${m.parts} unanswered part${m.parts===1?'':'s'} remain. Use the navigator or Submit Paper when ready.`:'All questions have responses. Review any flagged questions, then submit the paper.') }};$('exam-flag-btn').onclick=toggleExamFlag;$('exam-submit-btn').onclick=()=>submitExamFinal(false);$('exam-exit-btn').onclick=exitExam;$('exam-question-root').addEventListener('input',()=>queueExamAutosave());$('exam-question-root').addEventListener('change',()=>queueExamAutosave());window.addEventListener('beforeunload',()=>{if(examSession){saveExamCurrentResponse(false);persistAttemptLocally()}});$('copy-exam-result-code').onclick=copyExamResultCode;$('exam-check-reviewed').onclick=()=>openStudentReview($('exam-check-reviewed').dataset.code||'');$('refresh-exam-settings').onclick=loadExamSettingsEditor;document.querySelector('[data-panel="exam-settings-panel"]').addEventListener('click',loadExamSettingsEditor);$('refresh-attempts').onclick=loadTeacher;$('attempt-search').oninput=renderExamAttempts;$('attempt-status-filter').onchange=renderExamAttempts;document.querySelector('[data-panel="attempts-panel"]').addEventListener('click',renderExamAttempts);$('refresh-classes').onclick=loadTeacher;$('add-class').onclick=addSchoolClass;$('import-roster').onclick=importClassRoster;$('save-assignment').onclick=saveExamAssignment;$('export-participation').onclick=exportParticipation;document.querySelector('[data-panel="classes-panel"]').addEventListener('click',renderClassAdmin)
 }
-async function boot(){wire();wireV32CExtras();wireV32DExtras();wireV32F3();wireV32G1();await initCloud();await loadStudentAccessPolicy();setStartMode('practice');await loadExamOptions()}
+async function boot(){wire();wireV32CExtras();wireV32DExtras();wireV32F3();wireV32G1();
+  // V5.9E: pre-fill Student ID for returning students
+  try {
+    const lastId = localStorage.getItem('mathV31LastStudentId');
+    const idField = $('student-id');
+    if (lastId && idField && !idField.value) idField.value = lastId;
+  } catch {}
+  await initCloud();await loadStudentAccessPolicy();setStartMode('practice');await loadExamOptions()}
 /* V3.3.1 student login UX */
 let studentClassOptionsV331=[];
 
@@ -2809,6 +2816,11 @@ function formatYearClassV331(year,className){
 const applyVerifiedStudentV331Base=applyVerifiedStudent;
 
 applyVerifiedStudent=function(access){
+  // V5.9E: save last student ID for pre-fill on next visit
+  try {
+    const sid = String(access?.student_id || '').trim();
+    if (sid) localStorage.setItem('mathV31LastStudentId', sid);
+  } catch {}
   if(!access)return;
 
   const year=$('year-level');
