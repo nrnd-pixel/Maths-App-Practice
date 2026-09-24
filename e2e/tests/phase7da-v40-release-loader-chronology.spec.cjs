@@ -177,7 +177,7 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
     expect(result.insertions.slice(47).every(row => row.parent === 'HEAD')).toBe(true);
     expect(result.insertions.every(row => row.async === false)).toBe(true);
 
-    const tier2Insertions = result.insertions.slice(45);
+    const tier2Insertions = result.insertions.slice(47);
     expect(tier2Insertions.map(row => row.dataAttrs)).toEqual(
       tier2.entries.map(row => ({ [row.dataKey]: '1' }))
     );
