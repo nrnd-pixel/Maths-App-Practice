@@ -57,6 +57,7 @@ jobs:
         shell: bash
         run: |
           set -u
+          rm -f /tmp/verifier_failed
           verifiers=(
             "site/tests/verify-v5.1.cjs"
             "site/tests/verify-phase2-version-source-integrity.cjs"
@@ -392,7 +393,9 @@ jobs:
           retention-days: 7
 
       - name: Fail job if maintained verifiers failed
-        if: ${{ always() && steps.verifiers.outcome == 'failure' }}
+        if: always()
         run: |
-          echo "One or more maintained verifier scripts failed."
-          exit 1
+          if [ -f /tmp/verifier_failed ]; then
+            echo "One or more maintained verifier scripts failed."
+            exit 1
+          fi
