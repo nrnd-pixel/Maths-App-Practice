@@ -17,7 +17,7 @@ const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9ede
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
-  'site/index.html': '28fa6e6e0d7789fdbb359fe914313ebb19f88c65',
+  'site/index.html': 'e8ab5838befe9c31b491d0b121472e1408d4322c',
 });
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
