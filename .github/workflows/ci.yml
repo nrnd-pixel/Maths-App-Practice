@@ -196,6 +196,7 @@ jobs:
 
           if [ "${failures}" -ne 0 ]; then
             echo "::error::${failures} maintained verifier(s) failed"
+            echo "${failures}" > /tmp/verifier_failed
             exit 1
           fi
 
