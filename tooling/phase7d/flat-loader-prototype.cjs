@@ -21,7 +21,7 @@ function buildFlatPlan(loaderManifest,authorityMap){
   const tier1 = loaderManifest.tiers.find(row => row.source === 'site/config.js');
   const tier2 = loaderManifest.tiers.find(row => row.source === 'site/v40-release.js');
 
-  assert(tier1 && tier1.entries.length === 45, 'expected the accepted 45-entry tier-1 loader');
+  assert(tier1 && tier1.entries.length === 47, 'expected the accepted 47-entry tier-1 loader');
   assert(tier2 && tier2.entries.length === 41, 'expected the accepted 41-entry tier-2 loader');
   assert(authorityMap.entries.length === 41, 'expected the accepted 41-entry tier-2 authority map');
 
@@ -142,7 +142,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
   const v581aPosition = positionByFile.get('v581a-practice-cloud-result-reconciliation.js');
   assert(releasePosition === manifestTier1.entries.findIndex(entry => fileOf(entry.src) === RELEASE_OWNER) + 1,
     'release presentation boundary must preserve the original v40-release symbolic position');
-  assert(v581aPosition > releasePosition && v581aPosition <= 45,
+  assert(v581aPosition > releasePosition && v581aPosition <= 47,
     'V581A must remain after the release-presentation boundary but before every tier-2 owner');
 
   return true;
