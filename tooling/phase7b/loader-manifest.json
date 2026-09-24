@@ -5,7 +5,7 @@
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "5152bef45b1cb799d74cd28dff6f71ef0c9c58be3f8022c9f5dec691a18d43aa",
+      "sourceSha256": "3db458da9b426dad78c3028e385e7512072fcf0f50979916e5626db0ebc4451f",
       "entries": [
         {
           "src": "./version.js"
@@ -141,6 +141,12 @@
         },
         {
           "src": "./v59b-adaptive-diagnostic-pilot-v2.js"
+        },
+        {
+          "src": "./v59c-result-celebration.js"
+        },
+        {
+          "src": "./v59d-streak-urgency.js"
         }
       ]
     },
