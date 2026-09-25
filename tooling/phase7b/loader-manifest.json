@@ -182,7 +182,7 @@
     },
     {
       "source": "site/v40-release.js",
-      "sourceSha256": "edc91f65cd63edf44381b8f95a4c9ed59a561477e1e691f86fc0ce431a135641",
+      "sourceSha256": "e4d9673fced0c82c09641f61c88557923340499480cfa8fce1e7db4627fed3f7",
       "entries": [
         {
           "src": "v41-signin-guard.js",
