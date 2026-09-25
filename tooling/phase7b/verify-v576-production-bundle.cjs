@@ -15,7 +15,7 @@ const { verify: verifyLoaderManifest } = require('./verify-loader-manifest.cjs')
 const forbiddenAuthority = /\bcloud\s*\.\s*(?:rpc|from)\b|\bfetch\s*\(|\b(?:startPractice|finishPractice|submitAnswer|startExam|publishExam|createAssignment)\b/;
 
 async function verifyProductionBundle() {
-  assert.equal(verifyLoaderManifest().length, 96, 'Expected the reviewed 86-script production loader');
+  assert.equal(verifyLoaderManifest().length, 97, 'Expected the reviewed 86-script production loader');
   const contract = verifyProductionContract();
   const generated = await buildProductionIife();
   const committed = fs.readFileSync(path.join(ROOT, contract.path), 'utf8');
