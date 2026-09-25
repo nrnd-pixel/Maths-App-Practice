@@ -473,7 +473,7 @@
         return result;
       };
       /*
-        Item 1 — wrap-order sentinel: the result-reconciliation layer checks for
+        Item 1 — wrap-order sentinel: the outer wrapper layer checks for
         this property before completing its own install to confirm it is wrapping
         the pool-rotation layer (step 2) rather than the raw base. A missing
         sentinel means the load order was wrong and the outer layer logs a clear
