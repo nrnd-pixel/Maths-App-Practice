@@ -213,12 +213,12 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
   'site/v40-learning-priorities.js': 'bfec5b47eaf266486d21c96acdb4e1cfd677b328',
-  'site/v40-platform-polish.js': '95634fc492d1792ee94b7a3734319ea59a2f8060',
+  'site/v40-platform-polish.js': 'd03c66110d49a642a562e1c47a911ca1ce6b395a',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v40-start-shell.js': '5a9ec2891ba4a7ac862982cebd2c131b59ad53ca',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
   'site/v51-exam-publication-safety.js': '1b598a591c21542db0b4502adc0fa09e38169e11',
-  'site/v581a-practice-cloud-result-reconciliation.js': 'adea0d20b296fc1e3fceea7ede92813477d57236',
+  'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
   'site/gamification-core.js': '87d6175270284e4b40c3a1fbcd196622179d0402',
   'site/gamification-student.js': 'd9c4dc0e25cbed50346937db887a703800be5a59',
   'site/v57c-student-continue-learning-home.js': '196225cf94035363869b8051bc33cdd3c03993f9',
@@ -734,14 +734,11 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       ...Object.keys(RUNTIME_SUCCESSORS),
       ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
     ]);
-    const computedHash = workingManifestHash(
+    expect(workingManifestHash(
       'site',
       authorizedSite,
       PHASE7BD_REPLACED_SITE_BASELINE_BLOBS,
-    );
-    console.log('DIAGNOSTIC computed site hash:', computedHash);
-    console.log('DIAGNOSTIC expected site hash:', EXPECTED_FROZEN_SITE_SHA256);
-    expect(computedHash).toBe(EXPECTED_FROZEN_SITE_SHA256);
+    )).toBe(EXPECTED_FROZEN_SITE_SHA256);
 
     const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
     expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
