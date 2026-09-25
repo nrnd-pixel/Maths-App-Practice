@@ -744,7 +744,7 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       `computed=${_computedSiteHash}
 expected=${EXPECTED_FROZEN_SITE_SHA256}
 `);
-    expect(_computedSiteHash).toBe(EXPECTED_FROZEN_SITE_SHA256);
+    expect(_computedSiteHash, `COMPUTED_HASH=${_computedSiteHash}`).toBe(EXPECTED_FROZEN_SITE_SHA256);
 
     const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
     expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
