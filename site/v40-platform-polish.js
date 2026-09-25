@@ -403,7 +403,17 @@
     const validateBase = validateStudentAccess;
     validateStudentAccess = async function(purpose){
       const requestedPurpose = purpose === 'exam' ? 'exam' : 'practice';
-      const credentials = {
+      /*
+        Item 2 — credentials handoff: prefer the snapshot that v40-student-session
+        stores in window.__v40LastSignInCredentials, which is populated before the
+        PIN field is cleared in its finally block. Falling back to the DOM means
+        the pool RPC would go out with an empty PIN after the finally runs, causing
+        Supabase to reject it and the pool to silently fail.
+      */
+      const handoff = typeof window.__v40LastSignInCredentials !== 'undefined'
+        ? window.__v40LastSignInCredentials
+        : null;
+      const credentials = handoff || {
         displayName: document.getElementById('student-name')?.value.trim() || '',
         studentId: document.getElementById('student-id')?.value.trim() || '',
         pin: document.getElementById('student-pin')?.value || '',
@@ -462,6 +472,16 @@
 
         return result;
       };
+      /*
+        Item 1 — wrap-order sentinel: v581a checks for this property before
+        completing its own install to confirm it is wrapping the pool-rotation
+        layer (step 2) rather than the raw base. A missing sentinel means the
+        load order was wrong and v581a logs a clear warning rather than silently
+        composing incorrectly.
+      */
+      Object.defineProperty(finishPractice, '__v40PoolWrapped', {
+        value: true, writable: false, configurable: false, enumerable: false
+      });
     }
 
     const base = readBaseSession();
