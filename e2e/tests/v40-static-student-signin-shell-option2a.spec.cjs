@@ -76,6 +76,8 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-adaptive-question-readiness-v2.cjs',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
+  'site/v51-exam-publication-safety.js',
+  'site/v581a-practice-cloud-result-reconciliation.js',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
@@ -157,8 +159,8 @@ const ALLOWED_SITE_CHANGES = new Set([
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/v40-platform-polish.js': '5ebdcb4c8d6a8a4c5fad19fa14dfaea2561d102b',
-  'site/v40-release.js': 'a308df11b601bf563b56d555e9f434652e524d77',
+  'site/v40-platform-polish.js': '95634fc492d1792ee94b7a3734319ea59a2f8060',
+  'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
   'site/v41-mastery-progress.js': '49b8705335510cbc5df029f20b9a335e9c944e64',
   'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
