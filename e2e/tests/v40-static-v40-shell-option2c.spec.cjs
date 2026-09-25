@@ -734,11 +734,17 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       ...Object.keys(RUNTIME_SUCCESSORS),
       ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
     ]);
-    expect(workingManifestHash(
+    const _computedSiteHash = workingManifestHash(
       'site',
       authorizedSite,
       PHASE7BD_REPLACED_SITE_BASELINE_BLOBS,
-    )).toBe(EXPECTED_FROZEN_SITE_SHA256);
+    );
+    // Temporary diagnostic — will be removed after hash is confirmed
+    require('fs').writeFileSync('/tmp/option2c-computed-hash.txt',
+      `computed=${_computedSiteHash}
+expected=${EXPECTED_FROZEN_SITE_SHA256}
+`);
+    expect(_computedSiteHash).toBe(EXPECTED_FROZEN_SITE_SHA256);
 
     const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
     expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
