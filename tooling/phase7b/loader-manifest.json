@@ -5,7 +5,7 @@
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "6b08927604d739979bf50ed213bcd4d5a11dce090140131307088cfdc76bdc40",
+      "sourceSha256": "5caf6cc143c8c1e356f1d8097ce4bd7219805c257c5d404695f366e546daa095",
       "entries": [
         {
           "src": "./version.js"
@@ -165,6 +165,12 @@
         },
         {
           "src": "./v59j-challenge-share.js"
+        },
+        {
+          "src": "./v59k-dashboard-restructure.js"
+        },
+        {
+          "src": "./v59l-parent-share.js"
         }
       ]
     },

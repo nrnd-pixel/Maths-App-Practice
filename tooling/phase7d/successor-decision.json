@@ -7,13 +7,13 @@
   "productionChangeAuthorized": false,
   "currentContract": {
     "configPath": "site/config.js",
-    "configBlob": "cc21493af2d53b30b3d25e7bb53d98a24f6e669b",
+    "configBlob": "180237efcaa1fa7d38999add6e9ed802a6adb00b",
     "releasePath": "site/v40-release.js",
     "releaseBlob": "a308df11b601bf563b56d555e9f434652e524d77",
-    "tier1Scripts": 53,
+    "tier1Scripts": 55,
     "tier2Scripts": 41,
-    "productionRuntimeScripts": 94,
-    "chronology": "53 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
+    "productionRuntimeScripts": 96,
+    "chronology": "55 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
     "releaseIdentity": "derived by site/version.js from window.MATH_APP_STAGED_SCRIPTS",
     "releasePresentationOwner": "site/v40-release.js",
     "tier2TransportOwner": "site/v40-release.js"
@@ -27,7 +27,7 @@
     {
       "id": "retain-current",
       "description": "Keep config.js and v40-release.js byte-identical and retain the current nested loader.",
-      "productionRuntimeScripts": 94,
+      "productionRuntimeScripts": 96,
       "directRequestReduction": 0,
       "productionSiteChanges": 0,
       "protectedBoundaryChanges": 0,
@@ -36,7 +36,7 @@
     {
       "id": "modify-v40-release-as-flat-coordinator",
       "description": "Change the frozen v40-release.js so it coordinates tier-2 loading only after the remaining tier-1 chain completes.",
-      "productionRuntimeScripts": 94,
+      "productionRuntimeScripts": 96,
       "directRequestReduction": 0,
       "productionSiteChanges": "at least site/v40-release.js",
       "protectedBoundaryChanges": "v40-release exact frozen blob plus loader/seal/chronology checkpoints",
@@ -45,7 +45,7 @@
     {
       "id": "replace-release-entry-with-successor",
       "description": "Replace the staged v40-release.js entry with a new production successor that owns release presentation plus deferred tier-2 transport.",
-      "productionRuntimeScripts": 94,
+      "productionRuntimeScripts": 96,
       "directRequestReduction": 0,
       "productionSiteChanges": "site/config.js plus a new site successor file",
       "protectedBoundaryChanges": "Option 2A/2B/2C successor authorization, Option 2C config exact successor, loader manifest and chronology checkpoints",
@@ -54,7 +54,7 @@
     {
       "id": "inline-flat-transport-in-config",
       "description": "Remove v40-release.js from the staged runtime and move both its release-presentation boundary and flat tier-2 transport into config.js.",
-      "productionRuntimeScripts": 93,
+      "productionRuntimeScripts": 95,
       "directRequestReduction": 1,
       "productionSiteChanges": "site/config.js plus retirement semantics for site/v40-release.js",
       "protectedBoundaryChanges": "Option 2C config exact successor, loader manifest, release-presentation ownership, chronology/seal checkpoints",
