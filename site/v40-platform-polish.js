@@ -473,11 +473,11 @@
         return result;
       };
       /*
-        Item 1 — wrap-order sentinel: v581a checks for this property before
-        completing its own install to confirm it is wrapping the pool-rotation
-        layer (step 2) rather than the raw base. A missing sentinel means the
-        load order was wrong and v581a logs a clear warning rather than silently
-        composing incorrectly.
+        Item 1 — wrap-order sentinel: the result-reconciliation layer checks for
+        this property before completing its own install to confirm it is wrapping
+        the pool-rotation layer (step 2) rather than the raw base. A missing
+        sentinel means the load order was wrong and the outer layer logs a clear
+        warning rather than composing incorrectly.
       */
       Object.defineProperty(finishPractice, '__v40PoolWrapped', {
         value: true, writable: false, configurable: false, enumerable: false
