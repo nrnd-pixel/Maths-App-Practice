@@ -5,7 +5,7 @@
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "5caf6cc143c8c1e356f1d8097ce4bd7219805c257c5d404695f366e546daa095",
+      "sourceSha256": "9de1957a1b398c8cad2f647d4113b973ef66d74039505aaf521f697436ed0230",
       "entries": [
         {
           "src": "./version.js"
@@ -171,6 +171,9 @@
         },
         {
           "src": "./v59l-parent-share.js"
+        },
+        {
+          "src": "./v59m-student-polish.js"
         }
       ]
     },

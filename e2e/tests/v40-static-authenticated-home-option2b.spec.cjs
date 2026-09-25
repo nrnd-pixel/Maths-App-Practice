@@ -200,7 +200,8 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/v59i-personal-best.js',
   'site/v59j-challenge-share.js',
   'site/v59k-dashboard-restructure.js',
-  'site/v59l-parent-share.js',]);
+  'site/v59l-parent-share.js',
+  'site/v59m-student-polish.js',]);
 
 const FROZEN_BLOBS = Object.freeze({
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',

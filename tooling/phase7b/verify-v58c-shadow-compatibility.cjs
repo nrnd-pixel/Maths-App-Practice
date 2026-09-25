@@ -361,7 +361,7 @@ async function runScenario(browser, mode, scenario, bundle) {
 }
 
 async function main() {
-  assert.equal(verifyLoaderManifest().length, 96, 'Phase 7B production loader verification must stay green');
+  assert.equal(verifyLoaderManifest().length, 97, 'Phase 7B production loader verification must stay green');
   verifyProductionContract();
   for (const source of classicSources) {
     assert.doesNotMatch(source, forbiddenAuthority,
