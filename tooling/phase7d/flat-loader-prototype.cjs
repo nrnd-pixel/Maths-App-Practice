@@ -21,7 +21,7 @@ function buildFlatPlan(loaderManifest,authorityMap){
   const tier1 = loaderManifest.tiers.find(row => row.source === 'site/config.js');
   const tier2 = loaderManifest.tiers.find(row => row.source === 'site/v40-release.js');
 
-  assert(tier1 && tier1.entries.length === 56, 'expected the accepted 56-entry tier-1 loader');
+  assert(tier1 && tier1.entries.length === 57, 'expected the accepted 57-entry tier-1 loader');
   assert(tier2 && tier2.entries.length === 41, 'expected the accepted 41-entry tier-2 loader');
   assert(authorityMap.entries.length === 41, 'expected the accepted 41-entry tier-2 authority map');
 
@@ -79,7 +79,7 @@ function buildFlatPlan(loaderManifest,authorityMap){
 }
 
 function validateFlatPlan(plan,loaderManifest,authorityMap){
-  assert(Array.isArray(plan) && plan.length === 97, 'flat plan must contain exactly 97 symbolic execution steps');
+  assert(Array.isArray(plan) && plan.length === 98, 'flat plan must contain exactly 98 symbolic execution steps');
 
   const boundaries = plan.filter(step => step.kind === 'release-presentation-boundary');
   assert(boundaries.length === 1, 'flat plan must contain exactly one release-presentation boundary');
@@ -88,11 +88,11 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
 
   const tier1Steps = plan.filter(step => step.tier === 1);
   const tier2Steps = plan.filter(step => step.tier === 2);
-  assert(tier1Steps.length === 56, 'flat plan must preserve 49 symbolic tier-1 positions');
+  assert(tier1Steps.length === 57, 'flat plan must preserve 49 symbolic tier-1 positions');
   assert(tier2Steps.length === 41, 'flat plan must preserve all 41 tier-2 scripts');
 
-  assert(plan.slice(0,56).every(step => step.tier === 1), 'all tier-1 positions must precede tier 2');
-  assert(plan.slice(56).every(step => step.tier === 2), 'all tier-2 positions must follow the complete tier-1 chain');
+  assert(plan.slice(0,57).every(step => step.tier === 1), 'all tier-1 positions must precede tier 2');
+  assert(plan.slice(57).every(step => step.tier === 2), 'all tier-2 positions must follow the complete tier-1 chain');
 
   const manifestTier1 = loaderManifest.tiers.find(row => row.source === 'site/config.js');
   const manifestTier2 = loaderManifest.tiers.find(row => row.source === 'site/v40-release.js');
@@ -122,7 +122,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
 
   for (const row of authorityMap.entries){
     const current = positionByFile.get(row.file);
-    assert(current > 56, `${row.file}: every mapped tier-2 owner must remain after all tier-1 positions`);
+    assert(current > 57, `${row.file}: every mapped tier-2 owner must remain after all tier-1 positions`);
 
     for (const predecessor of row.requiresEarlier || []){
       const earlier = positionByFile.get(predecessor);
@@ -133,7 +133,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
       if (!external.startsWith('tier1:')) continue;
       const predecessor = external.slice('tier1:'.length);
       const earlier = positionByFile.get(predecessor);
-      assert(Number.isInteger(earlier) && earlier <= 56 && earlier < current,
+      assert(Number.isInteger(earlier) && earlier <= 57 && earlier < current,
         `${row.file}: cross-tier predecessor ${predecessor} must remain in the completed tier-1 chain`);
     }
   }
@@ -142,7 +142,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
   const v581aPosition = positionByFile.get('v581a-practice-cloud-result-reconciliation.js');
   assert(releasePosition === manifestTier1.entries.findIndex(entry => fileOf(entry.src) === RELEASE_OWNER) + 1,
     'release presentation boundary must preserve the original v40-release symbolic position');
-  assert(v581aPosition > releasePosition && v581aPosition <= 56,
+  assert(v581aPosition > releasePosition && v581aPosition <= 57,
     'V581A must remain after the release-presentation boundary but before every tier-2 owner');
 
   return true;

@@ -103,7 +103,8 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/v59j-challenge-share.js',
   'site/v59k-dashboard-restructure.js',
   'site/v59l-parent-share.js',
-  'site/v59m-student-polish.js',]);
+  'site/v59m-student-polish.js',
+  'site/v59n-webp-shim.js',]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/v40-platform-polish.js': '5ebdcb4c8d6a8a4c5fad19fa14dfaea2561d102b',
