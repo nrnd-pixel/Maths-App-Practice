@@ -261,7 +261,7 @@ const FROZEN_BLOBS = Object.freeze({
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-platform-polish.js': '95634fc492d1792ee94b7a3734319ea59a2f8060',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
-  'site/v40-student-session.js': 'fcc1f8c9101bf988a3261b11b1e2b96d50d8ccb8',
+  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
   'site/v40-start-shell.js': '5a9ec2891ba4a7ac862982cebd2c131b59ad53ca',
   'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
   'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
