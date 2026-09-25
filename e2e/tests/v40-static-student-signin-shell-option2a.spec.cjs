@@ -10,7 +10,7 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '42e00af61b6e186e81cca0356385eb160d6bb4d60829c0fe4c1cafeafd3cd1f4';
+const EXPECTED_FROZEN_SITE_SHA256 = 'faa1197804d0034b1e0558ef3a18190a0eaa074deeffe5df2adcf187bc788c28';
 const EXPECTED_SUPABASE_SHA256 = 'b9ce6bc01ead2f39b3aadab4f0a0688fa5c54bf8129258e776972636c17b4ef3';
 const EXPECTED_SUPABASE_TREE = '27b8fdc47b6e56b4e54f6ad749827e631ce84110';
 const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
