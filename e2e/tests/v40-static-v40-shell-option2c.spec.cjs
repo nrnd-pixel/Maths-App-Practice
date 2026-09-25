@@ -86,7 +86,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/icon-192.png': 'e96ed1d50849d9ae37596cb03a0185a6c11ab6a4',
   'site/icon-512.png': '83e249396cb37a1418b12c4bb6bcd6b2fad1d68f',
   'site/manifest.json': 'b4f8c3d47280af02b3856ba6c0955e0a1590c217',
-  'site/sw.js': 'b4b44bb96691d1f6f3e39c0eda73508f67852160',
+  'site/sw.js': '9dabf7e56ae76c8113bca0780064fae97bdbc8bd',
   'site/v59c-result-celebration.js': '5be21dfeece4e5c6c4681096d2bcd3846e0bbe14',
   'site/v59d-streak-urgency.js': '67611f64092636d80b82156c53a42fa36550c069',
   'site/v59e-result-next-step.js': '73ae0c1ecb003b664768e15bb3e2772f6e94b4b1',
