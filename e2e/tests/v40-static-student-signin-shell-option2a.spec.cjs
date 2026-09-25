@@ -159,7 +159,7 @@ const ALLOWED_SITE_CHANGES = new Set([
 ]);
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/v40-platform-polish.js': '95634fc492d1792ee94b7a3734319ea59a2f8060',
+  'site/v40-platform-polish.js': 'd03c66110d49a642a562e1c47a911ca1ce6b395a',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
   'site/v41-mastery-progress.js': '49b8705335510cbc5df029f20b9a335e9c944e64',
