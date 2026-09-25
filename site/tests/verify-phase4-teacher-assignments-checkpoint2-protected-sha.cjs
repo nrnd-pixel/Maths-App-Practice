@@ -46,7 +46,7 @@ const protectedBlobs = {
   'site/v58c-parent-friendly-student-report.js': 'ab1ec58ff7cae1d886879002e4983179d7280145',
   'site/v58c-parent-summary-workspace-shortcut.js': 'a6bbf05422d414d94fa7e6164f1d302e27feda51',
   'site/v58d-content-workflow-consolidation.js': '7905fce53236305d946315cae260c4b1bf212be6',
-  'site/v581a-practice-cloud-result-reconciliation.js': 'adea0d20b296fc1e3fceea7ede92813477d57236',
+  'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
   'site/v58-stable-release-checkpoint.js': '7afdfa50363672f7dd35d67473bcec8485944fdd',
 };
 
