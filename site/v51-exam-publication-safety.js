@@ -56,7 +56,27 @@
 
   let baseLoad = null;
   try { if (typeof loadExamSettingsEditor === 'function') baseLoad = loadExamSettingsEditor; } catch {}
-  if (!baseLoad) return;
+  if (!baseLoad) {
+    /*
+      Item 4 — visible failure: the entire safety layer is skipped if the base
+      function is absent. Log clearly (not just silently return) so this surfaces
+      in browser devtools. Also inject a visible UI message if the feedback element
+      exists, because a teacher would otherwise see the unguarded legacy editor
+      with no indication that the hardening layer failed to install.
+    */
+    console.error(
+      'V5.1B3 Exam Publication Safety: loadExamSettingsEditor was not found at install ' +
+      'time. The guarded editor could not be installed. Check the load order in v40-release.js.'
+    );
+    if (typeof document !== 'undefined') {
+      const fb = document.getElementById('exam-settings-feedback');
+      if (fb) {
+        fb.className = 'feedback incorrect';
+        fb.textContent = 'V5.1B3 safety layer failed to initialise. Exam publication controls are unguarded. Please reload.';
+      }
+    }
+    return;
+  }
 
   function cloudTeacherReady(){
     try { return !!(cloudReady && teacherUser && cloud); } catch { return false; }
