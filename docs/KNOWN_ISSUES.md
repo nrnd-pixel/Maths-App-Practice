@@ -1,6 +1,6 @@
 # Maths Practice App — Known Issues and Watchlist
 
-Last updated: 2026-09-20
+Last updated: 2026-09-25
 
 This file records unresolved defects, stale branches and data-quality risks that may affect future work. Resolved timing/test issues are kept only where the lesson remains operationally useful.
 
