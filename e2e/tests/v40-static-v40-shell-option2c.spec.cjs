@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';
+const EXPECTED_FROZEN_SITE_SHA256 = '02ac1dd4754b5a7b6ef2b39909831e5893e4b5e77cbc8fd312a222d7af857f7e';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -95,7 +95,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59h-mission-preview.js': 'c5d18a752bda7098a2129cfd495b6e17364c197a',
   'site/v59i-personal-best.js': '7bd6dd7f54b63ec7d6f7af4a42bb49628d334bff',
   'site/v59j-challenge-share.js': '8f8bf884712cee78ee44f335ae92f4163a09ba06',
-  'site/v59k-dashboard-restructure.js': 'cc3b84db9ae0ae3edd4dab145c340e912a729065',
+  'site/v59k-dashboard-restructure.js': '2da1e2206c20b11b36c4d4f2879d853f0c02d597',
   'site/v59l-parent-share.js': 'cd00f99b8647819983067b0a1fbbb5634c90bf76'});
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
