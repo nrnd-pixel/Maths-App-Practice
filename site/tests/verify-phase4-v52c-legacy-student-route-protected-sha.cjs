@@ -100,7 +100,7 @@ const protectedFiles=Object.freeze({
 
   // V58 complete runtime boundary.
   'site/v58-stable-release-checkpoint.js':'7afdfa50363672f7dd35d67473bcec8485944fdd',
-  'site/v581a-practice-cloud-result-reconciliation.js':'adea0d20b296fc1e3fceea7ede92813477d57236',
+  'site/v581a-practice-cloud-result-reconciliation.js':'3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
   'site/v58a-student-first-use-experience.js':'8e0279e86b1ece862586238f99c760129c13465f',
   'site/v58b-teacher-workspace-consolidation.js':'661c54ddc1f5cf45252f14b0dadf8600c1243ab2',
   'site/v58c-parent-friendly-student-report.js':'ab1ec58ff7cae1d886879002e4983179d7280145',
