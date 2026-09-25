@@ -1,0 +1,84 @@
+# Netlify configuration for Maths Practice App
+# Deployed from the site/ directory via Netlify Git integration.
+
+[build]
+  publish = "site"
+
+# ── Security and caching headers ──────────────────────────────────────────────
+
+# index.html — never cache; always revalidate.
+# Students must always get the latest app shell.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# config.js — never cache; drives the entire script loading chain.
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+
+# All JavaScript files — immutable, 1 year.
+# Safe because every file is versioned by name (v59m-..., v40-..., etc.)
+# and new versions get new filenames.
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
+
+# Service worker — never cache; must always be revalidated by the browser.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+
+# Images — immutable, 1 year.
+# Past paper images are versioned by filename (2024_P1_Q14.png etc.)
+# and never change once added.
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# JSON (manifest, loader-manifest) — short cache; may change with deploys.
+[[headers]]
+  for = "/*.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Web app manifest — short cache.
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# ── Redirects ──────────────────────────────────────────────────────────────────
+
+# Demo and viewer sub-pages — serve their own index.html.
+[[redirects]]
+  from = "/demo"
+  to   = "/demo/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo-student"
+  to   = "/demo-student/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/viewer-demo"
+  to   = "/viewer-demo/index.html"
+  status = 200
+
+# All other routes fall through to the main app (SPA-style).
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
