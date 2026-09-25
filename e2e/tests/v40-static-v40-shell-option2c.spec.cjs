@@ -192,6 +192,8 @@ const AUTHORIZED_SITE_DELETIONS = new Set([
   'site/v57a-cross-device-past-paper-resume.js','site/v57a1-cross-device-local-bridge.js',
   'site/v57a2-stale-local-checkpoint-cleanup.js','site/v57d-past-paper-analytics-actions.js',
   'site/v57d1-focus-plan-copy-fallback.js',
+  'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.csv',
+  'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.xlsx',
 ]);
 const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/question_metadata_v2_demand_profile.sql': 'afdd7ded59ca373026a51453ade760a4b203d9e3',
