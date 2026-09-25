@@ -252,10 +252,6 @@ jobs:
         working-directory: e2e
         run: npx playwright test tests/phase7bf-v58c-production-successor.spec.cjs --reporter=line
 
-      - name: Print Option 2C hash diagnostic
-        if: failure()
-        run: cat /tmp/option2c-computed-hash.txt 2>/dev/null || echo "No hash file"
-
       - name: Run Option 2C static V40 shell hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
