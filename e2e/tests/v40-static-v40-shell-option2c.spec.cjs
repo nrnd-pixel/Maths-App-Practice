@@ -213,7 +213,7 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
   'site/v40-learning-priorities.js': 'bfec5b47eaf266486d21c96acdb4e1cfd677b328',
-  'site/v40-platform-polish.js': 'd03c66110d49a642a562e1c47a911ca1ce6b395a',
+  'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v40-start-shell.js': '5a9ec2891ba4a7ac862982cebd2c131b59ad53ca',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
