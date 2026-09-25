@@ -1,6 +1,6 @@
 # Maths Practice App — Roadmap
 
-Last updated: 2026-09-20
+Last updated: 2026-09-25
 
 This roadmap prioritises the live Maths experience because students are actively using the app for practice. It deliberately deprioritises breadth, including Science expansion, until the Maths practice system is more reliable, diagnostically useful and maintainable.
 
@@ -198,6 +198,12 @@ Outcome achieved:
 - no production loader rewrite was justified merely to reduce script count.
 
 Vanilla JS, Supabase and Netlify remain the production stack. Reopen bundling only for a concrete maintenance/performance objective with preserved static + Playwright equivalence.
+
+Deployment infrastructure completed 2026-09-25:
+- netlify.toml: explicit publish dir, 1-year immutable cache for JS/images, no-cache for shell, security headers
+- Service worker v2: cache-first for assets, network-first for shell, offline fallback
+- WebP image conversion: 47 past paper images, 17.3 MB -> 1.2 MB (93% reduction)
+- v59n shim: transparent PNG->WebP rewrite at render time
 
 ## P3 — high-risk architecture replacement
 

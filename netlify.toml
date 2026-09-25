@@ -77,6 +77,13 @@
   to   = "/viewer-demo/index.html"
   status = 200
 
+# Block direct access to any question-bank path (files moved to docs/)
+[[redirects]]
+  from   = "/question-bank/*"
+  to     = "/index.html"
+  status = 404
+  force  = true
+
 # All other routes fall through to the main app (SPA-style).
 [[redirects]]
   from   = "/*"

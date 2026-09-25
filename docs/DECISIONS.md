@@ -167,3 +167,44 @@ First produce a map of observers, events, globals, downstream dependencies, hard
 - Full maintained static verifiers + Playwright hard gates + `npm test` are required for production-facing changes.
 - Frozen files and all Supabase SQL require extreme care.
 - Never merge without explicit user instruction.
+
+## 2026-09-25 - Infrastructure Phase A: netlify.toml and service worker v2
+
+Decision:
+Add netlify.toml with explicit cache headers and expand sw.js from a 3-file precache to a full cache-first strategy.
+
+Reason:
+Without netlify.toml, Netlify serves all assets with short default cache headers. All 97 JS files and 47 images were re-fetched on every visit.
+
+Outcome:
+- JS files and images: Cache-Control: public, max-age=31536000, immutable (safe because all filenames are versioned)
+- index.html and config.js: no-cache, must-revalidate (always fresh)
+- sw.js: no-cache (browser must always revalidate the service worker)
+- Service worker v2: cache-first for all versioned assets, network-first for shell, offline fallback, clears v1 cache on activate
+- Security headers added to index.html: X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+
+## 2026-09-25 - Infrastructure Phase B: WebP image conversion
+
+Decision:
+Convert all 47 past paper PNG images to WebP alongside the originals. Add v59n shim to rewrite images/*.png -> *.webp at render time with silent PNG fallback.
+
+Reason:
+17.3 MB of PNG images on first load. WebP at quality 82 reduces this to 1.2 MB (93% reduction) with no perceptible quality difference for diagram/text content.
+
+Outcome:
+- PNG originals kept for backward compatibility with any Supabase Storage URLs
+- v59n shim intercepts renderQuestion and watches the DOM for dynamically added images
+- No database changes required - rewrite happens at render time
+- image_url values in the questions table remain unchanged
+
+Implication:
+When new exam paper images are added, convert to WebP and add blob SHAs to 2A/2B/2C seal lists.
+
+## 2026-09-25 - Source data files moved out of deployed site/
+
+Decision:
+Move site/question-bank/*.csv and *.xlsx to docs/question-bank/. Block /question-bank/* in netlify.toml.
+
+Reason:
+Raw exam source data files were being served publicly via the Netlify site. They are development/content-authoring assets, not app files.
+

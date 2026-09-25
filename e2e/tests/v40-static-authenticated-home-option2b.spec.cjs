@@ -250,6 +250,8 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/images/psr_2025_p1_q35_diagram.webp',
   'site/images/psr_2025_p1_q36_diagram.webp',
   'site/images/psr_2025_p1_q38_diagram.webp',
+  'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.csv',
+  'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.xlsx',
 ]);
 
 const FROZEN_BLOBS = Object.freeze({

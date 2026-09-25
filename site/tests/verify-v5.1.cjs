@@ -158,7 +158,7 @@ for (const file of [
 }
 
 // 11) Question-bank/import contract remains stable.
-const bank = recordsFromCsv(path.join(siteRoot, 'question-bank', 'PSR_2025_Mathematics_Paper1_Q1-Q40.csv'));
+const bank = recordsFromCsv(path.join(siteRoot, '..', 'docs', 'question-bank', 'PSR_2025_Mathematics_Paper1_Q1-Q40.csv'));
 const template = recordsFromCsv(path.join(siteRoot, 'question-import-template.csv'));
 assert.deepEqual(template.headers, bank.headers, 'Template and bank headers must stay aligned.');
 assert.equal(bank.headers.length, 25, 'Question import schema must remain 25 columns.');

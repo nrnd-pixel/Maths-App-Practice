@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = 'be3012e349c2b9b6b0fba450e3ef3264421ea9d002ec00a48270d6c1ad464b13';
+const EXPECTED_FROZEN_SITE_SHA256 = '74b6e0dc55c7eff9f6601d7054b293c01ac89bf7c6047de74baadfdce00aa5bd';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -71,7 +71,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-question-metadata-v2-schema-contract.cjs': 'c8fb99a90c058834c99353afe85169b97b02e51e',
   'site/tests/verify-adaptive-question-readiness-v2.cjs': '62a1d5df660089b5e5db16facbd7e95d5f151299',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs': 'ead9b5cc61e6e466a74b5b0578e81e8185609215',
-  'site/tests/verify-v5.1.cjs': 'c3b22c0e540b6da490fd3acf886016986bd35716',
+  'site/tests/verify-v5.1.cjs': 'f2de45c844e1c0bdf857609bc5e54062c1504757',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs': 'c13bfae1ceb6923aa4b4c03c5c61efb1bc7d6c81',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
@@ -192,6 +192,8 @@ const AUTHORIZED_SITE_DELETIONS = new Set([
   'site/v57a-cross-device-past-paper-resume.js','site/v57a1-cross-device-local-bridge.js',
   'site/v57a2-stale-local-checkpoint-cleanup.js','site/v57d-past-paper-analytics-actions.js',
   'site/v57d1-focus-plan-copy-fallback.js',
+  'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.csv',
+  'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.xlsx',
 ]);
 const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
   'supabase/question_metadata_v2_demand_profile.sql': 'afdd7ded59ca373026a51453ade760a4b203d9e3',
