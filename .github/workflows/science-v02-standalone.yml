@@ -1,0 +1,30 @@
+name: Science V0.2 Standalone
+
+on:
+  pull_request:
+    paths:
+      - 'site/science-v02/**'
+      - 'site/tests/verify-science-v02-standalone.cjs'
+      - '.github/workflows/science-v02-standalone.yml'
+      - 'supabase/science_v02_standalone_auth.sql'
+  push:
+    branches:
+      - 'feature/science-v0.2-standalone'
+    paths:
+      - 'site/science-v02/**'
+      - 'site/tests/verify-science-v02-standalone.cjs'
+      - '.github/workflows/science-v02-standalone.yml'
+      - 'supabase/science_v02_standalone_auth.sql'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: node --check site/science-v02/app.js
+      - name: Verify standalone isolation
+        run: node site/tests/verify-science-v02-standalone.cjs
