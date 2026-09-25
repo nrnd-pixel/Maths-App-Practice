@@ -35,7 +35,7 @@ const protectedFiles=Object.freeze({
   'site/paper-import-management.js':'dddbc15919479df2a3016e0088b8372ab6fd14ae',
   'site/paper-import-management.js':'7a066b493eae01289ef2aa340e7e019bb17ab688',
   'site/paper-import-management.js':'7c4b6a3d27ba59d1b2cebb4799617ee268187efb',
-  'site/v51-exam-publication-safety.js':'183f313e630d7dd989355107192a35d6af8814c9',
+  'site/v51-exam-publication-safety.js':'1b598a591c21542db0b4502adc0fa09e38169e11',
   'site/v51-exam-publication-ui-polish.js':'c55497e54679dd17a9f020ca7a7898cd4d30a510',
   'site/question-bank-audit-multipart.js':'8658f800def32aa882bdbc168b6477fbc6dbb56e',
   'site/paper-import-management.js':'a468e532f95a0bce8ce014ee102890de833c3bf3',
@@ -102,7 +102,7 @@ const protectedFiles=Object.freeze({
 
   // V58 complete runtime boundary.
   'site/v58-stable-release-checkpoint.js':'7afdfa50363672f7dd35d67473bcec8485944fdd',
-  'site/v581a-practice-cloud-result-reconciliation.js':'09f167eab59737a393113ec3059724b8931155d3',
+  'site/v581a-practice-cloud-result-reconciliation.js':'adea0d20b296fc1e3fceea7ede92813477d57236',
   'site/v58a-student-first-use-experience.js':'8e0279e86b1ece862586238f99c760129c13465f',
   'site/v58b-teacher-workspace-consolidation.js':'661c54ddc1f5cf45252f14b0dadf8600c1243ab2',
   'site/v58c-parent-friendly-student-report.js':'ab1ec58ff7cae1d886879002e4983179d7280145',
