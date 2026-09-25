@@ -10,6 +10,17 @@
     script.src = src;
     script.async = false;
     script.setAttribute(dataKey, '1');
+    /*
+      Item 5 — script load error visibility: a 404 or network failure on any of
+      the ~35 scripts loaded here is completely silent without this handler. The
+      app continues with a missing feature and no indication of the problem.
+      console.error surfaces it in browser devtools and will be caught by the
+      P2.2 window.onerror handler when that ships. This complements the roadmap
+      observability work without depending on it.
+    */
+    script.onerror = function() {
+      console.error('V5.1 Release loader: failed to load script — ' + src);
+    };
     document.head.appendChild(script);
   }
 
