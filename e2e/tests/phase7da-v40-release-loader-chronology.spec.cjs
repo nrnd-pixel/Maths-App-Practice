@@ -148,12 +148,12 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
     await expect.poll(
       () => page.evaluate(() => window.__phase7d?.executions?.length || 0),
       { timeout: 15_000 }
-    ).toBe(98);
+    ).toBe(99);
 
     await expect.poll(
       () => page.evaluate(() => window.__phase7d?.loads?.length || 0),
       { timeout: 15_000 }
-    ).toBe(98);
+    ).toBe(99);
 
     const result = await page.evaluate(() => ({
       insertions: window.__phase7d.insertions,
@@ -195,7 +195,7 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
     await expect.poll(
       () => page.evaluate(() => window.__phase7d?.executions?.length || 0),
       { timeout: 15_000 }
-    ).toBe(98);
+    ).toBe(99);
 
     const before = await page.evaluate(() => ({
       insertionCount: window.__phase7d.insertions.length,
