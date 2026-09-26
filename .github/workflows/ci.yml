@@ -260,7 +260,7 @@ jobs:
       - name: Run Option 2B static authenticated Home hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
-        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line 2>&1 | tee /tmp/2b-output.txt; cat /tmp/2b-output.txt | grep -E 'gate [0-9]+|FAILED|Error|✕|✗' || true
+        run: npx playwright test tests/v40-static-authenticated-home-option2b.spec.cjs --reporter=line
 
       - name: Run V52C legacy topical hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/development/phase4-v54-resource-bank-checkpoint1-validation') }}
