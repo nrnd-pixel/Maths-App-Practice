@@ -192,6 +192,21 @@
         ? ROOT.finishPractice
         : (typeof finishPractice === 'function' ? finishPractice : null);
       if (!base) return false;
+      /*
+        Item 1 — wrap-order check: the pool-rotation layer stamps __v40PoolWrapped
+        on its finishPractice wrapper. If that sentinel is missing the chain is in
+        the wrong order, meaning ticket rotation would be skipped. Warn loudly
+        rather than composing silently in the wrong order. The install still
+        proceeds because the reconciliation layer is additive and safe in either
+        order; the warning surfaces the problem for diagnosis.
+      */
+      if (!base.__v40PoolWrapped) {
+        console.warn(
+          'V5.8.1A: finishPractice was not yet wrapped by the pool-rotation layer ' +
+          '(__v40PoolWrapped sentinel absent). Practice ticket rotation may be skipped. ' +
+          'Check the load order in the release loader.'
+        );
+      }
       const wrapped = async function(...args){
         const output = await base.apply(this,args);
         try { await reconcileActiveResult(); }

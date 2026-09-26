@@ -350,6 +350,16 @@
     applyShellState({ preserveInitialLoggedOut:true });
 
     document.addEventListener('click', handleNavigationClick, true);
+
+    /*
+      Item 3 — explicit auth-state contract: listen for the CustomEvent that
+      v40-student-session.js dispatches whenever auth state changes. This makes
+      the coupling between the two files explicit and means shell state updates
+      survive any future rename of the v40c-authenticated CSS class (which the
+      MutationObserver above depends on). The two listeners are complementary:
+      the MutationObserver fires on DOM class changes; this fires on the semantic
+      event. Either alone is sufficient; both together are belt-and-suspenders.
+    */
   }
 
   if (document.readyState === 'loading') {

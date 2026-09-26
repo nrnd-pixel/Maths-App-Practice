@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '74b6e0dc55c7eff9f6601d7054b293c01ac89bf7c6047de74baadfdce00aa5bd';
+const EXPECTED_FROZEN_SITE_SHA256 = '6c5a4b4ae7c5a1e4568beaad98f0f1449888daef1ad6ec45bd69bad3d1df85c8';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -48,26 +48,26 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59a-student-home-refresh.js': 'f2790ef6b6074ba7f94b9f7f9190a94e104c86d0',
   'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'd85d55d045847255714607ced0cb441af94d2bd0',
   'site/v59b-adaptive-diagnostic-pilot-v2.js': '42fc17368432f3558f6bf7caa66749e8ae02805b',
-  'site/tests/v51-phase4-protected-shas.json': 'e1e5ec69b8de44aaa9b13354323afa8ce1f0e45b',
+  'site/tests/v51-phase4-protected-shas.json': 'd882cc88e9451fc430b3d229eca1e99eb86a1831',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
   'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '4804b1ca8631291ca70e61c6a3091aea979eb4dd',
-  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': 'ecf5e7055428a638bd1f70309a515e06853c0aa1',
+  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': '21b4c535fd5b90e647e8c3e008503c2d1d4a6930',
   'site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs': 'd8f3e86d83d136d6ae99234c22beb6d640c7736b',
   'site/tests/verify-phase4-v50-operations-reporting-integrity.cjs': '982d12fab8c6d01ec9499bb28c943b53f08cf101',
-  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': '0075ae9fd8ab9a9b182c79be43f538a2f1a3dd02',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': '71ff7d0873ba5f508b8474ef13324537bd85b6eb',
   'site/tests/verify-phase4-v51-question-bank-management-integrity.cjs': '7d04c724f9bc39614671b02b0a37b22e74f8d67a',
   'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '1613f8a1413114358fbfd1bc774c8689cec39602',
   'site/tests/verify-phase4-v52c-legacy-student-route-integrity.cjs': '89567520661af8b9c8c1e944d7cb869097cc773f',
-  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '7e87965809d01d5bf0e67b893227b8a7d2fc9d99',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '7052cc6889e98ef26543b050afa27f771d3a7c63',
   'site/tests/verify-phase4-v53-practice-selection-dormant-reference-integrity.cjs': '716f2679c26144e8f1b7decd605b082551e7cb3a',
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': 'a33ea86c659bc638cc3ac23a1b11e98c60233c14',
   'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs': 'fd7b49e31fa174e3c225ffa814968847416f237e',
   'site/tests/verify-phase4-v53-ui-resource-companion-integrity.cjs': '72328a455af6073e633a347db5bb482c29569c41',
-  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': '962ae02c3db27971f214c4f8f0c831361b3d3897',
+  'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'daa3c13f03d99f4859b69763d64612c48dcaf555',
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs': 'f19d8cd7b1b72a2851b5a0d534b26b103cc08331',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs': 'a15550958a3179a86610c19af6cad591768ec708',
-  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '0c1e7e55ca3b2b30e444a469626348539c4e60b0',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '10135433ee29cca84d2229611943620a5f3947da',
   'site/tests/verify-question-metadata-v2-schema-contract.cjs': 'c8fb99a90c058834c99353afe85169b97b02e51e',
   'site/tests/verify-adaptive-question-readiness-v2.cjs': '62a1d5df660089b5e5db16facbd7e95d5f151299',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs': 'ead9b5cc61e6e466a74b5b0578e81e8185609215',
@@ -75,7 +75,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs': 'c13bfae1ceb6923aa4b4c03c5c61efb1bc7d6c81',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
-  'site/tests/verify-phase5c-wrapper-chain-coverage.cjs': '8bf3c87f93f1677cb15395e36c7c7600dffb3672',
+  'site/tests/verify-phase5c-wrapper-chain-coverage.cjs': '42d9f0001fa5b93f4ebacff3aa2c6215da41226b',
   'site/demo/index.html': '631153822067f4efc48794be719e8d6bbb4e96df',
   'site/viewer-demo/index.html': '9f1338facc7ddefde9640959a6fbfce7d1aac517',
   'site/demo-student/index.html': '72df4461ed816b40133b4a34e1434ef4f994c144',
@@ -145,7 +145,14 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/images/psr_2025_p1_q29_diagram.webp': '82186fd3dbe72099aed2655a6dbfa7dc1f37cbc0',
   'site/images/psr_2025_p1_q35_diagram.webp': 'e82b095611b348eb881ef8f42ee297e32ffbbc52',
   'site/images/psr_2025_p1_q36_diagram.webp': '07e95a02cc1d491ab7e2cbc5d19e90ec13d20ca8',
-  'site/images/psr_2025_p1_q38_diagram.webp': '25506e085a86727726440f3870bbda725a15faca'});
+  'site/images/psr_2025_p1_q38_diagram.webp': '25506e085a86727726440f3870bbda725a15faca',
+  'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
+  'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
+  'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
+  'site/v51-exam-publication-safety.js': '1b598a591c21542db0b4502adc0fa09e38169e11',
+  'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
+});
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
 // AUTHORIZED_SITE_SUCCESSORS, so the blob-check loop skips them correctly.
@@ -211,12 +218,14 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/config.js': '681857a0ad7a4bcc6cf615a3d434339555f0a554',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
-  'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
   'site/v40-learning-priorities.js': 'bfec5b47eaf266486d21c96acdb4e1cfd677b328',
-  'site/v40-platform-polish.js': '5ebdcb4c8d6a8a4c5fad19fa14dfaea2561d102b',
-  'site/v40-release.js': 'a308df11b601bf563b56d555e9f434652e524d77',
-  'site/v40-start-shell.js': '26280684b65275ea13656b3e423a8a3ce81cd9e9',
+  'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
+  'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
+  'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
   'site/v41-signin-guard.js': '5794576f4c41e32ae8bb081e380ff892ef5f4a6c',
+  'site/v51-exam-publication-safety.js': '1b598a591c21542db0b4502adc0fa09e38169e11',
+  'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
   'site/gamification-core.js': '87d6175270284e4b40c3a1fbcd196622179d0402',
   'site/gamification-student.js': 'd9c4dc0e25cbed50346937db887a703800be5a59',
   'site/v57c-student-continue-learning-home.js': '196225cf94035363869b8051bc33cdd3c03993f9',

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "baseline": "19e00f90b281c06daa78f9f014fa018aa4d7dd81",
   "loaderOwner": "site/v40-release.js",
-  "loaderBlob": "a308df11b601bf563b56d555e9f434652e524d77",
+  "loaderBlob": "cca15dc8a181b9bc0d47d174f53dbd689e5a4c80",
   "description": "Phase 7D-B read-only authority/dependency map for the exact 41 tier-2 production loader entries. gitBlob pins repository bytes; requiresEarlier records only explicit/accepted tier-2 predecessor constraints, not every DOM assumption.",
   "primaryClasses": [
     "frozen_or_wrapper_authority",
@@ -494,7 +494,7 @@
     {
       "index": 29,
       "file": "v51-exam-publication-safety.js",
-      "gitBlob": "183f313e630d7dd989355107192a35d6af8814c9",
+      "gitBlob": "1b598a591c21542db0b4502adc0fa09e38169e11",
       "primaryClass": "frozen_or_wrapper_authority",
       "traits": [
         "frozen",
@@ -688,7 +688,7 @@
       "externalPredecessors": [
         "tier1:v581a-practice-cloud-result-reconciliation.js"
       ],
-      "reason": "Deterministic V53 B→D3→D4→D5 cloud.rpc chain and final shuffle authority."
+      "reason": "Deterministic V53 B\u2192D3\u2192D4\u2192D5 cloud.rpc chain and final shuffle authority."
     },
     {
       "index": 39,

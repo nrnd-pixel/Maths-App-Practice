@@ -84,7 +84,7 @@ const option2b = read('e2e/tests/v40-static-authenticated-home-option2b.spec.cjs
 const option2c = read('e2e/tests/v40-static-v40-shell-option2c.spec.cjs');
 
 for (const [name,source] of [['Option 2A',option2a],['Option 2B',option2b],['Option 2C',option2c]]){
-  assert.match(source,/'site\/v40-release\.js': 'a308df11b601bf563b56d555e9f434652e524d77'/,
+  assert.match(source,/'site\/v40-release\.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80'/,
     `${name}: v40-release exact frozen blob must remain pinned`);
 }
 assert.match(option2c,/'site\/config\.js': '681857a0ad7a4bcc6cf615a3d434339555f0a554'/,

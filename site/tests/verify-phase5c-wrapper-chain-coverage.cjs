@@ -52,6 +52,28 @@ for (const rpc of [
     `v581a must intercept ${rpc}`);
 }
 
+// ── item 1: wrap-order sentinel ──────────────────────────────────────────────
+
+// v40-platform-polish must stamp __v40PoolWrapped on its finishPractice wrapper
+assert.match(polish, /__v40PoolWrapped/,
+  'v40-platform-polish must stamp __v40PoolWrapped sentinel on its finishPractice wrapper');
+assert.match(polish, /Object\.defineProperty\(finishPractice,\s*'__v40PoolWrapped'/,
+  'v40-platform-polish must define __v40PoolWrapped as a non-enumerable property');
+
+// v581a must check for the sentinel and warn if missing
+assert.match(v581a, /__v40PoolWrapped/,
+  'v581a must check the __v40PoolWrapped sentinel before completing install');
+assert.match(v581a, /sentinel absent/,
+  'v581a must include a diagnostic message when the sentinel is absent');
+
+// ── item 2: credentials handoff ──────────────────────────────────────────────
+
+// v40-platform-polish must prefer the handoff over re-reading the DOM
+assert.match(polish, /__v40LastSignInCredentials/,
+  'v40-platform-polish must read window.__v40LastSignInCredentials as the credentials source');
+assert.match(polish, /handoff\s*\|\|/,
+  'v40-platform-polish must fall back to DOM credentials only when handoff is absent');
+
 // ── double-install guards ────────────────────────────────────────────────────
 
 assert.match(v581a, /__v581aPracticeCloudResultReconciliationInstalled/,

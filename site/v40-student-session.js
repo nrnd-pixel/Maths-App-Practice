@@ -11,6 +11,14 @@
   let studentSessionV40 = null;
   let signInPromiseV40 = null;
 
+  /*
+    Item 2 — credentials handoff: populated just before the PIN field is cleared
+    in the finally block, so v40-platform-polish.js can initialise the Practice
+    ticket pool without re-reading a now-empty DOM field.
+    Cleared once the pool initialisation window closes (sign-in promise settles).
+  */
+  let lastSignInCredentialsV40 = null;
+
   const validateStudentAccessV40Base = validateStudentAccess;
   const renderStudentAccessPolicyV40Base = renderStudentAccessPolicy;
 
@@ -262,6 +270,24 @@
     });
   }
 
+  /*
+    Item 3 — explicit auth-state contract: dispatch a CustomEvent so that
+    v40-start-shell.js (and any future listener) can react to auth changes
+    without coupling to the v40c-authenticated CSS class on the session panel.
+    This makes the dependency between the two files explicit and survives any
+    future rename of the CSS class.
+  */
+  function dispatchAuthState(signedIn){
+    try {
+      document.dispatchEvent(
+        new CustomEvent('v40:authStateChanged', {
+          bubbles: false,
+          detail: { signedIn: !!signedIn }
+        })
+      );
+    } catch {}
+  }
+
   function renderSessionUi(){
     const panel = document.querySelector('#start .v40c-session-panel');
     if (!panel) return;
@@ -296,6 +322,7 @@
 
     revealVerifiedStudentActions(signedIn);
     renderNavIdentity();
+    dispatchAuthState(signedIn);
   }
 
   function buildSessionPanel(){
@@ -390,6 +417,7 @@
     studentSessionV40 = null;
     removeStoredSession();
     clearStudentUi();
+    dispatchAuthState(false);
 
     if (activeScreen?.id !== 'start') {
       const home = activeScreen?.querySelector('.back-home');
@@ -507,6 +535,19 @@
       return null;
     } finally {
       const pin = document.getElementById('student-pin');
+      /*
+        Store credentials before wiping the PIN field so v40-platform-polish.js
+        can read lastSignInCredentialsV40 when initialising the Practice ticket
+        pool. The PIN is a local-variable copy here — clearing the DOM field is
+        safe and the copy in lastSignInCredentialsV40 is short-lived.
+      */
+      lastSignInCredentialsV40 = {
+        displayName: credentials?.displayName || '',
+        studentId:   credentials?.studentId   || '',
+        pin:         credentials?.pin         || '',
+        selectedYear: credentials?.selectedYear ?? 6,
+        classGroup:  credentials?.classGroup  || 'Other'
+      };
       if (pin) pin.value = '';
       if (signIn) signIn.disabled = false;
     }
@@ -534,6 +575,9 @@
       signInPromiseV40 = createStudentSessionV40(requestedPurpose)
         .finally(() => {
           signInPromiseV40 = null;
+          // Wipe the handoff credentials once the sign-in flow (and pool
+          // initialisation in v40-platform-polish) has had its chance to run.
+          lastSignInCredentialsV40 = null;
         });
     }
 
@@ -544,6 +588,20 @@
   validateStudentAccess = async function(purpose){
     return ensureStudentSessionV40(purpose);
   };
+
+  // Expose the handoff accessor for v40-platform-polish.js (item 2).
+  // Returns a snapshot copy so the caller cannot mutate the live object.
+  // Expose the handoff accessor for v40-platform-polish.js (item 2).
+  // Simple property write — safe to overwrite on reload.
+  try {
+    Object.defineProperty(window, '__v40LastSignInCredentials', {
+      get() { return lastSignInCredentialsV40 ? Object.assign({}, lastSignInCredentialsV40) : null; },
+      configurable: true,
+      enumerable: false
+    });
+  } catch (e) {
+    // Already defined (e.g. script reloaded in same page context) — safe to ignore.
+  }
 
   renderStudentAccessPolicy = function(){
     renderStudentAccessPolicyV40Base();

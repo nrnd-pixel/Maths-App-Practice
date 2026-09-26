@@ -23,7 +23,7 @@ const normalize = src => String(src || '').replace(/^\.\//, '').split('?')[0];
 
 assert.equal(map.schemaVersion, 1);
 assert.equal(map.loaderOwner, 'site/v40-release.js');
-assert.equal(map.loaderBlob, 'a308df11b601bf563b56d555e9f434652e524d77');
+assert.equal(map.loaderBlob, 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80');
 assert.equal(gitBlob(map.loaderOwner), map.loaderBlob, 'frozen tier-2 loader owner changed');
 assert.ok(tier2, 'Phase 7B loader manifest must retain the tier-2 owner');
 assert.equal(tier2.entries.length, 41, 'tier-2 loader must remain exactly 41 entries');

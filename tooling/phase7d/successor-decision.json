@@ -9,7 +9,7 @@
     "configPath": "site/config.js",
     "configBlob": "681857a0ad7a4bcc6cf615a3d434339555f0a554",
     "releasePath": "site/v40-release.js",
-    "releaseBlob": "a308df11b601bf563b56d555e9f434652e524d77",
+    "releaseBlob": "cca15dc8a181b9bc0d47d174f53dbd689e5a4c80",
     "tier1Scripts": 57,
     "tier2Scripts": 41,
     "productionRuntimeScripts": 98,

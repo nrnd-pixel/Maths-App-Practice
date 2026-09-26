@@ -80,6 +80,8 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-adaptive-question-readiness-v2.cjs',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
+  'site/v51-exam-publication-safety.js',
+  'site/v581a-practice-cloud-result-reconciliation.js',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
@@ -175,6 +177,10 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-v5.9-current-live-demo.cjs',
   'site/tests/verify-v5.9-demo-viewer-access.cjs',
   'site/tests/verify-v5.9-demo-student-questions.cjs',
+  'site/v40-platform-polish.js',
+  'site/v40-release.js',
+  'site/v40-start-shell.js',
+  'site/v40-student-session.js',
 ]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
@@ -257,10 +263,10 @@ const ALLOWED_SITE_CHANGES = new Set([
 const FROZEN_BLOBS = Object.freeze({
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
-  'site/v40-platform-polish.js': '5ebdcb4c8d6a8a4c5fad19fa14dfaea2561d102b',
-  'site/v40-release.js': 'a308df11b601bf563b56d555e9f434652e524d77',
-  'site/v40-student-session.js': '52150813ff7eeeff72cbc98ab1cafff180d32c96',
-  'site/v40-start-shell.js': '26280684b65275ea13656b3e423a8a3ce81cd9e9',
+  'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
+  'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
+  'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
   'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
   'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
   'site/gamification-core.js': '87d6175270284e4b40c3a1fbcd196622179d0402',
