@@ -17,11 +17,11 @@ assert.equal(hashObject('site/v40-release.js'),'cca15dc8a181b9bc0d47d174f53dbd68
 
 const plan = prototype.buildFlatPlan(loaderManifest,authorityMap);
 assert.equal(prototype.validateFlatPlan(plan,loaderManifest,authorityMap),true);
-assert.equal(plan.length,98,'prototype must preserve 98 symbolic positions');
+assert.equal(plan.length,99,'prototype must preserve 99 symbolic positions');
 
 const scripts = plan.filter(step => step.kind === 'script');
 const boundaries = plan.filter(step => step.kind === 'release-presentation-boundary');
-assert.equal(scripts.length,97,'prototype must load 97 scripts because v40-release transport is replaced by one boundary hook');
+assert.equal(scripts.length,98,'prototype must load 98 scripts because v40-release transport is replaced by one boundary hook');
 assert.equal(boundaries.length,1,'exactly one release-presentation boundary is required');
 
 const boundary = boundaries[0];
