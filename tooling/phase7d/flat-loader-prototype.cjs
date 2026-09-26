@@ -21,7 +21,7 @@ function buildFlatPlan(loaderManifest,authorityMap){
   const tier1 = loaderManifest.tiers.find(row => row.source === 'site/config.js');
   const tier2 = loaderManifest.tiers.find(row => row.source === 'site/v40-release.js');
 
-  assert(tier1 && tier1.entries.length === 57, 'expected the accepted 57-entry tier-1 loader');
+  assert(tier1 && tier1.entries.length === 57, 'expected the accepted 58-entry tier-1 loader');
   assert(tier2 && tier2.entries.length === 41, 'expected the accepted 41-entry tier-2 loader');
   assert(authorityMap.entries.length === 41, 'expected the accepted 41-entry tier-2 authority map');
 
@@ -133,7 +133,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
       if (!external.startsWith('tier1:')) continue;
       const predecessor = external.slice('tier1:'.length);
       const earlier = positionByFile.get(predecessor);
-      assert(Number.isInteger(earlier) && earlier <= 57 && earlier < current,
+      assert(Number.isInteger(earlier) && earlier <= 58 && earlier < current,
         `${row.file}: cross-tier predecessor ${predecessor} must remain in the completed tier-1 chain`);
     }
   }
