@@ -96,8 +96,8 @@ async function execute(page,customPlan=plan){
 
 test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
   test('prototype plan preserves 88 symbolic positions while replacing only v40-release transport with a presentation boundary', async () => {
-    expect(plan).toHaveLength(98);
-    expect(plan.filter(step => step.tier === 1)).toHaveLength(57);
+    expect(plan).toHaveLength(99);
+    expect(plan.filter(step => step.tier === 1)).toHaveLength(58);
     expect(plan.filter(step => step.tier === 2)).toHaveLength(41);
     expect(plan.filter(step => step.kind === 'script')).toHaveLength(97);
     expect(plan.filter(step => step.kind === 'release-presentation-boundary')).toHaveLength(1);
@@ -107,7 +107,7 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
     expect(boundary.position).toBe(14);
 
     expect(plan.slice(0,57).every(step => step.tier === 1)).toBe(true);
-    expect(plan.slice(57).every(step => step.tier === 2)).toBe(true);
+    expect(plan.slice(58).every(step => step.tier === 2)).toBe(true);
 
     const symbolic = plan.map(step => step.file);
     expect(symbolic).toEqual([
@@ -122,7 +122,7 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
 
     const trace = await execute(page);
 
-    expect(trace).toHaveLength(98);
+    expect(trace).toHaveLength(99);
     expect(trace.filter(row => row.status === 'loaded')).toHaveLength(97);
     expect(trace.filter(row => row.status === 'boundary')).toHaveLength(1);
     expect(trace.some(row => row.status === 'error')).toBe(false);
