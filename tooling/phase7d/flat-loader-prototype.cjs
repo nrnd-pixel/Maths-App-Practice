@@ -79,7 +79,7 @@ function buildFlatPlan(loaderManifest,authorityMap){
 }
 
 function validateFlatPlan(plan,loaderManifest,authorityMap){
-  assert(Array.isArray(plan) && plan.length === 98, 'flat plan must contain exactly 98 symbolic execution steps');
+  assert(Array.isArray(plan) && plan.length === 99, 'flat plan must contain exactly 99 symbolic execution steps');
 
   const boundaries = plan.filter(step => step.kind === 'release-presentation-boundary');
   assert(boundaries.length === 1, 'flat plan must contain exactly one release-presentation boundary');
@@ -91,8 +91,8 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
   assert(tier1Steps.length === 58, 'flat plan must preserve 50 symbolic tier-1 positions');
   assert(tier2Steps.length === 41, 'flat plan must preserve all 41 tier-2 scripts');
 
-  assert(plan.slice(0,57).every(step => step.tier === 1), 'all tier-1 positions must precede tier 2');
-  assert(plan.slice(57).every(step => step.tier === 2), 'all tier-2 positions must follow the complete tier-1 chain');
+  assert(plan.slice(0,58).every(step => step.tier === 1), 'all tier-1 positions must precede tier 2');
+  assert(plan.slice(58).every(step => step.tier === 2), 'all tier-2 positions must follow the complete tier-1 chain');
 
   const manifestTier1 = loaderManifest.tiers.find(row => row.source === 'site/config.js');
   const manifestTier2 = loaderManifest.tiers.find(row => row.source === 'site/v40-release.js');
@@ -101,7 +101,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
     ...manifestTier1.entries.map(entry => fileOf(entry.src)),
     ...manifestTier2.entries.map(entry => fileOf(entry.src))
   ];
-  assert(JSON.stringify(symbolic) === JSON.stringify(expected), 'flat symbolic order must exactly preserve the accepted 55 -> 41 manifest order');
+  assert(JSON.stringify(symbolic) === JSON.stringify(expected), 'flat symbolic order must exactly preserve the accepted 58 -> 41 manifest order');
 
   for (const step of tier1Steps){
     if (step.kind === 'script') {
