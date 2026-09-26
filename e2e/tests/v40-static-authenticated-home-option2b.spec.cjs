@@ -254,6 +254,13 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/images/psr_2025_p1_q38_diagram.webp',
   'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.csv',
   'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.xlsx',
+
+  'site/v40-platform-polish.js',
+  'site/v40-release.js',
+  'site/v40-start-shell.js',
+  'site/v40-student-session.js',
+  'site/v51-exam-publication-safety.js',
+  'site/v581a-practice-cloud-result-reconciliation.js',
 ]);
 
 const FROZEN_BLOBS = Object.freeze({
