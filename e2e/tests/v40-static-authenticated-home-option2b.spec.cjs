@@ -181,7 +181,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
-  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
 );
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
@@ -266,7 +266,7 @@ const FROZEN_BLOBS = Object.freeze({
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
-  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
   'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
   'site/v40-student-nav.js': '8a0fa4431de98be56c189f906ea9ba3f0bdf4fc3',
   'site/v40-learn-setup.js': '9293a79306455f2cfeb3ad0525e7203ad26de7e5',
