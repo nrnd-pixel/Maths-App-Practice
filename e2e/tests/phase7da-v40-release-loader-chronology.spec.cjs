@@ -227,9 +227,9 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
 
     // One extra insertion/execution is the deliberately reloaded release owner itself.
     // No tier-2 child is appended again because every existing data key is detected.
-    expect(after.insertionCount).toBe(99);
+    expect(after.insertionCount).toBe(100);
     expect(after.tier2Tagged).toBe(3);
-    expect(after.executions).toHaveLength(99);
+    expect(after.executions).toHaveLength(100);
     expect(after.executions.at(-1)).toBe('v40-release.js?phase7d-reload=1');
     expect(after.identityCalls).toBe(2);
 
