@@ -21,7 +21,7 @@ function buildFlatPlan(loaderManifest,authorityMap){
   const tier1 = loaderManifest.tiers.find(row => row.source === 'site/config.js');
   const tier2 = loaderManifest.tiers.find(row => row.source === 'site/v40-release.js');
 
-  assert(tier1 && tier1.entries.length === 57, 'expected the accepted 58-entry tier-1 loader');
+  assert(tier1 && tier1.entries.length === 58, 'expected the accepted 58-entry tier-1 loader');
   assert(tier2 && tier2.entries.length === 41, 'expected the accepted 41-entry tier-2 loader');
   assert(authorityMap.entries.length === 41, 'expected the accepted 41-entry tier-2 authority map');
 
@@ -88,7 +88,7 @@ function validateFlatPlan(plan,loaderManifest,authorityMap){
 
   const tier1Steps = plan.filter(step => step.tier === 1);
   const tier2Steps = plan.filter(step => step.tier === 2);
-  assert(tier1Steps.length === 57, 'flat plan must preserve 49 symbolic tier-1 positions');
+  assert(tier1Steps.length === 58, 'flat plan must preserve 50 symbolic tier-1 positions');
   assert(tier2Steps.length === 41, 'flat plan must preserve all 41 tier-2 scripts');
 
   assert(plan.slice(0,57).every(step => step.tier === 1), 'all tier-1 positions must precede tier 2');
