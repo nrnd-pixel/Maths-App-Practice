@@ -48,18 +48,18 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59a-student-home-refresh.js': 'f2790ef6b6074ba7f94b9f7f9190a94e104c86d0',
   'site/tests/verify-v5.9b-adaptive-diagnostic-pilot-v2.cjs': 'd85d55d045847255714607ced0cb441af94d2bd0',
   'site/v59b-adaptive-diagnostic-pilot-v2.js': '42fc17368432f3558f6bf7caa66749e8ae02805b',
-  'site/tests/v51-phase4-protected-shas.json': 'e73b9b466c35301ee68bbc9eec877d4ab9e1cb8b',
+  'site/tests/v51-phase4-protected-shas.json': 'd882cc88e9451fc430b3d229eca1e99eb86a1831',
   'site/tests/verify-phase4-gamification-checkpoint2-integrity.cjs': '487f567d481d8332854b2556b25c8c790561fc66',
   'site/tests/verify-phase4-past-paper-v55-checkpoint1-integrity.cjs': '921a7d9195933bd05f054cc529989b54d36ba3a2',
   'site/tests/verify-phase4-past-paper-v56-v57-checkpoint1-integrity.cjs': '4804b1ca8631291ca70e61c6a3091aea979eb4dd',
-  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': '7c25d8f1b0b566d44b9e1433486d22e0fc2c2b1f',
+  'site/tests/verify-phase4-teacher-assignments-checkpoint2-protected-sha.cjs': '21b4c535fd5b90e647e8c3e008503c2d1d4a6930',
   'site/tests/verify-phase4-teacher-assignments-v44-v48-checkpoint2-integrity.cjs': 'd8f3e86d83d136d6ae99234c22beb6d640c7736b',
   'site/tests/verify-phase4-v50-operations-reporting-integrity.cjs': '982d12fab8c6d01ec9499bb28c943b53f08cf101',
-  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': 'bd4c28aaa6dba6cf0e0d1733cd5818d76b540c6f',
+  'site/tests/verify-phase4-v50-operations-reporting-protected-sha.cjs': '71ff7d0873ba5f508b8474ef13324537bd85b6eb',
   'site/tests/verify-phase4-v51-question-bank-management-integrity.cjs': '7d04c724f9bc39614671b02b0a37b22e74f8d67a',
   'site/tests/verify-phase4-v51-question-bank-management-protected-sha.cjs': '1613f8a1413114358fbfd1bc774c8689cec39602',
   'site/tests/verify-phase4-v52c-legacy-student-route-integrity.cjs': '89567520661af8b9c8c1e944d7cb869097cc773f',
-  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '89373e7540e835ecc7d4d8fdc044677cf021ae63',
+  'site/tests/verify-phase4-v52c-legacy-student-route-protected-sha.cjs': '7052cc6889e98ef26543b050afa27f771d3a7c63',
   'site/tests/verify-phase4-v53-practice-selection-dormant-reference-integrity.cjs': '716f2679c26144e8f1b7decd605b082551e7cb3a',
   'site/tests/verify-phase4-v53-practice-selection-protected-sha.cjs': 'a33ea86c659bc638cc3ac23a1b11e98c60233c14',
   'site/tests/verify-phase4-v53-ui-resource-companion-dormant-reference-integrity.cjs': 'fd7b49e31fa174e3c225ffa814968847416f237e',
@@ -67,7 +67,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-phase4-v53-ui-resource-companion-protected-sha.cjs': 'daa3c13f03d99f4859b69763d64612c48dcaf555',
   'site/tests/verify-phase4-v54-resource-bank-dormant-reference-integrity.cjs': 'f19d8cd7b1b72a2851b5a0d534b26b103cc08331',
   'site/tests/verify-phase4-v54-resource-bank-integrity.cjs': 'a15550958a3179a86610c19af6cad591768ec708',
-  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '17e65e93e80dffefe6519e8fa9fcf9a28ea468be',
+  'site/tests/verify-phase4-v54-resource-bank-protected-sha.cjs': '10135433ee29cca84d2229611943620a5f3947da',
   'site/tests/verify-question-metadata-v2-schema-contract.cjs': 'c8fb99a90c058834c99353afe85169b97b02e51e',
   'site/tests/verify-adaptive-question-readiness-v2.cjs': '62a1d5df660089b5e5db16facbd7e95d5f151299',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs': 'ead9b5cc61e6e466a74b5b0578e81e8185609215',
@@ -734,17 +734,11 @@ test.describe('Option 2C static V40 nav + Learn shell hard gates', () => {
       ...Object.keys(RUNTIME_SUCCESSORS),
       ...Object.keys(AUTHORIZED_SITE_SUCCESSORS),
     ]);
-    const _computedSiteHash = workingManifestHash(
+    expect(workingManifestHash(
       'site',
       authorizedSite,
       PHASE7BD_REPLACED_SITE_BASELINE_BLOBS,
-    );
-    // Temporary diagnostic — will be removed after hash is confirmed
-    require('fs').writeFileSync('/tmp/option2c-computed-hash.txt',
-      `computed=${_computedSiteHash}
-expected=${EXPECTED_FROZEN_SITE_SHA256}
-`);
-    expect(_computedSiteHash, `COMPUTED_HASH=${_computedSiteHash}`).toBe(EXPECTED_FROZEN_SITE_SHA256);
+    )).toBe(EXPECTED_FROZEN_SITE_SHA256);
 
     const authorizedSupabase = new Set(Object.keys(AUTHORIZED_SUPABASE_SUCCESSORS));
     expect(workingManifestHash('supabase', authorizedSupabase)).toBe(EXPECTED_SUPABASE_SHA256);
