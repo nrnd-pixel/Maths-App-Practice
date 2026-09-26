@@ -360,15 +360,16 @@
       the MutationObserver fires on DOM class changes; this fires on the semantic
       event. Either alone is sufficient; both together are belt-and-suspenders.
     */
-    document.addEventListener('v40:authStateChanged', event => {
+    document.addEventListener('v40:authStateChanged', () => {
       /*
-        Belt-and-suspenders backup for the MutationObserver above.
-        Only update shell classes here — do NOT call keepFreshSignInOnHome
-        since the MutationObserver already handles that, and a double-call
-        would schedule two overlapping setTimeout navigations.
+        Item 3 — explicit auth-state contract: fired by v40-student-session.js
+        whenever auth state changes, making the coupling explicit and surviving
+        any future rename of the v40c-authenticated CSS class that the
+        MutationObserver above depends on.
+        This listener is intentionally passive — no DOM mutation or navigation.
+        The MutationObserver handles all shell state updates; this event exists
+        so future consumers can react without coupling to a CSS class name.
       */
-      const signedIn = !!event.detail?.signedIn;
-      applyShellState({ resetView: false });
     });
   }
 
