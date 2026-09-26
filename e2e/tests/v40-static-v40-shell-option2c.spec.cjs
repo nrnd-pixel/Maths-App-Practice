@@ -152,6 +152,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
   'site/v51-exam-publication-safety.js': '1b598a591c21542db0b4502adc0fa09e38169e11',
   'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
+  'site/v59o-observability.js': '3cf7bdf277a27d128527516f4130064296812a24',
 });
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
