@@ -31,9 +31,9 @@ assert.equal(gitBlob('site/v40-release.js'),decision.currentContract.releaseBlob
 const tier1 = manifest.tiers.find(row => row.source === 'site/config.js');
 const tier2 = manifest.tiers.find(row => row.source === 'site/v40-release.js');
 assert.ok(tier1 && tier2,'accepted two-tier loader manifest must remain present');
-assert.equal(tier1.entries.length,57);
+assert.equal(tier1.entries.length,58);
 assert.equal(tier2.entries.length,41);
-assert.equal(decision.currentContract.tier1Scripts,57);
+assert.equal(decision.currentContract.tier1Scripts,58);
 assert.equal(decision.currentContract.tier2Scripts,41);
 assert.equal(decision.currentContract.productionRuntimeScripts,98);
 assert.equal(tier1.entries.length + tier2.entries.length,98);
