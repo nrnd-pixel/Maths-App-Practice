@@ -361,11 +361,14 @@
       event. Either alone is sufficient; both together are belt-and-suspenders.
     */
     document.addEventListener('v40:authStateChanged', event => {
+      /*
+        Belt-and-suspenders backup for the MutationObserver above.
+        Only update shell classes here — do NOT call keepFreshSignInOnHome
+        since the MutationObserver already handles that, and a double-call
+        would schedule two overlapping setTimeout navigations.
+      */
       const signedIn = !!event.detail?.signedIn;
-      const wasSignedIn = isSignedIn();
-      const justSignedIn = signedIn && !wasSignedIn;
-      applyShellState({ resetView: justSignedIn });
-      if (justSignedIn) keepFreshSignInOnHome();
+      applyShellState({ resetView: false });
     });
   }
 
