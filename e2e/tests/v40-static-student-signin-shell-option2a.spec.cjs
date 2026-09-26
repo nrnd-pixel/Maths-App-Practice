@@ -10,7 +10,7 @@ const {
 } = require('./helpers.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const EXPECTED_FROZEN_SITE_SHA256 = '0a57464c588b06dbb5d8b9a3871798efb27b67daa8959a1dbc70cda348b89b1c';
+const EXPECTED_FROZEN_SITE_SHA256 = 'bc783b2234da9e6a15acd08298cd36fcd826bb7183882f4fe73886015afe715a';
 const EXPECTED_SUPABASE_SHA256 = 'b9ce6bc01ead2f39b3aadab4f0a0688fa5c54bf8129258e776972636c17b4ef3';
 const EXPECTED_SUPABASE_TREE = '27b8fdc47b6e56b4e54f6ad749827e631ce84110';
 const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
@@ -76,6 +76,7 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-adaptive-question-readiness-v2.cjs',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
+  'site/v59o-observability.js',
   'site/v51-exam-publication-safety.js',
   'site/v581a-practice-cloud-result-reconciliation.js',
   'site/tests/verify-v5.1.cjs',
