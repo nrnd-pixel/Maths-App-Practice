@@ -149,7 +149,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
-  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
   'site/v51-exam-publication-safety.js': '1b598a591c21542db0b4502adc0fa09e38169e11',
   'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
 });
@@ -218,7 +218,7 @@ const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
   'site/config.js': '681857a0ad7a4bcc6cf615a3d434339555f0a554',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
-  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
+  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
   'site/v40-learning-priorities.js': 'bfec5b47eaf266486d21c96acdb4e1cfd677b328',
   'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
