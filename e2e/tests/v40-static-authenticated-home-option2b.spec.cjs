@@ -80,6 +80,8 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-adaptive-question-readiness-v2.cjs',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
+  'site/v51-exam-publication-safety.js',
+  'site/v581a-practice-cloud-result-reconciliation.js',
   'site/tests/verify-v5.1.cjs',
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs',
@@ -179,7 +181,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
   'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
   'site/v40-start-shell.js': '5a9ec2891ba4a7ac862982cebd2c131b59ad53ca',
-  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bb3135c2c7e',
+  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
 );
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
@@ -257,7 +259,6 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/images/psr_2025_p1_q38_diagram.webp',
   'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.csv',
   'site/question-bank/PSR_2025_Mathematics_Paper1_Q1-Q40.xlsx',
-
 ]);
 
 const FROZEN_BLOBS = Object.freeze({
