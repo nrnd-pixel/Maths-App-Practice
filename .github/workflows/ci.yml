@@ -257,17 +257,6 @@ jobs:
         working-directory: e2e
         run: npx playwright test tests/v40-static-v40-shell-option2c.spec.cjs --reporter=line
 
-      - name: Print Option 2C hash diagnostic
-        if: always()
-        run: |
-          if [ -f /tmp/option2c-computed-hash.txt ]; then
-            cat /tmp/option2c-computed-hash.txt
-            COMPUTED=$(grep '^computed=' /tmp/option2c-computed-hash.txt | cut -d= -f2)
-            echo "::notice title=2C-computed-hash::COMPUTED_HASH=${COMPUTED}"
-          else
-            echo "hash file not written"
-          fi
-
       - name: Run Option 2B static authenticated Home hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
         working-directory: e2e
