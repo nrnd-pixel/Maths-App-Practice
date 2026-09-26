@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = '6c5a4b4ae7c5a1e4568beaad98f0f1449888daef1ad6ec45bd69bad3d1df85c8';
+const EXPECTED_FROZEN_SITE_SHA256 = '30f8c6b27334c0176e10ebb10dfa72b272cad60826416fdffba4086eae09270f';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -22,7 +22,7 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': '681857a0ad7a4bcc6cf615a3d434339555f0a554',
+  'site/config.js': '6a46cc86d78077903641be42c2bb17f76fd81164',
   'site/question-bank-audit-multipart.js': 'b4c4609ddb90a9d8705e02aeb99cb653ded7277e',
   'site/question-bank-metadata-review.js': '23e2650cf0ace6c33740ad63f35d821e213834a9',
   'site/question-bank-selection-qa.js': 'fdf4c2d665d3d1c9b6dd8cf4db3398d51823bea8',
@@ -75,7 +75,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/tests/verify-v5.4a-resource-bank-visibility.cjs': 'c13bfae1ceb6923aa4b4c03c5c61efb1bc7d6c81',
   'site/tests/verify-v5.8.1b-checkpoint-attribution.cjs': 'd37669274932200d75e4108c18191b3a9ba3c7c3',
   'site/tests/verify-v5.8.2-past-paper-completion-dedup.cjs': '8f4306ffb9e3a0c291cf53b5482d7ddb32b80c2d',
-  'site/tests/verify-phase5c-wrapper-chain-coverage.cjs': '42d9f0001fa5b93f4ebacff3aa2c6215da41226b',
+  'site/tests/verify-phase5c-wrapper-chain-coverage.cjs': 'e4b3e1dcca64813528c52714041161a42b320801',
   'site/demo/index.html': '631153822067f4efc48794be719e8d6bbb4e96df',
   'site/viewer-demo/index.html': '9f1338facc7ddefde9640959a6fbfce7d1aac517',
   'site/demo-student/index.html': '72df4461ed816b40133b4a34e1434ef4f994c144',
@@ -215,7 +215,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '681857a0ad7a4bcc6cf615a3d434339555f0a554',
+  'site/config.js': '6a46cc86d78077903641be42c2bb17f76fd81164',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
