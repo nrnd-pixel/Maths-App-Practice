@@ -61,7 +61,7 @@ function verify(root = ROOT) {
   assert.equal(manifest.schemaVersion, 2, 'Unsupported manifest schema');
   assert.equal(manifest.tiers.length, 2, 'Expected exactly two loader tiers');
   const owners = ['site/config.js', 'site/v40-release.js'];
-  const counts = [57, 41];
+  const counts = [58, 41];
   const targets = new Set();
   const dataKeys = new Set();
   const entries = [];
@@ -157,7 +157,7 @@ function verify(root = ROOT) {
 
 if (require.main === module) {
   try {
-    console.log(`PASS: loader manifest matches 57 + 41 loaded entries (${verify().length} total), 8 source-only inputs, 1 standalone script, 4 generated bundles and site inventory`);
+    console.log(`PASS: loader manifest matches 58 + 41 loaded entries (${verify().length} total), 8 source-only inputs, 1 standalone script, 4 generated bundles and site inventory`);
   } catch (error) {
     console.error(`FAIL: ${error.message}`);
     process.exitCode = 1;

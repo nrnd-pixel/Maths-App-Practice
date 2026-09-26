@@ -94,10 +94,57 @@ assert.ok(spec.includes('cloud.rpc'),
 assert.ok(spec.includes('double-install') || spec.includes('Double-install'),
   'Phase 5C spec must verify double-install guard');
 
+
+// ── P2.2: observability script assertions ────────────────────────────────────
+
+const v59o = read(path.join(site, 'v59o-observability.js'));
+
+assert.match(v59o, /__v59oObservabilityInstalled/,
+  'v59o must set __v59oObservabilityInstalled double-install guard');
+assert.match(v59o, /window\.onerror/,
+  'v59o must install window.onerror');
+assert.match(v59o, /window\.onunhandledrejection/,
+  'v59o must install window.onunhandledrejection');
+assert.match(v59o, /MathAppObservability/,
+  'v59o must expose window.MathAppObservability');
+assert.match(v59o, /Object\.freeze/,
+  'v59o MathAppObservability must be frozen');
+assert.match(v59o, /prevOnerror/,
+  'v59o must chain to any previously installed window.onerror');
+assert.match(v59o, /prevUnhandled/,
+  'v59o must chain to any previously installed window.onunhandledrejection');
+// Must never throw itself
+assert.match(v59o, /try\s*\{/,
+  'v59o error handlers must be wrapped in try/catch');
+
+// Spec must cover observability
+assert.ok(spec.includes('MathAppObservability'),
+  'Phase 5C spec must test MathAppObservability');
+assert.ok(spec.includes('v59o') || spec.includes('v59o-observability'),
+  'Phase 5C spec must reference the v59o observability script');
+assert.ok(spec.includes('unhandledrejection'),
+  'Phase 5C spec must test onunhandledrejection');
+
+// ── item 3: auth-state custom event ──────────────────────────────────────────
+
+const session = read(path.join(site, 'v40-student-session.js'));
+
+assert.match(session, /v40:authStateChanged/,
+  'v40-student-session must dispatch v40:authStateChanged');
+assert.match(session, /dispatchAuthState/,
+  'v40-student-session must have a dispatchAuthState helper');
+assert.match(session, /CustomEvent/,
+  'v40-student-session must use CustomEvent for the auth-state event');
+
+assert.ok(spec.includes('v40:authStateChanged'),
+  'Phase 5C spec must test the v40:authStateChanged event');
+
 console.log('Phase 5C wrapper-chain coverage checks passed.');
 console.log('- v40-platform-polish wraps finishPractice (adds ticket rotation, calls base)');
 console.log('- v581a wraps the polish-wrapped finishPractice (adds reconciliation, calls base)');
 console.log('- Two wrappers compose via variable reference, neither knows about the other');
 console.log('- v581a wraps cloud.rpc to intercept assignment-start RPCs');
 console.log('- v581a double-install guard prevents stacked wrapping');
-console.log('- Phase 5C Playwright spec covers all chains (tests A-G)');
+console.log('- Phase 5C Playwright spec covers all chains (tests A-G, H-L)');
+console.log('- v59o-observability.js installs window.onerror + onunhandledrejection');
+console.log('- v40-student-session.js dispatches v40:authStateChanged on sign-in/out');

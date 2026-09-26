@@ -76,6 +76,7 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/tests/verify-adaptive-question-readiness-v2.cjs',
   'site/tests/verify-adaptive-diagnostic-server-readiness-v2.cjs',
   'site/tests/verify-phase5c-wrapper-chain-coverage.cjs',
+  'site/v59o-observability.js',
   'site/v51-exam-publication-safety.js',
   'site/v581a-practice-cloud-result-reconciliation.js',
   'site/tests/verify-v5.1.cjs',

@@ -12,28 +12,28 @@ const authorityMap = JSON.parse(fs.readFileSync(path.join(__dirname,'tier2-autho
 
 const hashObject = pathname => execFileSync('git',['hash-object',pathname],{cwd:ROOT,encoding:'utf8'}).trim();
 
-assert.equal(hashObject('site/config.js'),'681857a0ad7a4bcc6cf615a3d434339555f0a554','config.js must remain byte-identical');
+assert.equal(hashObject('site/config.js'),'6a46cc86d78077903641be42c2bb17f76fd81164','config.js must remain byte-identical');
 assert.equal(hashObject('site/v40-release.js'),'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80','v40-release.js must remain byte-identical');
 
 const plan = prototype.buildFlatPlan(loaderManifest,authorityMap);
 assert.equal(prototype.validateFlatPlan(plan,loaderManifest,authorityMap),true);
-assert.equal(plan.length,98,'prototype must preserve 98 symbolic positions');
+assert.equal(plan.length,99,'prototype must preserve 99 symbolic positions');
 
 const scripts = plan.filter(step => step.kind === 'script');
 const boundaries = plan.filter(step => step.kind === 'release-presentation-boundary');
-assert.equal(scripts.length,97,'prototype must load 97 scripts because v40-release transport is replaced by one boundary hook');
+assert.equal(scripts.length,98,'prototype must load 98 scripts because v40-release transport is replaced by one boundary hook');
 assert.equal(boundaries.length,1,'exactly one release-presentation boundary is required');
 
 const boundary = boundaries[0];
 assert.equal(boundary.file,'v40-release.js');
-assert.equal(boundary.position,14,'release-presentation boundary must remain at the current tier-1 symbolic slot');
+assert.equal(boundary.position,15,'release-presentation boundary must remain at the current tier-1 symbolic slot');
 
-assert.equal(plan.filter(step => step.tier === 1).length,57);
+assert.equal(plan.filter(step => step.tier === 1).length,58);
 assert.equal(plan.filter(step => step.tier === 2).length,41);
-assert.ok(plan.slice(0,57).every(step => step.tier === 1));
-assert.ok(plan.slice(57).every(step => step.tier === 2));
+assert.ok(plan.slice(0,58).every(step => step.tier === 1));
+assert.ok(plan.slice(58).every(step => step.tier === 2));
 
-const firstTier2 = plan[57];
+const firstTier2 = plan[58];
 assert.equal(firstTier2.file,'v41-signin-guard.js');
 
 const position = file => plan.find(step => step.file === file)?.position || 0;
