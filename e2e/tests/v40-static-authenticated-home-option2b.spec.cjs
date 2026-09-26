@@ -181,6 +181,7 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/v40-release.js',
   'site/v40-start-shell.js',
   'site/v40-student-session.js',
+  'site/v59o-observability.js',
 ]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
