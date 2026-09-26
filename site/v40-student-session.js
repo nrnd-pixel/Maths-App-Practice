@@ -591,13 +591,16 @@
 
   // Expose the handoff accessor for v40-platform-polish.js (item 2).
   // Returns a snapshot copy so the caller cannot mutate the live object.
-  // Guard against double-define (e.g. test environments that reload the script).
-  if (!Object.getOwnPropertyDescriptor(window, '__v40LastSignInCredentials')) {
+  // Expose the handoff accessor for v40-platform-polish.js (item 2).
+  // Simple property write — safe to overwrite on reload.
+  try {
     Object.defineProperty(window, '__v40LastSignInCredentials', {
       get() { return lastSignInCredentialsV40 ? Object.assign({}, lastSignInCredentialsV40) : null; },
-      configurable: false,
+      configurable: true,
       enumerable: false
     });
+  } catch (e) {
+    // Already defined (e.g. script reloaded in same page context) — safe to ignore.
   }
 
   renderStudentAccessPolicy = function(){
