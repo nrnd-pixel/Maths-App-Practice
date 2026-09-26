@@ -177,12 +177,11 @@ const AUTHORIZED_SUCCESSOR_SEAL_CHANGES = new Set([
   'site/tests/verify-v5.9-current-live-demo.cjs',
   'site/tests/verify-v5.9-demo-viewer-access.cjs',
   'site/tests/verify-v5.9-demo-student-questions.cjs',
-]
-  'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
-  'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
-  'site/v40-start-shell.js': '7ab8f96e095de57cef5efaad885950b3f3cd0745',
-  'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
-);
+  'site/v40-platform-polish.js',
+  'site/v40-release.js',
+  'site/v40-start-shell.js',
+  'site/v40-student-session.js',
+]);
 
 const OPTION2C_SUCCESSOR_RUNTIME = new Set([
   'site/v40-student-nav.js',
