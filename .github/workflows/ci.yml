@@ -259,7 +259,14 @@ jobs:
 
       - name: Print Option 2C hash diagnostic
         if: always()
-        run: cat /tmp/option2c-computed-hash.txt 2>/dev/null || echo "hash file not written"
+        run: |
+          if [ -f /tmp/option2c-computed-hash.txt ]; then
+            cat /tmp/option2c-computed-hash.txt
+            COMPUTED=$(grep '^computed=' /tmp/option2c-computed-hash.txt | cut -d= -f2)
+            echo "::notice title=2C-computed-hash::COMPUTED_HASH=${COMPUTED}"
+          else
+            echo "hash file not written"
+          fi
 
       - name: Run Option 2B static authenticated Home hard gates
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
