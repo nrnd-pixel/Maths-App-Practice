@@ -127,7 +127,7 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
     expect(manifest.schemaVersion).toBe(2);
     expect(tier1).toBeTruthy();
     expect(tier2).toBeTruthy();
-    expect(tier1.entries).toHaveLength(57);
+    expect(tier1.entries).toHaveLength(58);
     expect(tier2.entries).toHaveLength(41);
 
     expect(configSource).toContain("window.addEventListener('load'");
@@ -168,13 +168,13 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
     const expectedTier2 = tier2.entries.map(row => normalize(row.src));
     const expectedAll = [...expectedTier1, ...expectedTier2];
 
-    expect(result.insertions).toHaveLength(98);
+    expect(result.insertions).toHaveLength(99);
     expect(result.insertions.map(row => row.src)).toEqual(expectedAll);
     expect(result.executions.map(row => row.src)).toEqual(expectedAll);
     expect(result.loads).toEqual(expectedAll);
 
-    expect(result.insertions.slice(0, 57).every(row => row.parent === 'BODY')).toBe(true);
-    expect(result.insertions.slice(57).every(row => row.parent === 'HEAD')).toBe(true);
+    expect(result.insertions.slice(0, 58).every(row => row.parent === 'BODY')).toBe(true);
+    expect(result.insertions.slice(58).every(row => row.parent === 'HEAD')).toBe(true);
     expect(result.insertions.every(row => row.async === false)).toBe(true);
 
     const tier2Insertions = result.insertions.slice(57);
@@ -202,7 +202,7 @@ test.describe('Phase 7D-A — frozen nested-loader chronology', () => {
       tier2Tagged: document.head.querySelectorAll('script[data-v41-signin-guard="1"],script[data-v49b-student-topic-progress="1"],script[data-resource-bank-bulk="1"]').length,
       identityCalls: window.__phase7d.identityCalls
     }));
-    expect(before).toEqual({ insertionCount: 98, tier2Tagged: 3, identityCalls: 1 });
+    expect(before).toEqual({ insertionCount: 99, tier2Tagged: 3, identityCalls: 1 });
 
     await page.evaluate(() => new Promise((resolve, reject) => {
       const script = document.createElement('script');
