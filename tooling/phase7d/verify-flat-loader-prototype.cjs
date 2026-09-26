@@ -26,12 +26,12 @@ assert.equal(boundaries.length,1,'exactly one release-presentation boundary is r
 
 const boundary = boundaries[0];
 assert.equal(boundary.file,'v40-release.js');
-assert.equal(boundary.position,14,'release-presentation boundary must remain at the current tier-1 symbolic slot');
+assert.equal(boundary.position,15,'release-presentation boundary must remain at the current tier-1 symbolic slot');
 
 assert.equal(plan.filter(step => step.tier === 1).length,57);
 assert.equal(plan.filter(step => step.tier === 2).length,41);
-assert.ok(plan.slice(0,57).every(step => step.tier === 1));
-assert.ok(plan.slice(57).every(step => step.tier === 2));
+assert.ok(plan.slice(0,58).every(step => step.tier === 1));
+assert.ok(plan.slice(58).every(step => step.tier === 2));
 
 const firstTier2 = plan[57];
 assert.equal(firstTier2.file,'v41-signin-guard.js');
