@@ -11,6 +11,9 @@
           "src": "./version.js"
         },
         {
+          "src": "./v59o-observability.js"
+        },
+        {
           "src": "./v38-ai-help.js"
         },
         {
