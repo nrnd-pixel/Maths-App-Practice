@@ -10,7 +10,7 @@
     "configBlob": "6a46cc86d78077903641be42c2bb17f76fd81164",
     "releasePath": "site/v40-release.js",
     "releaseBlob": "cca15dc8a181b9bc0d47d174f53dbd689e5a4c80",
-    "tier1Scripts": 57,
+    "tier1Scripts": 58,
     "tier2Scripts": 41,
     "productionRuntimeScripts": 98,
     "chronology": "57 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
