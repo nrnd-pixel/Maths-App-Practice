@@ -104,7 +104,7 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
 
     const boundary = plan.find(step => step.kind === 'release-presentation-boundary');
     expect(boundary.file).toBe('v40-release.js');
-    expect(boundary.position).toBe(14);
+    expect(boundary.position).toBe(15);
 
     expect(plan.slice(0,58).every(step => step.tier === 1)).toBe(true);
     expect(plan.slice(58).every(step => step.tier === 2)).toBe(true);
