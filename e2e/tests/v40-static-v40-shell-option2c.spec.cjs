@@ -145,7 +145,14 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/images/psr_2025_p1_q29_diagram.webp': '82186fd3dbe72099aed2655a6dbfa7dc1f37cbc0',
   'site/images/psr_2025_p1_q35_diagram.webp': 'e82b095611b348eb881ef8f42ee297e32ffbbc52',
   'site/images/psr_2025_p1_q36_diagram.webp': '07e95a02cc1d491ab7e2cbc5d19e90ec13d20ca8',
-  'site/images/psr_2025_p1_q38_diagram.webp': '25506e085a86727726440f3870bbda725a15faca'});
+  'site/images/psr_2025_p1_q38_diagram.webp': '25506e085a86727726440f3870bbda725a15faca'
+  'site/v40-platform-polish.js': 'b97aff16f9edd6c95d0d9cbf7b8dec8cbb923c6d',
+  'site/v40-release.js': 'cca15dc8a181b9bc0d47d174f53dbd689e5a4c80',
+  'site/v40-start-shell.js': '5a9ec2891ba4a7ac862982cebd2c131b59ad53ca',
+  'site/v40-student-session.js': '214ccaecbe324cbb443fac4701ed7bd3135c2c7e',
+  'site/v51-exam-publication-safety.js': '1b598a591c21542db0b4502adc0fa09e38169e11',
+  'site/v581a-practice-cloud-result-reconciliation.js': '3989e29aad4e3514fd37fdffbe79b0cc9f1305a9',
+});
 // Phase 5A — 85 dormant JS files removed (never loaded by config.js or the V40 release chain).
 // Deleted files appear in git diff but have no blob; they are authorised here, not in
 // AUTHORIZED_SITE_SUCCESSORS, so the blob-check loop skips them correctly.
