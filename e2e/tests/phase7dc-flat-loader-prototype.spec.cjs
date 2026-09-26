@@ -99,14 +99,14 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
     expect(plan).toHaveLength(99);
     expect(plan.filter(step => step.tier === 1)).toHaveLength(58);
     expect(plan.filter(step => step.tier === 2)).toHaveLength(41);
-    expect(plan.filter(step => step.kind === 'script')).toHaveLength(97);
+    expect(plan.filter(step => step.kind === 'script')).toHaveLength(98);
     expect(plan.filter(step => step.kind === 'release-presentation-boundary')).toHaveLength(1);
 
     const boundary = plan.find(step => step.kind === 'release-presentation-boundary');
     expect(boundary.file).toBe('v40-release.js');
     expect(boundary.position).toBe(14);
 
-    expect(plan.slice(0,57).every(step => step.tier === 1)).toBe(true);
+    expect(plan.slice(0,58).every(step => step.tier === 1)).toBe(true);
     expect(plan.slice(58).every(step => step.tier === 2)).toBe(true);
 
     const symbolic = plan.map(step => step.file);
@@ -123,7 +123,7 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
     const trace = await execute(page);
 
     expect(trace).toHaveLength(99);
-    expect(trace.filter(row => row.status === 'loaded')).toHaveLength(97);
+    expect(trace.filter(row => row.status === 'loaded')).toHaveLength(98);
     expect(trace.filter(row => row.status === 'boundary')).toHaveLength(1);
     expect(trace.some(row => row.status === 'error')).toBe(false);
 
@@ -157,7 +157,7 @@ test.describe('Phase 7D-C — dormant flat-loader prototype', () => {
 
     expect(result.timeline).toEqual(expectedTimeline);
     expect(result.executions).not.toContain('v40-release.js');
-    expect(result.executions).toHaveLength(97);
+    expect(result.executions).toHaveLength(98);
 
     expect(result.bodyScripts).toHaveLength(56);
     expect(result.headScripts).toHaveLength(41);
