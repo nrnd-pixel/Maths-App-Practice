@@ -42,7 +42,7 @@ assert.equal(authorityMap.entries.length,41,'7D-B authority map must still cover
 
 const flatPlan = prototype.buildFlatPlan(manifest,authorityMap);
 assert.equal(flatPlan.length,99,'7D-C dormant prototype must preserve 99 symbolic positions');
-assert.equal(flatPlan.filter(step => step.kind === 'script').length,97,'7D-C dormant prototype must retain its one boundary-hook model');
+assert.equal(flatPlan.filter(step => step.kind === 'script').length,98,'7D-C dormant prototype must retain its one boundary-hook model');
 assert.equal(flatPlan.filter(step => step.kind === 'release-presentation-boundary').length,1);
 
 const selected = decision.alternatives.filter(row => row.disposition === 'selected');
