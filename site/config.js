@@ -110,6 +110,7 @@ window.MATH_APP_CONFIG = {
 /* Phase 2: the current displayed release is derived from this exact staged list. */
 const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './version.js',
+  './v59o-observability.js',
   './v38-ai-help.js',
   './v38-ai-admin.js',
   './v38-ai-polish.js',
