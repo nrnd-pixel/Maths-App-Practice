@@ -7,13 +7,13 @@
   "productionChangeAuthorized": false,
   "currentContract": {
     "configPath": "site/config.js",
-    "configBlob": "6a46cc86d78077903641be42c2bb17f76fd81164",
+    "configBlob": "d44b7c9976bec3b9a0c11d4a2e694cae3c60d363",
     "releasePath": "site/v40-release.js",
     "releaseBlob": "cca15dc8a181b9bc0d47d174f53dbd689e5a4c80",
-    "tier1Scripts": 58,
+    "tier1Scripts": 64,
     "tier2Scripts": 41,
-    "productionRuntimeScripts": 99,
-    "chronology": "58 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
+    "productionRuntimeScripts": 105,
+    "chronology": "64 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
     "releaseIdentity": "derived by site/version.js from window.MATH_APP_STAGED_SCRIPTS",
     "releasePresentationOwner": "site/v40-release.js",
     "tier2TransportOwner": "site/v40-release.js"

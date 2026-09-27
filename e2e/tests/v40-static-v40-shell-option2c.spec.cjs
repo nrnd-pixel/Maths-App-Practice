@@ -22,7 +22,7 @@ const RUNTIME_SUCCESSORS = Object.freeze({
 const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/assignments-student.js': '1004dba36c2d0bfe737b1e4c590360142001d419',
   'site/past-paper-assignments.js': 'bd05a8b516987bcaa5b16ad9e8be991b947b2894',
-  'site/config.js': '6a46cc86d78077903641be42c2bb17f76fd81164',
+  'site/config.js': 'd44b7c9976bec3b9a0c11d4a2e694cae3c60d363',
   'site/question-bank-audit-multipart.js': 'b4c4609ddb90a9d8705e02aeb99cb653ded7277e',
   'site/question-bank-metadata-review.js': '23e2650cf0ace6c33740ad63f35d821e213834a9',
   'site/question-bank-selection-qa.js': 'fdf4c2d665d3d1c9b6dd8cf4db3398d51823bea8',
@@ -98,6 +98,12 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59k-dashboard-restructure.js': '2da1e2206c20b11b36c4d4f2879d853f0c02d597',
   'site/v59l-parent-share.js': 'cd00f99b8647819983067b0a1fbbb5634c90bf76',
   'site/v59m-student-polish.js': '958f06d6f7658476be77288fa1c0cb0a8c6480ee',
+  'site/v59p-kilat-sprint.js': '6379d5e3eea31411b39d2471319dcc226da2f649',
+  'site/v59q-bar-model-tool.js': 'd1118eac8c8c07d75999be1518d5084b1ba3d852',
+  'site/v59r-formula-sheet.js': '6d3d774738ce87229399776d79e334e9399b18fe',
+  'site/v59s-math-keywords.js': '4cfdbfc2a7c0f75de55f17efeac5c172015c039f',
+  'site/v59t-protractor.js': '2ce6b5611cb9296b84eef05d1763bd144cd2cc99',
+  'site/v59u-corrections-notebook.js': '8fd5ee536f25061774663c04bdc33e9245f86998',
   'site/v59n-webp-shim.js': 'c152995087baab5590ec45cd20f992a19390e771',
   'site/images/2022_P1_Q16.webp': 'caa6ce0d305663d588954464c9a91ff8d618d27b',
   'site/images/2022_P1_Q17.webp': '87b95528ce446101907cf8a951ad21be6484328e',
@@ -216,7 +222,7 @@ const AUTHORIZED_SUPABASE_SUCCESSORS = Object.freeze({
 });
 
 const FROZEN_HIGH_RISK_BLOBS = Object.freeze({
-  'site/config.js': '6a46cc86d78077903641be42c2bb17f76fd81164',
+  'site/config.js': 'd44b7c9976bec3b9a0c11d4a2e694cae3c60d363',
   'site/v39-student-polish.js': '4daea69a282d99f7e8a07bd4aeaa26dcaaaf86ad',
   'site/v40-student-platform.js': 'c200fd22365d54178696b5f12e6866c8b4edbfed',
   'site/v40-student-session.js': '86df2910e1a6367b4905e72facd0e93374c8fb63',
