@@ -217,6 +217,7 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/v59t-protractor.js',
   'site/v59u-corrections-notebook.js',
   'site/v59v-visual-refresh.js',
+  'site/v59w-engagement-boost.js',
   'site/v59n-webp-shim.js',,
   'site/images/2022_P1_Q16.webp',
   'site/images/2022_P1_Q17.webp',
