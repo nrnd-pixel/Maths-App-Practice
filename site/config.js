@@ -166,6 +166,12 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v59k-dashboard-restructure.js',
   './v59l-parent-share.js',
   './v59m-student-polish.js',
+  './v59p-kilat-sprint.js',
+  './v59q-bar-model-tool.js',
+  './v59r-formula-sheet.js',
+  './v59s-math-keywords.js',
+  './v59t-protractor.js',
+  './v59u-corrections-notebook.js',
   './v59n-webp-shim.js'
 ]);
 
