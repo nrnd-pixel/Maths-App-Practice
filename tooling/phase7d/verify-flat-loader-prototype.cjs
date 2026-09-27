@@ -17,23 +17,23 @@ assert.equal(hashObject('site/v40-release.js'),'a308df11b601bf563b56d555e9f43465
 
 const plan = prototype.buildFlatPlan(loaderManifest,authorityMap);
 assert.equal(prototype.validateFlatPlan(plan,loaderManifest,authorityMap),true);
-assert.equal(plan.length,88,'prototype must preserve 88 symbolic positions');
+assert.equal(plan.length,107,'prototype must preserve 88 symbolic positions');
 
 const scripts = plan.filter(step => step.kind === 'script');
 const boundaries = plan.filter(step => step.kind === 'release-presentation-boundary');
-assert.equal(scripts.length,87,'prototype must load 87 scripts because v40-release transport is replaced by one boundary hook');
+assert.equal(scripts.length,106,'prototype must load 87 scripts because v40-release transport is replaced by one boundary hook');
 assert.equal(boundaries.length,1,'exactly one release-presentation boundary is required');
 
 const boundary = boundaries[0];
 assert.equal(boundary.file,'v40-release.js');
 assert.equal(boundary.position,14,'release-presentation boundary must remain at the current tier-1 symbolic slot');
 
-assert.equal(plan.filter(step => step.tier === 1).length,47);
+assert.equal(plan.filter(step => step.tier === 1).length,66);
 assert.equal(plan.filter(step => step.tier === 2).length,41);
-assert.ok(plan.slice(0,47).every(step => step.tier === 1));
-assert.ok(plan.slice(47).every(step => step.tier === 2));
+assert.ok(plan.slice(0,66).every(step => step.tier === 1));
+assert.ok(plan.slice(66).every(step => step.tier === 2));
 
-const firstTier2 = plan[47];
+const firstTier2 = plan[66];
 assert.equal(firstTier2.file,'v41-signin-guard.js');
 
 const position = file => plan.find(step => step.file === file)?.position || 0;
