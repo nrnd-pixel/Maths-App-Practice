@@ -5,7 +5,7 @@
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "762352a5812aabf7ea152ecff2d96a0621d8e65d4fb2632646bcec4386a89434",
+      "sourceSha256": "c30647de1d0572a4b588f94f35ba74a1a1043ee5d6c538cf18e9b62291bcaa4f",
       "entries": [
         {
           "src": "./version.js"
@@ -198,6 +198,9 @@
         },
         {
           "src": "./v59v-visual-refresh.js"
+        },
+        {
+          "src": "./v59w-engagement-boost.js"
         },
         {
           "src": "./v59n-webp-shim.js"
