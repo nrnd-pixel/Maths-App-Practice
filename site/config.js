@@ -173,6 +173,7 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v59t-protractor.js',
   './v59u-corrections-notebook.js',
   './v59v-visual-refresh.js',
+  './v59w-engagement-boost.js',
   './v59n-webp-shim.js'
 ]);
 
