@@ -305,21 +305,31 @@
     dashboard.appendChild(div);
   }
 
-  async function loadAndRenderHistory() {
-    const token = getToken();
-    if (!token || typeof cloud === 'undefined') {
-      renderHistoryPanel([]);
-      return;
+  function loadAndRenderHistoryFromDOM() {
+    // Read what v57c has already rendered — no autonomous RPC calls.
+    // v57c renders the most recent session's metadata into data attributes
+    // on the continue-learning card; use those plus any result-code links.
+    const dashboard = document.querySelector('#start .v40c3-home-dashboard');
+    if (!dashboard) return;
+
+    const sessions = [];
+
+    // Try to extract session rows from v57c's rendered recent card
+    const titleEl  = dashboard.querySelector('[data-v57c-recent-title]');
+    const metaEl   = dashboard.querySelector('[data-v57c-recent-metrics]');
+    const firstTry = dashboard.querySelector('[data-v57c-first-try]')?.textContent || '';
+    const mastery  = dashboard.querySelector('[data-v57c-mastery]')?.textContent  || '';
+    const dateEl   = dashboard.querySelector('[data-v57c-recent-date]');
+
+    if (titleEl && titleEl.textContent && !titleEl.textContent.includes('Checking')) {
+      sessions.push({
+        focus_topic: titleEl.textContent.replace(/^Continue\s*/i,'').trim() || 'Practice',
+        first_try_percent: firstTry.replace(/[^0-9]/g,'') || null,
+        mastery_percent:   mastery.replace(/[^0-9]/g,'')  || null,
+        completed_at:      dateEl?.textContent || null,
+      });
     }
-    try {
-      const { data } = await cloud.rpc('get_student_learning_dashboard', { p_access_token: token });
-      const sessions = data?.progress?.recent || [];
-      renderHistoryPanel(sessions);
-      return { sessions, streak: data?.streak };
-    } catch {
-      renderHistoryPanel([]);
-      return null;
-    }
+    renderHistoryPanel(sessions);
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -371,15 +381,39 @@
      ══════════════════════════════════════════════════════════════════════════ */
 
   let lastRefreshAt = 0;
-  async function onHomeReady() {
+  function onHomeReady() {
     const now = Date.now();
-    if (now - lastRefreshAt < 30000) return; // debounce 30s
+    if (now - lastRefreshAt < 10000) return; // debounce 10s
     lastRefreshAt = now;
 
-    const result = await loadAndRenderHistory();
+    // Render history from already-loaded DOM (no RPC)
+    loadAndRenderHistoryFromDOM();
 
-    // Return nudge: use last_qualified_day from the streak model if available
-    const lastQualified = result?.streak?.last_qualified_day || null;
+    // Return nudge: infer from the streak chip + continue card date text
+    // The streak chip text is already rendered by gamification-student.js
+    const chip = document.querySelector('.v571b-streak-chip');
+    const chipText = chip?.textContent || '';
+    // If chip says "Practise today to keep your N-day streak", last qualified was yesterday
+    // If chip says "Complete N questions", no streak — look at the date in the continue card
+    const hasActiveStreak = /\d+-day streak/i.test(chipText);
+    let lastQualified = null;
+    if (!hasActiveStreak) {
+      // Try to infer from "Saved X days ago" or "Saved N/M" text
+      const savedEl = document.querySelector('[data-v57c-recent-title]');
+      const savedText = savedEl?.textContent || '';
+      const daysMatch = savedText.match(/(\d+)\s*days?\s*ago/i);
+      if (daysMatch) {
+        const d = new Date();
+        d.setDate(d.getDate() - parseInt(daysMatch[1], 10));
+        lastQualified = d.toISOString();
+      }
+      // Also check for "yesterday"
+      if (!lastQualified && /yesterday/i.test(savedText)) {
+        const d = new Date();
+        d.setDate(d.getDate() - 1);
+        lastQualified = d.toISOString();
+      }
+    }
     renderReturnNudge(lastQualified);
   }
 
