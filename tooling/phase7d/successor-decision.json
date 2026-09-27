@@ -10,10 +10,10 @@
     "configBlob": "7307eae1b864bf05778f6daacc7a099b7b563e90",
     "releasePath": "site/v40-release.js",
     "releaseBlob": "a308df11b601bf563b56d555e9f434652e524d77",
-    "tier1Scripts": 47,
+    "tier1Scripts": 66,
     "tier2Scripts": 41,
-    "productionRuntimeScripts": 88,
-    "chronology": "47 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
+    "productionRuntimeScripts": 107,
+    "chronology": "66 ordered tier-1 scripts, then 41 ordered tier-2 scripts",
     "releaseIdentity": "derived by site/version.js from window.MATH_APP_STAGED_SCRIPTS",
     "releasePresentationOwner": "site/v40-release.js",
     "tier2TransportOwner": "site/v40-release.js"
