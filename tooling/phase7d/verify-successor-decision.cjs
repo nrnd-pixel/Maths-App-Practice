@@ -87,7 +87,7 @@ for (const [name,source] of [['Option 2A',option2a],['Option 2B',option2b],['Opt
   assert.match(source,/'site\/v40-release\.js': 'a308df11b601bf563b56d555e9f434652e524d77'/,
     `${name}: v40-release exact frozen blob must remain pinned`);
 }
-assert.match(option2c,/'site\/config\.js': '7307eae1b864bf05778f6daacc7a099b7b563e90'/,
+assert.match(option2c,/'site\/config\.js': '4de3c784640d9faf2aca3e17106ac246396894b4'/,
   'Option 2C: config exact successor must remain pinned');
 
 assert.equal(decision.dormantFallback.path,'tooling/phase7d/flat-loader-prototype.cjs');
