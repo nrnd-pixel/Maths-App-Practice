@@ -54,7 +54,7 @@
     {
       "id": "inline-flat-transport-in-config",
       "description": "Remove v40-release.js from the staged runtime and move both its release-presentation boundary and flat tier-2 transport into config.js.",
-      "productionRuntimeScripts": 106,
+      "productionRuntimeScripts": 107,
       "directRequestReduction": 1,
       "productionSiteChanges": "site/config.js plus retirement semantics for site/v40-release.js",
       "protectedBoundaryChanges": "Option 2C config exact successor, loader manifest, release-presentation ownership, chronology/seal checkpoints",
