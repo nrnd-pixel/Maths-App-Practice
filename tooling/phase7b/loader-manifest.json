@@ -147,6 +147,9 @@
         },
         {
           "src": "./v59d-streak-urgency.js"
+        },
+        {
+          "src": "./v59w-engagement-boost.js"
         }
       ]
     },
