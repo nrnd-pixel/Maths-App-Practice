@@ -5,7 +5,7 @@
   "tiers": [
     {
       "source": "site/config.js",
-      "sourceSha256": "3db458da9b426dad78c3028e385e7512072fcf0f50979916e5626db0ebc4451f",
+      "sourceSha256": "c30647de1d0572a4b588f94f35ba74a1a1043ee5d6c538cf18e9b62291bcaa4f",
       "entries": [
         {
           "src": "./version.js"
