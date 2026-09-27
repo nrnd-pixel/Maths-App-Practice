@@ -12,7 +12,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
-const EXPECTED_FROZEN_SITE_SHA256 = 'd4ffcbbdf1fdaeaf59b52977e53777384581348a77297dd99b0c815d6a73840f';
+const EXPECTED_FROZEN_SITE_SHA256 = '6c5a4b4ae7c5a1e4568beaad98f0f1449888daef1ad6ec45bd69bad3d1df85c8';
 const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
@@ -105,6 +105,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59t-protractor.js': '2ce6b5611cb9296b84eef05d1763bd144cd2cc99',
   'site/v59u-corrections-notebook.js': '8fd5ee536f25061774663c04bdc33e9245f86998',
   'site/v59v-visual-refresh.js': '4003ecac06dab7b9217a78de9ecd4f6af0dfbaec',
+  'site/v59w-engagement-boost.js': 'b3d1a3db5f7fdd3e94b16399e9d8a22ce067049d',
   'site/v59n-webp-shim.js': 'c152995087baab5590ec45cd20f992a19390e771',
   'site/images/2022_P1_Q16.webp': 'caa6ce0d305663d588954464c9a91ff8d618d27b',
   'site/images/2022_P1_Q17.webp': '87b95528ce446101907cf8a951ad21be6484328e',
