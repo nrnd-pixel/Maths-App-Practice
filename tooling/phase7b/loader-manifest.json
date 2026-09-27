@@ -11,6 +11,9 @@
           "src": "./version.js"
         },
         {
+          "src": "./v59o-observability.js"
+        },
+        {
           "src": "./v38-ai-help.js"
         },
         {
@@ -149,13 +152,64 @@
           "src": "./v59d-streak-urgency.js"
         },
         {
+          "src": "./v59e-result-next-step.js"
+        },
+        {
+          "src": "./v59f-achievements-progress.js"
+        },
+        {
+          "src": "./v59g-emoji-reaction.js"
+        },
+        {
+          "src": "./v59h-mission-preview.js"
+        },
+        {
+          "src": "./v59i-personal-best.js"
+        },
+        {
+          "src": "./v59j-challenge-share.js"
+        },
+        {
+          "src": "./v59k-dashboard-restructure.js"
+        },
+        {
+          "src": "./v59l-parent-share.js"
+        },
+        {
+          "src": "./v59m-student-polish.js"
+        },
+        {
+          "src": "./v59p-kilat-sprint.js"
+        },
+        {
+          "src": "./v59q-bar-model-tool.js"
+        },
+        {
+          "src": "./v59r-formula-sheet.js"
+        },
+        {
+          "src": "./v59s-math-keywords.js"
+        },
+        {
+          "src": "./v59t-protractor.js"
+        },
+        {
+          "src": "./v59u-corrections-notebook.js"
+        },
+        {
+          "src": "./v59v-visual-refresh.js"
+        },
+        {
           "src": "./v59w-engagement-boost.js"
+        },
+        {
+          "src": "./v59n-webp-shim.js"
         }
       ]
     },
     {
       "source": "site/v40-release.js",
-      "sourceSha256": "edc91f65cd63edf44381b8f95a4c9ed59a561477e1e691f86fc0ce431a135641",
+      "sourceSha256": "e4d9673fced0c82c09641f61c88557923340499480cfa8fce1e7db4627fed3f7",
       "entries": [
         {
           "src": "v41-signin-guard.js",
