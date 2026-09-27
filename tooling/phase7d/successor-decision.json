@@ -7,7 +7,7 @@
   "productionChangeAuthorized": false,
   "currentContract": {
     "configPath": "site/config.js",
-    "configBlob": "7307eae1b864bf05778f6daacc7a099b7b563e90",
+    "configBlob": "4de3c784640d9faf2aca3e17106ac246396894b4",
     "releasePath": "site/v40-release.js",
     "releaseBlob": "a308df11b601bf563b56d555e9f434652e524d77",
     "tier1Scripts": 66,
