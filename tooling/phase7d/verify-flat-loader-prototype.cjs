@@ -33,7 +33,7 @@ assert.equal(plan.filter(step => step.tier === 2).length,41);
 assert.ok(plan.slice(0,64).every(step => step.tier === 1));
 assert.ok(plan.slice(64).every(step => step.tier === 2));
 
-const firstTier2 = plan[58];
+const firstTier2 = plan[64];
 assert.equal(firstTier2.file,'v41-signin-guard.js');
 
 const position = file => plan.find(step => step.file === file)?.position || 0;
