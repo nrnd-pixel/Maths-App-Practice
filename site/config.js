@@ -110,6 +110,7 @@ window.MATH_APP_CONFIG = {
 /* Phase 2: the current displayed release is derived from this exact staged list. */
 const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './version.js',
+  './v59o-observability.js',
   './v38-ai-help.js',
   './v38-ai-admin.js',
   './v38-ai-polish.js',
@@ -155,7 +156,25 @@ const MATH_APP_STAGED_SCRIPTS = Object.freeze([
   './v59a-student-home-refresh.js',
   './v59b-adaptive-diagnostic-pilot-v2.js',
   './v59c-result-celebration.js',
-  './v59d-streak-urgency.js'
+  './v59d-streak-urgency.js',
+  './v59e-result-next-step.js',
+  './v59f-achievements-progress.js',
+  './v59g-emoji-reaction.js',
+  './v59h-mission-preview.js',
+  './v59i-personal-best.js',
+  './v59j-challenge-share.js',
+  './v59k-dashboard-restructure.js',
+  './v59l-parent-share.js',
+  './v59m-student-polish.js',
+  './v59p-kilat-sprint.js',
+  './v59q-bar-model-tool.js',
+  './v59r-formula-sheet.js',
+  './v59s-math-keywords.js',
+  './v59t-protractor.js',
+  './v59u-corrections-notebook.js',
+  './v59v-visual-refresh.js',
+  './v59w-engagement-boost.js',
+  './v59n-webp-shim.js'
 ]);
 
 Object.defineProperty(window,'MATH_APP_STAGED_SCRIPTS',{
