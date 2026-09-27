@@ -31,18 +31,18 @@ assert.equal(gitBlob('site/v40-release.js'),decision.currentContract.releaseBlob
 const tier1 = manifest.tiers.find(row => row.source === 'site/config.js');
 const tier2 = manifest.tiers.find(row => row.source === 'site/v40-release.js');
 assert.ok(tier1 && tier2,'accepted two-tier loader manifest must remain present');
-assert.equal(tier1.entries.length,58);
+assert.equal(tier1.entries.length,64);
 assert.equal(tier2.entries.length,41);
-assert.equal(decision.currentContract.tier1Scripts,58);
+assert.equal(decision.currentContract.tier1Scripts,64);
 assert.equal(decision.currentContract.tier2Scripts,41);
-assert.equal(decision.currentContract.productionRuntimeScripts,99);
-assert.equal(tier1.entries.length + tier2.entries.length,99);
+assert.equal(decision.currentContract.productionRuntimeScripts,105);
+assert.equal(tier1.entries.length + tier2.entries.length,105);
 
 assert.equal(authorityMap.entries.length,41,'7D-B authority map must still cover all tier-2 owners');
 
 const flatPlan = prototype.buildFlatPlan(manifest,authorityMap);
-assert.equal(flatPlan.length,99,'7D-C dormant prototype must preserve 99 symbolic positions');
-assert.equal(flatPlan.filter(step => step.kind === 'script').length,98,'7D-C dormant prototype must retain its one boundary-hook model');
+assert.equal(flatPlan.length,105,'7D-C dormant prototype must preserve 99 symbolic positions');
+assert.equal(flatPlan.filter(step => step.kind === 'script').length,104,'7D-C dormant prototype must retain its one boundary-hook model');
 assert.equal(flatPlan.filter(step => step.kind === 'release-presentation-boundary').length,1);
 
 const selected = decision.alternatives.filter(row => row.disposition === 'selected');
