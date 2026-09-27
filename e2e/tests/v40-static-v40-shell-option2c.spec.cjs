@@ -13,7 +13,7 @@ const {
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BASE_SHA = '653aec5e06e1bf1669b4c9c0cd3e91069715de45';
 const EXPECTED_FROZEN_SITE_SHA256 = 'd4ffcbbdf1fdaeaf59b52977e53777384581348a77297dd99b0c815d6a73840f';
-const EXPECTED_SUPABASE_SHA256 = '0272bb2d7ebeb2b461be56374d04bc80ad18d09b6e43c0a4bd6a31853056a093';
+const EXPECTED_SUPABASE_SHA256 = '0684a8f4f9a2e9acf193aeeedecbf7825091a8a0cf9edee1f2a2d4837a6490ec';
 const EXPECTED_SUPABASE_TREE = '19dd92c4e1f1d7c3ab9fc522d1b1cdf191afc456';
 
 const RUNTIME_SUCCESSORS = Object.freeze({
