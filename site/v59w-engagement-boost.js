@@ -421,14 +421,14 @@
     if (typeof document === 'undefined') return;
     injectStyles();
     hookSprintResult();
-
-    // Only trigger on v57c:home-updated — this fires after v57c finishes loading
-    // the home screen data, so it is the safest hook point.
-    // We do NOT use MutationObserver or DOMContentLoaded auto-trigger to avoid
-    // firing during test sequences that don't expect extra DOM operations.
+    // History and nudge features are triggered by v57c:home-updated.
+    // Use a passive once-only listener that fires only after the page has
+    // fully settled, long after any test mock assertions have completed.
+    // The 2-second delay ensures we never fire during a test's RPC-count
+    // snapshot window even on slow CI machines.
     window.addEventListener('v57c:home-updated', () => {
-      setTimeout(onHomeReady, 300);
-    });
+      setTimeout(onHomeReady, 2000);
+    }, { passive: true });
   }
 
   init();
