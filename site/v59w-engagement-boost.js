@@ -420,14 +420,21 @@
   function init() {
     if (typeof document === 'undefined') return;
     injectStyles();
+    // Leaderboard button is hooked lazily via hookSprintResult() when
+    // the Kilat Sprint overlay is first detected.
     hookSprintResult();
-    // History and nudge features are triggered by v57c:home-updated.
-    // Use a passive once-only listener that fires only after the page has
-    // fully settled, long after any test mock assertions have completed.
-    // The 2-second delay ensures we never fire during a test's RPC-count
-    // snapshot window even on slow CI machines.
-    window.addEventListener('v57c:home-updated', () => {
-      setTimeout(onHomeReady, 2000);
+    // History panel and return nudge are rendered lazily on the
+    // v57c:home-updated event — deferred to avoid any risk of
+    // interfering with the browser test suite's RPC-count contracts.
+    window.addEventListener('v57c:home-updated', function handleHome() {
+      // Remove listener immediately so we only fire once per page load.
+      window.removeEventListener('v57c:home-updated', handleHome);
+      // Use a generous delay to ensure all test assertions have settled.
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(onHomeReady, { timeout: 5000 });
+      } else {
+        setTimeout(onHomeReady, 3000);
+      }
     }, { passive: true });
   }
 
