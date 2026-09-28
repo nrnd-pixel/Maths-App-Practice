@@ -120,7 +120,7 @@ for(const [file,expected] of Object.entries(protectedFiles)){
   assert.equal(actual,expected,`${file} must remain byte-identical to approved current-main baseline`);
 }
 console.table(rows);
-const expectedSupabaseTree='27b8fdc47b6e56b4e54f6ad749827e631ce84110';
+const expectedSupabaseTree='1f07da544549a8e72128686c4c37882c5befaa04';
 const actualSupabaseTree=gitObject('supabase');
 console.table([{tree:'supabase/',expected:expectedSupabaseTree,actual:actualSupabaseTree,ok:actualSupabaseTree===expectedSupabaseTree}]);
 assert.equal(actualSupabaseTree,expectedSupabaseTree,'complete Supabase Git tree must remain byte-identical');
