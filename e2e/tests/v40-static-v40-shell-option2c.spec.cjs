@@ -105,7 +105,7 @@ const AUTHORIZED_SITE_SUCCESSORS = Object.freeze({
   'site/v59t-protractor.js': '2ce6b5611cb9296b84eef05d1763bd144cd2cc99',
   'site/v59u-corrections-notebook.js': '8fd5ee536f25061774663c04bdc33e9245f86998',
   'site/v59v-visual-refresh.js': '4003ecac06dab7b9217a78de9ecd4f6af0dfbaec',
-  'site/v59w-engagement-boost.js': '6a788cfff7ee9c81a49130587f72fff283b2d95d',
+  'site/v59w-engagement-boost.js': '9ed74071096ed4b79c7ad9c53ddb0046b0ae0369',
   'site/v59n-webp-shim.js': 'c152995087baab5590ec45cd20f992a19390e771',
   'site/images/2022_P1_Q16.webp': 'caa6ce0d305663d588954464c9a91ff8d618d27b',
   'site/images/2022_P1_Q17.webp': '87b95528ce446101907cf8a951ad21be6484328e',
