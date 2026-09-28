@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>SR Lumapas Science</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">SR LUMAPAS LEARNING</div>
+      <h1>Science</h1>
+    </div>
+    <span class="badge">V0.2 Standalone Preview</span>
+  </header>
+
+  <main class="page-shell">
+    <section id="login-view" class="card login-card" aria-labelledby="login-title">
+      <div class="hero-icon" aria-hidden="true">🔬</div>
+      <h2 id="login-title">Student sign in</h2>
+      <p class="muted">Use your Science Student ID and PIN. This preview is separate from Mathematics.</p>
+
+      <form id="login-form" novalidate>
+        <label for="student-id">Student ID</label>
+        <input id="student-id" name="student-id" autocomplete="username" autocapitalize="characters" spellcheck="false" required>
+
+        <label for="student-pin">Student PIN</label>
+        <input id="student-pin" name="student-pin" type="password" inputmode="numeric" autocomplete="current-password" pattern="[0-9]{4,8}" maxlength="8" required>
+
+        <button id="login-button" class="primary" type="submit">Sign in to Science</button>
+        <p id="login-status" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="home-view" class="hidden" aria-live="polite">
+      <div class="student-bar card">
+        <div>
+          <div class="eyebrow">SIGNED IN</div>
+          <strong id="student-name">Student</strong>
+          <div id="student-meta" class="muted small"></div>
+        </div>
+        <button id="logout-button" class="secondary" type="button">Log out</button>
+      </div>
+
+      <section id="catalog-view">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">MY SCIENCE</div>
+            <h2>Choose a lesson</h2>
+          </div>
+          <span id="catalog-status" class="muted small"></span>
+        </div>
+        <div id="lesson-list" class="lesson-grid"></div>
+      </section>
+
+      <section id="lesson-view" class="hidden">
+        <button id="back-button" class="back-link" type="button">← Back to lessons</button>
+        <article id="lesson-content" class="lesson-page"></article>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">Science V0.2 development preview · Separate Science Dev database</footer>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
