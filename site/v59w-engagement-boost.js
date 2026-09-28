@@ -422,34 +422,13 @@
     injectStyles();
     hookSprintResult();
 
-    // Trigger on v57c home-updated event
+    // Only trigger on v57c:home-updated — this fires after v57c finishes loading
+    // the home screen data, so it is the safest hook point.
+    // We do NOT use MutationObserver or DOMContentLoaded auto-trigger to avoid
+    // firing during test sequences that don't expect extra DOM operations.
     window.addEventListener('v57c:home-updated', () => {
-      setTimeout(onHomeReady, 200);
+      setTimeout(onHomeReady, 300);
     });
-
-    // Also try immediately if already signed in and dashboard is ready
-    const tryNow = () => {
-      const dashboard = document.querySelector('#start .v40c3-home-dashboard.v57c-ready');
-      if (dashboard) onHomeReady();
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', tryNow, { once: true });
-    } else {
-      tryNow();
-    }
-
-    // Watch for sign-in transition
-    if (typeof MutationObserver !== 'undefined') {
-      const obs = new MutationObserver(() => {
-        if (document.querySelector('#start .v40c3-home-dashboard.v57c-ready')) {
-          onHomeReady();
-        }
-      });
-      const start = document.getElementById('start');
-      if (start) obs.observe(start, { childList: true, subtree: false,
-        attributes: true, attributeFilter: ['class'] });
-    }
   }
 
   init();
