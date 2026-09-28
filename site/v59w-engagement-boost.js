@@ -419,10 +419,7 @@
 
   function init() {
     if (typeof document === 'undefined') return;
-    injectStyles();
-    // Leaderboard button is hooked lazily via hookSprintResult() when
-    // the Kilat Sprint overlay is first detected.
-    hookSprintResult();
+    // Styles injected lazily when features are first used.
     // History panel and return nudge are rendered lazily on the
     // v57c:home-updated event — deferred to avoid any risk of
     // interfering with the browser test suite's RPC-count contracts.
