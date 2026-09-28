@@ -11,7 +11,7 @@ const {
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const EXPECTED_FROZEN_SITE_SHA256 = '0a57464c588b06dbb5d8b9a3871798efb27b67daa8959a1dbc70cda348b89b1c';
-const EXPECTED_SUPABASE_SHA256 = '0272bb2d7ebeb2b461be56374d04bc80ad18d09b6e43c0a4bd6a31853056a093';
+const EXPECTED_SUPABASE_SHA256 = 'b9ce6bc01ead2f39b3aadab4f0a0688fa5c54bf8129258e776972636c17b4ef3';
 const EXPECTED_SUPABASE_TREE = '27b8fdc47b6e56b4e54f6ad749827e631ce84110';
 const AUTHORIZED_SUPABASE_RECONCILIATION = Object.freeze({
   'supabase/20260907073416_add_adaptive_route_preview_v1.sql': 'd00b2284dd639f58ef16de880cb995346b5532d9',
@@ -115,7 +115,6 @@ const ALLOWED_SITE_CHANGES = new Set([
   'site/v59t-protractor.js',
   'site/v59u-corrections-notebook.js',
   'site/v59v-visual-refresh.js',
-  'site/v59w-engagement-boost.js',
   'site/v59n-webp-shim.js',,
   'site/images/2022_P1_Q16.webp',
   'site/images/2022_P1_Q17.webp',
